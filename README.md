@@ -1,0 +1,38 @@
+## About This Project
+
+# <a href="https://alphablog.dev>" target="_blank">Alpha Blog</a>
+
+MongoDB is used as the database in this blog system prepared with Laravel. The in-site search engine is provided by Meilisearch.
+
+In order for Laravel to work with MongoDB, the official "mongodb/laravel-mongodb" package prepared by MongoDB was added to this project. In addition, Meilisearch integration was made compatible with MongoDB for the system to work correctly.
+
+Adding images to blog or page content and sizing them was done with Spatie Media Library, but this package was not compatible with MongoDB. To make it compatible, I forked the spatie/laravel-medialibrary repo to my own github account and included it in this project with composer after making the necessary edits.
+
+#### For this system to work, the following PHP functions must not be disabled on the server:
+
+``escapeshellarg, escapeshellcmd, proc_open, proc_get_status, proc_close ``
+
+### For installation after git clone process
+
+``composer update --no-dev``
+
+``cp .env.example .env``
+
+Edit the .env file for database information, Meilisearch, Email SMTP and Cloudflare Turnstile (similar to Google Recaptcha) definitions
+
+``php artisan key:generate``
+
+``php artisan storage:link``
+
+``php artisan migrate``
+
+#### After all this, if you want, you can change the admin panel path from the ADMIN_PANEL_PATH variable in the .env file
+
+``php artisan optimize``
+
+To create a user after these operations
+
+``php artisan app:create-user``
+
+## Features
+

@@ -1,0 +1,41 @@
+<?php
+return [
+    'name' => 'Kategori Adı',
+    'sort' => 'Sıralama',
+    'slug' => 'Slug',
+    'image' => 'Resim',
+    'meta_description' => 'Meta Açıklama',
+    'meta_keywords' => 'Meta Anahtar Kelimeler',
+    'parent_id' => 'Üst Kategori',
+    'parent_id_help' => 'Üst kategori seçmek istemiyorsanız boş bırakın',
+    'parent_id_placeholder' => 'Üst kategori seçiniz',
+    'name_placeholder' => 'Kategori adı giriniz',
+    'sort_placeholder' => 'Kategori sıralaması giriniz',
+    'slug_placeholder' => 'Kategori slug giriniz',
+    'image_placeholder' => 'Kategori resmi seçiniz',
+    'meta_description_placeholder' => 'Kategori meta açıklaması giriniz',
+    'meta_keywords_placeholder' => 'Kategori meta anahtar kelimeleri giriniz',
+    'create' => 'Kategori Ekle',
+    'edit' => 'Kategori Düzenle',
+    'delete' => 'Kategori Sil',
+    'update' => 'Kategori Güncelle',
+    'success' => 'Kategori başarıyla eklendi',
+    'success_update' => 'Kategori başarıyla güncellendi',
+    'success_delete' => 'Kategori başarıyla silindi',
+    'error' => 'Kategori eklenirken bir hata oluştu',
+    'error_update' => 'Kategori güncellenirken bir hata oluştu',
+    'error_delete' => 'Kategori silinirken bir hata oluştu',
+    'error_not_found' => 'Kategori bulunamadı',
+    'delete_confirm' => 'Kategoriyi silmek istediğinize emin misiniz?',
+
+    'categories' => 'Kategoriler',
+
+    'request' => [
+        'name_required' => 'Kategori adı zorunludur.',
+        'slug_required' => 'Kategori slugı zorunludur.',
+        'slug_unique' => 'Kategori slugı benzersiz olmalıdır.',
+        'meta_description_string' => 'Meta açıklaması metin tipinde olmalıdır.',
+        'meta_keywords_string' => 'Meta anahtar kelimeleri metin tipinde olmalıdır.',
+    ],
+    'page_url' => 'kategoriler'
+];
