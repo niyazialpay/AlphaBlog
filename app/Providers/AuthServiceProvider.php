@@ -2,7 +2,15 @@
 
 namespace App\Providers;
 
-// use Illuminate\Support\Facades\Gate;
+use App\Models\Categories;
+use App\Models\Comments;
+use App\Models\PersonalNotes;
+use App\Models\Posts;
+use App\Models\User;
+use App\Policies\CommentPolicy;
+use App\Policies\PersonalNotesPolicy;
+use App\Policies\PostPolicy;
+use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -13,7 +21,11 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        //
+        PersonalNotes::class    =>  PersonalNotesPolicy::class,
+        User::class             =>  UserPolicy::class,
+        Posts::class            =>  PostPolicy::class,
+        Comments::class         =>  CommentPolicy::class,
+        Categories::class       =>  PostPolicy::class,
     ];
 
     /**
@@ -21,6 +33,6 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        $this->registerPolicies();
     }
 }

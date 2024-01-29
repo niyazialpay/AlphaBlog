@@ -82,7 +82,13 @@ class CommentController extends Controller
     }
 
     public function save(Comments $comment, CommentRequest $request){
-        if(auth()->check() && !$comment->id){
+        if(auth()->check() && !$comment->id &&
+            (
+                auth()->user()->can('admin', auth()->user()) ||
+                auth()->user()->can('owner', auth()->user()) ||
+                auth()->user()->can('editor', auth()->user())
+            )
+        ){
             $comment->is_approved = true;
             $comment->ip_address = $request->getClientIp();
             $comment->user_agent = $request->userAgent();

@@ -1,5 +1,6 @@
 <?php
 return [
+    'users' => 'Kullanıcılar',
     'name' => 'İsim',
     'surname' => 'Soyisim',
     'email' => 'E-posta',
@@ -36,4 +37,13 @@ return [
     'are_you_sure' => 'Çıkış yapmak istediğinize emin misiniz?',
 
     'change_password' => 'Parola Değiştir',
+    'role' => 'Rol',
+    'role_admin' => 'Yönetici',
+    'role_user' => 'Kullanıcı',
+    'role_author' => 'Yazar',
+    'role_editor' => 'Editör',
+    'no_user' => 'Kullanıcı bulunamadı!',
+    'new_user' => 'Yeni Kullanıcı',
+    'user_deleted' => 'Kullanıcı silindi!',
+    'something_wrong' => 'Bir şeyler ters gitti!',
 ];

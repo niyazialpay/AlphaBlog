@@ -1,10 +1,10 @@
 @extends('panel.base')
-@section('title',"Blog")
+@section('title', __('redirects.redirects'))
 @section('breadcrumb_link')
     <ol class="breadcrumb float-sm-right">
         <li class="breadcrumb-item"><a href="{{route('admin.index')}}">@lang('dashboard.dashboard')</a></li>
         <li class="breadcrumb-item active">
-            Routes
+            @lang('redirects.redirects')
         </li>
     </ol>
 @endsection
@@ -12,7 +12,7 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                Routes
+                @lang('redirects.redirects')
             </div>
             <div class="card-body">
                 <a href="javascript:addRoute()" class="mb-5"><button class="btn btn-default"><i class="fas fa-file-word"></i></button></a>
@@ -51,13 +51,13 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteRouteLabel">@lang('routes.delete_confirmation_title')</h5>
+                    <h5 class="modal-title" id="deleteRouteLabel">@lang('redirects.delete_confirmation_title')</h5>
                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    @lang('routes.delete_confirmation_message')
+                    @lang('redirects.delete_confirmation_message')
                     <div><i id="deleting_item"></i></div>
                     <form id="delete_route" action="javascript:void(0)">
                         @csrf
@@ -85,15 +85,15 @@
                     <form id="add_edit_route" action="javascript:void(0)">
                         @csrf
                         <div class="form-group">
-                            <label for="old_url">@lang('routes.old_url')</label>
-                            <input type="text" class="form-control" id="old_url" name="old_url" placeholder="@lang('routes.old_url')" required>
+                            <label for="old_url">@lang('redirects.old_url')</label>
+                            <input type="text" class="form-control" id="old_url" name="old_url" placeholder="@lang('redirects.old_url')" required>
                         </div>
                         <div class="form-group">
-                            <label for="new_url">@lang('routes.new_url')</label>
-                            <input type="text" class="form-control" id="new_url" name="new_url" placeholder="@lang('routes.new_url')" required>
+                            <label for="new_url">@lang('redirects.new_url')</label>
+                            <input type="text" class="form-control" id="new_url" name="new_url" placeholder="@lang('redirects.new_url')" required>
                         </div>
                         <div class="form-group">
-                            <label for="redirect_code">@lang('routes.redirect_code')</label>
+                            <label for="redirect_code">@lang('redirects.redirect_code')</label>
                             <select name="redirect_code" id="redirect_code" class="form-select form-control">
                                 <option value="301">301</option>
                                 <option value="302">302</option>
@@ -125,12 +125,12 @@
         function addRoute() {
             $('#add_edit_route').trigger('reset');
             $('#add_edit_route_id').val('');
-            $('#addEditRouteLabel').html('@lang('routes.add_route')');
+            $('#addEditRouteLabel').html('@lang('redirects.add_route')');
             $('#addEditRoute').modal('show');
         }
 
         function editRoute(id) {
-            $('#addEditRouteLabel').html('@lang('routes.edit_route')');
+            $('#addEditRouteLabel').html('@lang('redirects.edit_route')');
 
             $.ajax({
                 url: '{{route('adminRoutesShow')}}/' + id,

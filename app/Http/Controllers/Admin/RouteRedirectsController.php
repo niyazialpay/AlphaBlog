@@ -4,32 +4,32 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RouteRequest;
-use App\Models\Routes;
+use App\Models\RouteRedirects;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class RoutesController extends Controller
+class RouteRedirectsController extends Controller
 {
-    function index(): Application|Factory|View
+    public function index(): Application|Factory|View
     {
-        return view('panel/routes', ['routes' => Routes::paginate(10)]);
+        return view('panel/redirects', ['routes' => RouteRedirects::paginate(10)]);
     }
 
-    function show(Routes $route): JsonResponse
+    public function show(RouteRedirects $route): JsonResponse
     {
         return response()->json($route);
     }
 
-    function delete(Request $request){
-        $route = Routes::find($request->post('route_id'));
+    public function delete(Request $request){
+        $route = RouteRedirects::find($request->post('route_id'));
         $route->delete();
         return response()->json(['success' => true]);
     }
 
-    public function save(Routes $route, RouteRequest $request){
+    public function save(RouteRedirects $route, RouteRequest $request){
         $route->old_url = $request->post('old_url');
         $route->new_url = $request->post('new_url');
         $route->redirect_code = $request->post('redirect_code');

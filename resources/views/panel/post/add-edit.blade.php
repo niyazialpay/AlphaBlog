@@ -1,5 +1,10 @@
 @extends('panel.base')
-@section('title',"Blog")
+@if($type == 'blogs')
+    @section('title',__('post.blogs'))
+@else
+    @section('title',__('post.pages'))
+@endif
+
 @section('breadcrumb_link')
     <ol class="breadcrumb float-sm-right">
         <li class="breadcrumb-item"><a href="{{route('admin.index')}}">@lang('dashboard.dashboard')</a></li>
@@ -16,7 +21,13 @@
 @section('content')
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">Blog</h3>
+            <h3 class="card-title">
+                @if($type == 'blogs')
+                    @lang('post.blogs')
+                @else
+                    @lang('post.pages')
+                @endif
+            </h3>
         </div>
         <div class="card-body">
             <form class="row" method="POST" id="blogSave" enctype="multipart/form-data" action="javascript:void(0)">
@@ -56,7 +67,7 @@
                 <div class="col-12 mb-3">
                     <label for="content">@lang('post.content')</label>
                     <textarea name="content" id="content" class="form-control"
-                              placeholder="@lang('post.content')">{{stripslashes($post->content)}}</textarea>
+                              placeholder="@lang('post.content')">{!! stripslashes($post->content) !!}</textarea>
                 </div>
                 <div class="col-12 mb-3">
                     <label for="meta_keywords">@lang('post.meta_keywords')</label>
@@ -288,7 +299,12 @@
         }
     </style>
     <script>
-        let post_url = '{{route('admin.post.save', [$type, $post])}}';
+        let post_url;
+        @if($post->id)
+            post_url = '{{route('admin.post.update', [$type, $post])}}';
+        @else
+            post_url = '{{route('admin.post.save', [$type])}}';
+        @endif
 
         function imageDelete(image_id) {
             Swal.fire({
@@ -381,7 +397,7 @@
 
                     resolve(json.location);
 
-                    post_url = '{{route('admin.post.save', $type)}}/' + json.blog_id;
+                    post_url = '{{route('admin.post.create', $type)}}/' + json.blog_id;
                 };
 
                 xhr.onerror = () => {
@@ -397,7 +413,7 @@
 
             tinymce.init({
                 selector: 'textarea#content',  // change this value according to your HTML
-                language: 'tr',
+                language: '{{$default_language->code}}',
                 branding: false,
                 //skin: (window.matchMedia("(prefers-color-scheme: dark)").matches ? "oxide-dark" : ""),
                 //content_css: (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : ""),

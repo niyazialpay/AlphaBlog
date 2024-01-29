@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Routes;
+use App\Models\RouteRedirects;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -24,14 +24,16 @@ class RouteRedirect
         }
         else{
             $route = Cache::rememberForever(config('cache.prefix').'route_'.Str::slug($request->path()), function()use($route_path){
-                return Routes::where('old_url', $route_path)->first();
+                return RouteRedirects::where('old_url', $route_path)->first();
             });
         }
         if ($route) {
-            if($route->redirect_code == 404)
+            if($route->redirect_code == 404) {
                 abort(404);
-            else
+            }
+            else{
                 return redirect($route->new_url, (int)$route->redirect_code);
+            }
         }
         return $next($request);
     }

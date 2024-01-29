@@ -72,6 +72,7 @@
                                     <th scope="col">@lang('post.category')</th>
                                     @endif
                                     <th scope="col" class="text-center">@lang('post.media')</th>
+                                    <th scope="col" class="text-center">@lang('user.username')</th>
                                     <th scope="col" class="text-center">@lang('general.created_at')</th>
                                     <th scope="col" class="text-center">@lang('general.updated_at')</th>
                                     <th scope="col">@lang('general.actions')</th>
@@ -111,6 +112,9 @@
                                             </a>
                                         </td>
                                         <td class="text-center">
+                                            {{$post->user->username}}
+                                        </td>
+                                        <td class="text-center">
                                             {{dateformat($post->created_at, format: 'd M. Y D. H:i:s', timezone: config('app.timezone'), locale: session('language'))}}
                                         </td>
                                         <td class="text-center">
@@ -133,7 +137,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td @if($type == 'blogs') colspan="6" @else colspan="5" @endif style="text-align: center">
+                                        <td @if($type == 'blogs') colspan="7" @else colspan="6" @endif style="text-align: center">
                                             @lang('post.no_posts_found')
                                         </td>
                                     </tr>
@@ -146,6 +150,7 @@
                                     <th scope="col">@lang('post.category')</th>
                                     @endif
                                     <th scope="col" class="text-center">@lang('post.media')</th>
+                                    <th scope="col" class="text-center">@lang('user.username')</th>
                                     <th scope="col" class="text-center">@lang('general.created_at')</th>
                                     <th scope="col" class="text-center">@lang('general.updated_at')</th>
                                     <th scope="col">@lang('general.actions')</th>

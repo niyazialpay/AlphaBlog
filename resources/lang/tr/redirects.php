@@ -15,4 +15,5 @@ return [
     'delete_confirmation_title' => 'Yönlendirmeyi Sil',
     'edit_route' => 'Yönlendirmeyi Düzenle',
     'add_route' => 'Yönlendirme Ekle',
+    'redirects' => 'Yönlendirmeler',
 ];

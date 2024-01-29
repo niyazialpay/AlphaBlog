@@ -13,9 +13,18 @@ return new class extends Migration
     {
         Schema::create('social_networks', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('url');
-            $table->string('icon');
+            $table->string('linkedin');
+            $table->string('github');
+            $table->string('instagram');
+            $table->string('x');
+            $table->string('facebook');
+            $table->string('devto');
+            $table->string('medium');
+            $table->string('youtube');
+            $table->string('reddit');
+            $table->string('xbox');
+            $table->string('deviantart');
+            $table->string('website');
             $table->enum('type', ['user', 'website']);
             $table->id('user_id')->index();
             $table->foreign('user_id')->references('_id')->on('users')->onDelete('cascade');

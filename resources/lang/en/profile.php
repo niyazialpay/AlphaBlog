@@ -53,6 +53,8 @@ return [
     'surname.string' => 'Surname must be string',
     'nickname.string' => 'Nickname must be string',
     'email.string' => 'Email must be string',
+    'email.email' => 'Email must be valid email address',
+    'email.unique' => 'Email must be unique',
     'name.max' => 'Name must be max 255 characters',
     'surname.max' => 'Surname must be max 255 characters',
     'nickname.max' => 'Nickname must be max 255 characters',

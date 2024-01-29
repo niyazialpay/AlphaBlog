@@ -29,12 +29,12 @@ function replace_characters($text): array|string|null
     return preg_replace("/([^\p{Latin}A-Za-z0-9\"', ._@öÖçÇşŞğĞüÜıİА-Яа-яЁё|₺€$\p{Cyrillic}-])/um", "", $text);
 }
 
-function GetPost($t): array|string|null
+function GetPost($request): array|string|null
 {
-    if (is_array($t)) {
-        return addslashes(strip_tags($t[0]));
+    if (is_array($request)) {
+        return addslashes(strip_tags($request[0]));
     } else
-        return addslashes(strip_tags($t));
+        return addslashes(strip_tags($request));
 }
 
 function content($content): string

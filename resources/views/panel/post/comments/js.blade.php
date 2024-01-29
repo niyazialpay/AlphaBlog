@@ -19,7 +19,8 @@
     }
 </style>
 <script>
-    let comment_save_url = '{{route('admin.post.comments.save')}}';
+    let comment_save_url = '{{route('admin.post.comments.create')}}';
+
     function ApproveComment(id, approve = true){
         let post_link = '{{route('admin.post.comments')}}/' + id;
         let message;
@@ -161,7 +162,7 @@
                 $('#post_id').val(response.post_id);
                 $('#created_date').val(moment(response.created_at).format("YYYY-MM-DD HH:mm"));
                 $('#commentModal').modal('show');
-                comment_save_url = '{{route('admin.post.comments.save')}}/'+id;
+                comment_save_url = '{{route('admin.post.comments.create')}}/'+id;
             },
             error: function (xhr) {
                 Swal.fire({
@@ -181,7 +182,7 @@
         $('#comment_email_input').hide();
         $('#user_select_input').show();
         $('#commentModal').modal('show');
-        comment_save_url = '{{route('admin.post.comments.save')}}';
+        comment_save_url = '{{route('admin.post.comments.create')}}';
     }
 
     $(document).ready(function(){

@@ -1,5 +1,6 @@
 <?php
 return [
+    'users' => 'Users',
     'name' => 'Name',
     'surname' => 'Surname',
     'email' => 'Email',
@@ -36,4 +37,13 @@ return [
     'are_you_sure' => 'Are you sure you want to log out?',
 
     'change_password' => 'Change Password',
+    'role' => 'Role',
+    'role_admin' => 'Admin',
+    'role_user' => 'User',
+    'role_author' => 'Author',
+    'role_editor' => 'Editor',
+    'no_user' => 'No user found!',
+    'new_user' => 'New User',
+    'user_deleted' => 'User deleted!',
+    'something_wrong' => 'Something went wrong!',
 ];

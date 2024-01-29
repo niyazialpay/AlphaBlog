@@ -11,11 +11,20 @@ class SocialNetworks extends Model
     protected $collection = 'social_networks';
 
     protected $fillable = [
-        'name',
-        'url',
-        'icon',
         'type',
         'user_id',
+        'linkedin',
+        'facebook',
+        'x',
+        'instagram',
+        'github',
+        'devto',
+        'medium',
+        'youtube',
+        'reddit',
+        'xbox',
+        'deviantart',
+        'website'
     ];
 
     public function user(): BelongsTo

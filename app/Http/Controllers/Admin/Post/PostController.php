@@ -49,6 +49,9 @@ class PostController extends Controller
                 $query->with($with);
             })->where('post_type', $post_type);
         }
+        if(!(auth()->user()->role == 'owner' || auth()->user()->role == 'admin' || auth()->user()->role == 'editor')){
+            $posts = $posts->where('user_id', auth()->user()->id);
+        }
         return view('panel.post.index', [
             'posts' => $posts->where('language', GetPost($request->get('language')))->paginate(10),
             'trashed' => $post::onlyTrashed()->where('language', GetPost($request->get('language')))->paginate(10),
@@ -58,7 +61,8 @@ class PostController extends Controller
 
     public function create(
                 $type,
-        Posts   $post
+        Posts   $post,
+
     ): View|Application|Factory|\Illuminate\Contracts\Foundation\Application
     {
         if(!($type == 'pages' || $type == 'blogs')){
@@ -77,8 +81,7 @@ class PostController extends Controller
             'post' => $post,
             'categories' => Categories::all(),
             'users' => User::all(),
-            'type' => $type,
-            //'comments' => $comments,
+            'type' => $type
         ]);
     }
 
@@ -93,16 +96,6 @@ class PostController extends Controller
         Posts       $post
     ): JsonResponse
     {
-        if($type == 'pages'){
-            $post_type = 'page';
-        }
-        elseif($type == 'blogs'){
-            $post_type = 'post';
-        }
-        else{
-            abort(404);
-        }
-
         if ($post->id) {
             $message = __('post.success_update');
             $post->created_at = dateformat($request->post('published_at'), 'Y-m-d H:i:s', config('app.timezone'));
@@ -136,7 +129,7 @@ class PostController extends Controller
         $post->href_lang = $hreflang;
 
         if ($post->save()) {
-            if($post_type == 'post') {
+            if($request->post('post_type') == 'post') {
                 $post->categories()->sync($request->post('category_id'));
             }
             return response()->json(['status' => 'success', 'message' => $message, 'id' => $post->id]);
@@ -203,6 +196,39 @@ class PostController extends Controller
         return view('panel.post.media', [
             'post' => $post,
             'type' => $type,
+        ]);
+    }
+
+    /**
+     * @throws FileDoesNotExist
+     * @throws FileIsTooBig
+     */
+    public function editorImageUpload($type, Posts $post, Request $request)
+    {
+        if(!$post->_id){
+            $post->title="draft";
+            $post->language=$request->post('language');
+            $post->save();
+        }
+
+        if($request->hasFile('file') && $request->file('file')->isValid()){
+            $post->addMediaFromRequest('file')->toMediaCollection('content_images');
+        }
+        return response()->json([
+            'success' => true,
+            'blog_id' => $post->id,
+            'location' => $post->getMedia('content_images')->last()->getFullUrl('resized'),
+        ]);
+    }
+
+    /**
+     * @throws MediaCannotBeDeleted
+     */
+    public function postImageDelete($type, Posts $post, Request $request)
+    {
+        $post->deleteMedia($request->post('media_id'));
+        return response()->json([
+            'success' => true,
         ]);
     }
 }

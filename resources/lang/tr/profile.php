@@ -53,6 +53,8 @@ return [
     'surname.string' => 'Soyad metin olmalıdır',
     'nickname.string' => 'Takma ad metin olmalıdır',
     'email.string' => 'E-posta metin olmalıdır',
+    'email.email' => 'E-posta geçerli bir e-posta adresi olmalıdır',
+    'email.unique' => 'E-posta benzersiz olmalıdır',
     'name.max' => 'Ad en fazla 255 karakter olmalıdır',
     'surname.max' => 'Soyad en fazla 255 karakter olmalıdır',
     'nickname.max' => 'Takma ad en fazla 255 karakter olmalıdır',

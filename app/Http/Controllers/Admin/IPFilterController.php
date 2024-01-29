@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\IPFilterRequest;
+use App\Http\Requests\IPFilter\IPFilterRequest;
 use App\Models\IPFilter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 
 class IPFilterController extends Controller
 {
