@@ -19,6 +19,7 @@ return new class extends Migration
             $table->text('content')->nullable();
             $table->foreign('post_id')->references('_id')->on('posts')->onDelete('cascade');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

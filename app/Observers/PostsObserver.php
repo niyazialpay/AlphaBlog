@@ -15,6 +15,7 @@ class PostsObserver
             'title' => $original['title'],
             'content' => $original['content'],
             'slug' => $original['slug'],
+            'user_id' => $original['user_id'],
         ]);
     }
 

@@ -8,6 +8,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use MongoDB\Laravel\Relations\HasMany;
+use MongoDB\Laravel\Relations\HasOne;
 
 class User extends Authenticatable
 {
@@ -30,10 +31,10 @@ class User extends Authenticatable
         'otp',
         'location',
         'about',
-        'website',
         'education',
         'job_title',
-        'skills'
+        'skills',
+        'role'
 
     ];
 
@@ -49,7 +50,8 @@ class User extends Authenticatable
     ];
 
     protected $attributes = [
-        'otp' => false
+        'otp' => false,
+        'role' => 'user'
     ];
 
     /**
@@ -62,23 +64,13 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function confirmTwoFactorAuth($code): bool
-    {
-        $codeIsValid = app(TwoFactorAuthenticationProvider::class)
-            ->verify(decrypt($this->two_factor_secret), $code);
-
-        if ($codeIsValid) {
-            $this->two_factor_confirmed = true;
-            $this->save();
-
-            return true;
-        }
-
-        return false;
-    }
-
     public function notes(): HasMany
     {
         return $this->hasMany(PersonalNotes::class, 'user_id', '_id');
+    }
+
+    public function social(): HasOne
+    {
+        return $this->hasOne(SocialNetworks::class, 'user_id', '_id');
     }
 }

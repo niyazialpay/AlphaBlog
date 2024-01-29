@@ -15,4 +15,5 @@ return [
     'delete_confirmation_title' => 'Delete Route',
     'edit_route' => 'Edit Route',
     'add_route' => 'Add Route',
+    'redirects' => 'Redirects',
 ];

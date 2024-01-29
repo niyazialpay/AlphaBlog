@@ -69,6 +69,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'ip_filter' => \App\Http\Middleware\IpFilter::class,
         'merge_post_type' => \App\Http\Middleware\MergePostTypeToRequest::class,
+        'check_post_type' => \App\Http\Middleware\CheckPostType::class,
         'honeypot' => \Spatie\Honeypot\ProtectAgainstSpam::class,
         'cloudflare_turnstile' => \App\Http\Middleware\CloudflareTurnstile::class,
     ];

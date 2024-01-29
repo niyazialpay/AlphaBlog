@@ -93,17 +93,17 @@ class Posts extends Model implements HasMedia
         $this->addMediaConversion('resized')
             ->width(1920)
             ->height(1080)
-            ->sharpen(10)
-            ->nonOptimized();
+            //->sharpen(10)
+            ->nonOptimized()->keepOriginalImageFormat();
         $this->addMediaConversion('cover')
             ->width(850)
             ->height(480)
-            ->sharpen(10)
-            ->nonOptimized();
+            //->sharpen(10)
+            ->nonOptimized()->keepOriginalImageFormat();
         $this->addMediaConversion('thumb')
             ->width(365)
             ->height(200)
-            ->sharpen(10)
-            ->nonOptimized();
+            //->sharpen(10)
+            ->nonOptimized()->keepOriginalImageFormat();
     }
 }

@@ -33,11 +33,20 @@
                             <li id="{{$media->id}}" data-src="{{$media->getUrl()}}">
                                 <figure class="mediaPhoto blue">
                                     <img src="{{$media->getUrl()}}" width="250" alt="{{$post->title}}">
-                                    <a data-fancybox="galeri" href="{{$media->getUrl()}}" title="{{$post->title}}">
-                                        <i class="fas fa-search open"></i>
+                                    <a href="javascript:CopyToClipboard('{{$media->getUrl()}}');"
+                                       data-bs-toggle="tooltip" data-bs-placement="top"
+                                       data-bs-title="@lang('media.copy_to_clipboard')">
+                                        <i class="fa-duotone fa-clipboard clipboard"></i>
                                     </a>
-                                    <a href="javascript:imageDelete('{{$media->id}}');">
-                                        <i class="fas fa-trash delete"></i>
+                                    <a data-fancybox="galeri" href="{{$media->getUrl()}}"
+                                       data-bs-toggle="tooltip" data-bs-placement="top"
+                                       data-bs-title="@lang('media.show')">
+                                        <i class="fa-duotone fa-magnifying-glass open"></i>
+                                    </a>
+                                    <a href="javascript:imageDelete('{{$media->id}}');"
+                                       data-bs-toggle="tooltip" data-bs-placement="top"
+                                       data-bs-title="@lang('general.delete')">
+                                        <i class="fa-duotone fa-trash delete"></i>
                                     </a>
                                 </figure>
                             </li>
@@ -112,6 +121,10 @@
                 }
             );
         }
+        function CopyToClipboard(media_url){
+            navigator.clipboard.writeText(media_url);
+            toastr.success('@lang('media.url_copied')');
+        }
     </script>
     <style>
         #media {
@@ -163,10 +176,13 @@
             opacity: 1;
         }
         figure.mediaPhoto i.open {
-            left: 33%;
+            left: 20%;
         }
         figure.mediaPhoto i.delete {
-            left: 66%;
+            left: 50%;
+        }
+        figure.mediaPhoto i.clipboard{
+            left: 80%
         }
         figure.mediaPhoto i {
             position: absolute;

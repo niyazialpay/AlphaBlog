@@ -24,7 +24,7 @@ class PersonalNotes extends Model implements HasMedia
 
     protected $casts = [
         'title' => 'string',
-        'content' => 'string|encrypted',
+        'content' => 'encrypted',
         'user_id' => 'string',
     ];
 
@@ -41,9 +41,7 @@ class PersonalNotes extends Model implements HasMedia
     public function toSearchableArray(): array
     {
         $array = $this->toArray();
-        $array['user'] = $this->user?->name. ' ' . $this->user?->surname;
-        $array['username'] = $this->user?->username;
-        $array['user_email'] = $this->user?->email;
+        $array['user_id'] = $this->user->_id;
         $array["title"] = $this->title;
         $array["created_at"] = $this->created_at;
         $array["updated_at"] = $this->updated_at;

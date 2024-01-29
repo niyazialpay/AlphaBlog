@@ -23,10 +23,10 @@ return new class extends Migration
             $table->boolean('otp')->default(false);
             $table->string('location')->nullable();
             $table->string('about')->nullable();
-            $table->string('website')->nullable();
             $table->string('education')->nullable();
             $table->string('job_title')->nullable();
             $table->string('skills')->nullable();
+            $table->enum('role', ['user', 'admin', 'author', 'editor'])->default('user');
             $table->rememberToken();
             $table->timestamps();
         });

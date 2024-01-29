@@ -20,10 +20,13 @@ class MergePostTypeToRequest
                 'post_type' => 'page',
             ]);
         }
-        else{
+        elseif($request->route()->parameter('type') == 'blogs'){
             $request->merge([
                 'post_type' => 'post',
             ]);
+        }
+        else{
+            abort(404);
         }
 
         return $next($request);
