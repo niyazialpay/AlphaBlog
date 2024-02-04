@@ -33,4 +33,5 @@ return [
     'yes' => 'Evet',
     'no' => 'Hayır',
     'ok' => 'Tamam',
+    'close' => 'Kapat',
 ];

@@ -11,28 +11,38 @@
 @endsection
 @section('content')
     <div class="card">
-        <div class="card-header d-flex">
-            <h3 class="card-title">
-                Notes
-            </h3>
-            <div class="ml-auto">
-                <a href="{{route('admin.notes.create')}}"
-                   class="btn btn-default"
-                   data-bs-toggle="tooltip" data-bs-placement="top"
-                   title="@lang('general.new')">
-                    <i class="fa-duotone fa-comment-plus"></i>
-                    @lang('general.new')
-                </a>
+        <div class="card-header">
+            <div class="d-flex">
+                <h3 class="card-title">
+                    Notes
+                </h3>
+                <div class="ml-auto">
+                    <a href="{{route('admin.notes.create')}}"
+                       class="btn btn-outline-primary"
+                       data-bs-toggle="tooltip" data-bs-placement="top"
+                       title="@lang('general.new')">
+                        <i class="fa-duotone fa-comment-plus"></i>
+                        @lang('general.new')
+                    </a>
+                </div>
             </div>
+            <p class="d-block bg-warning text-center my-2 p-2 rounded text-danger">
+                @lang('notes.encrypted_note')
+            </p>
         </div>
         <div class="card-body table-responsive">
-            <table class="table table-striped">
+            <p class="text-center mt-2">
+                <a href="javascript:$('#encryption_key_modal').modal('show')" class="btn btn-default">
+                    @lang('notes.define_encryption_key')
+                </a>
+            </p>
+            <table class="table table-striped" aria-describedby="notes">
                 <thead>
                 <tr>
                     <th scope="col">@lang('post.title')</th>
-                    <th scope="col" class="text-center" width="200">@lang('general.created_at')</th>
-                    <th scope="col" class="text-center" width="200">@lang('general.updated_at')</th>
-                    <th scope="col" width="150">@lang('general.actions')</th>
+                    <th scope="col" class="text-center" style="width: 200px">@lang('general.created_at')</th>
+                    <th scope="col" class="text-center" style="width: 200px">@lang('general.updated_at')</th>
+                    <th scope="col" style="width: 150px">@lang('general.actions')</th>
                 </thead>
                 <tbody>
                 @forelse($notes as $note)
@@ -59,7 +69,7 @@
                                data-bs-title="@lang('general.edit')">
                                 <i class="fa-solid fa-pen-to-square"></i>
                             </a>
-                            <a href="javascript:DeleteNote()" class="btn btn-sm btn-danger"
+                            <a href="javascript:DeleteNote('{{$note->id}}')" class="btn btn-sm btn-danger"
                                data-bs-toggle="tooltip" data-bs-placement="top"
                                data-bs-title="@lang('general.delete')">
                                 <i class="fa-solid fa-trash"></i>
@@ -77,4 +87,38 @@
             </table>
         </div>
     </div>
+@endsection
+@section('script')
+    @include('panel.personal_notes.scripts')
+    <script>
+        function DeleteNote(note_id) {
+            Swal.fire({
+                title: '@lang('general.are_you_sure')',
+                text: '@lang('general.you_wont_be_able_to_revert_this')',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '@lang('general.delete_confirm_yes')',
+                cancelButtonText: '@lang('general.cancel')',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '{{route('admin.notes')}}/delete/' + note_id,
+                        type: 'POST',
+                        success: function (response) {
+                            Swal.fire({
+                                title: '@lang('general.deleted')',
+                                text: '@lang('notes.deleted')',
+                                icon: 'success',
+                                confirmButtonText: '@lang('general.ok')',
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    location.reload();
+                                }
+                            })
+                        }
+                    })
+                }
+            })
+        }
+    </script>
 @endsection

@@ -2,8 +2,8 @@
 
 namespace App\Observers;
 
-use App\Models\PostHistory;
-use App\Models\Posts;
+use App\Models\Post\PostHistory;
+use App\Models\Post\Posts;
 
 class PostsObserver
 {

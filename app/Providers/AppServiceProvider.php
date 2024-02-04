@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Models\Posts;
+use App\Models\Post\Posts;
 use App\Observers\PostsObserver;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Pagination\Paginator;

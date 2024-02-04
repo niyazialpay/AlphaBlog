@@ -1,7 +1,5 @@
 <?php
 
-use App\Models\PostHistory;
-use App\Models\Posts;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,21 +15,21 @@ use Illuminate\Support\Facades\Route;
 
 Route::any('/corbado/webhook', [App\Http\Controllers\Admin\WebAuthnController::class, 'webhook'])->name('corbado.webhook');
 Route::any('/corbado/redirect',  [App\Http\Controllers\Admin\WebAuthnController::class, 'redirect']);
+Route::get('/login',
+    [App\Http\Controllers\Admin\UserController::class, 'login'])
+    ->name('login');
+
+Route::post('/login',
+    [App\Http\Controllers\Auth\LoginController::class, 'login'])->middleware([
+    'honeypot',
+    'throttle:login',
+    'cloudflare_turnstile'
+]);
 
 
 #admin panel
 Route::group(['prefix' => '/'.config('settings.admin_panel_path')], function(){
 
-    Route::get('/login',
-        [App\Http\Controllers\Admin\UserController::class, 'login'])
-        ->name('login');
-
-    Route::post('/login',
-        [App\Http\Controllers\Auth\LoginController::class, 'login'])->middleware([
-        'honeypot',
-        'throttle:login',
-        'cloudflare_turnstile'
-    ]);
 
     Route::get('/forgot-password',
         [App\Http\Controllers\Auth\LoginController::class, 'forgotPassword'])
@@ -61,38 +59,8 @@ Route::group(['prefix' => '/'.config('settings.admin_panel_path')], function(){
         Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'index'])
             ->name('admin.index');
 
-        Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
-
-        Route::group(['prefix' => 'settings'], function(){
-            Route::get('/', [App\Http\Controllers\Admin\SettingsController::class, 'index'])
-                ->can('admin', 'App\Models\User')
-                ->name('admin.settings');
-
-            Route::get('/create', [App\Http\Controllers\Admin\SettingsController::class, 'settings'])
-                ->can('admin', 'App\Models\User')
-                ->name('admin.settings.create');
-
-            Route::post('/create', [App\Http\Controllers\Admin\SettingsController::class, 'settings'])
-                ->can('admin', 'App\Models\User')
-                ->name('admin.settings.create');
-
-            Route::get('/{settings}', [App\Http\Controllers\Admin\SettingsController::class, 'settings'])
-                ->can('admin', 'App\Models\User')
-                ->name('admin.settings.show');
-
-            Route::get('/{settings}/edit', [App\Http\Controllers\Admin\SettingsController::class, 'settings'])
-                ->can('admin', 'App\Models\User')
-                ->name('admin.settings.edit');
-
-            Route::patch('/{settings}/edit', [App\Http\Controllers\Admin\SettingsController::class, 'settings'])
-                ->can('admin', 'App\Models\User')
-                ->name('admin.settings.edit');
-
-            Route::delete('/{settings}/delete', [App\Http\Controllers\Admin\SettingsController::class, 'settings'])
-                ->can('admin', 'App\Models\User')
-                ->name('admin.settings.delete');
-        });
-
+        Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])
+            ->name('logout');
     });
 });
 

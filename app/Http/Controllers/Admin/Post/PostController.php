@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Admin\Post;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Post\PostRequest;
-use App\Models\Categories;
-use App\Models\Comments;
-use App\Models\Posts;
+use App\Models\Post\Categories;
+use App\Models\Post\Comments;
+use App\Models\Post\Posts;
 use App\Models\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;

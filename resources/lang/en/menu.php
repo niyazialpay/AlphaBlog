@@ -1,0 +1,27 @@
+<?php
+return [
+    'menu_type' => 'Menu Type',
+    'header' => 'Header Menu',
+    'footer' => 'Footer Menu',
+    'menu' => 'Menu',
+    'add_menu' => 'Add Menu',
+    'select_type' => 'Select Menu Type',
+    'title' => 'Title',
+    'url' => 'Url',
+    'target' => 'Target',
+    'icon' => 'Icon',
+    'order' => 'Order',
+    'parent' => 'Parent Menu',
+    'language' => 'Language',
+    'menu_position' => 'Menu Position',
+    'type' => [
+        'standard' => 'Standard',
+        'category' => 'Category',
+    ],
+    'same_tab' => 'Same Tab',
+    'new_tab' => 'New Tab',
+    'menu_saved' => 'Menu saved successfully!',
+    'delete_warning' => 'Are you sure you want to delete this menu?',
+    'menu_deleted' => 'Menu deleted successfully!',
+    'add_menu_item' => 'Add Menu Item',
+];

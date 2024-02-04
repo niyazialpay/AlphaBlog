@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Post;
 
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Eloquent\SoftDeletes;

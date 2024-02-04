@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Post;
 
 
+use App\Models\User;
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Eloquent\SoftDeletes;
 use MongoDB\Laravel\Relations\BelongsTo;

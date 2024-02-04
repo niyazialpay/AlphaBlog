@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin\Post;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CommentRequest;
-use App\Models\Comments;
+use App\Models\Post\Comments;
 use App\Models\User;
 use Illuminate\Http\Request;
 

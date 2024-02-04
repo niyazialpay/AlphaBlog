@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('flag')->nullable();
             $table->boolean('is_active')->default(true);
             $table->boolean('is_default')->default(false);
-            $table->integer('sort')->default(0)->index();
             $table->timestamps();
         });
     }

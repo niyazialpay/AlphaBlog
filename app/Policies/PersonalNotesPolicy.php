@@ -15,9 +15,8 @@ class PersonalNotesPolicy
         //
     }
 
-    public function own(User $user, PersonalNotes $notes): bool
+    public function own(User $user, PersonalNotes $note): bool
     {
-        return $user->id == $notes->user_id;
+        return $user->id == $note->user_id;
     }
-
 }

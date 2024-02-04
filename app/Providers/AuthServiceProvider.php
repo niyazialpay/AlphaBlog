@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
-use App\Models\Categories;
-use App\Models\Comments;
 use App\Models\PersonalNotes;
-use App\Models\Posts;
+use App\Models\Post\Categories;
+use App\Models\Post\Comments;
+use App\Models\Post\Posts;
 use App\Models\User;
 use App\Policies\CommentPolicy;
 use App\Policies\PersonalNotesPolicy;

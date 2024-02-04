@@ -1,6 +1,6 @@
 <?php
 Route::post('/editor/image/upload/{note?}', [App\Http\Controllers\Admin\PersonalNotesController::class, 'editorImageUpload'])
-    ->can('own', 'App\Models\PersonalNotes')
+    ->can('own', 'note')
     ->name('admin.notes.editor.image.upload');
 
 Route::post('/{note}/image/delete', [App\Http\Controllers\Admin\PersonalNotesController::class, 'postImageDelete'])
@@ -22,7 +22,7 @@ Route::get('/show/{note}', [App\Http\Controllers\Admin\PersonalNotesController::
     ->name('admin.notes.show');
 
 Route::post('/save/{note?}', [App\Http\Controllers\Admin\PersonalNotesController::class, 'save'])
-    ->can('own', 'App\Models\PersonalNotes')
+   // ->can('own', 'App\Models\PersonalNotes')
     ->name('admin.notes.save');
 
 
@@ -31,5 +31,8 @@ Route::get('/{note}/media', [App\Http\Controllers\Admin\PersonalNotesController:
     ->name('admin.notes.media');
 
 Route::post('/delete/{note}', [App\Http\Controllers\Admin\PersonalNotesController::class, 'delete'])
-    ->can('own', 'App\Models\PersonalNotes')
+    ->can('own', 'note')
     ->name('admin.notes.delete');
+
+Route::post('/encryption', [App\Http\Controllers\Admin\PersonalNotesController::class, 'encryption'])
+    ->name('admin.notes.encryption');
