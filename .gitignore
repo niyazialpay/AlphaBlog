@@ -20,6 +20,6 @@ yarn-error.log
 /storage/analytics
 
 # Project exclude paths
-/storage/app/
+/storage/app/*
 /storage/debugbar/
-/storage/framework/
+/storage/framework/*
