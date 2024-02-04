@@ -25,7 +25,8 @@
             <form class="row" id="noteSave" method="post" action="javascript:void(0)">
                 <div class="col-12 mb-3">
                     <label for="title" class="form-label">@lang('post.title')</label>
-                    <input type="text" class="form-control" id="title" name="title" placeholder="@lang('post.title')" value="{{$note->title}}">
+                    <input type="text" class="form-control" id="title" name="title" placeholder="@lang('post.title')"
+                           value="{{$note->title}}">
                 </div>
                 <div class="col-12 mb-3">
                     <label for="content">@lang('post.content')</label>
@@ -39,6 +40,9 @@
         </div>
     </div>
 @endsection
+@if(!$note->id)
+    @include('panel.personal_notes.scripts')
+@endif
 @section('script')
     <script>
         let post_url = '{{route('admin.notes.save', $note)}}';

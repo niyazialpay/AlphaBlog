@@ -1,0 +1,27 @@
+<?php
+return [
+    'menu_type' => 'Menü Türü',
+    'header' => 'Üst Menü',
+    'footer' => 'Alt Menü',
+    'menu' => 'Menü',
+    'add_menu' => 'Menü Ekle',
+    'select_type' => 'Menü Türü Seçiniz',
+    'title' => 'Başlık',
+    'url' => 'Url',
+    'target' => 'Hedef',
+    'icon' => 'Simge',
+    'order' => 'Sıra',
+    'parent' => 'Üst Menü',
+    'language' => 'Dil',
+    'menu_position' => 'Menü Pozisyonu',
+    'type' => [
+        'standard' => 'Standart',
+        'category' => 'Kategori',
+    ],
+    'same_tab' => 'Aynı Sekme',
+    'new_tab' => 'Yeni Sekme',
+    'menu_saved' => 'Menü başarıyla kaydedildi!',
+    'delete_warning' => 'Bu menüyü silmek istediğinize emin misiniz?',
+    'menu_deleted' => 'Menü başarıyla silindi!',
+    'add_menu_item' => 'Menü Öğesi Ekle',
+];

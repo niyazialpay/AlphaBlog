@@ -5,12 +5,12 @@ Route::get('/', [App\Http\Controllers\Admin\Post\PostController::class, 'index']
 Route::get('/create', [App\Http\Controllers\Admin\Post\PostController::class, 'create'])
     ->middleware('check_post_type')
     ->name('admin.post.create')
-    ->can('create', 'App\Models\Posts');
+    ->can('create', 'App\Models\Post\Posts');
 
 Route::post('/save', [App\Http\Controllers\Admin\Post\PostController::class, 'save'])
     ->middleware(['merge_post_type', 'check_post_type'])
     ->name('admin.post.save')
-    ->can('create', 'App\Models\Posts');
+    ->can('create', 'App\Models\Post\Posts');
 
 Route::get('/{post}/media', [App\Http\Controllers\Admin\Post\PostController::class, 'media'])
     ->name('admin.post.media');

@@ -3,8 +3,8 @@
 @section('breadcrumb_link')
     <ol class="breadcrumb float-sm-right">
         <li class="breadcrumb-item"><a href="{{route('admin.index')}}">@lang('dashboard.dashboard')</a></li>
-        <li class="breadcrumb-item">@lang('ip_filter.title')</li>
-        <li class="breadcrumb-item active"><a href="{{route('admin.ip-filter')}}">@lang('general.add-edit')</a></li>
+        <li class="breadcrumb-item"><a href="{{route('admin.ip-filter')}}">@lang('ip_filter.title')</li>
+        <li class="breadcrumb-item active">@lang('general.add-edit')</li>
     </ol>
 @endsection
 @section('content')
@@ -142,7 +142,7 @@
                                 showConfirmButton: false,
                                 timer: 1500
                             })
-                            window.location = "{{route('admin.ip-filter')}}";
+                            //window.location = "{{route('admin.ip-filter')}}";
                         } else {
                             swal.fire({
                                 title: "@lang('general.error')",

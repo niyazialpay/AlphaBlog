@@ -5,10 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PasswordRequest;
 use App\Http\Requests\UserCreateRequest;
-use App\Http\Requests\UserPolicyRequest;
 use App\Http\Requests\UserRequest;
-use App\Models\Comments;
-use App\Models\Posts;
+use App\Models\Post\Comments;
+use App\Models\Post\Posts;
 use App\Models\SocialNetworks;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -93,11 +92,11 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function socialSave(UserPolicyRequest $request){
+    public function socialSave(Request $request){
         return $this->socialProfileSave($request, auth()->id());
     }
 
-    public function userSocialSave(UserPolicyRequest $request, User $user){
+    public function userSocialSave(Request $request, User $user){
         return $this->socialProfileSave($request, $user->id);
     }
 

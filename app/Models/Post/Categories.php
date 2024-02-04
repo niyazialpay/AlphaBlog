@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Post;
 
 use App\Traits\Searchable;
 use MongoDB\Laravel\Eloquent\Model;

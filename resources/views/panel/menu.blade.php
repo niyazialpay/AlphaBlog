@@ -22,7 +22,7 @@
         </a>
         <ul class="nav nav-treeview shadow rounded py-2">
 
-            @can('createPost', 'App\Models\Posts')
+            @can('createPost', 'App\Models\Post\Posts')
                 <li class="nav-item">
                     <a href="{{route('admin.post.create', ['type' => 'blogs'])}}"
                        class="nav-link @if(request()->is(config('settings.admin_panel_path').'/blogs/create')) active @endif ">
@@ -39,7 +39,7 @@
                     <p>@lang('post.all_blogs')</p>
                 </a>
             </li>
-            @can('category', 'App\Models\Categories')
+            @can('category', 'App\Models\Post\Categories')
                 <li class="nav-item">
                     <a href="{{route('admin.categories')}}"
                        class="nav-link
@@ -51,7 +51,7 @@
                     </a>
                 </li>
             @endcan
-            @can('view', 'App\Models\Comments')
+            @can('view', 'App\Models\Post\Comments')
                 <li class="nav-item">
                     <a href="{{route('admin.post.comments')}}"
                        class="nav-link
@@ -65,7 +65,7 @@
             @endcan
         </ul>
     </li>
-    @can('viewPages', 'App\Models\Posts')
+    @can('viewPages', 'App\Models\Post\Posts')
         <li class="nav-item has-treeview
         @if(request()->is(config('settings.admin_panel_path').'/pages*')) menu-open @endif ">
             <a href="{{route('admin.posts', ['type' => 'pages', 'language' => $default_language->code])}}"
@@ -103,7 +103,7 @@
         <a class="nav-link
         @if(request()->is(config('settings.admin_panel_path').'/notes*')) active @endif "
            href="{{route('admin.notes')}}">
-            <i class="fa-duotone fa-note nav-icon"></i>
+            <i class="fa-duotone fa-file-lock nav-icon"></i>
             @lang('notes.notes')
         </a>
     </li>
@@ -132,6 +132,15 @@
                 <i class="fa-duotone fa-user nav-icon"></i>
                 <p>
                     @lang('user.users')
+                </p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{route('admin.menu.index')}}" class="nav-link
+            @if(request()->is(config('settings.admin_panel_path').'/menu*')) active @endif ">
+                <i class="fa-duotone fa-bars nav-icon"></i>
+                <p>
+                    @lang('menu.menu')
                 </p>
             </a>
         </li>

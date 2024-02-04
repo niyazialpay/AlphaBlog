@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin\Post;
 
 use App\Http\Controllers\Controller;
-use App\Models\PostHistory;
-use App\Models\Posts;
+use App\Models\Post\PostHistory;
+use App\Models\Post\Posts;
 use Qazd\TextDiff;
 
 class HistoryController extends Controller

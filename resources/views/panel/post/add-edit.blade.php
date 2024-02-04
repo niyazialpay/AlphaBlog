@@ -289,10 +289,11 @@
             </div>
         </div>
     @endif
-    @include('panel.post.comments.modal')
+
 @endsection
 
 @section('script')
+    @include('panel.post.comments.modal')
     <style>
         .select2-container--default .select2-selection--multiple .select2-selection__choice {
             color: #000000 !important;

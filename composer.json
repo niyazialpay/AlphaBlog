@@ -11,7 +11,7 @@
         "guzzlehttp/guzzle": "^7.2",
         "http-interop/http-factory-guzzle": "^1.2",
         "laravel/fortify": "^1.19",
-        "laravel/framework": "^10.10",
+        "laravel/framework": "^10.42",
         "laravel/sanctum": "^3.3",
         "laravel/scout": "^10.6",
         "laravel/tinker": "^2.8",
@@ -22,7 +22,8 @@
         "qazd/text-diff": "^0.1.1",
         "spatie/image": "^3.3",
         "spatie/laravel-analytics": "^5.2",
-        "spatie/laravel-honeypot": "^4.4"
+        "spatie/laravel-honeypot": "^4.4",
+        "ext-pdo": "*"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.9",

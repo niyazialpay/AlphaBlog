@@ -1,6 +1,6 @@
 <?php
 Route::get('/', [App\Http\Controllers\Admin\Post\CommentController::class, 'index'])
-    ->can('view', 'App\Models\Comments')
+    ->can('view', 'App\Models\Post\Comments')
     ->name('admin.post.comments');
 
 Route::post('/{comment}/delete', [App\Http\Controllers\Admin\Post\CommentController::class, 'delete'])
@@ -28,7 +28,7 @@ Route::post('/{comment}/disapprove', [App\Http\Controllers\Admin\Post\CommentCon
     ->name('admin.post.comments.disapprove');
 
 Route::post('/save', [App\Http\Controllers\Admin\Post\CommentController::class, 'save'])
-    ->can('create', 'App\Models\Comments')
+    ->can('create', 'App\Models\Post\Comments')
     ->name('admin.post.comments.create');
 
 Route::post('/save/{comment}', [App\Http\Controllers\Admin\Post\CommentController::class, 'save'])

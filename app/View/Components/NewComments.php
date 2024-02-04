@@ -2,10 +2,10 @@
 
 namespace App\View\Components;
 
-use App\Models\Comments;
+use App\Models\Post\Comments;
 use Closure;
-use Illuminate\View\Component;
 use Illuminate\Contracts\View\View;
+use Illuminate\View\Component;
 
 class NewComments extends Component
 {

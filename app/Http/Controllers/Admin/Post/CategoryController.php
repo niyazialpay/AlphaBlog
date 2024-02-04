@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin\Post;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Category\CategoryDeleteRequest;
 use App\Http\Requests\Category\CategoryRequest;
-use App\Models\Categories;
+use App\Models\Post\Categories;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
