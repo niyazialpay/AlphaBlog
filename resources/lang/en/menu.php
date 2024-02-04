@@ -24,4 +24,5 @@ return [
     'delete_warning' => 'Are you sure you want to delete this menu?',
     'menu_deleted' => 'Menu deleted successfully!',
     'add_menu_item' => 'Add Menu Item',
+    'special_link' => 'Special Link',
 ];

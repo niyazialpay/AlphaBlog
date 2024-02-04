@@ -66,7 +66,7 @@ Route::group(['prefix' => '/'.config('settings.admin_panel_path')], function(){
 
 
 Route::get('/'.__('categories.page_url').'/{categories:slug}', [App\Http\Controllers\HomeController::class, 'index'])->name('post.categories');
-Route::get('/'.__('categories.page_url').'/{categories:slug}/{posts:slug}', [App\Http\Controllers\HomeController::class, 'index'])->name('post.categories');
+Route::get('/'.__('categories.page_url').'/{categories:slug}/{posts:slug}', [App\Http\Controllers\HomeController::class, 'index'])->name('post.categories.post');
 Route::get('/'.__('categories.page_url'), [App\Http\Controllers\HomeController::class, 'index'])->name('categories');
 
 Route::get('/'.__('tags.tags_url').'/{tags:tags}', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

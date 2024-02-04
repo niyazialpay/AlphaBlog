@@ -17,30 +17,109 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-5 border rounded p-3 ms-5">
-                    <form id="add-item" class="row">
-                        <div class="col-12 mb-3">
-                            <label for="title" class="form-label">@lang('menu.title')</label>
-                            <input type="text" class="form-control" id="title" name="title" placeholder="@lang('menu.title')" value="">
+                    <ul class="nav nav-pills border-bottom">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="pill" href="#home">
+                                @lang('menu.special_link')
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="pill" href="#pages">
+                                @lang('post.pages')
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="pill" href="#post">
+                                @lang('post.blogs')
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="pill" href="#category">
+                                @lang('categories.categories')
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="home">
+                            <form id="add-item" class="row">
+                                <div class="col-12 mb-3">
+                                    <label for="title" class="form-label">@lang('menu.title')</label>
+                                    <input type="text" class="form-control"
+                                           id="title" name="title" placeholder="@lang('menu.title')">
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="url">@lang('menu.url')</label>
+                                    <input type="text" name="url" id="url"
+                                           class="form-control" placeholder="@lang('menu.url')">
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="target">@lang('menu.target')</label>
+                                    <select name="target" id="target" class="form-control">
+                                        <option value="_self">@lang('menu.same_tab')</option>
+                                        <option value="_blank">@lang('menu.new_tab')</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="icon">@lang('menu.icon')</label>
+                                    <input type="text" name="icon" id="icon"
+                                           class="form-control" placeholder="@lang('menu.icon')">
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <button type="submit" class="btn btn-sm btn-primary">
+                                        @lang('menu.add_menu_item')
+                                    </button>
+                                </div>
+                            </form>
                         </div>
-                        <div class="col-12 mb-3">
-                            <label for="url">@lang('menu.url')</label>
-                            <input type="text" name="url" id="url" class="form-control" placeholder="@lang('menu.url')">
+                        <div class="tab-pane" id="pages">
+                            <ul class="list-group">
+                               @foreach($pages as $page)
+                                    <li class="list-group-item border">
+                                        <a href="javascript:menuAdd(
+                                        '{{route('page', $page)}}', '{{$page->title}}', '_self');"
+                                           class="list-group-item-action d-flex">
+                                            {{$page->title}}
+                                            <div class="ml-auto">
+                                                <i class="fa-duotone fa-plus"></i>
+                                            </div>
+                                        </a>
+                                    </li>
+                               @endforeach
+                            </ul>
                         </div>
-                        <div class="col-12 mb-3">
-                            <label for="target">@lang('menu.target')</label>
-                            <select name="target" id="target" class="form-control">
-                                <option value="_self">@lang('menu.same_tab')</option>
-                                <option value="_blank">@lang('menu.new_tab')</option>
-                            </select>
+                        <div class="tab-pane" id="post">
+                            <ul class="list-group">
+                                @foreach($posts as $post)
+                                    <li class="list-group-item border">
+                                        <a href="javascript:menuAdd(
+                                        '{{route('page', $post)}}', '{{$post->title}}', '_self');"
+                                           class="list-group-item-action d-flex">
+                                            {{$post->title}}
+                                            <div class="ml-auto">
+                                                <i class="fa-duotone fa-plus"></i>
+                                            </div>
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
                         </div>
-                        <div class="col-12 mb-3">
-                            <label for="icon">@lang('menu.icon')</label>
-                            <input type="text" name="icon" id="icon" class="form-control" placeholder="@lang('menu.icon')">
+                        <div class="tab-pane" id="category">
+                            <ul class="list-group">
+                               @foreach($categories as $category)
+                                    <li class="list-group-item border">
+                                        <a href="javascript:menuAdd('{{route('post.categories', $category)}}',
+                                        '{{$category->name}}', '_self');"
+                                           class="list-group-item-action d-flex">
+                                            {{$category->name}}
+                                            <div class="ml-auto">
+                                                <i class="fa-duotone fa-plus"></i>
+                                            </div>
+                                        </a>
+                                    </li>
+                               @endforeach
+                            </ul>
                         </div>
-                        <div class="col-12 mb-3">
-                            <button type="submit" class="btn btn-sm btn-primary">@lang('menu.add_menu_item')</button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
 
                 <div class="col-5 border rounded p-3 ms-5">
@@ -64,6 +143,12 @@
     <link rel="stylesheet" href="{{config('app.url')}}/themes/panel/css/nestable.css">
     <script src="{{config('app.url')}}/themes/panel/js/jquery.nestable.js"></script>
     <script>
+        function menuAdd(url, title, target){
+            $("input[name='title']").val(title);
+            $("input[name='url']").val(url);
+            $("select[name='target']").val(target);
+            $("#add-item").submit();
+        }
         $(document).ready(function () {
             let updateOutput = function () {
                 $('#nestable-output').val(JSON.stringify($('#nestable').nestable('serialize')));

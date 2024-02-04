@@ -12,10 +12,18 @@ use Illuminate\Http\Request;
 class MenuItemsController extends Controller
 {
     public function show(Menu $menu){
+        $posts = Posts::class;
         return view('panel.menu.show', [
-            'categories'=>Categories::all(),
-            'pages'=>Posts::where('post_type', 'page')->get(),
+            'categories'=>Categories::where('language', $menu->language)->get(),
+
+            'pages'=>$posts::where('post_type', 'page')
+                ->where('language', $menu->language)->get(),
+
+            'posts' => $posts::where('post_type', 'post')
+                ->where('language', $menu->language)->get(),
+
             'menu'=>$menu,
+
             'html_menu' => $this->menuTree($menu->id),
         ]);
     }

@@ -24,4 +24,5 @@ return [
     'delete_warning' => 'Bu menüyü silmek istediğinize emin misiniz?',
     'menu_deleted' => 'Menü başarıyla silindi!',
     'add_menu_item' => 'Menü Öğesi Ekle',
+    'special_link' => 'Özel Bağlantı',
 ];
