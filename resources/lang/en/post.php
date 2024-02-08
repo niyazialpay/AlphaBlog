@@ -23,6 +23,10 @@ return [
         "is_published_required" => "Publish status is required.",
         "is_published_boolean" => "Publish status must be a boolean.",
         "tags_string" => "Tags must be a string.",
+        "image_file" => "Image must be a file.",
+        "image_image" => "Image must be an image.",
+        "image_max" => "Image may not be greater than 50 MB.",
+        "image_mimes" => "Image must be a file of type: jpeg, png, jpg, gif, svg, webp."
     ],
 
     "success" => "Content added successfully",

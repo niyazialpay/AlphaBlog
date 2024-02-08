@@ -12,7 +12,7 @@ class PasswordRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return auth()->check() && (auth()->user()->can('own', auth()->user()) || auth()->user()->can('fullPermission', auth()->user()));
+        return auth()->check() && (auth()->user()->can('own', auth()->user()) || auth()->user()->can('admin', auth()->user()));
     }
 
     /**

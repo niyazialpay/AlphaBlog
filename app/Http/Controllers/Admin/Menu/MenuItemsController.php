@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Menu;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Menu\MenuItemRequest;
 use App\Models\Menu\Menu;
 use App\Models\Menu\MenuItems;
 use App\Models\Post\Categories;
@@ -27,7 +28,7 @@ class MenuItemsController extends Controller
             'html_menu' => $this->menuTree($menu->id),
         ]);
     }
-    public function save(Request $request){
+    public function save(MenuItemRequest $request){
 
         $menu = $request->post('menu');
         $array_menu = json_decode($menu, true);

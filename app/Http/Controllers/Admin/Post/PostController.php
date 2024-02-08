@@ -205,7 +205,7 @@ class PostController extends Controller
      */
     public function editorImageUpload($type, Posts $post, Request $request)
     {
-        if(!$post->_id){
+        if(!$post->id){
             $post->title="draft";
             $post->language=$request->post('language');
             $post->save();

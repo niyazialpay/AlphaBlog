@@ -13,7 +13,7 @@ class UserCreateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return auth()->check() && auth()->user()->can('fullPermission', auth()->user());
+        return auth()->check() && auth()->user()->can('admin', auth()->user());
     }
 
     /**

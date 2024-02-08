@@ -23,6 +23,10 @@ return [
         "is_published_required" => "Yayınlanma durumu zorunludur.",
         "is_published_boolean" => "Yayınlanma durumu mantıksal tipinde olmalıdır.",
         "tags_string" => "Etiketler metin tipinde olmalıdır.",
+        "image_file" => "Resim dosya tipinde olmalıdır.",
+        "image_image" => "Resim dosya tipinde olmalıdır.",
+        "image_max" => "Resim maksimum 50 MB boyutunda olmalıdır.",
+        "image_mimes" => "Resim dosya tipi jpeg, png, jpg, gif, svg, webp olmalıdır.",
     ],
 
     "success" => "İçerik başarıyla eklendi",

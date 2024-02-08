@@ -17,26 +17,43 @@
                     <ul class="nav nav-pills border-bottom">
                         <li class="nav-item">
                             <a class="nav-link active" href="#general" data-bs-toggle="tab">
+                                <i class="fa-duotone fa-gear"></i>
                                 @lang('settings.general_settings')
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#seo" data-bs-toggle="tab">
+                                <i class="fa-duotone fa-magnifying-glass"></i>
                                 SEO
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#social" data-bs-toggle="tab">
+                            <a class="nav-link" href="#analytics" data-bs-toggle="tab">
+                                <i class="fa-duotone fa-magnifying-glass-chart"></i>
+                                @lang('settings.analytics')
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#advertisement" data-bs-toggle="tab">
+                                <i class="fad fa-rectangle-ad"></i>
+                                @lang('settings.advertisement')
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#social-networks" data-bs-toggle="tab">
+                                <i class="fa-duotone fa-share-nodes"></i>
                                 @lang('social.social_networks')
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#themes" data-bs-toggle="tab">
+                                <i class="fa-duotone fa-brush"></i>
                                 @lang('settings.themes')
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#languages" data-bs-toggle="tab">
+                                <i class="fa-duotone fa-language"></i>
                                 @lang('settings.languages')
                             </a>
                         </li>
@@ -45,23 +62,55 @@
                 <div class="card-body">
                     <div class="tab-content">
                         <div class="tab-pane active" id="general">
-                            <form class="row" id="generalSave" method="post" action="javascript:void(0);">
+                            @if(session('success'))
+                                <div class="alert alert-success">
+                                    {{session('success')}}
+                                </div>
+                            @endif
+                            @if(session('error'))
+                                <div class="alert alert-danger">
+                                    {{session('error')}}
+                                </div>
+                            @endif
+                            <form class="row" id="generalSave" enctype="multipart/form-data" method="post"
+                                  action="{{route('admin.settings.general.save')}}">
                                 @csrf
                                 <div class="col-12 mb-3">
                                     <label for="site_logo">@lang('settings.site_logo')</label>
-                                    <input type="file" class="form-control" id="site_logo" name="site_logo">
+                                    @if($general_settings->getFirstMediaUrl('site_logo'))
+                                        <img src="{{$general_settings->getFirstMediaUrl('site_logo')}}" alt="site_logo"
+                                             class="img-fluid mx-5">
+                                        <a href="javascript:imageDelete('{{$general_settings->getMedia('site_logo')[0]->id}}', 'site_logo')" class="btn btn-sm btn-danger">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    @else
+                                        <input type="file" class="form-control" id="site_logo" name="site_logo">
+                                    @endif
                                 </div>
                                 <div class="col-12 mb-3">
                                     <label for="site_favicon">@lang('settings.site_favicon')</label>
-                                    <input type="file" class="form-control" id="site_favicon" name="site_favicon">
+                                    @if($general_settings->getFirstMediaUrl('site_favicon'))
+                                        <img src="{{$general_settings->getFirstMediaUrl('site_favicon')}}"
+                                             alt="site_favicon"
+                                             class="img-fluid mx-5">
+                                        <a href="javascript:imageDelete('{{$general_settings->getMedia('site_favicon')[0]->id}}', 'site_favicon')" class="btn btn-sm btn-danger">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    @else
+                                        <input type="file" class="form-control" id="site_favicon" name="site_favicon">
+                                    @endif
                                 </div>
                                 <div class="col-12 mb-3">
                                     <label for="contact_email">@lang('settings.contact_email')</label>
                                     <input type="email" class="form-control" id="contact_email" name="contact_email"
                                            value="{{$general_settings->contact_email}}">
                                 </div>
+                                <div class="col-12 mb-3">
+                                    <button type="submit" class="btn btn-primary">@lang('general.save')</button>
+                                </div>
                             </form>
                         </div>
+
                         <div class="tab-pane" id="seo">
                             <form class="card" id="seoSave" method="post" action="javascript:void(0)">
                                 @csrf
@@ -134,17 +183,17 @@
                                                             </option>
 
                                                             <option value="noindex,nofollow"
-                                                                @if($seo->robots == 'noindex,nofollow') selected @endif>
+                                                                    @if($seo->robots == 'noindex,nofollow') selected @endif>
                                                                 @lang('settings.noindex_nofollow')
                                                             </option>
 
                                                             <option value="index,nofollow"
-                                                                @if($seo->robots == 'index,nofollow') selected @endif>
+                                                                    @if($seo->robots == 'index,nofollow') selected @endif>
                                                                 @lang('settings.index_nofollow')
                                                             </option>
 
                                                             <option value="noindex,follow"
-                                                                @if($seo->robots == 'noindex,follow') selected @endif>
+                                                                    @if($seo->robots == 'noindex,follow') selected @endif>
                                                                 @lang('settings.noindex_follow')
                                                             </option>
                                                         </select>
@@ -170,10 +219,10 @@
                                         <div class="row">
                                             <div class="col-12 mb-3">
                                                 <textarea class="form-control"
-                                                  id="robots_txt"
-                                                  name="robots_txt"
-                                                  rows="10"
-                                                  aria-label="@lang('settings.robots_txt')">{{$robots_txt}}</textarea>
+                                                          id="robots_txt"
+                                                          name="robots_txt"
+                                                          rows="10"
+                                                          aria-label="@lang('settings.robots_txt')">{{$robots_txt}}</textarea>
                                             </div>
                                             <div class="col-12 mb-3">
                                                 <button type="submit" class="btn btn-primary">
@@ -185,7 +234,240 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="tab-pane" id="social">
+
+                        <div class="tab-pane" id="analytics">
+                            <form class="row" id="analyticsForm" method="post" action="javascript:void(0);">
+                                <div class="col-12 mb-3">
+                                    <label for="google_analytics">Google Analytics</label>
+                                    <input type="text" class="form-control" id="google_analytics"
+                                           name="google_analytics"
+                                           value="{{$analytics_settings->google_analytics}}">
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="yandex_metrica">Yandex Metrica</label>
+                                    <input type="text" class="form-control" id="yandex_metrica"
+                                           name="yandex_metrica"
+                                           value="{{$analytics_settings->yandex_metrica}}">
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="fb_pixel">Facebook Pixel</label>
+                                    <input type="text" class="form-control" id="fb_pixel"
+                                           name="fb_pixel"
+                                           value="{{$analytics_settings->fb_pixel}}">
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="log_rocket">Log Rocket</label>
+                                    <input type="text" class="form-control" id="log_rocket"
+                                           name="log_rocket"
+                                           value="{{$analytics_settings->log_rocket}}">
+                                </div>
+                                @csrf
+                                <div class="col-12 mb-3">
+                                    <button type="submit" class="btn btn-primary">@lang('general.save')</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="tab-pane" id="advertisement">
+
+                        </div>
+
+                        <div class="tab-pane" id="social-networks">
+                            <form class="row" method="post" id="socialNetworkForm" action="javascript:void(0)">
+                                <div class="col-12 mb-3">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <i class="fa-brands fa-linkedin"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-placement="left"
+                                               data-bs-title="Linkedin"></i>
+                                        </div>
+                                        <input type="text" class="form-control"
+                                               id="linkedin" name="linkedin"
+                                               placeholder="@ @lang('social.linkedin_username')"
+                                               value="{{$social_settings?->linkedin}}" aria-label="Linkedin">
+                                    </div>
+                                </div>
+
+                                <hr class="col-12 mb-3">
+
+                                <div class="col-12 mb-3">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <i class="fa-brands fa-github"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-placement="left"
+                                               data-bs-title="Github"></i>
+                                        </div>
+                                        <input type="text" class="form-control"
+                                               id="github" name="github"
+                                               placeholder="@ @lang('social.github_username')"
+                                               value="{{$social_settings?->github}}" aria-label="Github">
+                                    </div>
+
+                                </div>
+
+                                <hr class="col-12 mb-3">
+
+                                <div class="col-12 mb-3">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <i class="fa-brands fa-instagram"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-placement="left"
+                                               data-bs-title="Instagram"></i>
+                                        </div>
+                                        <input type="text" class="form-control"
+                                               id="instagram" name="instagram"
+                                               placeholder="@ @lang('social.instagram_username')"
+                                               value="{{$social_settings?->instagram}}" aria-label="Instagram">
+                                    </div>
+                                </div>
+
+                                <hr class="col-12 mb-3">
+
+                                <div class="col-12 mb-3">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <i class="fa-brands fa-x-twitter"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-placement="left"
+                                               data-bs-title="X"></i>
+                                        </div>
+                                        <input type="text" class="form-control"
+                                               id="x" name="x"
+                                               placeholder="@ @lang('social.x_username')"
+                                               value="{{$social_settings?->x}}" aria-label="X">
+                                    </div>
+                                </div>
+
+                                <hr class="col-12 mb-3">
+
+                                <div class="col-12 mb-3">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <i class="fa-brands fa-facebook"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-placement="left"
+                                               data-bs-title="Facebook"></i>
+                                        </div>
+                                        <input type="text" class="form-control"
+                                               id="facebook" name="facebook"
+                                               placeholder="@ @lang('social.facebook_username')"
+                                               value="{{$social_settings?->facebook}}" aria-label="Facebook">
+                                    </div>
+                                </div>
+
+                                <hr class="col-12 mb-3">
+
+                                <div class="col-12 mb-3">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <i class="fa-brands fa-dev"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-placement="left"
+                                               data-bs-title="Dev.to"></i>
+                                        </div>
+                                        <input type="text" class="form-control"
+                                               id="devto" name="devto"
+                                               placeholder="@ @lang('social.devto_username')"
+                                               value="{{$social_settings?->devto}}" aria-label="Dev.to">
+                                    </div>
+                                </div>
+
+                                <hr class="col-12 mb-3">
+
+                                <div class="col-12 mb-3">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <i class="fa-brands fa-medium"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-placement="left"
+                                               data-bs-title="Medium"></i>
+                                        </div>
+                                        <input type="text" class="form-control"
+                                               id="medium" name="medium"
+                                               placeholder="@ @lang('social.medium_username')"
+                                               value="{{$social_settings?->medium}}" aria-label="Medium">
+                                    </div>
+                                </div>
+
+                                <hr class="col-12 mb-3">
+
+                                <div class="col-12 mb-3">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <i class="fa-brands fa-youtube"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-placement="left"
+                                               data-bs-title="YouTube"></i>
+                                        </div>
+                                        <input type="text" class="form-control"
+                                               id="youtube" name="youtube"
+                                               placeholder="@ @lang('social.youtube_username')"
+                                               value="{{$social_settings?->youtube}}" aria-label="YouTube">
+                                    </div>
+                                </div>
+
+                                <hr class="col-12 mb-3">
+
+                                <div class="col-12 mb-3">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <i class="fa-brands fa-reddit-alien"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-placement="left"
+                                               data-bs-title="Reddit"></i>
+                                        </div>
+                                        <input type="text" class="form-control"
+                                               id="reddit" name="reddit"
+                                               placeholder="@ @lang('social.reddit_username')"
+                                               value="{{$social_settings?->reddit}}" aria-label="Reddit">
+                                    </div>
+                                </div>
+
+                                <hr class="col-12 mb-3">
+
+                                <div class="col-12 mb-3">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <i class="fa-brands fa-xbox"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-placement="left"
+                                               data-bs-title="Xbox"></i>
+                                        </div>
+                                        <input type="text" class="form-control"
+                                               id="xbox" name="xbox"
+                                               placeholder="@ @lang('social.xbox_username')"
+                                               value="{{$social_settings?->xbox}}" aria-label="Xbox">
+                                    </div>
+                                </div>
+
+                                <hr class="col-12 mb-3">
+
+                                <div class="col-12 mb-3">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <i class="fa-brands fa-deviantart"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-placement="left"
+                                               data-bs-title="Deviantart"></i>
+                                        </div>
+                                        <input type="text" class="form-control"
+                                               id="deviantart" name="deviantart"
+                                               placeholder="@ @lang('social.deviantart_username')"
+                                               value="{{$social_settings?->deviantart}}" aria-label="Deviantart">
+                                    </div>
+                                </div>
+
+                                <hr class="col-12 mb-3">
+
+
+                                @csrf
+                                <div class="col-12 mt-3">
+                                    <button type="submit" class="btn btn-primary">@lang('general.save')</button>
+                                </div>
+                            </form>
                         </div>
 
                         <div class="tab-pane" id="themes">
@@ -203,67 +485,114 @@
 
 @section('script')
     <script>
-        $(document).ready(function(){
-            $('#seoSave').submit(function(){
-                $.ajax({
-                    type: 'POST',
-                    url: '{{route('admin.settings.seo.save')}}',
-                    data: $(this).serialize(),
-                    success: function(response){
-                        if(response.status === 'success'){
-                            Swal.fire({
-                                icon: 'success',
-                                title: response.message,
-                                showConfirmButton: false,
-                                timer: 1500
-                            });
-                        }else{
-                            Swal.fire(
-                                'Error!',
-                                response.message,
-                                'error'
-                            );
-                        }
-                    },
-                    error: function(response){
+        function imageDelete(media_id, media_type){
+            let post_url;
+            if(media_type === "site_logo"){
+                post_url = '{{route('admin.settings.general.logo.delete')}}';
+            }
+            else{
+                post_url = '{{route('admin.settings.general.favicon.delete')}}';
+            }
+            Swal.fire(
+                {
+                    title: "@lang('post.delete_image')",
+                    text: "@lang('post.delete_image_text')",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "@lang('general.yes')",
+                    cancelButtonText: "@lang('general.no')",
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: post_url,
+                            type: 'post',
+                            data: {
+                                _token: '{{csrf_token()}}'
+                            },
+                            success: function (result) {
+                                if(result.success){
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: '@lang('post.delete_image_success_title')',
+                                        text: '@lang('post.delete_image_success')',
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    });
+                                    window.location.reload();
+                                }
+                                else{
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: '@lang('post.delete_image_error_title')',
+                                        text: '@lang('post.delete_image_error')',
+                                        showConfirmButton: false,
+                                        //timer: 1500
+                                    });
+                                }
+                            },
+                            error: function (xhr) {
+                                console.log(xhr);
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: '@lang('post.delete_image_error_title')',
+                                    text: xhr.responseJSON.message,
+                                    showConfirmButton: false,
+                                    //timer: 1500
+                                });
+                            }
+                        });
+                    }
+                }
+            );
+        }
+
+        function saveSettings(url, formId){
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: $('#' + formId).serialize(),
+                success: function (response) {
+                    if (response.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: response.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    } else {
                         Swal.fire(
                             'Error!',
                             response.message,
                             'error'
                         );
                     }
-                });
+                },
+                error: function (response) {
+                    Swal.fire(
+                        'Error!',
+                        response.message,
+                        'error'
+                    );
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $('#seoSave').submit(function () {
+                saveSettings('{{route('admin.settings.seo.save')}}', 'seoSave');
             });
 
-            $('#robotsTxtSave').submit(function(){
-                $.ajax({
-                    type: 'POST',
-                    url: '{{route('admin.settings.seo.robots.save')}}',
-                    data: $(this).serialize(),
-                    success: function(response){
-                        if(response.status === 'success'){
-                            Swal.fire({
-                                icon: 'success',
-                                title: response.message,
-                                showConfirmButton: false,
-                                timer: 1500
-                            });
-                        }else{
-                            Swal.fire(
-                                'Error!',
-                                response.message,
-                                'error'
-                            );
-                        }
-                    },
-                    error: function(response){
-                        Swal.fire(
-                            'Error!',
-                            response.message,
-                            'error'
-                        );
-                    }
-                });
+            $('#robotsTxtSave').submit(function () {
+                saveSettings('{{route('admin.settings.seo.robots.save')}}', 'robotsTxtSave');
+            });
+
+            $('#socialNetworkForm').submit(function(){
+                saveSettings('{{route('admin.settings.social.save')}}', 'socialNetworkForm');
+            });
+
+            $('#analyticsForm').submit(function(){
+                saveSettings('{{route('admin.settings.analytics.save')}}', 'analyticsForm');
             });
         });
     </script>

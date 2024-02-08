@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Menu;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Menu\MenuRequest;
 use App\Models\Menu\Menu;
 use Illuminate\Http\Request;
 
@@ -16,7 +17,7 @@ class MenuController extends Controller
         ]);
     }
 
-    public function save(Menu $menu, Request $request)
+    public function save(Menu $menu, MenuRequest $request)
     {
         $menu->fill($request->except('_token'));
         $menu->save();

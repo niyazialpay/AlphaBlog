@@ -1,5 +1,5 @@
 <?php
-Route::get('/', [App\Http\Controllers\Admin\SettingsController::class, 'index'])
+Route::get('/', [\App\Http\Controllers\Admin\Settings\SettingsController::class, 'index'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings');
 
@@ -10,3 +10,23 @@ Route::post('/seo/save', [App\Http\Controllers\Admin\Settings\SeoSettingsControl
 Route::post('/seo/robots/save', [App\Http\Controllers\Admin\Settings\SeoSettingsController::class, 'saveRobots'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.seo.robots.save');
+
+Route::post('/general/save', [App\Http\Controllers\Admin\Settings\GeneralController::class, 'save'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.settings.general.save');
+
+Route::post('/general/logo/delete', [App\Http\Controllers\Admin\Settings\GeneralController::class, 'deleteLogo'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.settings.general.logo.delete');
+
+Route::post('/general/favicon/delete', [App\Http\Controllers\Admin\Settings\GeneralController::class, 'deleteFavicon'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.settings.general.favicon.delete');
+
+Route::post('/social/save', [App\Http\Controllers\Admin\Settings\SocialSettingsController::class, 'save'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.settings.social.save');
+
+Route::post('/analytics/save', [App\Http\Controllers\Admin\Settings\AnalyticsSettingsController::class, 'save'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.settings.analytics.save');

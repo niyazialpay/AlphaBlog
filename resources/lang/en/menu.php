@@ -25,4 +25,18 @@ return [
     'menu_deleted' => 'Menu deleted successfully!',
     'add_menu_item' => 'Add Menu Item',
     'special_link' => 'Special Link',
+
+    'title_required' => 'Title is required',
+    'title_string' => 'Title must be a string',
+    'title_max' => 'Title must be less than 255 characters',
+    'menu_position_required' => 'Menu position is required',
+    'menu_position_string' => 'Menu position must be a string',
+    'menu_position_max' => 'Menu position must be less than 255 characters',
+    'menu_position_in' => 'Menu position must be header or footer',
+    'language_required' => 'Language is required',
+    'language_string' => 'Language must be a string',
+    'language_max' => 'Language must be less than 2 characters',
+
+    'menu_required' => 'Menu is required',
+    'menu_id_required' => 'Menu ID is required',
 ];

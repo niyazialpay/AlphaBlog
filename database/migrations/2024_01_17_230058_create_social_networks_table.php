@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('github');
             $table->string('instagram');
             $table->string('x');
+            $table->string('bluesky');
             $table->string('facebook');
             $table->string('devto');
             $table->string('medium');
