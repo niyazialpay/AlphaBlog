@@ -78,4 +78,6 @@ return [
     'job_title' => 'Meslek Ünvanı',
     'skills' => 'Yetenekler',
     'website' => 'Web Sitesi',
+
+    'save_error' => 'Kaydetme sırasında bir hata oluştu',
 ];

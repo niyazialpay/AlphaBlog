@@ -398,7 +398,7 @@
 
                     resolve(json.location);
 
-                    post_url = '{{route('admin.post.create', $type)}}/' + json.blog_id;
+                    post_url = '{{route('admin.post.save', $type)}}/' + json.blog_id;
                 };
 
                 xhr.onerror = () => {

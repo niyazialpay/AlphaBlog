@@ -426,22 +426,6 @@
 @endsection
 
 @section('script')
-    <style>
-        #social-networks .input-group-prepend{
-            border: 1px solid #ced4da;
-            border-right: 0 !important;
-            width: 45px;
-            display: flex;
-            justify-content: center;
-        }
-        #social-networks i{
-            font-size: 2rem;
-            margin: 2px 3px 0 3px;
-        }
-        #social-networks input{
-            border-left:0;
-        }
-    </style>
     <script>
 
         function notify_alert(message, type) {

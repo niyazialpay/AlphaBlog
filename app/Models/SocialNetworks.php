@@ -16,6 +16,7 @@ class SocialNetworks extends Model
         'linkedin',
         'facebook',
         'x',
+        'bluesky',
         'instagram',
         'github',
         'devto',

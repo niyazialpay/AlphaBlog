@@ -30,9 +30,9 @@ class PostPolicy
         return $user->role === 'owner' || $user->role === 'admin' || $user->role === 'editor' || $user->role === 'author';
     }
 
-    public function edit(User $user, Posts $posts): bool
+    public function edit(User $user, Posts $post): bool
     {
-        return $user->role === 'owner' || $user->role === 'admin' || $user->role === 'editor' || ($user->id === $posts->user_id && $user->role === 'author');
+        return $user->role === 'owner' || $user->role === 'admin' || $user->role === 'editor' || ($user->id === $post->user_id && $user->role === 'author');
     }
 
     public function delete(User $user, Posts $posts): bool

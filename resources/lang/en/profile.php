@@ -78,4 +78,6 @@ return [
     'job_title' => 'Job Title',
     'skills' => 'Skills',
     'website' => 'Website',
+
+    'save_error' => 'An error occurred while saving',
 ];

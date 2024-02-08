@@ -25,4 +25,18 @@ return [
     'menu_deleted' => 'Menü başarıyla silindi!',
     'add_menu_item' => 'Menü Öğesi Ekle',
     'special_link' => 'Özel Bağlantı',
+
+    'title_required' => 'Başlık zorunludur',
+    'title_string' => 'Başlık metin türünde olmalıdır',
+    'title_max' => 'Başlık 255 karakterden az olmalıdır',
+    'menu_position_required' => 'Menü pozisyonu zorunludur',
+    'menu_position_string' => 'Menü pozisyonu metin türünde olmalıdır',
+    'menu_position_max' => 'Menü pozisyonu 255 karakterden az olmalıdır',
+    'menu_position_in' => 'Menü posizyonu header veya footer olmalıdır',
+    'language_required' => 'Dil zorunludur',
+    'language_string' => 'Dil metin türünde olmalıdır',
+    'language_max' => 'Dil 2 karakterden az olmalıdır',
+
+    'menu_required' => 'Menü zorunludur',
+    'menu_id_required' => 'Menü ID zorunludur',
 ];

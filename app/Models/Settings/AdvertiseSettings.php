@@ -11,7 +11,8 @@ class AdvertiseSettings extends Model
         'js',
         'header',
         'footer',
-        'sidebar',
+        'sidebar1',
+        'sidebar2',
         'post'
     ];
 

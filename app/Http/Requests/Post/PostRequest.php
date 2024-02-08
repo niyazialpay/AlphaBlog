@@ -41,8 +41,8 @@ class PostRequest extends FormRequest
                 'string',
                 $slug_unique
             ],
-            'content' => ['required', 'string'],
-            'image' => 'nullable',
+            'content' => ['string'],
+            'image' => 'nullable|file|image|max:51200|mimes:jpeg,png,jpg,gif,svg,webp',
             'meta_description' => ['nullable', 'string'],
             'meta_keywords' => ['nullable', 'string'],
             'category_id.*' => ['required_if:post_type,post', 'string', 'exists:categories,_id'],
@@ -68,6 +68,10 @@ class PostRequest extends FormRequest
             'user_id.exists' => __('post.request.user_id_exists'),
             'is_published.required' => __('post.request.is_published_required'),
             'is_published.boolean' => __('post.request.is_published_boolean'),
+            'image.file' => __('post.request.image_file'),
+            'image.image' => __('post.request.image_image'),
+            'image.max' => __('post.request.image_max'),
+            'image.mimes' => __('post.request.image_mimes'),
         ];
     }
 }

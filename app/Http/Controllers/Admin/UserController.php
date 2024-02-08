@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Action\SocialNetworkSaveAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PasswordRequest;
 use App\Http\Requests\UserCreateRequest;
 use App\Http\Requests\UserRequest;
 use App\Models\Post\Comments;
 use App\Models\Post\Posts;
-use App\Models\SocialNetworks;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -68,28 +68,18 @@ class UserController extends Controller
     }
 
     private function socialProfileSave($request, $user_id){
-        $social = SocialNetworks::where('user_id', $user_id)->first();
-        if(!$social){
-            $social = new SocialNetworks();
-            $social->user_id = $user_id;
+        if(SocialNetworkSaveAction::execute($request, 'user', $user_id)){
+            return response()->json([
+                'status' => 'success',
+                'message' => __('profile.save_success')
+            ], 200);
         }
-        $social->facebook = $request->facebook;
-        $social->instagram = $request->instagram;
-        $social->linkedin = $request->linkedin;
-        $social->github = $request->github;
-        $social->devto = $request->devto;
-        $social->medium = $request->medium;
-        $social->youtube = $request->youtube;
-        $social->reddit = $request->reddit;
-        $social->xbox = $request->xbox;
-        $social->deviantart = $request->deviantart;
-        $social->website = $request->website;
-        $social->x = $request->x;
-        $social->save();
-        return response()->json([
-            'status' => 'success',
-            'message' => __('profile.save_success')
-        ], 200);
+        else{
+            return response()->json([
+                'status' => 'error',
+                'message' => __('profile.save_error')
+            ], 422);
+        }
     }
 
     public function socialSave(Request $request){

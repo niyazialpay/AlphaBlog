@@ -4,6 +4,8 @@ return [
     'general_settings' => 'General Settings',
     'languages' => 'Languages',
     'themes' => 'Themes',
+    'advertisement' => 'Advertisement',
+    'analytics' => 'Analytics',
 
     'site_title' => 'Site Title',
     'site_description' => 'Site Description',
@@ -19,4 +21,14 @@ return [
 
     'seo_settings_saved' => 'SEO settings saved',
     'robots_txt_saved' => 'Robots.txt saved',
+
+    'site_logo' => 'Site Logo',
+    'site_favicon' => 'Site Favicon',
+    'contact_email' => 'Contact Email',
+
+    'general_settings_saved' => 'Settings updated successfully',
+    'logo_deleted_successfully' => 'Logo deleted successfully',
+    'favicon_deleted_successfully' => 'Favicon deleted successfully',
+
+    'analytics_save_success' => 'Analytics settings saved successfully',
 ];
