@@ -104,6 +104,9 @@
                     $.ajax({
                         url: '{{route('admin.notes')}}/delete/' + note_id,
                         type: 'POST',
+                        data: {
+                            _token: '{{csrf_token()}}'
+                        },
                         success: function (response) {
                             Swal.fire({
                                 title: '@lang('general.deleted')',
