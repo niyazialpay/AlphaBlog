@@ -7,6 +7,7 @@
     "require": {
         "php": "^8.3",
         "ext-imagick": "*",
+        "ext-pdo": "*",
         "corbado/php-sdk": "^2.0",
         "guzzlehttp/guzzle": "^7.2",
         "http-interop/http-factory-guzzle": "^1.2",
@@ -22,8 +23,7 @@
         "qazd/text-diff": "^0.1.1",
         "spatie/image": "^3.3",
         "spatie/laravel-analytics": "^5.2",
-        "spatie/laravel-honeypot": "^4.4",
-        "ext-pdo": "*"
+        "spatie/laravel-honeypot": "^4.4"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.9",

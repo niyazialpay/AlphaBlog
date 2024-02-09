@@ -33,6 +33,7 @@
                     <textarea name="content" id="content" class="form-control"
                               placeholder="@lang('post.content')">{!! $note->content !!}</textarea>
                 </div>
+                @csrf
                 <div class="col-12 mb-3">
                     <button type="submit" class="btn btn-primary">@lang('general.save')</button>
                 </div>
@@ -40,10 +41,10 @@
         </div>
     </div>
 @endsection
-@if(!$note->id)
-    @include('panel.personal_notes.scripts')
-@endif
 @section('script')
+    @if(!$note->id)
+        @include('panel.personal_notes.scripts')
+    @endif
     <script>
         let post_url = '{{route('admin.notes.save', $note)}}';
         $(document).ready(function () {
