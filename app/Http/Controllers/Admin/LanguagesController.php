@@ -15,7 +15,7 @@ class LanguagesController extends Controller
 
     public function save(LanguageRequest $request, Languages $language){
         if($language->id){
-            $language = Languages::find($language->id);
+            $language = Languages::where('_id', $language->id)->first();
         }
         $language->name = $request->post('name');
         $language->code = $request->post('code');

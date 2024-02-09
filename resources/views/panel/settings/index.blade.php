@@ -736,6 +736,12 @@
             $('#languageModal').modal('show');
         }
 
+        function deleteLanguage(id){
+            Swal.fire({
+
+            })
+        }
+
         $(document).ready(function () {
             $('#seoSave').submit(function () {
                 saveSettings('{{route('admin.settings.seo.save')}}', 'seoSave');
