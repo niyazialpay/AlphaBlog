@@ -30,3 +30,15 @@ Route::post('/social/save', [App\Http\Controllers\Admin\Settings\SocialSettingsC
 Route::post('/analytics/save', [App\Http\Controllers\Admin\Settings\AnalyticsSettingsController::class, 'save'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.analytics.save');
+
+Route::post('/advertise/save', [App\Http\Controllers\Admin\Settings\AdvertiseSettingsController::class, 'save'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.settings.advertisement.save');
+
+Route::post('/languages/show', [App\Http\Controllers\Admin\LanguagesController::class, 'show'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.settings.languages.show');
+
+Route::post('/languages/save/{language?}', [App\Http\Controllers\Admin\LanguagesController::class, 'save'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.settings.languages.save');

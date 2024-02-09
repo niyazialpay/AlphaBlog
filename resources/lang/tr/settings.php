@@ -31,4 +31,7 @@ return [
     'favicon_deleted_successfully' => 'Favicon başarıyla silindi',
 
     'analytics_save_success' => 'Analitik ayarları başarıyla kaydedildi',
+    'advertise_save_success' => 'Reklam ayarları başarıyla kaydedildi',
+    'default_language' => 'Varsayılan Dil',
+    'default_theme' => 'Varsayılan Tema',
 ];

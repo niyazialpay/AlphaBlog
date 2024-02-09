@@ -34,4 +34,6 @@ return [
     'no' => 'Hayır',
     'ok' => 'Tamam',
     'close' => 'Kapat',
+    'active' => 'Aktif',
+    'passive' => 'Pasif',
 ];

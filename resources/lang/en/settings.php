@@ -31,4 +31,7 @@ return [
     'favicon_deleted_successfully' => 'Favicon deleted successfully',
 
     'analytics_save_success' => 'Analytics settings saved successfully',
+    'advertise_save_success' => 'Advertisement settings saved successfully',
+    'default_language' => 'Default Language',
+    'default_theme' => 'Default Theme',
 ];

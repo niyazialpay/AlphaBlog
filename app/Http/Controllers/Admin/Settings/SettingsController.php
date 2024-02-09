@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Models\Languages;
 use App\Models\Settings\AdvertiseSettings;
 use App\Models\Settings\AnalyticsSettings;
 use App\Models\Settings\GeneralSettings;
@@ -18,6 +19,7 @@ class SettingsController extends Controller
             'general_settings' => GeneralSettings::first(),
             'advertise_settings' => AdvertiseSettings::first(),
             'analytics_settings' => AnalyticsSettings::first(),
+            'all_languages' => Languages::all(),
             'social_settings' => SocialNetworks::where('type', 'website')->first(),
             'robots_txt' => file_exists(public_path('robots.txt')) ? file_get_contents(public_path('robots.txt')) : null,
         ]);
