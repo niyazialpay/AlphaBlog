@@ -269,7 +269,20 @@
                         </div>
 
                         <div class="tab-pane" id="advertisement">
-
+                            <form method="post" action="javascript:void(0);" id="advertisePost" class="row">
+                                <div class="col-12 mb-3">
+                                    <label for="google_ad_manager">
+                                        Google Ad Manager
+                                    </label>
+                                    <input type="text" class="form-control" id="google_ad_manager"
+                                           name="google_ad_manager"
+                                           value="{{$advertise_settings->google_ad_manager}}">
+                                </div>
+                                @csrf
+                                <div class="col-12 mb-3">
+                                    <button type="submit" class="btn btn-primary">@lang('general.save')</button>
+                                </div>
+                            </form>
                         </div>
 
                         <div class="tab-pane" id="social-networks">
@@ -474,17 +487,119 @@
                         </div>
 
                         <div class="tab-pane" id="languages">
-
+                            <table class="table" aria-describedby="table">
+                                <tr>
+                                    <th>@lang('language.language')</th>
+                                    <th>@lang('language.code')</th>
+                                    <th>@lang('language.icon')</th>
+                                    <th>@lang('language.status')</th>
+                                    <th>@lang('language.default')</th>
+                                    <th>@lang('general.actions')</th>
+                                </tr>
+                                @foreach($all_languages as $language)
+                                    <tr>
+                                        <td>
+                                            {{$language->name}}
+                                        </td>
+                                        <td>
+                                            {{$language->code}}
+                                        </td>
+                                        <td>
+                                            <img src="{{config('app.url')}}/themes/flags/{{$language->flag}}.webp"
+                                                 alt="{{$language->name}}"
+                                                 class="img-fluid" style="height: 30px;">
+                                        </td>
+                                        <td>
+                                            @if($language->is_active)
+                                                <span class="badge bg-success">@lang('general.active')</span>
+                                            @else
+                                                <span class="badge bg-danger">@lang('general.passive')</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($language->is_default)
+                                                <span class="badge bg-primary">@lang('general.yes')</span>
+                                            @else
+                                                <span class="badge bg-secondary">@lang('general.no')</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <a href="javascript:editLanguage('{{$language->id}}')"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-placement="top"
+                                               title="@lang('general.edit')"
+                                               class="btn btn-sm btn-primary">
+                                                <i class="fa fa-edit"></i>
+                                            </a>
+                                            <a href=""
+                                               data-bs-toggle="tooltip"
+                                               data-bs-placement="top"
+                                               title="@lang('general.delete')"
+                                               class="btn btn-sm btn-danger">
+                                                <i class="fa fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </table>
+                            <a href="javascript:openLanguageModal()" class="btn btn-primary">@lang('general.new')</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="modal" tabindex="-1" id="languageModal">
+        <div class="modal-dialog">
+            <form class="modal-content" method="post" id="languageForm" action="javascript:void(0)">
+                <div class="modal-header">
+                    <h5 class="modal-title">@lang('language.add_edit')</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label for="name">@lang('language.language')</label>
+                            <input type="text" class="form-control" id="name" name="name">
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="code">@lang('language.code')</label>
+                            <input type="text" class="form-control" id="code" name="code">
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="flag">@lang('language.flag')</label>
+                            <input type="text" class="form-control" id="flag" name="flag">
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="status">@lang('language.status')</label>
+                            <select name="status" id="status" class="form-control">
+                                <option value="1">@lang('general.active')</option>
+                                <option value="0">@lang('general.passive')</option>
+                            </select>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="default">@lang('language.default')</label>
+                            <select name="default" id="default" class="form-control">
+                                <option value="1">@lang('general.yes')</option>
+                                <option value="0">@lang('general.no')</option>
+                            </select>
+                        </div>
+                        @csrf
+                        <input type="hidden" name="id" id="language_id" hidden>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@lang('general.close')</button>
+                    <button type="submit" class="btn btn-primary">@lang('general.save')</button>
+                </div>
+            </form>
+        </div>
+    </div>
 @endsection
 
 @section('script')
     <script>
+        let languageSaveUrl = '{{route('admin.settings.languages.save')}}';
         function imageDelete(media_id, media_type){
             let post_url;
             if(media_type === "site_logo"){
@@ -578,6 +693,49 @@
             });
         }
 
+        function editLanguage(id){
+            languageSaveUrl = '{{route('admin.settings.languages.save')}}/' + id;
+            $.ajax({
+                type: 'POST',
+                url: '{{route('admin.settings.languages.show')}}',
+                data: {
+                    id: id,
+                    _token: '{{csrf_token()}}'
+                },
+                success: function (response) {
+                    if (response) {
+                        $('#name').val(response.name);
+                        $('#code').val(response.code);
+                        $('#flag').val(response.flag);
+                        $('#status').val(response.is_active?1:0);
+                        $('#default').val(response.is_default?1:0);
+                        $('#language_id').val(response._id).attr('disabled', false);
+                        $('#languageModal').modal('show');
+                    } else {
+                        Swal.fire(
+                            'Error!',
+                            response.message,
+                            'error'
+                        );
+                    }
+                },
+                error: function (response) {
+                    Swal.fire(
+                        'Error!',
+                        response.message,
+                        'error'
+                    );
+                }
+            });
+        }
+
+        function openLanguageModal(){
+            languageSaveUrl = '{{route('admin.settings.languages.save')}}';
+            $('#languageForm').trigger('reset');
+            $('#language_id').val('').attr('disabled', true);
+            $('#languageModal').modal('show');
+        }
+
         $(document).ready(function () {
             $('#seoSave').submit(function () {
                 saveSettings('{{route('admin.settings.seo.save')}}', 'seoSave');
@@ -593,6 +751,14 @@
 
             $('#analyticsForm').submit(function(){
                 saveSettings('{{route('admin.settings.analytics.save')}}', 'analyticsForm');
+            });
+
+            $('#advertisePost').submit(function(){
+                saveSettings('{{route('admin.settings.advertisement.save')}}', 'advertisePost');
+            });
+
+            $('#languageForm').submit(function(){
+                saveSettings('{{route('admin.settings.languages.save')}}', 'languageForm');
             });
         });
     </script>

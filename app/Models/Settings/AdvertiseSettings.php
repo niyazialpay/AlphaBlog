@@ -8,13 +8,6 @@ use MongoDB\Laravel\Eloquent\Model;
 class AdvertiseSettings extends Model
 {
     protected $fillable = [
-        'js',
-        'header',
-        'footer',
-        'sidebar1',
-        'sidebar2',
-        'post'
+        'google_ad_manager'
     ];
-
-    public $timestamps = false;
 }

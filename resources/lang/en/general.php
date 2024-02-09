@@ -34,4 +34,6 @@ return [
     'no' => 'No',
     'ok' => 'Ok',
     'close' => 'Close',
+    'active' => 'Active',
+    'passive' => 'Passive',
 ];
