@@ -73,10 +73,12 @@
                         </div>
                         <div class="tab-pane" id="pages">
                             <ul class="list-group">
-                               @foreach($pages as $page)
+                                @foreach($pages as $page)
                                     <li class="list-group-item border">
                                         <a href="javascript:menuAdd(
-                                        '{{route('page', $page)}}', '{{$page->title}}', '_self');"
+                                        '{{route('page', [
+                                            session()->get('language'),$page
+                                            ])}}', '{{$page->title}}', '_self');"
                                            class="list-group-item-action d-flex">
                                             {{$page->title}}
                                             <div class="ml-auto">
@@ -84,7 +86,7 @@
                                             </div>
                                         </a>
                                     </li>
-                               @endforeach
+                                @endforeach
                             </ul>
                         </div>
                         <div class="tab-pane" id="post">
@@ -92,7 +94,9 @@
                                 @foreach($posts as $post)
                                     <li class="list-group-item border">
                                         <a href="javascript:menuAdd(
-                                        '{{route('page', $post)}}', '{{$post->title}}', '_self');"
+                                        '{{route('page', [
+                                            session()->get('language'),$page
+                                            ])}}', '{{$post->title}}', '_self');"
                                            class="list-group-item-action d-flex">
                                             {{$post->title}}
                                             <div class="ml-auto">
@@ -105,9 +109,12 @@
                         </div>
                         <div class="tab-pane" id="category">
                             <ul class="list-group">
-                               @foreach($categories as $category)
+                                @foreach($categories as $category)
                                     <li class="list-group-item border">
-                                        <a href="javascript:menuAdd('{{route('post.categories', $category)}}',
+                                        <a href="javascript:menuAdd('{{route('post.categories', [
+                                        session()->get('language'),
+                                        $category]
+                                        )}}',
                                         '{{$category->name}}', '_self');"
                                            class="list-group-item-action d-flex">
                                             {{$category->name}}
@@ -116,7 +123,7 @@
                                             </div>
                                         </a>
                                     </li>
-                               @endforeach
+                                @endforeach
                             </ul>
                         </div>
                     </div>
@@ -143,12 +150,13 @@
     <link rel="stylesheet" href="{{config('app.url')}}/themes/panel/css/nestable.css">
     <script src="{{config('app.url')}}/themes/panel/js/jquery.nestable.js"></script>
     <script>
-        function menuAdd(url, title, target){
+        function menuAdd(url, title, target) {
             $("input[name='title']").val(title);
             $("input[name='url']").val(url);
             $("select[name='target']").val(target);
             $("#add-item").submit();
         }
+
         $(document).ready(function () {
             let updateOutput = function () {
                 $('#nestable-output').val(JSON.stringify($('#nestable').nestable('serialize')));
@@ -176,11 +184,11 @@
                     '<p><label for="">@lang('menu.title')<br><input type="text" name="navigation_title" value="' + label.val() + '"></label></p>' +
                     '<p><label for="">@lang('menu.url')<br><input type="text" name="navigation_url" value="' + url.val() + '"></label></p>' +
 
-                    '<p><label for="">@lang('menu.target')<br> '+
-                    '<select name="navigation_target" class="form-control">'+
-                    '<option value="_self" '+((target.val() === "_self") ? "selected" : "")+'>@lang('menu.same_tab')</option>'+
-                    '<option value="_blank" '+((target.val() === "_blank") ? "selected" : "")+'>@lang('menu.new_tab')</option>'+
-                    '</select>'+
+                    '<p><label for="">@lang('menu.target')<br> ' +
+                    '<select name="navigation_target" class="form-control">' +
+                    '<option value="_self" ' + ((target.val() === "_self") ? "selected" : "") + '>@lang('menu.same_tab')</option>' +
+                    '<option value="_blank" ' + ((target.val() === "_blank") ? "selected" : "") + '>@lang('menu.new_tab')</option>' +
+                    '</select>' +
                     '</label></p>' +
 
                     '<p><label for="">@lang('menu.icon')<br><input type="text" name="navigation_icon" value="' + icon.val() + '"></label></p>' +

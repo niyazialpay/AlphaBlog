@@ -307,6 +307,30 @@
 
                         <div class="tab-pane settings-tabs @if(request()->get('tab')=='social-networks') active @endif"
                              id="social-networks">
+                            <form class="row mb-3">
+                                <div class="col-12 mb-3">
+                                    <label for="show_header">Show Header</label>
+                                    <select class="form-control" name="show_header[]" id="show_header" multiple>
+                                        <option value="facebook">Facebook</option>
+                                        <option value="x">X</option>
+                                        <option value="instagram">Instagram</option>
+                                        <option value="linkedin">Linkedin</option>
+                                        <option value="github">Github</option>
+                                        <option value="devto">Dev.to</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="youtube">Youtube</option>
+                                        <option value="reddit">Reddit</option>
+                                        <option value="xbox">Xbox</option>
+                                        <option value="deviantart">Deviantart</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <button class="btn btn-primary" id="showHeaderSave">@lang('general.save')</button>
+                                </div>
+                                <div class="col-12">
+                                    <hr>
+                                </div>
+                            </form>
                             <form class="row" method="post" id="socialNetworkForm" action="javascript:void(0)">
                                 <div class="col-12 mb-3">
                                     <div class="input-group">

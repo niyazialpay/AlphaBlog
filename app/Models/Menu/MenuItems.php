@@ -5,6 +5,7 @@ namespace App\Models\Menu;
 
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
+use MongoDB\Laravel\Relations\HasMany;
 
 class MenuItems extends Model
 {
@@ -38,5 +39,10 @@ class MenuItems extends Model
     public function menu(): BelongsTo
     {
         return $this->belongsTo(Menu::class, 'menu_id', '_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(MenuItems::class, 'parent_id', '_id');
     }
 }
