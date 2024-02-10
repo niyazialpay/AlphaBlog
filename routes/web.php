@@ -26,34 +26,33 @@ Route::post('/login',
     'cloudflare_turnstile'
 ]);
 
+Route::get('/forgot-password',
+    [App\Http\Controllers\Auth\LoginController::class, 'forgotPassword'])
+    ->name('forgot-password')->middleware('guest');
+
+Route::post('/forgot-password',
+    [App\Http\Controllers\Auth\LoginController::class, 'resetPassword'])
+    ->middleware([
+        'guest',
+        'honeypot',
+        'cloudflare_turnstile'
+    ]);
+
+Route::get('/reset-password/{token}',
+    [App\Http\Controllers\Auth\LoginController::class, 'showResetForm'])
+    ->middleware('guest')->name('password.reset');
+
+Route::post('/reset-password',
+    [App\Http\Controllers\Auth\LoginController::class, 'reset'])
+    ->middleware([
+        'guest',
+        'honeypot',
+        'cloudflare_turnstile'
+    ])->name('password.update');
+
 
 #admin panel
 Route::group(['prefix' => '/'.config('settings.admin_panel_path')], function(){
-
-
-    Route::get('/forgot-password',
-        [App\Http\Controllers\Auth\LoginController::class, 'forgotPassword'])
-        ->name('forgot-password')->middleware('guest');
-
-    Route::post('/forgot-password',
-        [App\Http\Controllers\Auth\LoginController::class, 'resetPassword'])
-        ->middleware([
-            'guest',
-            'honeypot',
-            'cloudflare_turnstile'
-        ]);
-
-    Route::get('/reset-password/{token}',
-        [App\Http\Controllers\Auth\LoginController::class, 'showResetForm'])
-        ->middleware('guest')->name('password.reset');
-
-    Route::post('/reset-password',
-        [App\Http\Controllers\Auth\LoginController::class, 'reset'])
-        ->middleware([
-            'guest',
-            'honeypot',
-            'cloudflare_turnstile'
-        ])->name('password.update');
 
     Route::group(['middleware' => 'auth'], function(){
         Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'index'])
@@ -65,12 +64,12 @@ Route::group(['prefix' => '/'.config('settings.admin_panel_path')], function(){
 });
 
 
-Route::get('/'.__('categories.page_url').'/{categories:slug}', [App\Http\Controllers\HomeController::class, 'index'])->name('post.categories');
-Route::get('/'.__('categories.page_url').'/{categories:slug}/{posts:slug}', [App\Http\Controllers\HomeController::class, 'index'])->name('post.categories.post');
-Route::get('/'.__('categories.page_url'), [App\Http\Controllers\HomeController::class, 'index'])->name('categories');
+Route::get('/{language}/'.__('categories.page_url').'/{categories:slug}', [App\Http\Controllers\HomeController::class, 'index'])->name('post.categories');
+Route::get('/{language}/'.__('categories.page_url').'/{categories:slug}/{posts:slug}', [App\Http\Controllers\HomeController::class, 'index'])->name('post.categories.post');
+Route::get('/{language}/'.__('categories.page_url'), [App\Http\Controllers\HomeController::class, 'index'])->name('categories');
 
-Route::get('/'.__('tags.tags_url').'/{tags:tags}', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/{language}/'.__('contacts.page_url'), [App\Http\Controllers\HomeController::class, 'index'])->name('contact');
 
-Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-Route::get('/{post:slug}', [App\Http\Controllers\HomeController::class, 'index'])->name('page');
+Route::get('/{language?}', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/{language}/{post:slug}', [App\Http\Controllers\HomeController::class, 'index'])->name('page');
 

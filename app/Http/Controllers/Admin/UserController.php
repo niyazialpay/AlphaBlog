@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Action\SocialNetworkSaveAction;
+use App\Action\UserAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PasswordRequest;
 use App\Http\Requests\UserCreateRequest;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
     public function login(){
-        return view("auth.login");
+        return view("panel.auth.login");
     }
 
     public function index(){
@@ -26,9 +27,6 @@ class UserController extends Controller
     }
 
     public function changePassword(PasswordRequest $request){
-        $request->validate([
-            'password' => 'required|confirmed|min:8',
-        ]);
         $user = auth()->user();
         if(!Hash::check($request->old_password, $user->password)){
             return response()->json([
@@ -36,35 +34,23 @@ class UserController extends Controller
                 'message' => __('profile.old_password_incorrect')
             ], 422);
         }
-        $user->password = Hash::make($request->password);
-        $user->save();
+        UserAction::changePassword($request, $user);
         return response()->json([
             'status' => 'success',
             'message' => __('profile.password_change_success')
         ], 200);
     }
 
-    private function userSave($request, $user){
-        $user->name = $request->name;
-        $user->surname = $request->surname;
-        $user->nickname = $request->nickname;
-        $user->location = $request->location;
-        $user->about = $request->about;
-        $user->education = $request->education;
-        $user->job_title = $request->job_title;
-        $user->skills = $request->skills;
-        if($request->has('role')){
-            $user->role = $request->role;
-        }
-        $user->save();
+    public function userPasswordChange(Request $request, User $user){
+        UserAction::changePassword($request, $user);
         return response()->json([
             'status' => 'success',
-            'message' => __('profile.save_success')
+            'message' => __('profile.password_change_success')
         ], 200);
     }
 
     public function save(UserRequest $request){
-        return $this->userSave($request, auth()->user());
+        return UserAction::userSave($request, auth()->user());
     }
 
     private function socialProfileSave($request, $user_id){
@@ -103,10 +89,8 @@ class UserController extends Controller
     }
 
     public function userUpdate(Request $request, User $user){
-        return $this->userSave($request, $user);
+        return UserAction::userSave($request, $user);
     }
-
-
 
     public function create(){
         if(auth()->user()->cant('fullPermission', auth()->user())){

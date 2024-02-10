@@ -58,7 +58,7 @@ class LoginController extends Controller
     }
 
     public function forgotPassword(){
-        return view('auth.passwords.reset');
+        return view('panel.auth.passwords.reset');
     }
 
     public function resetPassword(Request $request){
@@ -81,7 +81,7 @@ class LoginController extends Controller
     }
 
     public function showResetForm($token){
-        return view('auth.passwords.reset-form', ['token' => $token]);
+        return view('panel.auth.passwords.reset-form', ['token' => $token]);
     }
 
     public function reset(Request $request){

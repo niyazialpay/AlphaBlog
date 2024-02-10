@@ -11,14 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('languages', function (Blueprint $table) {
+        Schema::create('themes', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->string('code')->unique();
-            $table->string('flag')->nullable();
-            $table->boolean('is_active')->default(true);
-            $table->boolean('is_default')->default(false);
-            $table->timestamps();
+            $table->boolean('is_default')->default(false)->index();
         });
     }
 
@@ -27,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('languages');
+        Schema::dropIfExists('themes');
     }
 };

@@ -16,43 +16,57 @@
                 <div class="card-header">
                     <ul class="nav nav-pills border-bottom">
                         <li class="nav-item">
-                            <a class="nav-link active" href="#general" data-bs-toggle="tab">
+                            <a class="nav-link settings-links @if(request()->get('tab')=='general') active @endif"
+                               href="javascript:ChangeTab('general')"
+                               id="general-menu">
                                 <i class="fa-duotone fa-gear"></i>
                                 @lang('settings.general_settings')
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#seo" data-bs-toggle="tab">
+                            <a class="nav-link settings-links @if(request()->get('tab')=='seo') active @endif"
+                               href="javascript:ChangeTab('seo')"
+                               id="seo-menu">
                                 <i class="fa-duotone fa-magnifying-glass"></i>
                                 SEO
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#analytics" data-bs-toggle="tab">
+                            <a class="nav-link settings-links @if(request()->get('tab')=='analytics') active @endif"
+                               href="javascript:ChangeTab('analytics')"
+                               id="analytics-menu">
                                 <i class="fa-duotone fa-magnifying-glass-chart"></i>
                                 @lang('settings.analytics')
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#advertisement" data-bs-toggle="tab">
+                            <a class="nav-link settings-links @if(request()->get('tab')=='advertisement') active @endif"
+                               href="javascript:ChangeTab('advertisement')"
+                               id="advertisement-menu">
                                 <i class="fad fa-rectangle-ad"></i>
                                 @lang('settings.advertisement')
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#social-networks" data-bs-toggle="tab">
+                            <a class="nav-link settings-links @if(request()->get('tab')=='social-networks') active @endif"
+                               href="javascript:ChangeTab('social-networks')"
+                               id="social-networks-menu">
                                 <i class="fa-duotone fa-share-nodes"></i>
                                 @lang('social.social_networks')
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#themes" data-bs-toggle="tab">
+                            <a class="nav-link settings-links @if(request()->get('tab')=='themes') active @endif"
+                               href="javascript:ChangeTab('themes')"
+                               id="themes-menu">
                                 <i class="fa-duotone fa-brush"></i>
                                 @lang('settings.themes')
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#languages" data-bs-toggle="tab">
+                            <a class="nav-link settings-links @if(request()->get('tab')=='languages') active @endif"
+                               href="javascript:ChangeTab('languages')"
+                               id="languages-menu">
                                 <i class="fa-duotone fa-language"></i>
                                 @lang('settings.languages')
                             </a>
@@ -61,7 +75,8 @@
                 </div>
                 <div class="card-body">
                     <div class="tab-content">
-                        <div class="tab-pane active" id="general">
+                        <div class="tab-pane settings-tabs @if(request()->get('tab')=='general') active @endif"
+                             id="general">
                             @if(session('success'))
                                 <div class="alert alert-success">
                                     {{session('success')}}
@@ -80,7 +95,8 @@
                                     @if($general_settings->getFirstMediaUrl('site_logo'))
                                         <img src="{{$general_settings->getFirstMediaUrl('site_logo')}}" alt="site_logo"
                                              class="img-fluid mx-5">
-                                        <a href="javascript:imageDelete('{{$general_settings->getMedia('site_logo')[0]->id}}', 'site_logo')" class="btn btn-sm btn-danger">
+                                        <a href="javascript:imageDelete('{{$general_settings->getMedia('site_logo')[0]->id}}', 'site_logo')"
+                                           class="btn btn-sm btn-danger">
                                             <i class="fa fa-trash"></i>
                                         </a>
                                     @else
@@ -93,7 +109,8 @@
                                         <img src="{{$general_settings->getFirstMediaUrl('site_favicon')}}"
                                              alt="site_favicon"
                                              class="img-fluid mx-5">
-                                        <a href="javascript:imageDelete('{{$general_settings->getMedia('site_favicon')[0]->id}}', 'site_favicon')" class="btn btn-sm btn-danger">
+                                        <a href="javascript:imageDelete('{{$general_settings->getMedia('site_favicon')[0]->id}}', 'site_favicon')"
+                                           class="btn btn-sm btn-danger">
                                             <i class="fa fa-trash"></i>
                                         </a>
                                     @else
@@ -111,7 +128,8 @@
                             </form>
                         </div>
 
-                        <div class="tab-pane" id="seo">
+                        <div class="tab-pane settings-tabs @if(request()->get('tab')=='seo') active @endif"
+                             id="seo">
                             <form class="card" id="seoSave" method="post" action="javascript:void(0)">
                                 @csrf
                                 <div class="card-header">
@@ -235,7 +253,8 @@
                             </div>
                         </div>
 
-                        <div class="tab-pane" id="analytics">
+                        <div class="tab-pane settings-tabs @if(request()->get('tab')=='analytics') active @endif"
+                             id="analytics">
                             <form class="row" id="analyticsForm" method="post" action="javascript:void(0);">
                                 <div class="col-12 mb-3">
                                     <label for="google_analytics">Google Analytics</label>
@@ -268,7 +287,8 @@
                             </form>
                         </div>
 
-                        <div class="tab-pane" id="advertisement">
+                        <div class="tab-pane settings-tabs @if(request()->get('tab')=='advertisement') active @endif"
+                             id="advertisement">
                             <form method="post" action="javascript:void(0);" id="advertisePost" class="row">
                                 <div class="col-12 mb-3">
                                     <label for="google_ad_manager">
@@ -276,7 +296,7 @@
                                     </label>
                                     <input type="text" class="form-control" id="google_ad_manager"
                                            name="google_ad_manager"
-                                           value="{{$advertise_settings->google_ad_manager}}">
+                                           value="{{$advertise_settings?->google_ad_manager}}">
                                 </div>
                                 @csrf
                                 <div class="col-12 mb-3">
@@ -285,7 +305,8 @@
                             </form>
                         </div>
 
-                        <div class="tab-pane" id="social-networks">
+                        <div class="tab-pane settings-tabs @if(request()->get('tab')=='social-networks') active @endif"
+                             id="social-networks">
                             <form class="row" method="post" id="socialNetworkForm" action="javascript:void(0)">
                                 <div class="col-12 mb-3">
                                     <div class="input-group">
@@ -483,10 +504,67 @@
                             </form>
                         </div>
 
-                        <div class="tab-pane" id="themes">
+                        <div class="tab-pane settings-tabs @if(request()->get('tab')=='themes') active @endif"
+                             id="themes">
+                            @if(session('success'))
+                                <div class="alert alert-success">
+                                    {{session('success')}}
+                                </div>
+                            @endif
+                            @if(session('error'))
+                                <div class="alert alert-danger">
+                                    {{session('error')}}
+                                </div>
+                            @endif
+                            <table class="table" aria-describedby="table">
+                                <tr>
+                                    <th>@lang('themes.theme')</th>
+                                    <th>@lang('language.default')</th>
+                                    <th>@lang('general.actions')</th>
+                                </tr>
+                                @foreach($themes as $theme)
+                                    <tr>
+                                        <td>
+                                            {{$theme->name}}
+                                        </td>
+                                        <td>
+                                            @if($theme->is_default)
+                                                <span class="badge bg-primary">@lang('general.yes')</span>
+                                            @else
+                                                <span class="badge bg-secondary">@lang('general.no')</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if(!$theme->is_default)
+                                                <a href="{{route('admin.settings.themes.default', $theme)}}"
+                                                   data-bs-toggle="tooltip"
+                                                   data-bs-placement="top"
+                                                   title="@lang('themes.make_default')"
+                                                   class="btn btn-sm btn-primary">
+                                                    <i class="fa-duotone fa-check"></i>
+                                                </a>
+                                                <a href="javascript:deleteTheme('{{$theme->id}}')"
+                                                   data-bs-toggle="tooltip"
+                                                   data-bs-placement="top"
+                                                   title="@lang('general.delete')"
+                                                   class="btn btn-sm btn-danger">
+                                                    <i class="fa fa-trash"></i>
+                                                </a>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </table>
+                            <a href="#"
+                               data-bs-toggle="modal"
+                               data-bs-target="#themeUploadModal"
+                               class="btn btn-primary">
+                                @lang('general.new')
+                            </a>
                         </div>
 
-                        <div class="tab-pane" id="languages">
+                        <div class="tab-pane settings-tabs @if(request()->get('tab')=='languages') active @endif"
+                             id="languages">
                             <table class="table" aria-describedby="table">
                                 <tr>
                                     <th>@lang('language.language')</th>
@@ -531,7 +609,7 @@
                                                class="btn btn-sm btn-primary">
                                                 <i class="fa fa-edit"></i>
                                             </a>
-                                            <a href=""
+                                            <a href="javascript:deleteLanguage('{{$language->id}}')"
                                                data-bs-toggle="tooltip"
                                                data-bs-placement="top"
                                                title="@lang('general.delete')"
@@ -549,7 +627,7 @@
             </div>
         </div>
     </div>
-    <div class="modal" tabindex="-1" id="languageModal">
+    <div class="modal fade" tabindex="-1" id="languageModal">
         <div class="modal-dialog">
             <form class="modal-content" method="post" id="languageForm" action="javascript:void(0)">
                 <div class="modal-header">
@@ -571,15 +649,15 @@
                             <input type="text" class="form-control" id="flag" name="flag">
                         </div>
                         <div class="col-12 mb-3">
-                            <label for="status">@lang('language.status')</label>
-                            <select name="status" id="status" class="form-control">
+                            <label for="is_active">@lang('language.status')</label>
+                            <select name="is_active" id="is_active" class="form-control">
                                 <option value="1">@lang('general.active')</option>
                                 <option value="0">@lang('general.passive')</option>
                             </select>
                         </div>
                         <div class="col-12 mb-3">
-                            <label for="default">@lang('language.default')</label>
-                            <select name="default" id="default" class="form-control">
+                            <label for="is_default">@lang('language.default')</label>
+                            <select name="is_default" id="is_default" class="form-control">
                                 <option value="1">@lang('general.yes')</option>
                                 <option value="0">@lang('general.no')</option>
                             </select>
@@ -589,7 +667,34 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@lang('general.close')</button>
+                    <button type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal">@lang('general.close')</button>
+                    <button type="submit" class="btn btn-primary">@lang('general.save')</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal fade" id="themeUploadModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <form class="modal-content" method="post" enctype="multipart/form-data"
+                  id="themeUploadForm" action="javascript:void(0)">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">@lang('themes.upload_theme')</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label for="theme">@lang('themes.theme')</label>
+                            <input type="file" class="form-control" id="theme" name="theme">
+                        </div>
+                        @csrf
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal">@lang('general.close')</button>
                     <button type="submit" class="btn btn-primary">@lang('general.save')</button>
                 </div>
             </form>
@@ -600,12 +705,12 @@
 @section('script')
     <script>
         let languageSaveUrl = '{{route('admin.settings.languages.save')}}';
-        function imageDelete(media_id, media_type){
+
+        function imageDelete(media_id, media_type) {
             let post_url;
-            if(media_type === "site_logo"){
+            if (media_type === "site_logo") {
                 post_url = '{{route('admin.settings.general.logo.delete')}}';
-            }
-            else{
+            } else {
                 post_url = '{{route('admin.settings.general.favicon.delete')}}';
             }
             Swal.fire(
@@ -626,7 +731,7 @@
                                 _token: '{{csrf_token()}}'
                             },
                             success: function (result) {
-                                if(result.success){
+                                if (result.success) {
                                     Swal.fire({
                                         icon: 'success',
                                         title: '@lang('post.delete_image_success_title')',
@@ -635,8 +740,7 @@
                                         timer: 1500
                                     });
                                     window.location.reload();
-                                }
-                                else{
+                                } else {
                                     Swal.fire({
                                         icon: 'warning',
                                         title: '@lang('post.delete_image_error_title')',
@@ -662,7 +766,7 @@
             );
         }
 
-        function saveSettings(url, formId){
+        function saveSettings(url, formId) {
             $.ajax({
                 type: 'POST',
                 url: url,
@@ -693,7 +797,7 @@
             });
         }
 
-        function editLanguage(id){
+        function editLanguage(id) {
             languageSaveUrl = '{{route('admin.settings.languages.save')}}/' + id;
             $.ajax({
                 type: 'POST',
@@ -707,8 +811,8 @@
                         $('#name').val(response.name);
                         $('#code').val(response.code);
                         $('#flag').val(response.flag);
-                        $('#status').val(response.is_active?1:0);
-                        $('#default').val(response.is_default?1:0);
+                        $('#is_active').val(response.is_active ? 1 : 0);
+                        $('#is_default').val(response.is_default ? 1 : 0);
                         $('#language_id').val(response._id).attr('disabled', false);
                         $('#languageModal').modal('show');
                     } else {
@@ -729,20 +833,125 @@
             });
         }
 
-        function openLanguageModal(){
+        function openLanguageModal() {
             languageSaveUrl = '{{route('admin.settings.languages.save')}}';
             $('#languageForm').trigger('reset');
             $('#language_id').val('').attr('disabled', true);
             $('#languageModal').modal('show');
         }
 
-        function deleteLanguage(id){
+        function deleteLanguage(id) {
             Swal.fire({
-
+                title: "@lang('general.are_you_sure')",
+                text: "@lang('language.delete_warning')",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "@lang('general.yes')",
+                cancelButtonText: "@lang('general.no')",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '{{route('admin.settings.languages.delete')}}',
+                        data: {
+                            id: id,
+                            _token: '{{csrf_token()}}'
+                        },
+                        success: function (response) {
+                            if (response.status) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '@lang('language.delete_success')',
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
+                                window.location.reload();
+                            } else {
+                                Swal.fire(
+                                    'Error!',
+                                    response.message,
+                                    'error'
+                                );
+                            }
+                        },
+                        error: function (response) {
+                            Swal.fire(
+                                'Error!',
+                                response.message,
+                                'error'
+                            );
+                        }
+                    });
+                }
             })
         }
 
+        function deleteTheme(id) {
+            Swal.fire({
+                title: "@lang('general.are_you_sure')",
+                text: "@lang('themes.delete_warning')",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "@lang('general.yes')",
+                cancelButtonText: "@lang('general.no')",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '{{route('admin.settings.themes.delete')}}',
+                        data: {
+                            id: id,
+                            _token: '{{csrf_token()}}'
+                        },
+                        success: function (response) {
+                            if (response.status === "success") {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '@lang('themes.delete_success')',
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
+                                //window.location.reload();
+                            } else {
+                                Swal.fire(
+                                    'Error!',
+                                    response.message,
+                                    'error'
+                                );
+                            }
+                        },
+                        error: function (response) {
+                            Swal.fire(
+                                'Error!',
+                                response.message,
+                                'error'
+                            );
+                        }
+                    });
+                }
+            })
+        }
+
+        function ChangeTab(tab) {
+            window.history.pushState("", "", '{{route('admin.settings')}}?tab=' + tab);
+            $('.settings-tabs').removeClass('active');
+            $('#' + tab).addClass('active').click();
+            $('.settings-links').removeClass('active');
+            $('#' + tab + '-menu').addClass('active');
+        }
+
+
         $(document).ready(function () {
+            let urlParams = new URLSearchParams(window.location.search);
+
+            if (urlParams.has('tab')) {
+                ChangeTab(urlParams.get('tab'));
+            } else {
+                ChangeTab('general');
+            }
+
             $('#seoSave').submit(function () {
                 saveSettings('{{route('admin.settings.seo.save')}}', 'seoSave');
             });
@@ -751,20 +960,55 @@
                 saveSettings('{{route('admin.settings.seo.robots.save')}}', 'robotsTxtSave');
             });
 
-            $('#socialNetworkForm').submit(function(){
+            $('#socialNetworkForm').submit(function () {
                 saveSettings('{{route('admin.settings.social.save')}}', 'socialNetworkForm');
             });
 
-            $('#analyticsForm').submit(function(){
+            $('#analyticsForm').submit(function () {
                 saveSettings('{{route('admin.settings.analytics.save')}}', 'analyticsForm');
             });
 
-            $('#advertisePost').submit(function(){
+            $('#advertisePost').submit(function () {
                 saveSettings('{{route('admin.settings.advertisement.save')}}', 'advertisePost');
             });
 
-            $('#languageForm').submit(function(){
-                saveSettings('{{route('admin.settings.languages.save')}}', 'languageForm');
+            $('#languageForm').submit(function () {
+                saveSettings(languageSaveUrl, 'languageForm');
+                window.location.reload();
+            });
+
+            $('#themeUploadForm').submit(function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '{{route('admin.settings.themes.upload')}}',
+                    data: new FormData($('#themeUploadForm')[0]),
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.message,
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                            window.location.reload();
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                response.message,
+                                'error'
+                            );
+                        }
+                    },
+                    error: function (response) {
+                        Swal.fire(
+                            'Error!',
+                            response.message,
+                            'error'
+                        );
+                    }
+                });
             });
         });
     </script>

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('panel.auth.layouts.app')
 
 @section('content')
     <form action="javascript:void(0)" id="reset_panel" method="post">

@@ -16,7 +16,7 @@ class SettingsSeeder extends Seeder
      */
     public function run(): void
     {
-        /*Languages::create([
+        Languages::create([
             'title' => 'English',
             'flag' => 'us',
             'code' => 'en',
@@ -29,7 +29,7 @@ class SettingsSeeder extends Seeder
             'code' => 'tr',
             'is_default' => true,
             'is_active' => true,
-        ]);*/
+        ]);
         SeoSettings::create([
             'title' => 'Laravel',
             'description' => 'Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in most web projects.',

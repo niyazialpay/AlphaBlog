@@ -16,4 +16,12 @@ class Languages extends Model
         'is_active',
         'is_default'
     ];
+
+    public function getLanguage($code)
+    {
+        return $this::where('is_active', true)
+            ->where('code', $code)
+            ->hint('code_1_unique_1')
+            ->first();
+    }
 }
