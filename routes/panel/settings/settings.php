@@ -42,3 +42,19 @@ Route::post('/languages/show', [App\Http\Controllers\Admin\LanguagesController::
 Route::post('/languages/save/{language?}', [App\Http\Controllers\Admin\LanguagesController::class, 'save'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.languages.save');
+
+Route::post('/languages/delete', [App\Http\Controllers\Admin\LanguagesController::class, 'delete'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.settings.languages.delete');
+
+Route::post('/themes/delete', [App\Http\Controllers\Admin\Settings\ThemesSettingsController::class, 'delete'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.settings.themes.delete');
+
+Route::post('/theme/upload' , [App\Http\Controllers\Admin\Settings\ThemesSettingsController::class, 'upload'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.settings.themes.upload');
+
+Route::get('/theme/activate/{theme}', [App\Http\Controllers\Admin\Settings\ThemesSettingsController::class, 'makeDefault'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.settings.themes.default');

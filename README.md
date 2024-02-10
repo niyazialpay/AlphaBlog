@@ -1,5 +1,4 @@
 ## About This Project
-
 # <a href="https://alphablog.dev>" target="_blank">Alpha Blog</a>
 
 MongoDB is used as the database in this blog system prepared with Laravel. The in-site search engine is provided by Meilisearch.
@@ -35,4 +34,23 @@ To create a user after these operations
 ``php artisan app:create-user``
 
 ## Features
+
+- Blogs with Categories
+- Page
+- Page Design with widgets
+- Personal notes
+  - Your personal notes are stored encrypted in the database.
+  - Your encryption key is not stored in the database. If you forget your encryption key, you will not be able to access your notes. 
+  - Your notes can not accessed by the admin or any other user.
+- In-site search engine (Meilisearch)
+- Admin panel
+- User management
+- Cloudflare Turnstile (similar to Google Recaptcha)
+- Email SMTP
+- Media Library
+- MongoDB
+- Laravel 11
+- PHP 8.3
+- Bootstrap 5
+- Font Awesome 6.5.1 (Pro)
 

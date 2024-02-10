@@ -23,7 +23,8 @@
         "qazd/text-diff": "^0.1.1",
         "spatie/image": "^3.3",
         "spatie/laravel-analytics": "^5.2",
-        "spatie/laravel-honeypot": "^4.4"
+        "spatie/laravel-honeypot": "^4.4",
+      "ext-zip": "*"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.9",

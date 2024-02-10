@@ -24,3 +24,7 @@ Route::post('/{user}/edit', [App\Http\Controllers\Admin\UserController::class, '
 Route::post('/{user}/social', [App\Http\Controllers\Admin\UserController::class, 'userSocialSave'])
     ->can('admin', 'App\Models\User')
     ->name('admin.user.social.save');
+
+Route::post('/{user}/password', [App\Http\Controllers\Admin\UserController::class, 'userPasswordChange'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.user.password');

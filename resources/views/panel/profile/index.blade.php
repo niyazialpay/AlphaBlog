@@ -383,6 +383,7 @@
                                             <div class="tab-content">
                                                 <div class="tab-pane active" id="password-change-tab">
                                                     <form class="row" action="javascript:void(0)" id="passwordChangeForm">
+                                                        @if(!request()->route()->parameter('user'))
                                                         <div class="col-12 mb-3">
                                                             <label for="old_password" class="form-label">
                                                                 @lang('profile.old_password.text')
@@ -391,6 +392,7 @@
                                                                    id="old_password" name="old_password"
                                                                    placeholder="@lang('profile.old_password.placeholder')">
                                                         </div>
+                                                        @endif
                                                         <div class="col-12 mb-3">
                                                             <label for="password" class="form-label">
                                                                 @lang('profile.new_password.text')
@@ -410,6 +412,7 @@
                                                         <div class="col-12 mb-3">
                                                             <button type="submit" class="btn btn-primary">@lang('general.save')</button>
                                                         </div>
+                                                        @csrf
                                                     </form>
                                                 </div>
                                             </div>
@@ -447,19 +450,22 @@
 
             let profile_update_url;
             let social_network_update_url;
+            let password_change_url;
             @if(request()->route()->parameter('user'))
                 profile_update_url = '{{route('admin.user.edit', $user)}}';
-                social_network_update_url = '{{route('admin.user.social.save', $user)}}'
+                social_network_update_url = '{{route('admin.user.social.save', $user)}}';
+                password_change_url = '{{route('admin.user.password', $user)}}';
             @else
                 profile_update_url = '{{route('admin.profile.save')}}';
                 social_network_update_url = '{{route('admin.profile.social.save')}}'
+                password_change_url = '{{route('admin.profile.password')}}';
             @endif
 
             $('#passwordChangeForm').submit(function (e) {
                 e.preventDefault();
                 let data = $(this).serialize();
                 $.ajax({
-                    url: '{{route('admin.profile.password')}}',
+                    url: password_change_url,
                     type: 'POST',
                     data: data,
                     success: function (response) {
