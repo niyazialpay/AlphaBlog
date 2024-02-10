@@ -1,0 +1,54 @@
+{
+    "@context": "http://schema.org/",
+    "@graph":
+    [
+        {
+            "@type": "Comment",
+            "@id":"https://niyazi.net/php-coklu-resim-upload-ve-boyutlandirma#yorum-232",
+            "text":"güzel bir çalışma fakat dik resimlerde çalışmıyor dikresimlerde yüklendiğinde yatay geliyor",
+            "downvoteCount":"0",
+            "upvoteCount":"0",
+            "dateCreated":"0000-00-00 00:00:00",
+            "author":[{
+                "@type":"Thing",
+                "name":""
+            }]
+        },
+        {
+            "@type": "Comment",
+            "@id":"https://niyazi.net/php-coklu-resim-upload-ve-boyutlandirma#yorum-234",
+            "text":"Merhaba, &lt;a href=&quot;https://niyazi.org/196-php-resim-upload-ve-boyutlandirma-sinifi.mna&quot;&gt;önceki konumda&lt;/a&gt; anlatmış olduğum resim.class.php dosyasının güncel hali aşağıdaki gibi, aynı konuda da ilgili kodların güncellemesini gerçekleştirdim. Bunlarla dik bir resimde denediğimde orantısını bozmadan yeniden boyutlandırarak upload işlemini gerçekleştirdim. &lt;pre&gt; &amp;lt;?php class ResimIslem{ public function watermark($filigran, $source_file_path, $output_file_path ) { list( $source_width, $source_height, $source_type ) = getimagesize( $source_file_path ); if ( $source_type === NULL ) { return false; } switch ( $source_type ) { case IMAGETYPE_GIF: $source_gd_image = imagecreatefromgif( $source_file_path ); break; case IMAGETYPE_JPEG: $source_gd_image = imagecreatefromjpeg( $source_file_path ); break; case IMAGETYPE_PNG: $source_gd_image = imagecreatefrompng( $source_file_path ); break; default: return false; } $overlay_gd_image = imagecreatefrompng($filigran); $overlay_width = imagesx( $overlay_gd_image ); $overlay_height = imagesy( $overlay_gd_image ); imagecopymerge( $source_gd_image, $overlay_gd_image, $source_width - $overlay_width, $source_height - $overlay_height, 0, 0, $overlay_width, $overlay_height, 60 ); imagejpeg( $source_gd_image, $output_file_path, 100 ); imagedestroy( $source_gd_image ); imagedestroy( $overlay_gd_image ); } public function resim_boyutlandir($resim,$k_resim,$max_en=1920,$max_boy=1200){ // içeriği başlat.. $resimdosyasi= pathinfo($resim); $uzanti=$resimdosyasi[&quot;extension&quot;]; ob_start(); // ilk boyutlar.. $boyut = getimagesize($resim); $en = $boyut[0]; $boy = $boyut[1]; // yeni boyutlar.. $x_oran = $max_en / $en; $y_oran = $max_boy / $boy; // boyutları orantıla.. if (($en &lt;= $max_en) and ($boy &lt;= $max_boy)){ $son_en = $en; $son_boy = $boy; } elseif (($x_oran * $boy) &lt; $max_boy){ $son_en = $max_en; $son_boy = ceil($x_oran * $boy); } else{ $son_en = ceil($y_oran * $en); $son_boy = $max_boy; } // uzantıya göre yeni resmi yarat.. switch($uzanti){ // jpg ve jpeg uzantılar için.. case &#039;jpg&#039;: case &#039;jpeg&#039;: // eski ve yeni resimler.. $eski = imagecreatefromjpeg($resim); $yeni = imagecreatetruecolor($son_en,$son_boy); // eski resmi yeniden oluştur.. imagecopyresampled($yeni,$eski,0,0,0,0,$son_en,$son_boy,$en,$boy); // yeni resmi bas ve içeriği çek.. imagejpeg($yeni,null,85); break; // png uzantılar için.. case &#039;png&#039;: $eski = imagecreatefrompng($resim); $yeni = imagecreatetruecolor($son_en,$son_boy); imagealphablending($yeni, false); imagesavealpha($yeni, true); $transparent = imagecolorallocatealpha($yeni, $son_en, $son_boy, $en, $boy); imagefilledrectangle($yeni, 0, 0, $son_en, $son_boy, $transparent); imagecopyresampled($yeni,$eski,0,0,0,0,$son_en,$son_boy,$en,$boy); imagepng($yeni,null,-1); break; // gif uzantılar için.. case &#039;gif&#039;: $eski = imagecreatefromgif($resim); $yeni = imagecreatetruecolor($son_en,$son_boy); imagealphablending($yeni, false); imagesavealpha($yeni, true); $transparent = imagecolorallocatealpha($yeni, $son_en, $son_boy, $en, $boy); imagefilledrectangle($yeni, 0, 0, $son_en, $son_boy, $transparent); imagecopyresampled($yeni,$eski,0,0,0,0,$son_en,$son_boy,$en,$boy); imagegif($yeni,null); break; default: $eski=null; $yeni=null; break; } $icerik = ob_get_contents(); // resimleri yoket ve içeriği çıkart.. ob_end_clean(); imagedestroy($eski); imagedestroy($yeni); $dosya = fopen($k_resim,&quot;w+&quot;); fwrite($dosya,$icerik); fclose($dosya); return $icerik; } private function adlandir($baslik){ $bul = array(&#039;Ç&#039;, &#039;Ş&#039;, &#039;Ğ&#039;, &#039;Ü&#039;, &#039;İ&#039;, &#039;Ö&#039;, &#039;ç&#039;, &#039;ş&#039;, &#039;ğ&#039;, &#039;ü&#039;, &#039;ö&#039;, &#039;ı&#039;, &#039;-&#039;); $yap = array(&#039;c&#039;, &#039;s&#039;, &#039;g&#039;, &#039;u&#039;, &#039;i&#039;, &#039;o&#039;, &#039;c&#039;, &#039;s&#039;, &#039;g&#039;, &#039;u&#039;, &#039;o&#039;, &#039;i&#039;, &#039; &#039;); $perma = strtolower(str_replace($bul, $yap, $baslik)); $perma = preg_replace(&quot;@[^A-Za-z0-9\\-_]@i&quot;, &#039; &#039;, $perma); $perma = trim(preg_replace(&#039;/s+/&#039;,&#039; &#039;, $perma)); $perma = str_replace(&#039; &#039;, &#039;-&#039;, $perma); return $perma; } public function resim_upload($file_name,$file_tmp,$file_error,$file_path,$name,$en=1920,$boy=1200,$filigran=null){ $resimdosyasi= pathinfo($file_name); $uzanti=$resimdosyasi[&quot;extension&quot;]; $yeni_ad = $this-&gt;adlandir($name); $yeni = $yeni_ad.&#039;.&#039;.$uzanti; $max_en = $en; $max_boy = $boy; $b_resim = $file_path.&#039;/orijinal-&#039;.$yeni; $k_resim = $file_path.&#039;/&#039;.$yeni; if($uzanti==&#039;jpg&#039; or $uzanti==&#039;jpeg&#039; or $uzanti==&#039;png&#039; or $uzanti==&#039;gif&#039;){ if($file_error==0){ move_uploaded_file($file_tmp,$b_resim); $this-&gt;resim_boyutlandir($b_resim,$k_resim,$max_en,$max_boy); @unlink($b_resim); ///chmod($file_path, 755); if($filigran!=null){ $this-&gt;watermark($filigran,$k_resim,$k_resim); } return $yeni; } else return $file_error; } else{ @unlink($k_resim); return false; } } } &lt;/pre&gt;",
+            "downvoteCount":"0",
+            "upvoteCount":"0",
+            "dateCreated":"0000-00-00 00:00:00",
+            "author":[{
+                "@type":"Thing",
+                "name":""
+            }]
+        },
+        {
+            "@type": "Comment",
+            "@id":"https://niyazi.net/php-coklu-resim-upload-ve-boyutlandirma#yorum-244",
+            "text":"upload.php de&lt;br /&gt;&lt;br&gt;foreach($_FILES[&quot;resim&quot;][&quot;name&quot;] as $n =&gt; $name) {&lt;br /&gt;&lt;br&gt;de hata mesajı veriyor..&lt;br /&gt;&lt;br&gt;yardımcı olursan sevinirim..",
+            "downvoteCount":"0",
+            "upvoteCount":"0",
+            "dateCreated":"0000-00-00 00:00:00",
+            "author":[{
+                "@type":"Thing",
+                "name":""
+            }]
+        },
+        {
+            "@type": "Comment",
+            "@id":"https://niyazi.net/php-coklu-resim-upload-ve-boyutlandirma#yorum-245",
+            "text":"Yükleme yapılacak dizinin yazılabilirlik izinlerini kontrol ettiniz mi veya hata loglarına baktınız mı? &lt;br&gt; &lt;br&gt; Bu gibi problemler genelde yükleme yapılacak dizinin yazılabilir olmamasından kaynaklanabilmektedir. Hata loglarını kontrol edebilirseniz sorunun çözümüne daha çabuk ulaşabilirsiniz.",
+            "downvoteCount":"0",
+            "upvoteCount":"0",
+            "dateCreated":"0000-00-00 00:00:00",
+            "author":[{
+                "@type":"Thing",
+                "name":""
+            }]
+        }
+    ]
+}
