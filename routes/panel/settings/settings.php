@@ -27,6 +27,10 @@ Route::post('/social/save', [App\Http\Controllers\Admin\Settings\SocialSettingsC
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.social.save');
 
+Route::post('/social/header/save', [App\Http\Controllers\Admin\Settings\SocialSettingsController::class, 'saveHeader'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.settings.social.header.save');
+
 Route::post('/analytics/save', [App\Http\Controllers\Admin\Settings\AnalyticsSettingsController::class, 'save'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.analytics.save');

@@ -8,9 +8,11 @@ return [
     'facebook_username' => 'Facebook Kullanıcı Adı',
     'devto_username' => 'Dev.to Kullanıcı Adı',
     'medium_username' => 'Medium Kullanıcı Adı',
-    'youtube_username' => 'Youtube Kullanıcı Adı',
+    'youtube_username' => 'YouTube Kullanıcı Adı',
     'reddit_username' => 'Reddit Kullanıcı Adı',
     'xbox_username' => 'Xbox Kullanıcı Adı',
-    'deviantart_username' => 'Deviantart Kullanıcı Adı',
+    'deviantart_username' => 'DeviantArt Kullanıcı Adı',
     'website' => 'Website',
+    'show_header' => 'Headerda Göster',
+    'multiple_select' => 'Birden fazla sosyal medya seçmek için Ctrl (windows) veya Command (Mac) tuşuna basılı tutarak seçmek istediğiniz sosyal medyaları tıklayabilirsiniz.',
 ];
