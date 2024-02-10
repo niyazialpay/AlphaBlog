@@ -55,7 +55,7 @@
     <link rel="stylesheet" href="{{config('app.url')}}/themes/Default/css/bootstrap.min.css" />
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="{{config('app.url')}}/themes/Default/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="{{config('app.url')}}/themes/fontawesome/css/all.css" />
 
     <!-- Carousel -->
     <link rel="stylesheet" href="{{config('app.url')}}/themes/Default/css/owl.carousel.min.css" />
@@ -184,12 +184,7 @@
             <div class=" pull-right hidden-xs hidden-sm">
                 <ul class="nav social-links">
                     <li><a href="javascript:void(0);" class="searchbutton" title="Ara"><i class="fa fa-search searchbutton" title="Ara"></i></a></li>
-                    <li><a href="https://github.com/niyazialpay" target="_blank" rel="nofollow"><i class="fa fa-github"></i></a></li>
-                    <li><a href="https://www.linkedin.com/in/niyazialpay/" target="_blank" rel="nofollow"><i class="fa fa-linkedin"></i></a></li>
-                    <li><a href="https://facebook.com/MNiyaziAlpay" target="_blank" rel="nofollow"><i class="fa fa-facebook"></i></a></li>
-                    <li><a href="https://twitter.com/niyazialpay" target="_blank" rel="nofollow"><i class="fa fa-twitter"></i></a></li>
-                    <li><a href="https://instagram.com/niyazialpay" target="_blank" rel="nofollow"><i class="fa fa-instagram"></i> </a></li>
-                    <li><a href="/rss" target="_blank"><i class="fa fa-rss"></i> </a></li>
+                    <x-social-menu/>
                 </ul>
 
             </div>
@@ -221,13 +216,7 @@
             <div class="row">
                 <div class="full">
                     <ul class="quick-link">
-
-                        <li><a href="https://github.com/niyazialpay" target="_blank" rel="nofollow"><i class="fa fa-github"></i></a></li>
-                        <li><a href="https://www.linkedin.com/in/niyazialpay/" target="_blank" rel="nofollow"><i class="fa fa-linkedin"></i></a></li>
-                        <li><a href="https://facebook.com/MNiyaziAlpay" target="_blank" rel="nofollow"><i class="fa fa-facebook"></i> </a></li>
-                        <li><a href="https://twitter.com/niyazialpay" target="_blank" rel="nofollow"><i class="fa fa-twitter"></i></a></li>
-                        <li><a href="https://instagram.com/niyazialpay" target="_blank" rel="nofollow"><i class="fa fa-instagram"></i> </a></li>
-                        <li><a href="/rss" target="_blank"><i class="fa fa-rss"></i> </a></li>
+                        <x-social-menu/>
                     </ul>
 
                     <div class="copy-right">

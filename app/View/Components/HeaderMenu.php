@@ -24,12 +24,14 @@ class HeaderMenu extends Component
      */
     public function render(): View|Closure|string
     {
-        $items = Menu::with('menuItems')->where('language', session()->get('language'))
+        $items = Menu::with(['menuItems' => function($query){
+            $query->where('parent_id', null);
+        }])->where('language', session()->get('language'))
             ->where('menu_position', 'header')
             ->first();
         $menu_items = $items->menuItems;
 
-        return view(app('theme')->name.'.components.header_menu', [
+        return view(app('theme')->name.'.components.menu.header_menu', [
             'menu_items' => $menu_items
         ]);
     }
