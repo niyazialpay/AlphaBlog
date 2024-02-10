@@ -8,6 +8,7 @@ use App\Models\Settings\AdvertiseSettings;
 use App\Models\Settings\AnalyticsSettings;
 use App\Models\Settings\GeneralSettings;
 use App\Models\Settings\SeoSettings;
+use App\Models\Settings\SocialSettings;
 use App\Models\SocialNetworks;
 use App\Models\Themes;
 
@@ -21,9 +22,10 @@ class SettingsController extends Controller
             'advertise_settings' => AdvertiseSettings::first(),
             'analytics_settings' => AnalyticsSettings::first(),
             'all_languages' => Languages::all(),
-            'social_settings' => SocialNetworks::where('type', 'website')->first(),
+            'social_networks' => SocialNetworks::where('type', 'website')->first(),
             'robots_txt' => file_exists(public_path('robots.txt')) ? file_get_contents(public_path('robots.txt')) : null,
-            'themes' => Themes::all()
+            'themes' => Themes::all(),
+            'social_settings' => SocialSettings::first()
         ]);
     }
 }

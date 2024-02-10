@@ -77,7 +77,7 @@
                                     <li class="list-group-item border">
                                         <a href="javascript:menuAdd(
                                         '{{route('page', [
-                                            session()->get('language'),$page
+                                            $menu->language,$page
                                             ])}}', '{{$page->title}}', '_self');"
                                            class="list-group-item-action d-flex">
                                             {{$page->title}}
@@ -95,7 +95,7 @@
                                     <li class="list-group-item border">
                                         <a href="javascript:menuAdd(
                                         '{{route('page', [
-                                            session()->get('language'),$page
+                                            $menu->language,$page
                                             ])}}', '{{$post->title}}', '_self');"
                                            class="list-group-item-action d-flex">
                                             {{$post->title}}
@@ -112,7 +112,7 @@
                                 @foreach($categories as $category)
                                     <li class="list-group-item border">
                                         <a href="javascript:menuAdd('{{route('post.categories', [
-                                        session()->get('language'),
+                                        $menu->language,
                                         $category]
                                         )}}',
                                         '{{$category->name}}', '_self');"

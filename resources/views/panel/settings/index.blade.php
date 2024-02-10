@@ -307,25 +307,25 @@
 
                         <div class="tab-pane settings-tabs @if(request()->get('tab')=='social-networks') active @endif"
                              id="social-networks">
-                            <form class="row mb-3">
+                            <form class="row mb-3" id="showInHeader" method="post" action="javascript:void(0);">
                                 <div class="col-12 mb-3">
-                                    <label for="show_header">Show Header</label>
-                                    <select class="form-control" name="show_header[]" id="show_header" multiple>
-                                        <option value="facebook">Facebook</option>
-                                        <option value="x">X</option>
-                                        <option value="instagram">Instagram</option>
-                                        <option value="linkedin">Linkedin</option>
-                                        <option value="github">Github</option>
-                                        <option value="devto">Dev.to</option>
-                                        <option value="medium">Medium</option>
-                                        <option value="youtube">Youtube</option>
-                                        <option value="reddit">Reddit</option>
-                                        <option value="xbox">Xbox</option>
-                                        <option value="deviantart">Deviantart</option>
+                                    <label for="social_networks">@lang('social.show_header')</label>
+                                    <p>
+                                        @lang('social.multiple_select')
+                                    </p>
+                                    <select class="form-control" name="social_networks[]" id="social_networks" multiple style="height: 250px">
+                                        @foreach(social_list() as $key => $value)
+                                            <option value="{{$key}}"
+                                                    @if(in_array($key, $social_settings?->social_networks)) selected @endif>
+                                                {{$value}}
+                                            </option>
+
+                                        @endforeach
                                     </select>
                                 </div>
+                                @csrf
                                 <div class="col-12 mb-3">
-                                    <button class="btn btn-primary" id="showHeaderSave">@lang('general.save')</button>
+                                    <button type="submit" class="btn btn-primary" id="showHeaderSave">@lang('general.save')</button>
                                 </div>
                                 <div class="col-12">
                                     <hr>
@@ -343,7 +343,7 @@
                                         <input type="text" class="form-control"
                                                id="linkedin" name="linkedin"
                                                placeholder="@ @lang('social.linkedin_username')"
-                                               value="{{$social_settings?->linkedin}}" aria-label="Linkedin">
+                                               value="{{$social_networks?->linkedin}}" aria-label="Linkedin">
                                     </div>
                                 </div>
 
@@ -360,7 +360,7 @@
                                         <input type="text" class="form-control"
                                                id="github" name="github"
                                                placeholder="@ @lang('social.github_username')"
-                                               value="{{$social_settings?->github}}" aria-label="Github">
+                                               value="{{$social_networks?->github}}" aria-label="Github">
                                     </div>
 
                                 </div>
@@ -378,7 +378,7 @@
                                         <input type="text" class="form-control"
                                                id="instagram" name="instagram"
                                                placeholder="@ @lang('social.instagram_username')"
-                                               value="{{$social_settings?->instagram}}" aria-label="Instagram">
+                                               value="{{$social_networks?->instagram}}" aria-label="Instagram">
                                     </div>
                                 </div>
 
@@ -395,7 +395,7 @@
                                         <input type="text" class="form-control"
                                                id="x" name="x"
                                                placeholder="@ @lang('social.x_username')"
-                                               value="{{$social_settings?->x}}" aria-label="X">
+                                               value="{{$social_networks?->x}}" aria-label="X">
                                     </div>
                                 </div>
 
@@ -412,7 +412,7 @@
                                         <input type="text" class="form-control"
                                                id="facebook" name="facebook"
                                                placeholder="@ @lang('social.facebook_username')"
-                                               value="{{$social_settings?->facebook}}" aria-label="Facebook">
+                                               value="{{$social_networks?->facebook}}" aria-label="Facebook">
                                     </div>
                                 </div>
 
@@ -429,7 +429,7 @@
                                         <input type="text" class="form-control"
                                                id="devto" name="devto"
                                                placeholder="@ @lang('social.devto_username')"
-                                               value="{{$social_settings?->devto}}" aria-label="Dev.to">
+                                               value="{{$social_networks?->devto}}" aria-label="Dev.to">
                                     </div>
                                 </div>
 
@@ -446,7 +446,7 @@
                                         <input type="text" class="form-control"
                                                id="medium" name="medium"
                                                placeholder="@ @lang('social.medium_username')"
-                                               value="{{$social_settings?->medium}}" aria-label="Medium">
+                                               value="{{$social_networks?->medium}}" aria-label="Medium">
                                     </div>
                                 </div>
 
@@ -463,7 +463,7 @@
                                         <input type="text" class="form-control"
                                                id="youtube" name="youtube"
                                                placeholder="@ @lang('social.youtube_username')"
-                                               value="{{$social_settings?->youtube}}" aria-label="YouTube">
+                                               value="{{$social_networks?->youtube}}" aria-label="YouTube">
                                     </div>
                                 </div>
 
@@ -480,7 +480,7 @@
                                         <input type="text" class="form-control"
                                                id="reddit" name="reddit"
                                                placeholder="@ @lang('social.reddit_username')"
-                                               value="{{$social_settings?->reddit}}" aria-label="Reddit">
+                                               value="{{$social_networks?->reddit}}" aria-label="Reddit">
                                     </div>
                                 </div>
 
@@ -497,7 +497,7 @@
                                         <input type="text" class="form-control"
                                                id="xbox" name="xbox"
                                                placeholder="@ @lang('social.xbox_username')"
-                                               value="{{$social_settings?->xbox}}" aria-label="Xbox">
+                                               value="{{$social_networks?->xbox}}" aria-label="Xbox">
                                     </div>
                                 </div>
 
@@ -514,7 +514,7 @@
                                         <input type="text" class="form-control"
                                                id="deviantart" name="deviantart"
                                                placeholder="@ @lang('social.deviantart_username')"
-                                               value="{{$social_settings?->deviantart}}" aria-label="Deviantart">
+                                               value="{{$social_networks?->deviantart}}" aria-label="Deviantart">
                                     </div>
                                 </div>
 
@@ -994,6 +994,10 @@
 
             $('#advertisePost').submit(function () {
                 saveSettings('{{route('admin.settings.advertisement.save')}}', 'advertisePost');
+            });
+
+            $('#showInHeader').submit(function () {
+                saveSettings('{{route('admin.settings.social.header.save')}}', 'showInHeader');
             });
 
             $('#languageForm').submit(function () {
