@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('social_settings', function (Blueprint $table) {
             $table->id();
-            $table->json('social_networks');
+            $table->json('social_networks_header');
+            $table->json('social_networks_footer');
         });
     }
 

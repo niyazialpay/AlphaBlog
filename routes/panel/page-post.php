@@ -40,17 +40,24 @@ Route::post('/{post}/restore', [App\Http\Controllers\Admin\Post\PostController::
     ->withTrashed();
 
 
-Route::post('/image/delete/{posts?}', [App\Http\Controllers\Admin\Post\PostController::class, 'imageDelete'])
-    ->can('edit', 'posts')
+Route::post('/image/delete/{post?}', [App\Http\Controllers\Admin\Post\PostController::class, 'imageDelete'])
+    ->can('delete', 'post')
     ->name('admin.post.image.delete');
 
 Route::get('/{category}', [App\Http\Controllers\Admin\Post\PostController::class, 'index'])
     ->name('admin.post.category');
 
-Route::post('/editor/image/upload/{post?}', [App\Http\Controllers\Admin\Post\PostController::class, 'editorImageUpload'])
+Route::post('/editor/image/upload',
+    [App\Http\Controllers\Admin\Post\PostController::class, 'editorImageUpload'])
+    ->can('createPost', 'App\Models\Post\Posts')
+    ->name('admin.post.editor.image.upload');
+
+Route::post('/editor/image/upload/{post?}',
+    [App\Http\Controllers\Admin\Post\PostController::class, 'editorImageUpload'])
     ->can('edit', 'post')
     ->name('admin.post.editor.image.upload');
 
-Route::post('/editor/image/delete/{post}', [App\Http\Controllers\Admin\Post\PostController::class, 'postImageDelete'])
+Route::post('/editor/image/delete/{post}',
+    [App\Http\Controllers\Admin\Post\PostController::class, 'postImageDelete'])
     ->can('delete', 'post')
     ->name('admin.post.media.delete');

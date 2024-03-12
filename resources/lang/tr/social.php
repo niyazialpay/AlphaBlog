@@ -14,5 +14,6 @@ return [
     'deviantart_username' => 'DeviantArt Kullanıcı Adı',
     'website' => 'Website',
     'show_header' => 'Headerda Göster',
+    'show_footer' => 'Footerda Göster',
     'multiple_select' => 'Birden fazla sosyal medya seçmek için Ctrl (windows) veya Command (Mac) tuşuna basılı tutarak seçmek istediğiniz sosyal medyaları tıklayabilirsiniz.',
 ];

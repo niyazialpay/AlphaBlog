@@ -11,8 +11,9 @@ use App\Models\Menu\MenuItems;
 use App\Models\Post\Categories;
 use App\Models\Post\Posts;
 use App\Models\Settings\SeoSettings;
+use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class LanguagesController extends Controller
 {
@@ -54,6 +55,8 @@ class LanguagesController extends Controller
 
             $language->is_default = $request->post('is_default') == 1;
             $language->is_active = $request->post('is_active') == 1;
+            Cache::forget(config('cache.prefix').'default_language');
+            Cache::forget(config('cache.prefix').'languages');
             $language->save();
 
             LanguageAction::setLanguage($request);
@@ -63,7 +66,7 @@ class LanguagesController extends Controller
                 'message' => __('language.save_success')
             ]);
         }
-        catch (\Exception $e){
+        catch (Exception $e){
             return response()->json([
                 'status' => 'error',
                 'message' => __('language.save_error'),
@@ -101,12 +104,14 @@ class LanguagesController extends Controller
 
             SeoSettings::where('language', $language->code)->delete();
             $language->delete();
+            Cache::forget(config('cache.prefix').'default_language');
+            Cache::forget(config('cache.prefix').'languages');
             return response()->json([
                 'status' => true,
                 'message' => __('language.delete_success')
             ]);
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => __('language.delete_error'),

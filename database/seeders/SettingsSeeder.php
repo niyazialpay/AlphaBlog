@@ -7,6 +7,7 @@ use App\Models\Settings\AdvertiseSettings;
 use App\Models\Settings\AnalyticsSettings;
 use App\Models\Settings\GeneralSettings;
 use App\Models\Settings\SeoSettings;
+use App\Models\Settings\SocialSettings;
 use Illuminate\Database\Seeder;
 
 class SettingsSeeder extends Seeder
@@ -54,11 +55,10 @@ class SettingsSeeder extends Seeder
         ]);
 
         AdvertiseSettings::create([
-            'js' => null,
-            'header' => null,
-            'footer' => null,
-            'sidebar' => null,
-            'post' => null
+            'google_ad_manager' => null,
+            'square_display_advertise' => null,
+            'vertical_display_advertise' => null,
+            'horizontal_display_advertise' => null,
         ]);
 
         AnalyticsSettings::create([
@@ -66,6 +66,11 @@ class SettingsSeeder extends Seeder
             'yandex_metrica' => null,
             'fb_pixel' => null,
             'log_rocket' => null
+        ]);
+
+        SocialSettings::create([
+            'social_networks_header' => [],
+            'social_networks_footer' => []
         ]);
     }
 }

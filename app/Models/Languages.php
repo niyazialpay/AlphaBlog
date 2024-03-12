@@ -3,6 +3,7 @@
 namespace App\Models;
 
 
+use Illuminate\Support\Facades\Cache;
 use MongoDB\Laravel\Eloquent\Model;
 
 class Languages extends Model
@@ -19,9 +20,17 @@ class Languages extends Model
 
     public function getLanguage($code)
     {
-        return $this::where('is_active', true)
-            ->where('code', $code)
-            ->hint('code_1_unique_1')
-            ->first();
+        if(Cache::has(config('cache.prefix').'languages_'.$code)){
+            $languages = Cache::get(config('cache.prefix').'languages_'.$code);
+        }
+        else{
+            $languages = Cache::rememberForever(config('cache.prefix').'languages_'.$code, function()use($code){
+                return $this::where('is_active', true)
+                    ->where('code', $code)
+                    ->hint('code_1_unique_1')
+                    ->first();
+            });
+        }
+        return $languages;
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\View\Components;
 
-use App\Models\Themes;
+use App\Models\Post\Posts;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
@@ -22,6 +22,14 @@ class Slider extends Component
      */
     public function render(): View|Closure|string
     {
-        return view(app('theme')->name.'.components.slider');
+        return view(app('theme')->name.'.components.slider', [
+            'slider' => Posts::with('media', 'media.model', 'user')
+                ->where('is_published', true)
+                ->where('language', session('language'))
+                ->where('post_type', 'post')
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get()
+        ]);
     }
 }

@@ -159,6 +159,7 @@
                 }
                 $('#post_title').text(response.post.title);
                 $('#comment').val(response.comment);
+                tinyMCE.activeEditor.setContent(response.comment);
                 $('#post_id').val(response.post_id);
                 $('#created_date').val(moment(response.created_at).format("YYYY-MM-DD HH:mm"));
                 $('#commentModal').modal('show');
@@ -178,8 +179,8 @@
         $('#post_id').val(blog_id);
         $('#post_title').text(post_title);
         $('#user').val('{{auth()->user()->id}}');
-        $('#comment_name_input').hide();
-        $('#comment_email_input').hide();
+        $('#comment_name_input').show();
+        $('#comment_email_input').show();
         $('#user_select_input').show();
         $('#commentModal').modal('show');
         comment_save_url = '{{route('admin.post.comments.create')}}';
@@ -208,5 +209,29 @@
                 }
             });
         });
+
+        tinymce.init({
+            selector: 'textarea#comment',
+            height: 300,
+            promotion: false,
+            language: '{{app('default_language')->code}}',
+            branding: false,
+            toolbar: 'undo redo | insert | style select | bold italic | font | fontsize select | link',
+            menubar : false,
+            statusbar:false,
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor', 'pagebreak',
+                'searchreplace', 'wordcount', 'visualblocks', 'visualchars', 'code', 'fullscreen',
+                'insertdatetime', 'media', 'nonbreaking', 'table', 'directionality',
+                'emoticons', 'codesample', 'help'
+            ],
+        })
+    });
+
+    // Prevent Bootstrap dialog from blocking focusin
+    document.addEventListener('focusin', (e) => {
+        if (e.target.closest(".tox-tinymce-aux, .moxman-window, .tam-assetmanager-root") !== null) {
+            e.stopImmediatePropagation();
+        }
     });
 </script>

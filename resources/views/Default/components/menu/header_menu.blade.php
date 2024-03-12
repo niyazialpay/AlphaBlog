@@ -16,6 +16,6 @@
         @endif
 
     @endforeach
-    <li class="hidden-lg hidden-md"><a href="javascript:void(0);" class="searchbutton" title="Ara"><i
-            class="fa fa-search searchbutton" title="Ara"></i></a></li>
+    <li class="hidden-lg hidden-md"><a href="javascript:void(0);" class="searchbutton" title="@lang('post.search')"><i
+            class="fa fa-search searchbutton" title="@lang('post.search')"></i></a></li>
 </ul>

@@ -32,7 +32,7 @@
             <div class="row">
                 <div class="col-12">
                     <ul class="nav nav-pills border-bottom mb-3">
-                        @foreach($languages as $language)
+                        @foreach(app('languages') as $language)
                             <li class="nav-item">
                                 <a class="nav-link @if($language->code==request()->get('language')) active @endif "
                                    href="{{route('admin.posts', $type)}}?tab=contents&amp;language={{$language->code}}">
@@ -53,7 +53,7 @@
                     <div class="tab_container">
                         <div class="tab_content table-responsive" id="contents">
                             <div class="my-3">
-                                <form method="get">
+                                <form method="post" id="searchForm" action="javascript:void(0)">
                                     <div class="input-group mb-3">
                                         <input class="form-control form-control-navbar" type="search" name="search" placeholder="@lang('general.search')" aria-label="@lang('general.search')" value="{{GetPost(request()->search)}}">
                                         <div class="input-group-append">
@@ -342,6 +342,11 @@
                 $(".tab_content").hide();
                 $("#contents").show();
             @endif
+
+            $('#searchForm').submit(function(){
+                let search = $(this).find('input[name="search"]').val();
+                window.location.href = '{{route('admin.posts', $type)}}?tab={{request()->get('tab')}}&language={{request()->get('language')}}&search='+search;
+            });
         });
     </script>
 @endsection

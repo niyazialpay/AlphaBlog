@@ -14,5 +14,6 @@ return [
     'deviantart_username' => 'DeviantArt Username',
     'website' => 'Website',
     'show_header' => 'Show in Header',
+    'show_footer' => 'Show in Footer',
     'multiple_select' => 'You can select multiple social networks by holding down the Ctrl (windows) or Command (Mac) button and clicking on the social networks you want to select.',
 ];

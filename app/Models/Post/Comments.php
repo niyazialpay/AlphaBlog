@@ -28,6 +28,21 @@ class Comments extends Model
         'is_approved' => false,
     ];
 
+    protected $appends = [
+        'nickname',
+        'user_email'
+    ];
+
+    public function getNicknameAttribute(): string
+    {
+        return $this->user_id?$this->user->nickname:$this->name;
+    }
+
+    public function getUserEmailAttribute(): string
+    {
+        return $this->user_id?$this->user->email:$this->email;
+    }
+
 
     public function user(): BelongsTo
     {
@@ -38,4 +53,5 @@ class Comments extends Model
     {
         return $this->belongsTo(Posts::class, 'post_id', '_id');
     }
+
 }

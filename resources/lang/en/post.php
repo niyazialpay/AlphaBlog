@@ -80,4 +80,22 @@ return [
     'revert_sure' => 'Are you sure you want to revert the content?',
     'revert_success_title' => 'Content Reverted',
     'revert_success' => 'Content reverted successfully.',
+
+    'most_read_posts' => 'Most Read Posts',
+    'last_comments' => 'Last Comments',
+    'search_results_for' => 'Search Results For',
+
+    'leave_comment_too' => 'Leave a comment too',
+    'leave_comment' => 'Leave a comment',
+    'comments' => '{0} There are none comment|{1} 1 comment|[2,*] :count comments',
+
+    'similar_posts' => 'Similar Posts',
+    'you_may_also_want_to_read_these' => 'You may also want to read these',
+
+    'search' => 'Search',
+    'search_placeholder' => 'Search...',
+    'search_title' => 'He/She who does not seek will not find',
+    'search_input_empty' => 'You must enter a search term to search!',
+
+    'comment_notes' => 'Your email address will not be published. Required fields are marked *'
 ];

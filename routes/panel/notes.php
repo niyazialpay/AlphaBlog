@@ -1,6 +1,7 @@
 <?php
-Route::post('/editor/image/upload/{note?}', [App\Http\Controllers\Admin\PersonalNotesController::class, 'editorImageUpload'])
-    ->can('own', 'note')
+Route::post('/editor/image/upload/{note?}',
+    [App\Http\Controllers\Admin\PersonalNotesController::class, 'editorImageUpload'])
+    ->can('create', 'App\Models\PersonalNotes')
     ->name('admin.notes.editor.image.upload');
 
 Route::post('/{note}/image/delete', [App\Http\Controllers\Admin\PersonalNotesController::class, 'postImageDelete'])

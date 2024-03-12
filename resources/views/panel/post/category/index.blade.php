@@ -13,7 +13,7 @@
     <div class="card">
         <div class="card-header">
             <ul class="nav nav-pills">
-                @foreach($languages as $n => $language)
+                @foreach(app('languages') as $n => $language)
                     <li class="nav-item">
                         <a class="nav-link @if($n==0)active @endif" href="#{{$language->code}}" data-bs-toggle="tab">
                             {{$language->name}}
@@ -26,11 +26,14 @@
             <div class="row">
                 <div class="col-6  table-responsive border-end-1">
                     <div class="tab-content">
-                        @foreach($languages as $n => $language)
+                        @foreach(app('languages') as $n => $language)
                             <div class="tab-pane  @if($n==0)active @endif" id="{{$language->code}}">
                                 <table class="table table-striped" aria-describedby="@lang('categories.categories')">
                                     <thead>
                                     <tr>
+                                        <th scope="@lang('categories.image')">
+                                            @lang('categories.image')
+                                        </th>
                                         <th scope="@lang('categories.name')">
                                             @lang('categories.name')
                                         </th>
@@ -40,8 +43,14 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    @forelse($categories->where('language', $language->code)->get() as $item)
+                                    @forelse($categories->with('media', 'media.model')->where('language', $language->code)->get() as $item)
                                         <tr>
+                                            <td>
+                                                @if($item->getFirstMediaUrl('categories', 'thumb'))
+                                                    <img src="{{$item->getFirstMediaUrl('categories', 'thumb')}}" alt="{{$item->name}}"
+                                                         class="img-fluid" width="50">
+                                                @endif
+                                            </td>
                                             <td>
                                                 {{$item->name}}
                                             </td>
@@ -70,6 +79,9 @@
                                     </tbody>
                                     <tfoot>
                                     <tr>
+                                        <th scope="@lang('categories.image')">
+                                            @lang('categories.image')
+                                        </th>
                                         <th scope="@lang('categories.name')">
                                             @lang('categories.name')
                                         </th>
@@ -90,7 +102,7 @@
                        class="btn btn-sm btn-primary">
                         <i class="fa-duotone fa-plus"></i> @lang('general.new')
                     </a>
-                    <form class="row" method="post" id="category_create_form" action="javascript:void(0);">
+                    <form class="row" method="post" id="category_create_form" action="javascript:void(0);" enctype="multipart/form-data">
                         <div class="col-12 mb-3">
                             <label for="name">@lang('categories.name')</label>
                             <input type="text" class="form-control" name="name" id="name"
@@ -100,6 +112,18 @@
                             <label for="slug">@lang('categories.slug')</label>
                             <input type="text" class="form-control" name="slug" id="slug"
                                    placeholder="@lang('categories.slug_placeholder')" value="{{$category->slug}}">
+                        </div>
+                        <div class="col-12 mb-3" id="image_input">
+                            <label for="image">@lang('post.image')</label>
+                            @if($category->getFirstMediaUrl('categories', 'thumb'))
+                                <img src="{{$category->getFirstMediaUrl('categories', 'thumb')}}" id="image"
+                                     alt="{{stripslashesNull($category->title)}}" class="img-fluid" width="150">
+                                <a href="javascript:imageDelete('{{$category->id}}')" class="text-danger">
+                                    <i class="fa fa-trash"></i>
+                                </a>
+                            @else
+                                <input type="file" class="form-control" name="image" id="image">
+                            @endif
                         </div>
                         <div class="col-12 mb-3">
                             <label for="meta_keywords">@lang('categories.meta_keywords')</label>
@@ -116,20 +140,20 @@
                         <div class="col-12 mb-3">
                             <label for="language">@lang('general.language')</label>
                             <select name="language" id="language" class="form-control">
-                                @foreach($languages as $language)
+                                @foreach(app('languages') as $language)
                                     <option value="{{$language->code}}"
-                                            @if($category->language_code == $language->code) selected @endif>{{$language->name}}</option>
+                                            @if($category->language == $language->code) selected @endif>{{$language->name}}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="col-12 mb-3 border rounded p-3">
                             <ul class="nav nav-pills border-bottom">
-                                @foreach($languages as $n => $language)
+                                @foreach(app('languages') as $n => $language)
                                 <li class="nav-item"><a class="nav-link @if($n==0) active @endif " href="#form_{{$language->code}}" data-bs-toggle="tab">{{$language->name}}</a></li>
                                 @endforeach
                             </ul>
                             <div class="tab-content">
-                                @foreach($languages as $n => $language)
+                                @foreach(app('languages') as $n => $language)
 
                                 <div class="tab-pane @if($n==0) active @endif" id="form_{{$language->code}}">
                                     <input type="hidden" name="hreflang[{{$language->code}}]" value="{{$category->hreflang[$language->code] ?? ''}}">
@@ -226,7 +250,9 @@
                 $.ajax({
                     url: "{{request()->url()}}",
                     type: "POST",
-                    data: $(this).serialize(),
+                    data: new FormData(this),
+                    processData: false,
+                    contentType: false,
                     success: function (response) {
                         if (response.status) {
                             swal.fire({

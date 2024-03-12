@@ -26,10 +26,15 @@ class NewComments extends Component
             }
         ])->where('is_approved', false);
         if(auth()->user()->can('view', $comments_class)){
-            $this->newComments = $comments->orderBy('created_at', 'desc')->limit(5)->get();
+            $this->newComments = $comments->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get();
         }
         else{
-            $this->newComments = $comments->where('user_id', auth()->id())->orderBy('created_at', 'desc')->limit(5)->get();
+            $this->newComments = $comments->where('user_id', auth()->id())
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get();
         }
 
     }

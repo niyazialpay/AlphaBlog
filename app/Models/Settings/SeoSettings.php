@@ -8,6 +8,7 @@ use MongoDB\Laravel\Eloquent\Model;
 class SeoSettings extends Model
 {
     protected $fillable = [
+        'site_name',
         'title',
         'description',
         'keywords',

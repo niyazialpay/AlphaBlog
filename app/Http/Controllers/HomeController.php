@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Themes;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class HomeController extends Controller
@@ -26,11 +24,12 @@ class HomeController extends Controller
      */
     public function index()
     {
-        try{
-            return response()->view(app('theme').'.home');
+        /*try{
+            return response()->view(app('theme')->name.'.home', ['category' => null]);
         }
         catch (Exception $e){
-            return response()->view('Default.home');
-        }
+            return response()->view('Default.home', ['category' => null]);
+        }*/
+        return response()->view(app('theme')->name.'.home', ['category' => null]);
     }
 }

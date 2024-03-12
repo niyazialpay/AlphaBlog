@@ -36,4 +36,6 @@ return [
     'close' => 'Close',
     'active' => 'Active',
     'passive' => 'Passive',
+    'previous' => 'Previous',
+    'next' => 'Next',
 ];

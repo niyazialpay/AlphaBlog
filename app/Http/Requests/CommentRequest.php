@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CommentRequest extends FormRequest
 {
@@ -12,8 +13,9 @@ class CommentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return auth()->check() && (auth()->user()->role == 'owner' || auth()->user()->role == 'admin' || auth()->user()->role == 'editor');
+        return true;
     }
+
 
     /**
      * Get the validation rules that apply to the request.
@@ -25,10 +27,8 @@ class CommentRequest extends FormRequest
         return [
             'comment' => ['required', 'string'],
             'post_id' => ['required', 'string', 'exists:posts,_id'],
-            'user_id' => ['required_if:name,null', 'string', 'exists:users,_id', 'nullable'],
-            'is_approved' => ['boolean'],
-            'name'  => ['required_if:user_id,null', 'string', 'nullable'],
-            'email' => ['required_if:user_id,null', 'string', 'email', 'nullable'],
+            'name'  => ['required', 'string'],
+            'email' => ['required', 'string', 'email'],
         ];
     }
 
@@ -41,10 +41,8 @@ class CommentRequest extends FormRequest
             'comment.required' => __('comments.request.comment_required'),
             'post_id.required' => __('comments.request.post_id_required'),
             'post_id.exists' => __('comments.request.post_id_exists'),
-            'user_id.required_if' => __('comments.request.user_id_required_if'),
-            'user_id.exists' => __('comments.request.user_id_exists'),
-            'name.required_if' => __('comments.request.name_required_if'),
-            'email.required_if' => __('comments.request.email_required_if'),
+            'name.required' => __('comments.request.name_required'),
+            'email.required' => __('comments.request.email_required'),
             'email.email' => __('comments.request.email_email'),
         ];
     }

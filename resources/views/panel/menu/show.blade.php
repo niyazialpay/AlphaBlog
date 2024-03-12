@@ -77,7 +77,7 @@
                                     <li class="list-group-item border">
                                         <a href="javascript:menuAdd(
                                         '{{route('page', [
-                                            $menu->language,$page
+                                            $menu->language,$page->slug
                                             ])}}', '{{$page->title}}', '_self');"
                                            class="list-group-item-action d-flex">
                                             {{$page->title}}
@@ -95,7 +95,7 @@
                                     <li class="list-group-item border">
                                         <a href="javascript:menuAdd(
                                         '{{route('page', [
-                                            $menu->language,$page
+                                            $menu->language,$post->slug
                                             ])}}', '{{$post->title}}', '_self');"
                                            class="list-group-item-action d-flex">
                                             {{$post->title}}
@@ -113,7 +113,8 @@
                                     <li class="list-group-item border">
                                         <a href="javascript:menuAdd('{{route('post.categories', [
                                         $menu->language,
-                                        $category]
+                                        __('routes.categories', locale:$menu->language),
+                                        $category->slug]
                                         )}}',
                                         '{{$category->name}}', '_self');"
                                            class="list-group-item-action d-flex">

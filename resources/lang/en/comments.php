@@ -9,6 +9,8 @@ return [
         'name_required_if' => 'Name field cannot be empty!',
         'email_required_if' => 'Email field cannot be empty!',
         'email_email' => 'Email field is not in the correct format!',
+        'name_required' => 'Name field cannot be empty!',
+        'email_required' => 'Email field cannot be empty!',
     ],
     'comment' => 'Comment',
     'comments' => 'Comments',
@@ -31,4 +33,7 @@ return [
     'all_comments' => 'All Comments',
     'no_new_comments' => 'No new comments',
     'new_comments' => 'New Comments',
+
+    'comment_saved' => 'Your comment will be published after admin approval.',
+    'comment_error' => 'An error occurred while saving the comment.',
 ];

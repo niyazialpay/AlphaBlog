@@ -99,9 +99,6 @@ class PersonalNotesController extends Controller
 
     public function media(PersonalNotes $note)
     {
-        if(auth()->user()->cant('permission', $note)){
-            abort(403);
-        }
         return view('panel.personal_notes.media', [
             'note' => $note,
         ]);

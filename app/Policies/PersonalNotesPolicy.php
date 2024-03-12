@@ -19,4 +19,9 @@ class PersonalNotesPolicy
     {
         return $user->id == $note->user_id;
     }
+
+    public function create(): bool
+    {
+        return true;
+    }
 }

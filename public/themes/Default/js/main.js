@@ -34,135 +34,10 @@ jQuery(document).ready(function(){
 	});
 
 
-    $('#yorum_panel').on('submit', function () {
-    	var response = $('#response_message');
-		response.html("");
-		$.ajax({
-			url: "/blog",
-			type: 'post',
-			dataType: 'json',
-			data: $('#yorum_panel').serialize(),
-			success: function (result) {
-				if(result.result){
-					getRecaptchaToken();
-					$('#yorum_panel').trigger("reset");
-					$('#_token').val(result.reason.csrf_token);
-				}
-				response.html(result.reason.description);
-			},
-			error: function (xhr, status, error) {
-				console.log(xhr);
-				if(!jQuery.hasData(xhr.responseJSON)){
-					for(var key in xhr.responseJSON){
-						if(key === "isim"){
-							if(xhr.responseJSON.isim[0] === "validation.required"){
-								response.html('İsim bilgisi boş geçilemez!');
-							}
-						}
-						else if(key === "email"){
-							if(xhr.responseJSON.email[0] === "validation.required"){
-								response.html('Eposta bilgisi boş geçilemez!');
-							}
-							else if(xhr.responseJSON.email[0] === "validation.email"){
-								response.html('Geçerli bir eposta adresi girmeniz gerekmektedir!');
-							}
-							else{
-								response.html('Geçerli bir eposta adresi girmeniz gerekmektedir!');
-							}
-						}
-						else if(key === "yorum"){
-							if(xhr.responseJSON.yorum[0] === "validation.required"){
-								response.html('Yorum bilgisi boş geçilemez!');
-							}
-						}
-						else{
-							response.html('Formdaki tüm alanların dolu olması gerekmektedir!');
-						}
-					}
-				}
-			}
-		});
-	});
-
     $("#search_button").on("click", function () {
     	$("#search_form").submit();
 	});
 
-    $("#search_form").on('submit', function () {
-		var search_message = $("#search_message");
-		search_message.html("");
-		$.ajax({
-			url: "/ara",
-			type: 'post',
-			dataType: 'json',
-			data: $('#search_form').serialize(),
-			success: function (result) {
-				search_message.html(result.message);
-				if(result.result){
-					window.location = result.redirect
-				}
-			},
-			error: function (xhr, status, error) {
-				console.log(xhr);
-				$("#search_input").focus();
-				search_message.html('<strong><em>Arama alanı boş geçilemez</em></strong>');
-			}
-		});
-	});
-
-    $("#contactForm").on('submit', function () {
-		$.ajax({
-			url: "/iletisim",
-			type: 'post',
-			dataType: 'json',
-			data: $('#contactForm').serialize(),
-			success: function (result) {
-				console.log(result);
-				if(result){
-                    getRecaptchaToken();
-                    $('#success').html(result.reason.description);
-                    $('#contactForm').trigger("reset");
-                    $('#_token').val(result.reason.csrf_token);
-                }
-			},
-			error: function (xhr, status, error) {
-				console.log(xhr);
-                if(!jQuery.hasData(xhr.responseJSON)){
-                    for(var key in xhr.responseJSON){
-                        if(key === "name"){
-                            if(xhr.responseJSON.isim[0] === "validation.required"){
-                                response.html('İsim soyisim bilgisi boş geçilemez!');
-                            }
-                        }
-                        else if(key === "email"){
-                            if(xhr.responseJSON.email[0] === "validation.required"){
-                                response.html('Eposta bilgisi boş geçilemez!');
-                            }
-                            else if(xhr.responseJSON.email[0] === "validation.email"){
-                                response.html('Geçerli bir eposta adresi girmeniz gerekmektedir!');
-                            }
-                            else{
-                                response.html('Geçerli bir eposta adresi girmeniz gerekmektedir!');
-                            }
-                        }
-                        else if(key === "subject"){
-                            if(xhr.responseJSON.yorum[0] === "validation.required"){
-                                response.html('Konu bilgisi boş geçilemez!');
-                            }
-                        }
-                        else if(key === "message"){
-                            if(xhr.responseJSON.yorum[0] === "validation.required"){
-                                response.html('Mesaj bilgisi boş geçilemez!');
-                            }
-                        }
-                        else{
-                            response.html('Formdaki tüm alanların dolu olması gerekmektedir!');
-                        }
-                    }
-                }
-			}
-		});
-	});
 
 
 
@@ -236,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	$(window).on('load', function(){
 		lazyload();
 	});
-	
+
 });
 
 	 /*------------------------------

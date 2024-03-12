@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin\Post;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CommentRequest;
+use App\Http\Requests\Post\CommentRequest;
 use App\Models\Post\Comments;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -94,9 +94,9 @@ class CommentController extends Controller
             $comment->user_agent = $request->userAgent();
         }
         $comment->user_id = GetPost($request->user_id);
-        $comment->name = GetPost($request->name);
-        $comment->email = GetPost($request->email);
-        $comment->comment = GetPost($request->comment);
+        $comment->name = $request->name;
+        $comment->email = $request->email;
+        $comment->comment = $request->comment;
         $comment->created_at = GetPost($request->created_date);
         $comment->post_id = GetPost($request->post_id);
         if($comment->save()){

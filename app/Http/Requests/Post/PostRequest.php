@@ -4,6 +4,7 @@ namespace App\Http\Requests\Post;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\Validation\Rule;
 
 class PostRequest extends FormRequest
@@ -23,15 +24,19 @@ class PostRequest extends FormRequest
      */
     public function rules(): array
     {
+        $predefined_slugs = [];
+        foreach(app('languages') as $language){
+            foreach (Lang::get('routes', locale: $language->code) as $item) {
+                $predefined_slugs[] = $item;
+            }
+        }
         if($this->id){
             $slug_unique = Rule::unique('posts', 'slug')
                 ->where('language_code', $this->input('language_code'))
-                ->where('post_type', $this->input('post_type'))
                 ->whereNot('_id', $this->input('id'));
         }
         else{
             $slug_unique = Rule::unique('posts', 'slug')
-                ->where('post_type', $this->input('post_type'))
                 ->where('language_code', $this->input('language_code'));
         }
         return [
@@ -39,9 +44,10 @@ class PostRequest extends FormRequest
             'slug' => [
                 'nullable',
                 'string',
-                $slug_unique
+                $slug_unique,
+                Rule::notIn($predefined_slugs)
             ],
-            'content' => ['string'],
+            'content' => ['string', 'nullable'],
             'image' => 'nullable|file|image|max:51200|mimes:jpeg,png,jpg,gif,svg,webp',
             'meta_description' => ['nullable', 'string'],
             'meta_keywords' => ['nullable', 'string'],
@@ -72,6 +78,7 @@ class PostRequest extends FormRequest
             'image.image' => __('post.request.image_image'),
             'image.max' => __('post.request.image_max'),
             'image.mimes' => __('post.request.image_mimes'),
+            'slug.not_in' => __('post.request.slug_unique'),
         ];
     }
 }

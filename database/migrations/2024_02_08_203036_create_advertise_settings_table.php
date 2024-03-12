@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('advertise_settings', function (Blueprint $table) {
             $table->id();
             $table->string('google_ad_manager')->nullable();
+            $table->string('square_display_advertise')->nullable();
+            $table->string('vertical_display_advertise')->nullable();
+            $table->string('horizontal_display_advertise')->nullable();
         });
     }
 

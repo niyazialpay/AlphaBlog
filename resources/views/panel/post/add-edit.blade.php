@@ -34,12 +34,12 @@
                 <div class="col-12 mb-3">
                     <label for="title">@lang('post.title')</label>
                     <input type="text" class="form-control" name="title" id="title" placeholder="@lang('post.title')"
-                           value="{{stripslashes($post->title)}}">
+                           value="{{stripslashesNull($post->title)}}">
                 </div>
                 <div class="col-12 mb-3">
                     <label for="slug">@lang('post.slug')</label>
                     <input type="text" class="form-control" name="slug" id="slug" placeholder="@lang('post.slug')"
-                           value="{{stripslashes($post->slug)}}">
+                           value="{{stripslashesNull($post->slug)}}">
                 </div>
                 @if($type=='blogs')
                     <div class="col-12 mb-3">
@@ -47,7 +47,7 @@
                         <select name="category_id[]" id="category_id" class="form-control select2" style="width: 100%"
                                 multiple>
                             @foreach($categories as $item)
-                                <option value="{{$item->id}}">{{stripslashes($item->name)}} ({{$item->language}})</option>
+                                <option value="{{$item->id}}">{{stripslashesNull($item->name)}} ({{$item->language}})</option>
                             @endforeach
                         </select>
                     </div>
@@ -56,7 +56,7 @@
                     <label for="image">@lang('post.image')</label>
                     @if($post->getFirstMediaUrl('posts', 'thumb'))
                         <img src="{{$post->getFirstMediaUrl('posts', 'thumb')}}" id="image"
-                             alt="{{stripslashes($post->title)}}" class="img-fluid" width="450">
+                             alt="{{stripslashesNull($post->title)}}" class="img-fluid" width="450">
                         <a href="javascript:imageDelete('{{$post->id}}')" class="text-danger">
                             <i class="fa fa-trash"></i>
                         </a>
@@ -67,18 +67,18 @@
                 <div class="col-12 mb-3">
                     <label for="content">@lang('post.content')</label>
                     <textarea name="content" id="content" class="form-control"
-                              placeholder="@lang('post.content')">{!! stripslashes($post->content) !!}</textarea>
+                              placeholder="@lang('post.content')">{!! stripslashesNull($post->content) !!}</textarea>
                 </div>
                 <div class="col-12 mb-3">
                     <label for="meta_keywords">@lang('post.meta_keywords')</label>
                     <input type="text" class="form-control" name="meta_keywords" id="meta_keywords"
-                           placeholder="@lang('post.meta_keywords')" value="{{$post->meta_keywords}}">
+                           placeholder="@lang('post.meta_keywords')" value="@if($post->_id){{implode(',', $post->meta_keywords)}}@endif">
                 </div>
                 <div class="col-12 mb-3">
                     <label for="meta_description">@lang('post.meta_description')</label>
                     <input type="text" class="form-control" name="meta_description" id="meta_description"
                            placeholder="@lang('post.meta_description')"
-                           value="{{stripslashes($post->meta_description)}}">
+                           value="{{stripslashesNull($post->meta_description)}}">
                 </div>
                 <div class="col-12 mb-3">
                     <label for="is_published">@lang('post.is_published')</label>
@@ -106,7 +106,7 @@
                 <div class="col-12 mb-3">
                     <label for="language">@lang('general.language')</label>
                     <select name="language" id="language" class="form-control">
-                        @foreach($languages as $language)
+                        @foreach(app('languages') as $language)
                             <option value="{{$language->code}}"
                                     @if($post->language == $language->code) selected @endif>{{$language->name}}</option>
                         @endforeach
@@ -114,12 +114,12 @@
                 </div>
                 <div class="col-12 mb-3 border rounded p-3">
                     <ul class="nav nav-pills border-bottom">
-                        @foreach($languages as $n => $language)
+                        @foreach(app('languages') as $n => $language)
                             <li class="nav-item"><a class="nav-link @if($n==0) active @endif " href="#form_{{$language->code}}" data-bs-toggle="tab">{{$language->name}}</a></li>
                         @endforeach
                     </ul>
                     <div class="tab-content">
-                        @foreach($languages as $n => $language)
+                        @foreach(app('languages') as $n => $language)
 
                             <div class="tab-pane @if($n==0) active @endif" id="form_{{$language->code}}">
                                 <input type="hidden" name="hreflang[{{$language->code}}]" value="{{$post->hreflang[$language->code] ?? ''}}">
@@ -208,15 +208,13 @@
                                             <br>
                                             <small>{{$comment->email}}</small>
                                         @endif
-                                            <br>
-                                            <small>{{$comment->email}}</small>
                                         <br>
                                         <small>{{$comment->ip_address}}</small>
                                     </td>
                                     <td>
-                                        {{$comment->comment}}
+                                        {!! $comment->comment !!}
                                     </td>
-                                    <td>{{$comment->created_at}}</td>
+                                    <td>{{dateformat($comment->created_at, 'Y-m-d H:i:s', config('app.timezone'))}}</td>
                                     <td>
                                         @if($comment->trashed())
                                             <a href="javascript:RestoreComment('{{$comment->id}}')"
@@ -414,14 +412,14 @@
 
             tinymce.init({
                 selector: 'textarea#content',  // change this value according to your HTML
-                language: '{{$default_language->code}}',
+                language: '{{app('default_language')->code}}',
                 branding: false,
                 //skin: (window.matchMedia("(prefers-color-scheme: dark)").matches ? "oxide-dark" : ""),
                 //content_css: (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : ""),
                 height: 600,
                 mobile: {
                     theme: 'silver',
-                    toolbar: 'undo | bold italic | link | image | font size select forecolor | shorturl',
+                    toolbar: 'undo | bold italic | link | image | font size select forecolor',
                     menubar: false
                 },
                 plugins: [

@@ -12,7 +12,7 @@
     </li>
     <li class="nav-item has-treeview
         @if(request()->is(config('settings.admin_panel_path').'/blogs*')) menu-open @endif ">
-        <a href="{{route('admin.posts', ['type' => 'blogs', 'language' => $default_language->code])}}"
+        <a href="{{route('admin.posts', ['type' => 'blogs', 'language' => app('default_language')->code])}}"
            class="nav-link @if(request()->is(config('settings.admin_panel_path').'/blogs*')) active @endif ">
             <i class="fa-duotone fa-file-lines nav-icon"></i>
             <p>
@@ -32,7 +32,7 @@
                 </li>
             @endcan
             <li class="nav-item">
-                <a href="{{route('admin.posts', ['type' => 'blogs', 'language' => $default_language->code])}}"
+                <a href="{{route('admin.posts', ['type' => 'blogs', 'language' => app('default_language')->code])}}"
                    class="nav-link
                    @if(request()->is(config('settings.admin_panel_path').'/blogs', config('settings.admin_panel_path').'/blogs/*/edit')) active @endif ">
                     <i class="fa-duotone fa-file-lines nav-icon"></i>
@@ -68,7 +68,7 @@
     @can('viewPages', 'App\Models\Post\Posts')
         <li class="nav-item has-treeview
         @if(request()->is(config('settings.admin_panel_path').'/pages*')) menu-open @endif ">
-            <a href="{{route('admin.posts', ['type' => 'pages', 'language' => $default_language->code])}}"
+            <a href="{{route('admin.posts', ['type' => 'pages', 'language' => app('default_language')->code])}}"
                class="nav-link
            @if(request()->is(config('settings.admin_panel_path').'/pages*')) active @endif ">
                 <i class="fa-duotone fa-page  nav-icon"></i>
@@ -79,7 +79,7 @@
             </a>
             <ul class="nav nav-treeview shadow rounded py-2">
                 <li class="nav-item">
-                    <a href="{{route('admin.post.create', ['type' => 'pages', 'language' => $default_language->code])}}"
+                    <a href="{{route('admin.post.create', ['type' => 'pages', 'language' => app('default_language')->code])}}"
                        class="nav-link
                    @if(request()->is(config('settings.admin_panel_path').'/pages/create')) active @endif ">
                         <i class="fa-duotone fa-page  nav-icon"></i>
@@ -88,7 +88,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="{{route('admin.posts', ['type' => 'pages', 'language' => $default_language->code])}}"
+                    <a href="{{route('admin.posts', ['type' => 'pages', 'language' => app('default_language')->code])}}"
                        class="nav-link
                    @if(request()->is(config('settings.admin_panel_path').'/pages',
                     config('settings.admin_panel_path').'/pages/*/edit')) active @endif ">
@@ -108,6 +108,12 @@
         </a>
     </li>
     @can('admin', 'App\Models\User')
+        <li class="nav-item">
+            <a href="{{route('admin.contact_page')}}" class="nav-link @if(request()->is(config('settings.admin_panel_path').'/contact*')) active @endif ">
+                <i class="fa-duotone fa-message-text nav-icon"></i>
+                @lang('contact.contact_page')
+            </a>
+        </li>
         <li class="nav-item">
             <a href="{{route('admin.ip-filter')}}" class="nav-link
         @if(request()->is(config('settings.admin_panel_path').'/ip-filter*')) active @endif">

@@ -48,7 +48,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link settings-links @if(request()->get('tab')=='social-networks') active @endif"
+                            <a class="nav-link settings-links
+                            @if(request()->get('tab')=='social-networks') active @endif"
                                href="javascript:ChangeTab('social-networks')"
                                id="social-networks-menu">
                                 <i class="fa-duotone fa-share-nodes"></i>
@@ -91,25 +92,45 @@
                                   action="{{route('admin.settings.general.save')}}">
                                 @csrf
                                 <div class="col-12 mb-3">
-                                    <label for="site_logo">@lang('settings.site_logo')</label>
-                                    @if($general_settings->getFirstMediaUrl('site_logo'))
-                                        <img src="{{$general_settings->getFirstMediaUrl('site_logo')}}" alt="site_logo"
-                                             class="img-fluid mx-5">
-                                        <a href="javascript:imageDelete('{{$general_settings->getMedia('site_logo')[0]->id}}', 'site_logo')"
+                                    <label for="site_logo">@lang('settings.site_logo_light')</label>
+                                    @if(app('general_settings')->getFirstMediaUrl('site_logo_light'))
+                                        <img src="{{app('general_settings')->getFirstMediaUrl('site_logo_light')}}"
+                                             alt="logo"
+                                             class="img-fluid mx-5" style="height: 100px;">
+                                        <a href="javascript:imageDelete('{{app('general_settings')
+                                            ->getMedia('site_logo_light')[0]->id}}', 'site_logo_light')"
                                            class="btn btn-sm btn-danger">
                                             <i class="fa fa-trash"></i>
                                         </a>
                                     @else
-                                        <input type="file" class="form-control" id="site_logo" name="site_logo">
+                                        <input type="file" class="form-control" id="site_logo_light"
+                                               name="site_logo_light">
+                                    @endif
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="site_logo">@lang('settings.site_logo_dark')</label>
+                                    @if(app('general_settings')->getFirstMediaUrl('site_logo_dark'))
+                                        <img src="{{app('general_settings')->getFirstMediaUrl('site_logo_dark')}}"
+                                             alt="logo"
+                                             class="img-fluid mx-5" style="height: 100px;">
+                                        <a href="javascript:imageDelete('{{app('general_settings')
+                                           ->getMedia('site_logo_dark')[0]->id}}', 'site_logo_dark')"
+                                           class="btn btn-sm btn-danger">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    @else
+                                        <input type="file" class="form-control" id="site_logo_dark"
+                                               name="site_logo_dark">
                                     @endif
                                 </div>
                                 <div class="col-12 mb-3">
                                     <label for="site_favicon">@lang('settings.site_favicon')</label>
-                                    @if($general_settings->getFirstMediaUrl('site_favicon'))
-                                        <img src="{{$general_settings->getFirstMediaUrl('site_favicon')}}"
+                                    @if(app('general_settings')->getFirstMediaUrl('site_favicon'))
+                                        <img src="{{app('general_settings')->getFirstMediaUrl('site_favicon')}}"
                                              alt="site_favicon"
-                                             class="img-fluid mx-5">
-                                        <a href="javascript:imageDelete('{{$general_settings->getMedia('site_favicon')[0]->id}}', 'site_favicon')"
+                                             class="img-fluid mx-5" style="height: 100px;">
+                                        <a href="javascript:imageDelete('{{app('general_settings')
+                                            ->getMedia('site_favicon')[0]->id}}', 'site_favicon')"
                                            class="btn btn-sm btn-danger">
                                             <i class="fa fa-trash"></i>
                                         </a>
@@ -118,9 +139,29 @@
                                     @endif
                                 </div>
                                 <div class="col-12 mb-3">
+                                    <label for="app_icon">@lang('settings.app_icon')</label>
+                                    @if(app('general_settings')->getFirstMediaUrl('app_icon'))
+                                        <img src="{{app('general_settings')->getFirstMediaUrl('app_icon')}}"
+                                             alt="site_favicon"
+                                             class="img-fluid mx-5" style="height: 100px;">
+                                        <a href="javascript:imageDelete('{{app('general_settings')
+                                            ->getMedia('app_icon')[0]->id}}', 'app_icon')"
+                                           class="btn btn-sm btn-danger">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    @else
+                                        <input type="file" class="form-control" id="app_icon" name="app_icon">
+                                    @endif
+                                </div>
+                                <div class="col-12 mb-3">
                                     <label for="contact_email">@lang('settings.contact_email')</label>
                                     <input type="email" class="form-control" id="contact_email" name="contact_email"
-                                           value="{{$general_settings->contact_email}}">
+                                           value="{{app('general_settings')->contact_email}}">
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="sharethis">Sharethis</label>
+                                    <textarea type="text" class="form-control" id="sharethis"
+                                              name="sharethis">{{app('general_settings')->sharethis}}</textarea>
                                 </div>
                                 <div class="col-12 mb-3">
                                     <button type="submit" class="btn btn-primary">@lang('general.save')</button>
@@ -134,7 +175,7 @@
                                 @csrf
                                 <div class="card-header">
                                     <ul class="nav nav-pills border-bottom">
-                                        @foreach($languages as $n => $language)
+                                        @foreach(app('languages') as $n => $language)
                                             <li class="nav-item">
                                                 <a class="nav-link @if($n==0) active @endif "
                                                    href="#form_{{$language->code}}" data-bs-toggle="tab">
@@ -146,11 +187,20 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="tab-content">
-                                        @foreach($languages as $n => $language)
+                                        @foreach(app('languages') as $n => $language)
                                             @php($seo = $seo_settings->where('language',$language->code)->first())
                                             <div class="tab-pane @if($n==0) active @endif"
                                                  id="form_{{$language->code}}">
                                                 <div class="row">
+                                                    <div class="col-12 mb-3">
+                                                        <label for="site_name_{{$language->code}}">
+                                                            @lang('settings.site_name') ({{$language->name}})
+                                                        </label>
+                                                        <input type="text" class="form-control"
+                                                               id="site_name_{{$language->code}}"
+                                                               name="site_name_{{$language->code}}"
+                                                               value="{{$seo->site_name}}">
+                                                    </div>
                                                     <div class="col-12 mb-3">
                                                         <label for="site_title_{{$language->code}}">
                                                             @lang('settings.site_title') ({{$language->name}})
@@ -178,7 +228,7 @@
                                                         <input type="text" class="form-control"
                                                                id="site_keywords_{{$language->code}}"
                                                                name="site_keywords_{{$language->code}}"
-                                                               value="{{$seo->keywords}}">
+                                                               value="{{implode(',', $seo->keywords)}}">
                                                     </div>
                                                     <div class="col-12 mb-3">
                                                         <label for="site_author_{{$language->code}}">
@@ -200,18 +250,21 @@
                                                                 @lang('settings.index_follow')
                                                             </option>
 
-                                                            <option value="noindex,nofollow"
-                                                                    @if($seo->robots == 'noindex,nofollow') selected @endif>
+                                                            <option
+                                                                value="noindex,nofollow"
+                                                                @if($seo->robots == 'noindex,nofollow')selected @endif>
                                                                 @lang('settings.noindex_nofollow')
                                                             </option>
 
-                                                            <option value="index,nofollow"
-                                                                    @if($seo->robots == 'index,nofollow') selected @endif>
+                                                            <option
+                                                                value="index,nofollow"
+                                                                @if($seo->robots == 'index,nofollow') selected @endif>
                                                                 @lang('settings.index_nofollow')
                                                             </option>
 
-                                                            <option value="noindex,follow"
-                                                                    @if($seo->robots == 'noindex,follow') selected @endif>
+                                                            <option
+                                                                value="noindex,follow"
+                                                                @if($seo->robots == 'noindex,follow') selected @endif>
                                                                 @lang('settings.noindex_follow')
                                                             </option>
                                                         </select>
@@ -237,10 +290,10 @@
                                         <div class="row">
                                             <div class="col-12 mb-3">
                                                 <textarea class="form-control"
-                                                          id="robots_txt"
-                                                          name="robots_txt"
-                                                          rows="10"
-                                                          aria-label="@lang('settings.robots_txt')">{{$robots_txt}}</textarea>
+                                                  id="robots_txt"
+                                                  name="robots_txt"
+                                                  rows="10"
+                                                  aria-label="@lang('settings.robots_txt')">{{$robots_txt}}</textarea>
                                             </div>
                                             <div class="col-12 mb-3">
                                                 <button type="submit" class="btn btn-primary">
@@ -258,27 +311,23 @@
                             <form class="row" id="analyticsForm" method="post" action="javascript:void(0);">
                                 <div class="col-12 mb-3">
                                     <label for="google_analytics">Google Analytics</label>
-                                    <input type="text" class="form-control" id="google_analytics"
-                                           name="google_analytics"
-                                           value="{{$analytics_settings->google_analytics}}">
+                                    <textarea class="form-control" id="google_analytics"
+                                           name="google_analytics">{{$analytics_settings->google_analytics}}</textarea>
                                 </div>
                                 <div class="col-12 mb-3">
                                     <label for="yandex_metrica">Yandex Metrica</label>
-                                    <input type="text" class="form-control" id="yandex_metrica"
-                                           name="yandex_metrica"
-                                           value="{{$analytics_settings->yandex_metrica}}">
+                                    <textarea class="form-control" id="yandex_metrica"
+                                              name="yandex_metrica">{{$analytics_settings->yandex_metrica}}</textarea>
                                 </div>
                                 <div class="col-12 mb-3">
                                     <label for="fb_pixel">Facebook Pixel</label>
-                                    <input type="text" class="form-control" id="fb_pixel"
-                                           name="fb_pixel"
-                                           value="{{$analytics_settings->fb_pixel}}">
+                                    <textarea class="form-control" id="fb_pixel"
+                                              name="fb_pixel">{{$analytics_settings->fb_pixel}}</textarea>
                                 </div>
                                 <div class="col-12 mb-3">
                                     <label for="log_rocket">Log Rocket</label>
-                                    <input type="text" class="form-control" id="log_rocket"
-                                           name="log_rocket"
-                                           value="{{$analytics_settings->log_rocket}}">
+                                    <textarea class="form-control" id="log_rocket"
+                                           name="log_rocket">{{$analytics_settings->log_rocket}}</textarea>
                                 </div>
                                 @csrf
                                 <div class="col-12 mb-3">
@@ -294,9 +343,39 @@
                                     <label for="google_ad_manager">
                                         Google Ad Manager
                                     </label>
-                                    <input type="text" class="form-control" id="google_ad_manager"
-                                           name="google_ad_manager"
-                                           value="{{$advertise_settings?->google_ad_manager}}">
+                                    <textarea
+                                        class="form-control" id="google_ad_manager"
+                                        name="google_ad_manager">{{$advertise_settings?->google_ad_manager}}</textarea>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="square_display_advertise">
+                                        @lang('advertise.square_display_advertise')
+                                    </label>
+                                    <textarea
+                                        class="form-control" id="square_display_advertise"
+                                        name="square_display_advertise">
+                                        {{$advertise_settings?->square_display_advertise}}
+                                    </textarea>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="vertical_display_advertise">
+                                        @lang('advertise.vertical_display_advertise')
+                                    </label>
+                                    <textarea
+                                        class="form-control" id="vertical_display_advertise"
+                                        name="vertical_display_advertise">
+                                        {{$advertise_settings?->vertical_display_advertise}}
+                                    </textarea>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="horizontal_display_advertise">
+                                        @lang('advertise.horizontal_display_advertise')
+                                    </label>
+                                    <textarea
+                                        class="form-control" id="horizontal_display_advertise"
+                                        name="horizontal_display_advertise">
+                                        {{$advertise_settings?->horizontal_display_advertise}}
+                                    </textarea>
                                 </div>
                                 @csrf
                                 <div class="col-12 mb-3">
@@ -309,23 +388,43 @@
                              id="social-networks">
                             <form class="row mb-3" id="showInHeader" method="post" action="javascript:void(0);">
                                 <div class="col-12 mb-3">
-                                    <label for="social_networks">@lang('social.show_header')</label>
                                     <p>
                                         @lang('social.multiple_select')
                                     </p>
-                                    <select class="form-control" name="social_networks[]" id="social_networks" multiple style="height: 250px">
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="social_networks_header">@lang('social.show_header')</label>
+                                    <select class="form-control" name="social_networks_header[]"
+                                            id="social_networks_header" multiple style="height: 250px">
                                         @foreach(social_list() as $key => $value)
                                             <option value="{{$key}}"
-                                                    @if(in_array($key, $social_settings?->social_networks)) selected @endif>
+                                                @if(in_array($key, $social_settings?->social_networks_header))
+                                                    selected
+                                                @endif>
                                                 {{$value}}
                                             </option>
-
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="social_networks_footer">@lang('social.show_footer')</label>
+                                    <select class="form-control" name="social_networks_footer[]"
+                                            id="social_networks_footer" multiple style="height: 250px">
+                                        @foreach(social_list() as $key => $value)
+                                            <option value="{{$key}}"
+                                                    @if(in_array($key, $social_settings?->social_networks_footer))
+                                                        selected
+                                                @endif>
+                                                {{$value}}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
                                 @csrf
                                 <div class="col-12 mb-3">
-                                    <button type="submit" class="btn btn-primary" id="showHeaderSave">@lang('general.save')</button>
+                                    <button type="submit" class="btn btn-primary" id="showHeaderSave">
+                                        @lang('general.save')
+                                    </button>
                                 </div>
                                 <div class="col-12">
                                     <hr>
@@ -343,7 +442,7 @@
                                         <input type="text" class="form-control"
                                                id="linkedin" name="linkedin"
                                                placeholder="@ @lang('social.linkedin_username')"
-                                               value="{{$social_networks?->linkedin}}" aria-label="Linkedin">
+                                               value="{{app('social_networks')?->linkedin}}" aria-label="Linkedin">
                                     </div>
                                 </div>
 
@@ -360,7 +459,7 @@
                                         <input type="text" class="form-control"
                                                id="github" name="github"
                                                placeholder="@ @lang('social.github_username')"
-                                               value="{{$social_networks?->github}}" aria-label="Github">
+                                               value="{{app('social_networks')?->github}}" aria-label="Github">
                                     </div>
 
                                 </div>
@@ -378,7 +477,7 @@
                                         <input type="text" class="form-control"
                                                id="instagram" name="instagram"
                                                placeholder="@ @lang('social.instagram_username')"
-                                               value="{{$social_networks?->instagram}}" aria-label="Instagram">
+                                               value="{{app('social_networks')?->instagram}}" aria-label="Instagram">
                                     </div>
                                 </div>
 
@@ -395,7 +494,7 @@
                                         <input type="text" class="form-control"
                                                id="x" name="x"
                                                placeholder="@ @lang('social.x_username')"
-                                               value="{{$social_networks?->x}}" aria-label="X">
+                                               value="{{app('social_networks')?->x}}" aria-label="X">
                                     </div>
                                 </div>
 
@@ -412,7 +511,7 @@
                                         <input type="text" class="form-control"
                                                id="facebook" name="facebook"
                                                placeholder="@ @lang('social.facebook_username')"
-                                               value="{{$social_networks?->facebook}}" aria-label="Facebook">
+                                               value="{{app('social_networks')?->facebook}}" aria-label="Facebook">
                                     </div>
                                 </div>
 
@@ -429,7 +528,7 @@
                                         <input type="text" class="form-control"
                                                id="devto" name="devto"
                                                placeholder="@ @lang('social.devto_username')"
-                                               value="{{$social_networks?->devto}}" aria-label="Dev.to">
+                                               value="{{app('social_networks')?->devto}}" aria-label="Dev.to">
                                     </div>
                                 </div>
 
@@ -446,7 +545,7 @@
                                         <input type="text" class="form-control"
                                                id="medium" name="medium"
                                                placeholder="@ @lang('social.medium_username')"
-                                               value="{{$social_networks?->medium}}" aria-label="Medium">
+                                               value="{{app('social_networks')?->medium}}" aria-label="Medium">
                                     </div>
                                 </div>
 
@@ -463,7 +562,7 @@
                                         <input type="text" class="form-control"
                                                id="youtube" name="youtube"
                                                placeholder="@ @lang('social.youtube_username')"
-                                               value="{{$social_networks?->youtube}}" aria-label="YouTube">
+                                               value="{{app('social_networks')?->youtube}}" aria-label="YouTube">
                                     </div>
                                 </div>
 
@@ -480,7 +579,7 @@
                                         <input type="text" class="form-control"
                                                id="reddit" name="reddit"
                                                placeholder="@ @lang('social.reddit_username')"
-                                               value="{{$social_networks?->reddit}}" aria-label="Reddit">
+                                               value="{{app('social_networks')?->reddit}}" aria-label="Reddit">
                                     </div>
                                 </div>
 
@@ -497,7 +596,7 @@
                                         <input type="text" class="form-control"
                                                id="xbox" name="xbox"
                                                placeholder="@ @lang('social.xbox_username')"
-                                               value="{{$social_networks?->xbox}}" aria-label="Xbox">
+                                               value="{{app('social_networks')?->xbox}}" aria-label="Xbox">
                                     </div>
                                 </div>
 
@@ -514,7 +613,7 @@
                                         <input type="text" class="form-control"
                                                id="deviantart" name="deviantart"
                                                placeholder="@ @lang('social.deviantart_username')"
-                                               value="{{$social_networks?->deviantart}}" aria-label="Deviantart">
+                                               value="{{app('social_networks')?->deviantart}}" aria-label="Deviantart">
                                     </div>
                                 </div>
 
@@ -687,7 +786,7 @@
                             </select>
                         </div>
                         @csrf
-                        <input type="hidden" name="id" id="language_id" hidden>
+                        <input type="hidden" name="id" id="language_id">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -732,9 +831,16 @@
 
         function imageDelete(media_id, media_type) {
             let post_url;
-            if (media_type === "site_logo") {
-                post_url = '{{route('admin.settings.general.logo.delete')}}';
-            } else {
+            if (media_type === "site_logo_light") {
+                post_url = '{{route('admin.settings.general.logo.delete', ['type' => 'light'])}}';
+            }
+            else if(media_type === "site_logo_dark") {
+                post_url = '{{route('admin.settings.general.logo.delete', ['type' => 'dark'])}}';
+            }
+            else if(media_type === "app_icon") {
+                post_url = '{{route('admin.settings.general.app_icon.delete')}}';
+            }
+            else {
                 post_url = '{{route('admin.settings.general.favicon.delete')}}';
             }
             Swal.fire(

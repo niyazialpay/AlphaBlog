@@ -13,7 +13,8 @@ class GeneralSettings extends Model implements HasMedia
     use InteractsWithMedia;
 
     protected $fillable = [
-        'contact_email'
+        'contact_email',
+        'sharethis'
     ];
 
     public $timestamps = false;

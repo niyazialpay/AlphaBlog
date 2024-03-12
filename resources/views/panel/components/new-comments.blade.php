@@ -10,7 +10,7 @@
 </a>
 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
     @forelse($newComments as $comment)
-        <a href="{{route('admin.post.edit', ['type' => 'blogs', 'post' => $comment->post_id])}}#comment-{{$comment->id}}"
+        <a href="{{route('admin.post.edit', ['type' => 'blogs', 'post' => $comment->post_id])}}#comment-{{$comment->_id}}"
            class="dropdown-item" title="@lang('post.read_more')"
            data-bs-toggle="tooltip" data-bs-placement="top">
             <!-- Message Start -->

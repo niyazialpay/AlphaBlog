@@ -23,23 +23,22 @@ class CategoryRequest extends FormRequest
      */
     public function rules(): array
     {
-        if($this->id){
+        if($this->input('id')){
              $slug_unique = Rule::unique('categories', 'slug')
-                 ->where('language_code', $this->input('language_code'))
+                 ->where('language', $this->input('language'))
                  ->whereNot('_id', $this->input('id'));
         }
         else{
             $slug_unique = Rule::unique('categories', 'slug')
-                ->where('language_code', $this->input('language_code'));
+                ->where('language', $this->input('language'));
         }
         return [
             'name' => ['required', 'string'],
             'slug' => [
-                'nullable',
                 'string',
                 $slug_unique,
             ],
-            'image' => 'nullable',
+            'image' => 'nullable|file|image|max:51200|mimes:jpeg,png,jpg,gif,svg,webp',
             'meta_description' => ['nullable', 'string'],
             'meta_keywords' => ['nullable', 'string'],
         ];

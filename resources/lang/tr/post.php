@@ -80,4 +80,22 @@ return [
     'revert_sure' => 'İçeriği geri almak istediğinize emin misiniz?',
     'revert_success_title' => 'İçerik Geri Alındı',
     'revert_success' => 'İçerik başarıyla geri alındı.',
+
+    'most_read_posts' => 'En Çok Okunanlar',
+    'last_comments' => 'Son Yorumlar',
+    'search_results_for' => 'Arama Sonuçları: ',
+
+    'leave_comment_too' => 'Siz de yorum bırakın',
+    'leave_comment' => 'Yorum Bırakın',
+    'comments' => '{0} Hiç yorum yok|{1} 1 yorum|[2,*] :count yorum',
+
+    'similar_posts' => 'Benzer Yazılar',
+    'you_may_also_want_to_read_these' => 'Bunları da okumak isteyebilirsiniz',
+
+    'search' => 'Ara',
+    'search_placeholder' => 'Ara...',
+    'search_title' => 'Aramayan Bulamaz',
+    'search_input_empty' => 'Arama yapmak için bir şeyler yazın!',
+
+    'comment_notes' => 'E-posta adresiniz yayınlanmayacaktır. Zorunlu alanlar * ile işaretlenmiştir'
 ];
