@@ -13,6 +13,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
 use niyazialpay\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
 use niyazialpay\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
@@ -98,7 +99,6 @@ class PostController extends Controller
     {
         if ($post->id) {
             $message = __('post.success_update');
-            $post->created_at = dateformat($request->post('published_at'), 'Y-m-d H:i:s', config('app.timezone'));
         } else {
             $message = __('post.success');
         }
@@ -114,11 +114,12 @@ class PostController extends Controller
         }
         $post->content = content($request->post('content'));
         $post->meta_description = GetPost($request->post('meta_description'));
-        $post->meta_keywords = GetPost($request->post('meta_keywords'));
+        $post->meta_keywords = explode(',', $request->post('meta_keywords'));
         $post->user_id = GetPost($request->post('user_id'));
         $post->is_published = $request->post('is_published') == 1;
         $post->post_type = GetPost($request->post('post_type'));
         $post->language = GetPost($request->post('language'));
+        $post->created_at = dateformat($request->post('published_at'), 'Y-m-d H:i:s', config('app.timezone'));
 
         $hreflang = [];
         foreach($request->hreflang_url as $key => $value){
@@ -148,7 +149,7 @@ class PostController extends Controller
         if ($post->delete()) {
             return response()->json(['status' => 'success', 'message' => __('post.success_delete')]);
         } else {
-            return response()->json(['status' => 'error', 'message' => __('post.error_delete')]);
+            return response()->json(['status' => 'error', 'message' => __('post.post.error_delete')]);
         }
     }
 
@@ -163,9 +164,9 @@ class PostController extends Controller
         }
         Comments::where('post_id', $post->id)->forceDelete();
         if ($post->forceDelete()) {
-            return response()->json(['status' => 'success', 'message' => __('post.success_force_delete')]);
+            return response()->json(['status' => 'success', 'message' => __('post.post.success_force_delete')]);
         } else {
-            return response()->json(['status' => 'error', 'message' => __('post.error_force_delete')]);
+            return response()->json(['status' => 'error', 'message' => __('post.post.error_force_delete')]);
         }
     }
 
@@ -176,16 +177,16 @@ class PostController extends Controller
         }
         if ($post->restore()) {
             Comments::onlyTrashed()->where('post_id', $post->id)->restore();
-            return response()->json(['status' => 'success', 'message' => __('post.success_restore')]);
+            return response()->json(['status' => 'success', 'message' => __('post.post.success_restore')]);
         } else {
-            return response()->json(['status' => 'error', 'message' => __('post.error_restore')]);
+            return response()->json(['status' => 'error', 'message' => __('post.post.error_restore')]);
         }
     }
 
     /**
      * @throws MediaCannotBeDeleted
      */
-    public function imageDelete(Posts $post)
+    public function imageDelete($type, Posts $post)
     {
         $post->deleteMedia($post->getFirstMedia('posts'));
         return response()->json(['status' => true, 'message' => __('post.success_image_delete')]);

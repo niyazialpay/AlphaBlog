@@ -9,6 +9,7 @@ use App\Models\Menu\MenuItems;
 use App\Models\Post\Categories;
 use App\Models\Post\Posts;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class MenuItemsController extends Controller
 {
@@ -64,6 +65,9 @@ class MenuItemsController extends Controller
                 }
             }
 
+        }
+        foreach (app('languages') as $language) {
+            Cache::forget(config('cache.prefix').'header_menu_'.$language->code);
         }
     }
 

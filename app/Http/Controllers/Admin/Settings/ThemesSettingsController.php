@@ -9,6 +9,7 @@ use Exception;
 //use Illuminate\Filesystem\Filesystem as File;
 use File;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use ZipArchive;
 
 class ThemesSettingsController extends Controller
@@ -87,6 +88,7 @@ class ThemesSettingsController extends Controller
             Themes::where('is_default', true)->update(['is_default' => false]);
             $theme->is_default = true;
             $theme->save();
+            Cache::forget(config('cache.prefix').'theme');
             return back()->with('success', __('themes.theme_default_success'));
         }
         catch (Exception $e){

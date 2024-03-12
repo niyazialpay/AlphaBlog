@@ -11,17 +11,24 @@ Route::post('/seo/robots/save', [App\Http\Controllers\Admin\Settings\SeoSettings
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.seo.robots.save');
 
-Route::post('/general/save', [App\Http\Controllers\Admin\Settings\GeneralController::class, 'save'])
+Route::post('/general/save', [App\Http\Controllers\Admin\Settings\GeneralSettingsController::class, 'save'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.general.save');
 
-Route::post('/general/logo/delete', [App\Http\Controllers\Admin\Settings\GeneralController::class, 'deleteLogo'])
+Route::post('/general/logo/delete/{type}',
+    [App\Http\Controllers\Admin\Settings\GeneralSettingsController::class, 'deleteLogo'])
     ->can('admin', 'App\Models\User')
-    ->name('admin.settings.general.logo.delete');
+    ->name('admin.settings.general.logo.delete')->where('type', 'light|dark');
 
-Route::post('/general/favicon/delete', [App\Http\Controllers\Admin\Settings\GeneralController::class, 'deleteFavicon'])
+Route::post('/general/favicon/delete',
+    [App\Http\Controllers\Admin\Settings\GeneralSettingsController::class, 'deleteFavicon'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.general.favicon.delete');
+
+Route::post('/general/app_icon/delete',
+    [App\Http\Controllers\Admin\Settings\GeneralSettingsController::class, 'deleteAppIcon'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.settings.general.app_icon.delete');
 
 Route::post('/social/save', [App\Http\Controllers\Admin\Settings\SocialSettingsController::class, 'save'])
     ->can('admin', 'App\Models\User')

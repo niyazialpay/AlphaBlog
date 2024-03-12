@@ -167,10 +167,10 @@ return [
         App\Providers\AuthServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
+        App\Providers\GlobalVariableServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\HelperServiceProvider::class,
         MongoDB\Laravel\MongoDBServiceProvider::class,
-        App\Providers\GlobalVariableServiceProvider::class
     ])->toArray(),
 
     /*

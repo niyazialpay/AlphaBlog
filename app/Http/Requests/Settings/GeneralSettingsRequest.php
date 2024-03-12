@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Settings;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class GeneralSettingsRequest extends FormRequest
@@ -17,14 +18,16 @@ class GeneralSettingsRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
             'site_logo' => 'nullable|file|image|max:4096|mimes:jpeg,png,jpg,gif,svg,webp',
             'site_favicon' => 'nullable|file|image|max:4096|mimes:jpeg,png,jpg,gif,svg,webp,ico',
+            'app_icon' => 'nullable|file|image|max:4096|mimes:jpeg,png,jpg,gif,svg,webp,ico',
             'contact_email' => 'nullable|email',
+            'sharethis' => 'nullable|string|max:255'
         ];
     }
 }

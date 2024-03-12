@@ -94,7 +94,7 @@
         function DeleteNote(note_id) {
             Swal.fire({
                 title: '@lang('general.are_you_sure')',
-                text: '@lang('general.you_wont_be_able_to_revert_this')',
+                text: "@lang('general.you_wont_be_able_to_revert_this')",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: '@lang('general.delete_confirm_yes')',

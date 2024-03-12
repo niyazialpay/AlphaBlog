@@ -36,4 +36,6 @@ return [
     'close' => 'Kapat',
     'active' => 'Aktif',
     'passive' => 'Pasif',
+    'previous' => 'Önceki',
+    'next' => 'Sonraki',
 ];

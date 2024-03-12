@@ -77,6 +77,16 @@ class Posts extends Model implements HasMedia
         return config('scout.prefix').'posts';
     }
 
+    public function scopePublished($query)
+    {
+        return $query->where('is_published', 1);
+    }
+
+    public function scopeForLanguage($query, $language)
+    {
+        return $query->where('language', $language);
+    }
+
     public function toSearchableArray(): array
     {
         $array = $this->toArray();

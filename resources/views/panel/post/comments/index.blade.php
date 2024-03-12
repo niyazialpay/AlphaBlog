@@ -85,7 +85,7 @@
                                                 <a href="{{route('admin.post.edit', ['type' => 'blogs', $comment->post->id])}}">{{$comment->post->title}}</a>
                                             @endif
                                         </td>
-                                        <td>{{dateformat($comment->created_at, 'd M. Y D. H:i:s')}}</td>
+                                        <td>{{dateformat($comment->created_at, 'd M. Y D. H:i:s', timezone: config('app.timezone'))}}</td>
                                         <td>
                                             @if($comment->trashed())
                                                 <a href="javascript:RestoreComment('{{$comment->id}}')"

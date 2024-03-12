@@ -94,7 +94,7 @@
 
             tinymce.init({
                 selector: 'textarea#content',
-                language: '{{$default_language->code}}',
+                language: '{{app('default_language')->code}}',
                 branding: false,
                 height: 600,
                 mobile: {

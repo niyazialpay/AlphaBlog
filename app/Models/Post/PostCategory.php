@@ -2,12 +2,11 @@
 
 namespace App\Models\Post;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\Laravel\Eloquent\Model;
+use MongoDB\Laravel\Relations\BelongsTo;
 
 class PostCategory extends Model
 {
-    use HasFactory;
 
     protected $collection = 'post_categories';
 
@@ -21,12 +20,12 @@ class PostCategory extends Model
         'is_primary' => false
     ];
 
-    public function post()
+    public function post(): BelongsTo
     {
         return $this->belongsTo(Posts::class, 'post_id', '_id');
     }
 
-    public function category()
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Categories::class, 'category_id', '_id');
     }

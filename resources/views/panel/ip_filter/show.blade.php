@@ -3,7 +3,7 @@
 @section('breadcrumb_link')
     <ol class="breadcrumb float-sm-right">
         <li class="breadcrumb-item"><a href="{{route('admin.index')}}">@lang('dashboard.dashboard')</a></li>
-        <li class="breadcrumb-item"><a href="{{route('admin.ip-filter')}}">@lang('ip_filter.title')</li>
+        <li class="breadcrumb-item"><a href="{{route('admin.ip-filter')}}">@lang('ip_filter.title')</a></li>
         <li class="breadcrumb-item active">@lang('general.add-edit')</li>
     </ol>
 @endsection

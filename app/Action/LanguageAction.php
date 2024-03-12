@@ -8,27 +8,50 @@ class LanguageAction
 {
     public static function setLanguage($request): void
     {
+        $except = [
+            '_debugbar',
+            'api',
+            'image',
+            'rss',
+            'sitemap',
+            'manifest.json',
+            config('settings.admin_panel_path')
+        ];
         $languages = new Languages();
-        if(session()->has('language')) {
-            if($request->segment(1)==session()->get('language')){
-                $language = $languages->getLanguage(session()->get('language'));
+        if(!in_array($request->segment(1), $except)){
+            if(session()->has('language')) {
+                if($request->segment(1)==session()->get('language')){
+                    $language = $languages->getLanguage(session()->get('language'));
+                }
+                elseif($request->segment(1)==null){
+                    $language = $languages->getLanguage(app('default_language')->code);
+                }
+                else{
+                    $language = $languages->getLanguage($request->segment(1));
+                    if($language==null){
+                        abort(404);
+                    }
+                }
             }
             else{
-                $language = $languages->getLanguage($request->segment(1));
-                if($language==null){
+                if($request->segment(1)==null){
                     $language = $languages->getLanguage(app('default_language')->code);
+                }
+                else{
+                    $language = $languages->getLanguage($request->segment(1));
+                    if($language==null){
+                        abort(404);
+                    }
                 }
             }
         }
         else{
-            if($request->segment(1)==null){
+            $language = $languages->getLanguage(
+                explode("-", explode(",",$request->server('HTTP_ACCEPT_LANGUAGE')
+                )[0])[0]
+            );
+            if(!$language) {
                 $language = $languages->getLanguage(app('default_language')->code);
-            }
-            else{
-                $language = $languages->getLanguage($request->segment(1));
-                if($language==null){
-                    $language = $languages->getLanguage(app('default_language')->code);
-                }
             }
         }
         session()->put('language', $language->code);

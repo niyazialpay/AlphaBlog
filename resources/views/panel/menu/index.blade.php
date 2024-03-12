@@ -21,12 +21,12 @@
             <div class="row">
                 <div class="col-5 border rounded p-3 ms-5">
                     <ul class="nav nav-pills border-bottom">
-                        @foreach($languages as $n => $language)
+                        @foreach(app('languages') as $n => $language)
                             <li class="nav-item"><a class="nav-link @if($n==0) active @endif " href="#form_{{$language->code}}" data-bs-toggle="tab">{{$language->name}}</a></li>
                         @endforeach
                     </ul>
                     <div class="tab-content">
-                        @foreach($languages as $n => $language)
+                        @foreach(app('languages') as $n => $language)
                             <div class="tab-pane @if($n==0) active @endif" id="form_{{$language->code}}">
                                 <div class="row">
                                     <div class="col-12 mb-3">
@@ -74,7 +74,7 @@
                         <div class="col-12 mb-3">
                             <label for="language" class="form-label">@lang('menu.language')</label>
                             <select class="form-select" id="language" name="language">
-                                @foreach($languages as $language)
+                                @foreach(app('languages') as $language)
                                     <option value="{{$language->code}}" @if($menu->language == $language->code) selected @endif >{{$language->name}}</option>
                                 @endforeach
                             </select>

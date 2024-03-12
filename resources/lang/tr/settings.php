@@ -7,6 +7,7 @@ return [
     'advertisement' => 'Reklam',
     'analytics' => 'Analitik',
 
+    'site_name' => 'Site İsmi',
     'site_title' => 'Site Başlığı',
     'site_description' => 'Site Açıklaması',
     'site_keywords' => 'Site Anahtar Kelimeleri',
@@ -23,7 +24,10 @@ return [
     'robots_txt_saved' => 'Robots.txt kaydedildi',
 
     'site_logo' => 'Site Logosu',
+    'site_logo_light' => 'Site Logosu (Aydınlık Mod)',
+    'site_logo_dark' => 'Site Logosu (Karanlık Mod)',
     'site_favicon' => 'Site Faviconu',
+    'app_icon' => 'Uygulama İkonu',
     'contact_email' => 'İletişim E-Postası',
 
     'general_settings_saved' => 'Ayarlar başarıyla güncellendi',

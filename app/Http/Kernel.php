@@ -21,7 +21,7 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
-        \App\Http\Middleware\UnderConstruction::class,
+        //\App\Http\Middleware\UnderConstruction::class,
         \App\Http\Middleware\IpFilter::class,
         \App\Http\Middleware\RouteRedirect::class,
     ];
@@ -34,8 +34,8 @@ class Kernel extends HttpKernel
     protected $middlewareGroups = [
         'web' => [
             \App\Http\Middleware\EncryptCookies::class,
-            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \App\Http\Middleware\Language::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
@@ -69,6 +69,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'ip_filter' => \App\Http\Middleware\IpFilter::class,
+        'route_redirect' => \App\Http\Middleware\RouteRedirect::class,
         'merge_post_type' => \App\Http\Middleware\MergePostTypeToRequest::class,
         'check_post_type' => \App\Http\Middleware\CheckPostType::class,
         'honeypot' => \Spatie\Honeypot\ProtectAgainstSpam::class,

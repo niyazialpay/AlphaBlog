@@ -1,5 +1,5 @@
 <div class="modal fade" id="commentModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog">
+    <div class="modal-dialog  modal-dialog-centered modal-lg">
         <form class="modal-content" id="commentEditForm" method="post" action="javascript:void(0)">
             <div class="modal-header">
                 <h1 class="modal-title fs-5" id="post_title">@lang('post.title')</h1>

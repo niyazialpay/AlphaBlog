@@ -14,7 +14,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             SettingsSeeder::class,
-            ThemeSeeder::class
+            ThemeSeeder::class,
+            ContactSeeder::class
         ]);
     }
 }

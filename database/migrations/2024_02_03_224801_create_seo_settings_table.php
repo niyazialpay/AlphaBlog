@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('seo_settings', function (Blueprint $table) {
             $table->id();
+            $table->string('site_name')->nullable();
             $table->string('title')->nullable();
             $table->string('description')->nullable();
             $table->string('keywords')->nullable();

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Post\Posts;
 use Laravel\Fortify\TwoFactorAuthenticationProvider;
 use MongoDB\Laravel\Auth\User as Authenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -72,5 +73,10 @@ class User extends Authenticatable
     public function social(): HasOne
     {
         return $this->hasOne(SocialNetworks::class, 'user_id', '_id');
+    }
+
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Posts::class, 'user_id', '_id');
     }
 }

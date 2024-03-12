@@ -29,13 +29,13 @@ return [
     'delete_confirm' => 'Kategoriyi silmek istediğinize emin misiniz?',
 
     'categories' => 'Kategoriler',
+    'top_categories' => 'Popüler Kategoriler',
 
     'request' => [
         'name_required' => 'Kategori adı zorunludur.',
         'slug_required' => 'Kategori slugı zorunludur.',
-        'slug_unique' => 'Kategori slugı benzersiz olmalıdır.',
+        'slug_unique' => 'Kategori URL benzersiz olmalıdır.',
         'meta_description_string' => 'Meta açıklaması metin tipinde olmalıdır.',
         'meta_keywords_string' => 'Meta anahtar kelimeleri metin tipinde olmalıdır.',
-    ],
-    'page_url' => 'kategoriler'
+    ]
 ];

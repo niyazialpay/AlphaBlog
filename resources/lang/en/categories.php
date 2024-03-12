@@ -29,6 +29,7 @@ return [
     'delete_confirm' => 'Are you sure you want to delete the category?',
 
     'categories' => 'Categories',
+    'top_categories' => 'Top Categories',
 
     'request' => [
         'name_required' => 'Category name is required.',
@@ -36,6 +37,5 @@ return [
         'slug_unique' => 'Category slug must be unique.',
         'meta_description_string' => 'Meta description must be a string.',
         'meta_keywords_string' => 'Meta keywords must be a string.',
-    ],
-    'page_url' => 'categories'
+    ]
 ];

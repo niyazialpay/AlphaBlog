@@ -7,11 +7,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Settings\SocialSettings;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class SocialSettingsController extends Controller
 {
     public function save(Request $request){
         if(SocialNetworkSaveAction::execute($request, 'website')){
+            Cache::forget(config('cache.prefix').'social_networks');
             return response()->json([
                 'status' => 'success',
                 'message' => __('profile.save_success')
@@ -29,14 +31,17 @@ class SocialSettingsController extends Controller
         try{
             $socialSettings = SocialSettings::first();
             if($socialSettings){
-                $socialSettings->social_networks = $request->social_networks;
+                $socialSettings->social_networks_header = $request->social_networks_header;
+                $socialSettings->social_networks_footer = $request->social_networks_footer;
                 $socialSettings->save();
             }
             else{
                 SocialSettings::create([
-                    'social_networks' => $request->social_networks
+                    'social_networks_header' => $request->social_networks_header,
+                    'social_networks_footer' => $request->social_networks_footer
                 ]);
             }
+            Cache::forget(config('cache.prefix').'social_settings');
             return response()->json([
                 'status' => 'success',
                 'message' => __('profile.save_success')

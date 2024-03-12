@@ -155,6 +155,12 @@ return [
                     'meta_description',
                     'meta_keywords'
                 ],
+                'sortableAttributes'=> [
+                    'created_at',
+                    'updated_at',
+                    'user_id',
+                    'categories'
+                ],
             ],
             'categories' => [
                 'filterableAttributes'=> [

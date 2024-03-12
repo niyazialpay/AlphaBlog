@@ -10,12 +10,14 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class RouteRedirectsController extends Controller
 {
     public function index(): Application|Factory|View
     {
-        return view('panel/redirects', ['routes' => RouteRedirects::paginate(10)]);
+        return view('panel/redirects', ['routes' => RouteRedirects::orderBy('created_at', 'DESC')->paginate(10)]);
     }
 
     public function show(RouteRedirects $route): JsonResponse
@@ -25,6 +27,7 @@ class RouteRedirectsController extends Controller
 
     public function delete(Request $request){
         $route = RouteRedirects::find($request->post('route_id'));
+        Cache::forget(config('cache.prefix').'routes_'.Str::slug($route->old_url));
         $route->delete();
         return response()->json(['success' => true]);
     }
@@ -34,6 +37,7 @@ class RouteRedirectsController extends Controller
         $route->new_url = $request->post('new_url');
         $route->redirect_code = $request->post('redirect_code');
         $route->save();
+        Cache::forget(config('cache.prefix').'routes_'.Str::slug($route->old_url));
         return response()->json(['success' => true]);
     }
 

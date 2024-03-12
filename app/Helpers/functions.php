@@ -31,13 +31,28 @@ function replace_characters($text): array|string|null
 
 function GetPost($request): array|string|null
 {
-    if (is_array($request)) {
-        return addslashes(strip_tags($request[0]));
-    } else
-        return addslashes(strip_tags($request));
+    if($request!=null){
+        if (is_array($request)) {
+            return addslashes(strip_tags($request[0]));
+        } else{
+            return addslashes(strip_tags($request));
+        }
+    }
+    return null;
+
 }
 
 function content($content): string
 {
     return addslashes(strip_tags($content, '<br><br/><br /><a><b><strong><em><i><div><p><img><li><ul><ol><table><tr><td><h1><h2><h2><h3><h4><h5><h6><span><code><pre><blockquote><u>'));
+}
+
+function stripslashesNull($text): string
+{
+    if($text != null){
+        return stripslashes($text);
+    }
+    else{
+        return '';
+    }
 }

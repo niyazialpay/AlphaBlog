@@ -18,7 +18,7 @@ class CategoryController extends Controller
     {
         return view('panel.post.category.index', [
             'categories' => new Categories(),
-            'category' => $category,
+            'category' => $category->load('media', 'media.model'),
         ]);
     }
 
@@ -36,6 +36,9 @@ class CategoryController extends Controller
         }
         else{
             $category->slug =  Str::slug($request->slug);
+        }
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $category->addMediaFromRequest('image')->toMediaCollection('categories');
         }
         $category->meta_description = GetPost($request->meta_description);
         $category->meta_keywords = GetPost($request->meta_keywords);

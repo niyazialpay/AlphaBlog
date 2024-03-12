@@ -7,6 +7,7 @@ return [
     'advertisement' => 'Advertisement',
     'analytics' => 'Analytics',
 
+    'site_name' => 'Site Name',
     'site_title' => 'Site Title',
     'site_description' => 'Site Description',
     'site_keywords' => 'Site Keywords',
@@ -23,7 +24,10 @@ return [
     'robots_txt_saved' => 'Robots.txt saved',
 
     'site_logo' => 'Site Logo',
+    'site_logo_light' => 'Site Logo (Light Mode)',
+    'site_logo_dark' => 'Site Logo (Dark Mode)',
     'site_favicon' => 'Site Favicon',
+    'app_icon' => 'App Icon',
     'contact_email' => 'Contact Email',
 
     'general_settings_saved' => 'Settings updated successfully',

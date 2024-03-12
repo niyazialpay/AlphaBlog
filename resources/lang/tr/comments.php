@@ -9,6 +9,8 @@ return [
         'name_required_if' => 'İsim alanı boş bırakılamaz!',
         'email_required_if' => 'E-posta alanı boş bırakılamaz!',
         'email_email' => 'E-posta alanı doğru formatta değil!',
+        'name_required' => 'İsim alanı boş bırakılamaz!',
+        'email_required' => 'E-posta alanı boş bırakılamaz!',
     ],
     'comment' => 'Yorum',
     'comments' => 'Yorumlar',
@@ -31,4 +33,7 @@ return [
     'all_comments' => 'Tüm Yorumlar',
     'no_new_comments' => 'Yeni yorum yok',
     'new_comments' => 'Yeni Yorumlar',
+
+    'comment_saved' => 'Yorumunuz yönetici onayı sonrası yayınlanacaktır.',
+    'comment_error' => 'Yorum kaydedilirken bir hata oluştu.',
 ];

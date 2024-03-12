@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{session()->get('language')}}">
+<html lang="{{session('language')}}">
 <head>
     <meta charset="utf-8" />
     <title>@yield('site_title')</title>
@@ -21,8 +21,6 @@
     <link rel="dns-prefetch" href="https://z.moatads.com" />
     <link rel="dns-prefetch" href="https://www.google-analytics.com" />
 
-    <link rel="alternate" hreflang="x-default" href="{{config('app.name')}}">
-
     <meta property="og:url"                content="@yield('canonical_url')" />
     <meta property="og:type"               content="article" />
     <meta property="og:title"              content="@yield('site_title')" />
@@ -31,23 +29,22 @@
     <meta property="og:image:url"          content="@yield('og_image')" />
     <meta property="og:image:secure_url"   content="@yield('og_image')" />
     <meta property="og:image:alt"          content="@yield('site_title')">
-    @if($social_settings->facebook)
-    <meta property="article:author"        content="https://www.facebook.com/{{ $social_settings->facebook }}">
+    @if($social_networks->facebook)
+    <meta property="article:author"        content="https://www.facebook.com/{{ $social_networks->facebook }}">
     @endif
 
-    <link href="https://niyazi.net/rss" rel="alternate" type="application/rss+xml" title=" RSS" />
-
-
+    <link href="{{route('rss', ['language' => session()->get('language')])}}" rel="alternate" type="application/rss+xml" title="RSS" />
 
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:site" content="{{ "@".$social_settings->x }}" />
-    <meta name="twitter:creator" content="{{ "@".$social_settings->x }}" />
+    <meta name="twitter:site" content="{{ "@".app('social_networks')->x }}" />
+    <meta name="twitter:creator" content="{{ "@".app('social_networks')->x }}" />
     <meta name="twitter:description" content="@yield('site_description')" />
     <meta name="twitter:title" content="@yield('site_title')" />
     <meta name="twitter:image" content="@yield('og_image')" />
     <meta name="twitter:image:src" content="@yield('og_image')" />
 
     <link rel="canonical" href="@yield('canonical_url')" />
+    @yield('href_lang')
 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
@@ -64,6 +61,8 @@
     <!-- Main Style -->
     <link rel="stylesheet" href="{{config('app.url')}}/themes/Default/css/style.min.css" />
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
     <!-- Google Fonts -->
     <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700' rel='stylesheet' type='text/css'>
@@ -76,54 +75,82 @@
     <!--[if lte IE 8]>
     <link rel="stylesheet" href="{{config('app.url')}}/themes/Default/css/ie8.css"/><![endif]-->
 
-    <script src="https://www.google.com/recaptcha/api.js?render={{config('Cryptograph.recaptcha_public')}}&amp;lang=tr"></script>
-
-    <link rel="shortcut icon" href="{{app('general_settings')->getFirstMediaUrl('site_favicon')}}" type="image/x-icon">
-    <link rel="icon" href="{{app('general_settings')->getFirstMediaUrl('site_favicon')}}" type="image/x-icon">
-    <link rel="apple-touch-icon" sizes="57x57" href="{{app('general_settings')->getFirstMediaUrl('site_favicon', 'r_57x57')}}" type="image/x-icon">
-    <link rel="apple-touch-icon" sizes="60x60" href="{{app('general_settings')->getFirstMediaUrl('site_favicon', 'r_60x60')}}" type="image/x-icon">
-    <link rel="apple-touch-icon" sizes="72x72" href="{{app('general_settings')->getFirstMediaUrl('site_favicon', 'r_72x72')}}" type="image/x-icon">
-    <link rel="apple-touch-icon" sizes="76x76" href="{{app('general_settings')->getFirstMediaUrl('site_favicon', 'r_76x76')}}" type="image/x-icon">
-    <link rel="apple-touch-icon" sizes="114x114" href="{{app('general_settings')->getFirstMediaUrl('site_favicon', 'r_114x114')}}" type="image/x-icon">
-    <link rel="apple-touch-icon" sizes="120x120" href="{{app('general_settings')->getFirstMediaUrl('site_favicon', 'r_120x120')}}" type="image/x-icon">
-    <link rel="apple-touch-icon" sizes="144x144" href="{{app('general_settings')->getFirstMediaUrl('site_favicon', 'r_144x144')}}" type="image/x-icon">
-    <link rel="apple-touch-icon" sizes="152x152" href="{{app('general_settings')->getFirstMediaUrl('site_favicon', 'r_152x152')}}" type="image/x-icon">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{app('general_settings')->getFirstMediaUrl('site_favicon', 'r_180x180')}}" type="image/x-icon">
-    <link rel="icon" type="image/png" sizes="192x192"  href="{{app('general_settings')->getFirstMediaUrl('site_favicon', 'r_192x192')}}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{app('general_settings')->getFirstMediaUrl('site_favicon', 'r_32x32')}}">
-    <link rel="icon" type="image/png" sizes="96x96" href="{{app('general_settings')->getFirstMediaUrl('site_favicon', 'r_96x96')}}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{app('general_settings')->getFirstMediaUrl('site_favicon', 'r_16x16')}}">
+    <link rel="shortcut icon" href="{{$general_settings->getFirstMediaUrl('site_favicon')}}" type="image/x-icon">
+    <link rel="icon" href="{{$general_settings->getFirstMediaUrl('site_favicon')}}" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="57x57" href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_57x57')}}" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="60x60" href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_60x60')}}" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="72x72" href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_72x72')}}" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="76x76" href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_76x76')}}" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="114x114" href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_114x114')}}" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="120x120" href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_120x120')}}" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="144x144" href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_144x144')}}" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="152x152" href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_152x152')}}" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_180x180')}}" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="192x192"  href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_192x192')}}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_32x32')}}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_96x96')}}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_16x16')}}">
     <link rel="manifest" href="{{config('app.url')}}/themes/Default/images/manifest.json">
     <meta name="msapplication-TileColor" content="#ffffff">
-    <meta name="msapplication-TileImage" content="{{app('general_settings')->getFirstMediaUrl('site_favicon', 'r_144x144')}}">
+    <meta name="msapplication-TileImage" content="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_144x144')}}">
     <meta name="theme-color" content="#ffffff">
 
-    <script type='text/javascript' src='https://platform-api.sharethis.com/js/sharethis.js#property=656b066564d64c00127f1132&product=inline-share-buttons' async='async'></script>
+    {!! $general_settings->sharethis !!}
 
     <!-- google developer schema coding -->
     <script type="application/ld+json">
         {
             "@context": "http://schema.org",
             "@type": "Organization",
-            "name": "Niyazi.Net",
-            "legalName" : "Niyazi.Net Yazılımcı Güncesi",
-            "url": "https://niyazi.net",
-            "logo": "{{config('app.url')}}/themes/Default/images/logo.svg",
+            "name": "{{$seo_settings->site_name}}",
+            "legalName" : "{{$seo_settings->title}}",
+            "url": "{{config('app.url')}}",
+            "logo": "{{$general_settings->getFirstMediaUrl('site_logo_light')}}",
             "sameAs": [
-                "https://twitter.com/niyazialpay",
-                "https://www.instagram.com/niyazialpay",
-                "https://www.facebook.com/MNiyaziAlpay/"
+                @if($social_networks->github)
+                    "https://github.com/{{$social_networks->github}}",
+                @endif
+                @if($social_networks->linkedin)
+                    "https://www.linkedin.com/in/{{$social_networks->linkedin}}",
+                @endif
+                @if($social_networks->facebook)
+                    "https://facebook.com/{{$social_networks->facebook}}",
+                @endif
+                @if($social_networks->x)
+                    "https://twitter.com/{{$social_networks->x}}",
+                @endif
+                @if($social_networks->devto)
+                    "https://dev.to/{{$social_networks->devto}}",
+                @endif
+                @if($social_networks->instagram)
+                    "https://instagram.com/{{$social_networks->instagram}}",
+                @endif
+                @if($social_networks->medium)
+                    "https://medium.com/{{'@'.$social_networks->medium}}",
+                @endif
+                @if($social_networks->deviantart)
+                    "https://deviantart.com/{{$social_networks->deviantart}}",
+                @endif
+                @if($social_networks->youtube)
+                    "https://youtube.com/{{$social_networks->youtube}}",
+                @endif
+                @if($social_networks->reddit)
+                    "https://pinterest.com/{{$social_networks->pinterest}}",
+                @endif
+                @if($social_networks->xbox)
+                    "https://tumblr.com/{{$social_networks->tumblr}}",
+                @endif
             ]
         }
 
         {
             "@context":"http://schema.org",
             "@type":"WebSite",
-            "url":"https://niyazi.net/",
-            "name":"Niyazi.Net Yazılımcı Güncesi",
+            "url":"{{config('app.url')}}",
+            "name":"@yield('site_title')",
             "potentialAction":[{
                 "@type":"SearchAction",
-                "target":"https://niyazi.net/?s={search_term}",
+                "target":"{{config('app.url')}}?search={search_term}",
                 "query-input": {
                     "@type": "PropertyValueSpecification",
                     "valueRequired": true,
@@ -136,36 +163,31 @@
 
     @yield('rich_snipped')
 
-    <script data-ad-client="ca-pub-6624557470838526" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    {!! $ad_settings?->google_ad_manager !!}
 </head>
 <body >
 
 <!-- The Modal -->
 <div id="search_modal" class="custom-modal">
     <div class="custom-modal-header">
-        <div id="search_header">Aramayan Bulamaz</div><span class="close">&times;</span>
+        <div id="search_header">@lang('post.search_title')</div><span class="close">&times;</span>
         <div class="clearfix"></div>
     </div>
     <!-- Modal content -->
     <div class="custom-modal-content">
         <form action="javascript:void(0);" id="search_form" class="form-horizontal">
             <label for="search_input"></label>
-            <input type="search" id="search_input" name="search_input" placeholder="Aranacak kelime..." class="form-control" autofocus required>
+            <input type="search" id="search_input" name="search_input" placeholder="@lang('post.search_placeholder')" class="form-control" autofocus required>
         </form>
     </div>
     <div class="custom-modal-footer">
         <div class="col-lg-10 col-md-10 col-sm-12" id="search_message"></div>
         <div class="col-lg-2 col-md-2 col-sm-12 align-right">
-            <button type="button" class="btn btn-primary mr-auto" id="search_button">Ara</button>
+            <button type="button" class="btn btn-primary mr-auto" id="search_button">@lang('post.search')</button>
         </div>
         <div class="clearfix"></div>
     </div>
 </div>
-
-<!-- preloader -->
-<!--div id="preloader">
-    <div id="status"> <img src="{{config('app.url')}}/themes/Default/images/logo.svg" id="loader" height="128" width="128" alt="Yükleniyor"> </div>
-</div-->
 
 
 <!--Navigation-->
@@ -178,17 +200,17 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a href="/" class="navbar-brand"><img src="{{config('app.url')}}/themes/Default/images/logo.svg" height="32" alt="logo" id="logo"></a>
+            <a href="/" class="navbar-brand"><img src="{{$general_settings->getFirstMediaUrl('site_logo_light')}}" height="32" alt="{{$seo_settings->site_name}}" id="logo"></a>
         </div>
         <div class="collapse navbar-collapse" id="main_nav">
             <div class=" pull-right hidden-xs hidden-sm">
                 <ul class="nav social-links">
-                    <li><a href="javascript:void(0);" class="searchbutton" title="Ara"><i class="fa fa-search searchbutton" title="Ara"></i></a></li>
-                    <x-social-menu/>
+                    <li><a href="javascript:void(0);" class="searchbutton" title="Ara"><i class="fa fa-search searchbutton" title="@lang('post.search')"></i></a></li>
+                    <x-menu.social-menu :show="$social_settings->social_networks_header"/>
                 </ul>
 
             </div>
-            <x-header-menu/>
+            <x-menu.header-menu/>
         </div>
     </div>
 </nav>
@@ -198,8 +220,7 @@
 <div id="main"@yield("marginclass")>
     <div class="container">
         <div class="row">
-            @yield('icerik')
-
+            @yield('content')
         </div>
     </div> <!-- End Container -->
     <div id="instagram-footer">
@@ -216,7 +237,7 @@
             <div class="row">
                 <div class="full">
                     <ul class="quick-link">
-                        <x-social-menu/>
+                        <x-menu.social-menu :show="$social_settings->social_networks_footer"/>
                     </ul>
 
                     <div class="copy-right">
@@ -230,57 +251,32 @@
 
 <script src="{{config('app.url')}}/themes/Default/js/jquery-3.2.1.min.js"></script>
 <script src="{{config('app.url')}}/themes/Default/js/bootstrap.min.js"></script>
-<script src="{{config('app.url')}}/themes/Default/js/owl.carousel.min.js"></script>
-
+<script src="{{config('app.url')}}/themes/Default/js/main.js"></script>
 <link href="{{config('app.url')}}/themes/Default/css/custombox.min.css" rel="stylesheet">
 <script src="{{config('app.url')}}/themes/Default/js/custombox.min.js"></script>
 <script src="{{config('app.url')}}/themes/Default/js/custombox.legacy.min.js"></script>
 
+@yield('scripts')
+<!-- Global site tag (gtag.js) - Google Analytics -->
+{!! $analytic_settings?->google_analytics !!}
+
 <script>
-    function getRecaptchaToken() {
-        grecaptcha.ready(function() {
-            grecaptcha.execute('{{config('Cryptograph.recaptcha_public')}}', { action: '@yield("recaptcha_action")' }).then(function(token) {
-                $('.recaptcha_response').val(token);
-            });
+    $(document).ready(function(){
+        $(".searchbutton").click(function(){
+            $("#search_modal").css("display", "block");
         });
-    }
-</script>
-
-<script src="{{config('app.url')}}/themes/Default/js/main.min.js"></script>
-
-<script>
-
-    getRecaptchaToken();
-    // Slider
-    jQuery('.owl-carousel').owlCarousel({
-        loop:true,
-        autoplay:true,
-        margin:10,
-        nav:true,
-        navText: ['<i class="fa fa-angle-left"></i>','<i class="fa fa-angle-right"></i>'],
-        responsiveClass: true,
-        items:1,
-        dots:false,
-        responsive:{
-            0:{
-                items:1,
-                nav:true
-            },
-            600:{
-                items:2
+        $(".close").click(function(){
+            $("#search_modal").css("display", "none");
+        });
+        $("#search_button").click(function(){
+            let search_input = $("#search_input").val();
+            if(search_input.length > 0){
+                window.location.href = "{{config('app.url')}}/{{session('language')}}?search="+search_input;
+            }else{
+                $("#search_message").html("{{__('post.search_input_empty')}}");
             }
-        }
+        });
     });
 </script>
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-28792004-12"></script>
-<script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'UA-28792004-12');
-</script>
-
 </body>
 </html>
