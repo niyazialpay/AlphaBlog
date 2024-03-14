@@ -54,8 +54,12 @@ class PostController extends Controller
             $posts = $posts->where('user_id', auth()->user()->id);
         }
         return view('panel.post.index', [
-            'posts' => $posts->where('language', GetPost($request->get('language')))->paginate(10),
-            'trashed' => $post::onlyTrashed()->where('language', GetPost($request->get('language')))->paginate(10),
+            'posts' => $posts->where('language', GetPost($request->get('language')))
+                ->orderBy('created_at', 'desc')
+                ->paginate(10),
+            'trashed' => $post::onlyTrashed()->where('language', GetPost($request->get('language')))
+                ->orderBy('created_at', 'desc')
+                ->paginate(10),
             'type' => $type,
         ]);
     }

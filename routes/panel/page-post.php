@@ -54,8 +54,7 @@ Route::post('/editor/image/upload',
 
 Route::post('/editor/image/upload/{post?}',
     [App\Http\Controllers\Admin\Post\PostController::class, 'editorImageUpload'])
-    ->can('edit', 'post')
-    ->name('admin.post.editor.image.upload');
+    ->can('edit', 'post');
 
 Route::post('/editor/image/delete/{post}',
     [App\Http\Controllers\Admin\Post\PostController::class, 'postImageDelete'])

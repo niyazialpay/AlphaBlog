@@ -14,6 +14,7 @@
         <image>
             <url>{{$general_settings->getFirstMediaUrl('site_logo_light')}}</url>
             <link>{{config('app.url')}}</link>
+            <title>{{$seo_settings->site_name}}</title>
         </image>
 
         @foreach($posts as $post)

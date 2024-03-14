@@ -97,5 +97,6 @@ return [
     'search_title' => 'He/She who does not seek will not find',
     'search_input_empty' => 'You must enter a search term to search!',
 
-    'comment_notes' => 'Your email address will not be published. Required fields are marked *'
+    'comment_notes' => 'Your email address will not be published. Required fields are marked *',
+    'no_result_found' => 'No results found for your search term. Please try again with different keywords.',
 ];

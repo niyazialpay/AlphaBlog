@@ -1,5 +1,5 @@
 @extends('panel.base')
-@section('title', $post->title. ' - Media')
+@section('title', stripslashes($post->title). ' - Media')
 @section('breadcrumb_link')
     <ol class="breadcrumb float-sm-right">
         <li class="breadcrumb-item"><a href="{{route('admin.index')}}">@lang('dashboard.dashboard')</a></li>
@@ -12,7 +12,7 @@
         </li>
         <li class="breadcrumb-item">
             <a href="{{route('admin.post.edit', [$type, $post])}}">
-                {{$post->title}}
+                {{stripslashes($post->title)}}
             </a>
         </li>
         <li class="breadcrumb-item active">@lang('post.media')</li>
@@ -22,7 +22,7 @@
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">
-                {{$post->title}}
+                {{stripslashes($post->title)}}
             </h3>
         </div>
         <div class="card-body">
