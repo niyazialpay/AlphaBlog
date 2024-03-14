@@ -78,7 +78,7 @@
                                             <small>{{$comment->ip_address}}</small>
                                         </td>
                                         <td>
-                                            {{$comment->comment}}
+                                            {!! $comment->comment !!}
                                         </td>
                                         <td>
                                             @if($comment->post)

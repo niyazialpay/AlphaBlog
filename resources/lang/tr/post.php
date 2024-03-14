@@ -97,5 +97,6 @@ return [
     'search_title' => 'Aramayan Bulamaz',
     'search_input_empty' => 'Arama yapmak için bir şeyler yazın!',
 
-    'comment_notes' => 'E-posta adresiniz yayınlanmayacaktır. Zorunlu alanlar * ile işaretlenmiştir'
+    'comment_notes' => 'E-posta adresiniz yayınlanmayacaktır. Zorunlu alanlar * ile işaretlenmiştir',
+    'no_result_found' => 'Sonuç bulunamadı. Lütfen farklı bir kelime ile tekrar deneyin.',
 ];

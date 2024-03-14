@@ -20,7 +20,7 @@ Route::any('/corbado/redirect',  [App\Http\Controllers\Admin\WebAuthnController:
 
 Route::get('/login',
     [App\Http\Controllers\Admin\UserController::class, 'login'])
-    ->name('login');
+    ->name('login')->middleware('ip_filter');
 
 Route::post('/login',
     [App\Http\Controllers\Auth\LoginController::class, 'login'])->middleware([
@@ -64,8 +64,11 @@ Route::get('/image/{path}/{width}/{height}/{type}/{image}',
         'type' => '[a-zA-Z0-9\/]+'
     ]);
 
+Route::get('/sitemap.xml', [App\Http\Controllers\SiteMap\SitemapController::class, 'index']);
+
 Route::get('/sitemap', [App\Http\Controllers\SiteMap\SitemapController::class, 'index'])
     ->name('sitemap');
+
 
 Route::any('/manifest.json', [App\Http\Controllers\ManifestController::class, 'manifest'])->name('manifest');
 

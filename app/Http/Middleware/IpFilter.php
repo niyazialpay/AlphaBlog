@@ -42,10 +42,12 @@ class IpFilter
                     }
                     else{
                         $status = true;
+                        break;
                     }
                 }
                 else{
                     $status = true;
+                    break;
                 }
             }
             else{
@@ -55,10 +57,12 @@ class IpFilter
                     }
                     else{
                         $status = false;
+                        break;
                     }
                 }
                 else{
                     $status = true;
+                    break;
                 }
             }
         }

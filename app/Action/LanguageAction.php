@@ -14,8 +14,13 @@ class LanguageAction
             'image',
             'rss',
             'sitemap',
+            'sitemap.xml',
             'manifest.json',
-            config('settings.admin_panel_path')
+            config('settings.admin_panel_path'),
+            'forgot-password',
+            'reset-password',
+            'login',
+            'cdn-cgi'
         ];
         $languages = new Languages();
         if(!in_array($request->segment(1), $except)){

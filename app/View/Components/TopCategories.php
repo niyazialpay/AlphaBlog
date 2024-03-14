@@ -49,7 +49,7 @@ class TopCategories extends Component
                     ],
                 ],
                 [
-                    '$limit' => 5,
+                    '$limit' => 6,
                 ],
             ]);
         });

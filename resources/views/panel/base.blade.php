@@ -134,7 +134,7 @@
 <!-- Logout Modal Start -->
 <div class="modal" tabindex="-1" id="logoutModal">
     <div class="modal-dialog">
-        <form class="modal-content" method="post" action="{{route('logout')}}">
+        <form class="modal-content" method="post" action="{{route('admin.logout')}}">
             <div class="modal-header">
                 <h5 class="modal-title">@lang('user.logout')</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
