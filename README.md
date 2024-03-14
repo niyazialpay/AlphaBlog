@@ -27,8 +27,6 @@ Edit the .env file for database information, Meilisearch, Email SMTP and Cloudfl
 
 #### After all this, if you want, you can change the admin panel path from the ADMIN_PANEL_PATH variable in the .env file
 
-``php artisan optimize``
-
 To create a user after these operations
 
 ``php artisan app:create-user``
