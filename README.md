@@ -47,7 +47,7 @@ To create a user after these operations
 - Email SMTP
 - Media Library
 - MongoDB
-- Laravel 10
+- Laravel 11
 - PHP 8.3
 - Bootstrap 5
 - Font Awesome 6.5.1 (Pro)

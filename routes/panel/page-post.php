@@ -1,9 +1,14 @@
 <?php
+
+use App\Http\Middleware\CheckPostType;
+use App\Http\Middleware\MergePostTypeToRequest;
+use Illuminate\Support\Facades\Route;
+
 Route::get('/', [App\Http\Controllers\Admin\Post\PostController::class, 'index'])
     ->name('admin.posts');
 
 Route::get('/create', [App\Http\Controllers\Admin\Post\PostController::class, 'create'])
-    ->middleware('check_post_type')
+    ->middleware(CheckPostType::class)
     ->name('admin.post.create')
     ->can('create', 'App\Models\Post\Posts');
 
@@ -17,12 +22,12 @@ Route::get('/{post}/media', [App\Http\Controllers\Admin\Post\PostController::cla
 
 Route::get('/{post}/edit', [App\Http\Controllers\Admin\Post\PostController::class, 'create'])
     ->name('admin.post.edit')
-    ->middleware('check_post_type')
+    ->middleware(CheckPostType::class)
     ->can('edit', 'post');
 
 Route::post('/save/{post}', [App\Http\Controllers\Admin\Post\PostController::class, 'save'])
     ->name('admin.post.update')
-    ->middleware(['merge_post_type', 'check_post_type'])
+    ->middleware([MergePostTypeToRequest::class, CheckPostType::class])
     ->can('edit', 'post');
 
 Route::post('/{post}/delete', [App\Http\Controllers\Admin\Post\PostController::class, 'delete'])

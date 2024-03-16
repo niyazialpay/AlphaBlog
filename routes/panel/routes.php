@@ -1,4 +1,6 @@
 <?php
+use Illuminate\Support\Facades\Route;
+
 Route::get('/', [App\Http\Controllers\Admin\RouteRedirectsController::class, 'index'])
     ->can('admin', 'App\Models\User')
     ->name('adminRoutes');

@@ -1,4 +1,6 @@
 <?php
+use Illuminate\Support\Facades\Route;
+
 Route::get('/', [App\Http\Controllers\Admin\UserController::class, 'index'])
     ->can('own', 'App\Models\User')
     ->name('admin.profile.index');

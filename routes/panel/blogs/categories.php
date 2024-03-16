@@ -1,4 +1,7 @@
 <?php
+
+use Illuminate\Support\Facades\Route;
+
 Route::post('/delete', [App\Http\Controllers\Admin\Post\CategoryController::class, 'delete'])
     ->can('category', 'App\Models\Post\Categories')
     ->name('admin.categories.delete');

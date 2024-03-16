@@ -1,4 +1,6 @@
 <?php
+use Illuminate\Support\Facades\Route;
+
 Route::get('/', [App\Http\Controllers\Admin\UserController::class, 'userList'])
     ->can('admin', 'App\Models\User')
     ->name('admin.users');

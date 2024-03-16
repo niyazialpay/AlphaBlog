@@ -44,10 +44,12 @@
                     <ul class="tab-menu">
                         <!-- menu tabs start here -->
                         <li class="active-tab">
-                            <a href="{{route('admin.posts', $type)}}?tab=contents&amp;language={{request()->get('language')}}"><i class="fa-light fa-folder-grid"></i> İçerikler</a>
+                            <a href="{{route('admin.posts', $type)}}?tab=contents&amp;language={{request()->get('language')}}">
+                                <i class="fa-light fa-folder-grid"></i> İçerikler</a>
                         </li>
                         <li>
-                            <a href="{{route('admin.posts', $type)}}?tab=trashed&amp;language={{request()->get('language')}}"><i class="fa-light fa-trash-list"></i> Silinenler</a>
+                            <a href="{{route('admin.posts', $type)}}?tab=trashed&amp;language={{request()->get('language')}}">
+                                <i class="fa-light fa-trash-list"></i> Silinenler</a>
                         </li>
                     </ul>
                     <div class="tab_container">
@@ -55,7 +57,9 @@
                             <div class="my-3">
                                 <form method="post" id="searchForm" action="javascript:void(0)">
                                     <div class="input-group mb-3">
-                                        <input class="form-control form-control-navbar" type="search" name="search" placeholder="@lang('general.search')" aria-label="@lang('general.search')" value="{{GetPost(request()->search)}}">
+                                        <input class="form-control form-control-navbar" type="search" name="search"
+                                               placeholder="@lang('general.search')" aria-label="@lang('general.search')"
+                                               value="{{GetPost(request()->search)}}">
                                         <div class="input-group-append">
                                             <button class="btn btn-navbar search-button" type="submit">
                                                 <i class="fa-duotone fa-magnifying-glass"></i>

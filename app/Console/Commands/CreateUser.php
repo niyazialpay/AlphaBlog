@@ -25,7 +25,7 @@ class CreateUser extends Command
     /**
      * Execute the console command.
      */
-    public function handle(): void
+    public function handle()
     {
         $name = $this->ask('Enter your name');
         $surname = $this->ask('Enter your surname');
@@ -57,6 +57,5 @@ class CreateUser extends Command
         $user->save();
 
         $this->info('User created successfully');
-
     }
 }

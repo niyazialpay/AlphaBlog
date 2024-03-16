@@ -91,7 +91,7 @@ class Posts extends Model implements HasMedia
     {
         $array = $this->toArray();
         $array['user'] = $this->user?->name. ' ' . $this->user?->surname;
-        $array['username'] = $this->user?->username;
+        $array['username'] = $this->user?->nickname;
         $array['categories'] = $this->categories->pluck('name')->toArray();
         $array['tags'] = $this->tags;
         $array['category_id'] = $this->category_id;

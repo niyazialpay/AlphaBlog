@@ -50,10 +50,6 @@ class Categories extends Model implements HasMedia
         return $this->hasMany(Categories::class, 'parent_id', '_id');
     }
 
-    /*public function postsCount(): HasManyThrough
-    {
-        return $this->hasManyThrough(Posts::class, Categories::class, 'category_id', 'post_id', '_id', '_id');
-    }*/
 
     public function PostCount(): Attribute
     {
