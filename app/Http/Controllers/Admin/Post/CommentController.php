@@ -23,7 +23,7 @@ class CommentController extends Controller
             }
         }
         return view('panel.post.comments.index', [
-            'comments' => $comments->paginate(10),
+            'comments' => $comments->orderBy('created_at', 'DESC')->paginate(10),
             'users' => User::all(),
             'type' => 'blogs'
         ]);
