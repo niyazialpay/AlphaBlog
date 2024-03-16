@@ -100,57 +100,31 @@
     <!-- google developer schema coding -->
     <script type="application/ld+json">
         {
-            "@context": "http://schema.org",
+            "@context": "https://schema.org",
             "@type": "Organization",
-            "name": "{{$seo_settings->site_name}}",
-            "legalName" : "{{$seo_settings->title}}",
+            "image": "{{$general_settings->getFirstMediaUrl('site_logo_light')}}",
             "url": "{{config('app.url')}}",
-            "logo": "{{$general_settings->getFirstMediaUrl('site_logo_light')}}",
             "sameAs": [
-                @if($social_networks->github)
-                    "https://github.com/{{$social_networks->github}}",
-                @endif
-                @if($social_networks->linkedin)
-                    "https://www.linkedin.com/in/{{$social_networks->linkedin}}",
-                @endif
-                @if($social_networks->facebook)
-                    "https://facebook.com/{{$social_networks->facebook}}",
-                @endif
-                @if($social_networks->x)
-                    "https://twitter.com/{{$social_networks->x}}",
-                @endif
-                @if($social_networks->devto)
-                    "https://dev.to/{{$social_networks->devto}}",
-                @endif
-                @if($social_networks->instagram)
-                    "https://instagram.com/{{$social_networks->instagram}}",
-                @endif
-                @if($social_networks->medium)
-                    "https://medium.com/{{'@'.$social_networks->medium}}",
-                @endif
-                @if($social_networks->deviantart)
-                    "https://deviantart.com/{{$social_networks->deviantart}}",
-                @endif
-                @if($social_networks->youtube)
-                    "https://youtube.com/{{$social_networks->youtube}}",
-                @endif
-                @if($social_networks->reddit)
-                    "https://pinterest.com/{{$social_networks->pinterest}}",
-                @endif
-                @if($social_networks->xbox)
-                    "https://tumblr.com/{{$social_networks->tumblr}}",
-                @endif
-            ]
+        @foreach($languages as $n => $language)
+            "{{route('home', ['language' => $language->code])}}"@if($n < $languages->count() - 1),@endif
+        @endforeach
+        ],
+        "logo": "{{$general_settings->getFirstMediaUrl('site_logo_light')}}",
+            "name": "{{$seo_settings->site_name}}",
+            "description": "{{ $seo_settings->description }}",
+            "email": "{{ $general_settings->contact_email }}"
         }
+    </script>
 
+    <script type="application/ld+json">
         {
-            "@context":"http://schema.org",
+            "@context":"https://schema.org",
             "@type":"WebSite",
-            "url":"{{config('app.url')}}",
-            "name":"@yield('site_title')",
+            "name":"{{$seo_settings->site_name}}",
+            "url":"{{route('home', ['language' => session('language')])}}",
             "potentialAction":[{
                 "@type":"SearchAction",
-                "target":"{{config('app.url')}}?search={search_term}",
+                "target":"{{route('home', ['language' => session('language')])}}?search={search_term}",
                 "query-input": {
                     "@type": "PropertyValueSpecification",
                     "valueRequired": true,

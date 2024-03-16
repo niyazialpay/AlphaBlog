@@ -213,101 +213,102 @@
     <link rel="stylesheet" href="{{config('app.url')}}/themes/Default/css/custom.min.css">
     <script type="application/ld+json">
         {
-            "@context" : "http://schema.org",
+            "@context" : "https://schema.org",
             "@type" : "Article",
-            "inLanguage": "tr-TR",
+            "inLanguage": "{{$post->language}}",
             "name" : "{{stripslashes($post->title)}}",
-    "author" : {
-        "@type" : "Person",
-        "name" : "{{$post->user->username}}"
-    },
-    "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": "{{route('page', ['language' => $post->language, $post])}}"
-    },
-    "headline": "{{stripslashes($post->title)}}",
-    "alternativeHeadline": "{{stripslashes($post->title)}}",
-    "keywords": "{{implode(',', $post->meta_keywords)}}",
-    "image": {
-        "@type": "ImageObject",
-        "url": "@if($post->media->last()){{route('image', [
-    'path' => $media->_id,
-    'width' => 840,
-    'height' => 341,
-    'type' => 'cover',
-    'image' => $media->file_name
-])}}@endif",
-        "width": "840",
-        "height": "341"
-    },
-    "datePublished" : "{{$post->created_at}}",
-    "dateModified" : "{{$post->updated_at}}",
-    "articleBody" : "{{ strip_tags($post->content) }}",
-    "url" : "{{route('page', ['language' => $post->language, $post])}}",
-    "publisher" : {
-        "@type" : "Organization",
-        "name" : "{{$post->user->username}}",
-        "logo": {
-            "url": "https://www.gravatar.com/avatar/{{md5(strtolower(trim($post->user->email)))}}",
-            "type": "ImageObject",
-            "width": "48",
-            "height": "48"
+            "author" : {
+                "@type" : "Person",
+                "name" : "{{$post->user->nickname}}",
+                "url" : "{{route('user.posts', ['language' => $post->language, __('routes.user'), $post->user->nickname])}}"
+            },
+            "mainEntityOfPage": {
+                "@type": "WebPage",
+                "@id": "{{route('page', ['language' => $post->language, $post])}}"
+            },
+            "headline": "{{stripslashes($post->title)}}",
+            "alternativeHeadline": "{{stripslashes($post->title)}}",
+            "keywords": "{{implode(',', $post->meta_keywords)}}",
+            "image": {
+                "@type": "ImageObject",
+                "url": "@if($post->media->last())
+            {{route('image', [
+                'path' => $media->_id,
+                'width' => 840,
+                'height' => 341,
+                'type' => 'cover',
+                'image' => $media->file_name
+            ])}}
+        @endif",
+            "width": "840",
+            "height": "341"
+        },
+            "datePublished" : "{{dateformat($post->created_at, 'Y-m-d\TH:i:sP', timezone: config('app.timezone'))}}",
+            "dateModified" : "{{dateformat($post->updated_at, 'Y-m-d\TH:i:sP', timezone: config('app.timezone'))}}",
+            "articleBody" : "{{ stripslashes(strip_tags(preg_replace('/\s+/', ' ', trim($post->content)))) }}",
+            "url" : "{{route('page', ['language' => $post->language, $post])}}",
+            "publisher" : {
+                "@type" : "Organization",
+                "name" : "{{$post->user->nickname}}",
+                "logo": {
+                    "url": "https://www.gravatar.com/avatar/{{md5(strtolower(trim($post->user->email)))}}",
+                    "type": "ImageObject",
+                    "width": "48",
+                    "height": "48"
+                }
+            }
         }
-    }
-}
     </script>
     <script type="application/ld+json">
         {
-            "@context": "http://schema.org",
+            "@context": "https://schema.org",
             "@type": "BreadcrumbList",
+            "name": "{{stripslashes($post->title)}}",
             "itemListElement": [{
-                    "@type": "ListItem",
-                    "position": 1,
-                    "item": {
-                        "@id": "{{route('home', ['language' => session('language')])}}",
-                          "name": "{{__('routes.home')}}"
-                      }
-                  },
+                "@type": "ListItem",
+                "position": 1,
+                "name": "{{__('home.home')}}",
+                "item": "{{route('home', ['language' => session('language')])}}"
+            },
         @php($breadcrumb_n = 1)
         @foreach($post->categories as $n => $category)
             {
                 "@type": "ListItem",
-                "position": {{$n+2}}
-                "item": {
-                    "@id": "{{route('post.categories', ['language' => session('language'), __('routes.categories'), $category->slug])}}",
-                          "name": "{{stripslashes($category->name)}}"
-                      }
-                  },
-        @php($breadcrumb_n = $n+1)
+                "position": {{$n+2}},
+                "name": "{{stripslashes($category->name)}}",
+                "item": "{{route('post.categories', [
+                        'language' => session('language'),
+                        __('routes.categories'),
+                        $category->slug])}}"
+            },
+            @php($breadcrumb_n = $n+1)
         @endforeach
         {
-"@type": "ListItem",
-"position":{{$breadcrumb_n}},
-"item": {
-"@id": "{{route('page', ['language' => $post->language, $post])}}",
-                          "name": "{{stripslashes($post->title)}}"
-                      }
-                  }
-              ]
-          }
+            "@type": "ListItem",
+            "position": {{$breadcrumb_n}},
+                "name": "{{stripslashes($post->title)}}",
+                "item": "{{route('page', ['language' => $post->language, $post])}}"
+            }]
+        }
     </script>
     @if($post->comments->count() > 0)
         <script type="application/ld+json">
             {
-              "@context": "http://schema.org/",
+              "@context": "https://schema.org/",
               "@graph":
                 [@foreach($post->comments as $n => $item)
                 {
                     "@type": "Comment",
+                    "name": "@if($item->user) {{$item->user->nickname}}@else{{$item->name}}@endif",
                     "@id":"{{route('page', ['language' => $post->language, $post])}}#comment-{{$item->_id}}",
-                    "text":"{{ strip_tags($item->comment)}}",
-                    "downvoteCount":"0",
-                    "upvoteCount":"0",
-                    "dateCreated":"{{$item->created_at}}",
-                    "author":[{
-                        "@type":"Thing",
-                        "name":""
-                    }]
+                    "text":"{{stripslashes(strip_tags(preg_replace('/\s+/', ' ', trim($item->comment))))}}",
+                    "dateCreated":"{{dateformat($item->created_at, 'Y-m-d\TH:i:sP', timezone: config('app.timezone'))}}",
+                    "author":{
+                        "@type":"Person",
+                        "name":"@if($item->user) {{$item->user->nickname}}@else{{$item->name}}@endif",
+                        "url": "{{route('page', ['language' => $post->language, $post])}}#comment-{{$item->_id}}"
+                    }
+
                 }@if(($post->comments->count())-1!=$n)
                     ,
                 @endif
