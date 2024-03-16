@@ -10,13 +10,15 @@ class PostsObserver
     public function updated(Posts $post): void
     {
         $original = $post->getOriginal();
-        PostHistory::create([
-            'post_id' => $post->_id,
-            'title' => $original['title'],
-            'content' => $original['content'],
-            'slug' => $original['slug'],
-            'user_id' => $original['user_id'],
-        ]);
+        if($original['views'] == $post->views){
+            PostHistory::create([
+                'post_id' => $post->_id,
+                'title' => $original['title'],
+                'content' => $original['content'],
+                'slug' => $original['slug'],
+                'user_id' => $original['user_id'],
+            ]);
+        }
     }
 
 

@@ -1,4 +1,6 @@
 <?php
+use Illuminate\Support\Facades\Route;
+
 Route::post('/delete',
     [App\Http\Controllers\Admin\IPFilterController::class, 'delete'])
     ->can('admin', 'App\Models\User')

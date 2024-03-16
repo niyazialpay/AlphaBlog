@@ -1,4 +1,6 @@
 <?php
+use Illuminate\Support\Facades\Route;
+
 Route::get('/', [App\Http\Controllers\Admin\Post\CommentController::class, 'index'])
     ->can('view', 'App\Models\Post\Comments')
     ->name('admin.post.comments');

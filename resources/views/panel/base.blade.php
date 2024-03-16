@@ -14,7 +14,8 @@
     <link rel="stylesheet" href="{{config('app.url')}}/themes/fontawesome/css/all.min.css">
 
     <!-- Theme style -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
     <link rel="stylesheet" href="{{config('app.url')}}/themes/panel/css/adminlte.min.css">
     <link rel="stylesheet" href="{{config('app.url')}}/themes/panel/css/custom.css">
@@ -51,7 +52,8 @@
                         <i class="fa-duotone fa-user top-icon"></i> @lang('user.profile')
                     </a>
                     <div class="dropdown-divider"></div>
-                    <a href="javascript:void(0)" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                    <a href="javascript:void(0)" class="dropdown-item"
+                       data-bs-toggle="modal" data-bs-target="#logoutModal">
                         <i class="fa-duotone fa-right-from-bracket top-icon"></i> @lang('user.logout')
                     </a>
                 </div>
@@ -64,7 +66,7 @@
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
         <!-- Brand Logo -->
         <a href="{{route('admin.index')}}" class="brand-link">
-            <img src="{{config('app.url')}}/themes/Cryptograph/images/apple-icon-180x180.png"
+            <img src="{{app('general_settings')->getFirstMediaUrl('site_favicon')}}"
                  alt="{{config('app.name')}}" class="brand-image img-circle elevation-3"
                  style="opacity: .8">
             <span class="brand-text font-weight-light">{{config('app.name')}}</span>

@@ -13,7 +13,7 @@ use App\Models\Themes;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider;
-use View;
+use Illuminate\Support\Facades\View;
 
 class GlobalVariableServiceProvider extends ServiceProvider
 {

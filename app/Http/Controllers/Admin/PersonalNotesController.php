@@ -14,9 +14,9 @@ use niyazialpay\MediaLibrary\MediaCollections\Exceptions\MediaCannotBeDeleted;
 
 class PersonalNotesController extends Controller
 {
-    public function index(){
+    public function index(Request $request, PersonalNotes $notes){
         return view('panel.personal_notes.index', [
-            'notes' => auth()->user()->notes()->paginate(10),
+            'notes' => $notes->search($request->input('search'))->where('user_id', auth()->id())->paginate(10),
         ]);
     }
 

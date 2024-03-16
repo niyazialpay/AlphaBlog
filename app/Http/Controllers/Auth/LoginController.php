@@ -24,14 +24,12 @@ class LoginController extends Controller
     |
     */
 
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+
+    public static function middleware(): array
     {
-        $this->middleware('guest')->except('logout');
+        return [
+            'guest'
+        ];
     }
 
     public function login(Request $request){

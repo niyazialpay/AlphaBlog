@@ -40,7 +40,6 @@ class PersonalNotes extends Model implements HasMedia
 
     public function toSearchableArray(): array
     {
-        $array = $this->toArray();
         $array['user_id'] = $this->user->_id;
         $array["title"] = $this->title;
         $array["created_at"] = $this->created_at;

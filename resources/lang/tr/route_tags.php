@@ -1,0 +1,5 @@
+<?php
+return [
+    'tags',
+    'etiketler'
+];

@@ -20,13 +20,14 @@ class LanguageAction
             'forgot-password',
             'reset-password',
             'login',
-            'cdn-cgi'
+            'cdn-cgi',
+            'up',
         ];
         $languages = new Languages();
         if(!in_array($request->segment(1), $except)){
             if(session()->has('language')) {
-                if($request->segment(1)==session()->get('language')){
-                    $language = $languages->getLanguage(session()->get('language'));
+                if($request->segment(1)==session('language')){
+                    $language = $languages->getLanguage(session('language'));
                 }
                 elseif($request->segment(1)==null){
                     $language = $languages->getLanguage(app('default_language')->code);
@@ -51,12 +52,17 @@ class LanguageAction
             }
         }
         else{
-            $language = $languages->getLanguage(
-                explode("-", explode(",",$request->server('HTTP_ACCEPT_LANGUAGE')
-                )[0])[0]
-            );
-            if(!$language) {
-                $language = $languages->getLanguage(app('default_language')->code);
+            if(session()->has('language')) {
+                $language = $languages->getLanguage(session('language'));
+            }
+            else{
+                $language = $languages->getLanguage(
+                    explode("-", explode(",",$request->server('HTTP_ACCEPT_LANGUAGE')
+                    )[0])[0]
+                );
+                if(!$language) {
+                    $language = $languages->getLanguage(app('default_language')->code);
+                }
             }
         }
         session()->put('language', $language->code);

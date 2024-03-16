@@ -36,6 +36,16 @@
                     @lang('notes.define_encryption_key')
                 </a>
             </p>
+            <form method="post" id="searchForm" action="javascript:void(0)">
+                <div class="input-group mb-3">
+                    <input class="form-control form-control-navbar" type="search" name="search" placeholder="@lang('general.search')" aria-label="@lang('general.search')" value="{{GetPost(request()->search)}}">
+                    <div class="input-group-append">
+                        <button class="btn btn-navbar search-button" type="submit">
+                            <i class="fa-duotone fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
             <table class="table table-striped" aria-describedby="notes">
                 <thead>
                 <tr>
@@ -123,5 +133,11 @@
                 }
             })
         }
+        $(document).ready(function () {
+            $('#searchForm').submit(function () {
+                let search = $('input[name=search]').val();
+                location.href = '{{route('admin.notes')}}?search=' + search;
+            })
+        });
     </script>
 @endsection
