@@ -1,25 +1,36 @@
 <?php
 
+use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Support\Carbon;
 
-function dateformat($date, $format = 'd.m.Y H:i:s', $timezone='UTC', $locale='tr_TR.utf8', $diff_for_humans=false): string
+function dateformat(
+    $date,
+    $format = 'd.m.Y H:i:s',
+    $timezone='UTC',
+    $locale='tr_TR.utf8',
+    $diff_for_humans=false
+): string|bool
 {
-    setlocale(LC_TIME, $locale);
-    $dt = Carbon::parse($date);
+    try {
+        setlocale(LC_TIME, $locale);
+        $dt = Carbon::parse($date);
 
-    if($timezone){
-        $dt->setTimezone($timezone);
-    }
+        if($timezone){
+            $dt->setTimezone($timezone);
+        }
 
-    if($locale){
-        $dt->locale($locale);
-    }
+        if($locale){
+            $dt->locale($locale);
+        }
 
-    if($diff_for_humans) {
-        return $dt->diffForHumans();
-    }
-    else{
-        return $dt->translatedFormat($format);
+        if($diff_for_humans) {
+            return $dt->diffForHumans();
+        }
+        else{
+            return $dt->translatedFormat($format);
+        }
+    } catch (InvalidFormatException $e) {
+        abort(404);
     }
 }
 
