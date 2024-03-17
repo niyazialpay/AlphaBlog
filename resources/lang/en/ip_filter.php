@@ -34,4 +34,5 @@ return [
     'status_in' => 'Status can only be :values',
 
     'ip_filter' => 'IP Filtering',
+    'no_ip_filter' => 'No IP filtering found',
 ];
