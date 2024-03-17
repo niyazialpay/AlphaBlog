@@ -9,29 +9,45 @@ Adding images to blog or page content and sizing them was done with Spatie Media
 
 #### For this system to work, the following PHP functions must not be disabled on the server:
 
-``escapeshellarg, escapeshellcmd, proc_open, proc_get_status, proc_close ``
+```bash
+escapeshellarg, escapeshellcmd, proc_open, proc_get_status, proc_close 
+```
 
 ### For installation after git clone process
 
-``composer update --no-dev``
+```bash
+composer update --no-dev
+```
 
-``cp .env.example .env``
+```bash
+cp .env.example .env
+```
 
 Edit the .env file for database information, Meilisearch, Email SMTP and Cloudflare Turnstile (similar to Google Recaptcha) definitions
 
-``php artisan key:generate``
+```bash
+php artisan key:generate
+```
 
-``php artisan storage:link``
+```bash
+php artisan storage:link
+```
 
-``php artisan migrate``
+```bash
+php artisan migrate
+```
 
 #### After all this, if you want, you can change the admin panel path from the ADMIN_PANEL_PATH variable in the .env file
 
-``php artisan optimize``
+```bash
+php artisan optimize
+```
 
 To create a user after these operations
 
-``php artisan app:create-user``
+```bash
+php artisan app:create-user
+```
 
 ## Features
 
