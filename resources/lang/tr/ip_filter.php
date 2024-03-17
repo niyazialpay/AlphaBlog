@@ -34,4 +34,5 @@ return [
     'status_in' => 'Durum sadece :values olabilir',
 
     'ip_filter' => 'IP Kısıtlaması',
+    'no_ip_filter' => 'IP kısıtlaması bulunamadı',
 ];
