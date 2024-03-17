@@ -18,14 +18,14 @@ class SettingsSeeder extends Seeder
     public function run(): void
     {
         Languages::create([
-            'title' => 'English',
+            'name' => 'English',
             'flag' => 'us',
             'code' => 'en',
             'is_default' => false,
             'is_active' => true,
         ]);
         Languages::create([
-            'title' => 'Türkçe',
+            'name' => 'Türkçe',
             'flag' => 'tr',
             'code' => 'tr',
             'is_default' => true,
@@ -34,7 +34,7 @@ class SettingsSeeder extends Seeder
         SeoSettings::create([
             'title' => 'Laravel',
             'description' => 'Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in most web projects.',
-            'keywords' => 'laravel, php, framework, web, artisans',
+            'keywords' => ['laravel', 'php', 'framework', 'web', 'artisans'],
             'author' => 'Laravel',
             'robots' => 'index, follow',
             'language' => 'en',
@@ -42,7 +42,7 @@ class SettingsSeeder extends Seeder
         SeoSettings::create([
             'title' => 'Laravel',
             'description' => 'Laravel, ifade edici ve zarif sözdizimi olan bir web uygulama çerçevesidir. Geliştirmenin gerçekten tatmin edici olabilmesi için keyifli ve yaratıcı bir deneyim olması gerektiğine inanıyoruz. Laravel, çoğu web projesinde kullanılan yaygın görevleri kolaylaştırarak geliştirmenin acısını hafifletmeye çalışır.',
-            'keywords' => 'laravel, php',
+            'keywords' => ['laravel', 'php', 'web'],
             'author' => 'Laravel',
             'robots' => 'index, follow',
             'language' => 'tr',

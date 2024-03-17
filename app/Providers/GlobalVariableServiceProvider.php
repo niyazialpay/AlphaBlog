@@ -47,7 +47,7 @@ class GlobalVariableServiceProvider extends ServiceProvider
         }
         else{
             $languages = Cache::rememberForever(config('cache.prefix').'languages', function(){
-                return Languages::where('is_active', true)->hint('code_1_unique_1')->get();
+                return Languages::where('is_active', true)->get();
             });
         }
         App::singleton('languages', function () use($languages) {

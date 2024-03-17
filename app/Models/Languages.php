@@ -27,7 +27,6 @@ class Languages extends Model
             $languages = Cache::rememberForever(config('cache.prefix').'languages_'.$code, function()use($code){
                 return $this::where('is_active', true)
                     ->where('code', $code)
-                    ->hint('code_1_unique_1')
                     ->first();
             });
         }

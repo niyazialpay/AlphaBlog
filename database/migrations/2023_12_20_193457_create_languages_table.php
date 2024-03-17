@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('code')->unique();
             $table->string('flag')->nullable();
-            $table->boolean('is_active')->default(true);
-            $table->boolean('is_default')->default(false);
+            $table->boolean('is_active')->default(true)->index();
+            $table->boolean('is_default')->default(false)->index();
             $table->timestamps();
         });
     }

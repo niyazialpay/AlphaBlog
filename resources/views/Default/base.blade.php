@@ -29,15 +29,17 @@
     <meta property="og:image:url"          content="@yield('og_image')" />
     <meta property="og:image:secure_url"   content="@yield('og_image')" />
     <meta property="og:image:alt"          content="@yield('site_title')">
-    @if($social_networks->facebook)
+    @if($social_networks?->facebook)
     <meta property="article:author"        content="https://www.facebook.com/{{ $social_networks->facebook }}">
     @endif
 
     <link href="{{route('rss', ['language' => session()->get('language')])}}" rel="alternate" type="application/rss+xml" title="RSS" />
 
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:site" content="{{ "@".app('social_networks')->x }}" />
-    <meta name="twitter:creator" content="{{ "@".app('social_networks')->x }}" />
+    @if($social_networks?->x)
+        <meta name="twitter:site" content="{{ "@".$social_networks->x }}" />
+        <meta name="twitter:creator" content="{{ "@".$social_networks->x }}" />
+    @endif
     <meta name="twitter:description" content="@yield('site_description')" />
     <meta name="twitter:title" content="@yield('site_title')" />
     <meta name="twitter:image" content="@yield('og_image')" />
