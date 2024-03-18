@@ -53,13 +53,13 @@ php artisan app:create-user
 
 - Blogs with Categories
 - Page
-- Page Design with widgets
 - Personal notes
   - Your personal notes are stored encrypted in the database.
   - Your encryption key is not stored in the database. If you forget your encryption key, you will not be able to access your notes. 
   - Your notes can not accessed by the admin or any other user.
 - In-site search engine (Meilisearch)
 - Admin panel
+- IP Filter (Blacklist and Whitelist)
 - User management
 - Cloudflare Turnstile (similar to Google Recaptcha)
 - Email SMTP
