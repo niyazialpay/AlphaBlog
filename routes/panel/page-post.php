@@ -13,7 +13,7 @@ Route::get('/create', [App\Http\Controllers\Admin\Post\PostController::class, 'c
     ->can('create', 'App\Models\Post\Posts');
 
 Route::post('/save', [App\Http\Controllers\Admin\Post\PostController::class, 'save'])
-    ->middleware(['merge_post_type', 'check_post_type'])
+    ->middleware([MergePostTypeToRequest::class, CheckPostType::class])
     ->name('admin.post.save')
     ->can('create', 'App\Models\Post\Posts');
 
