@@ -7,7 +7,7 @@ In order for Laravel to work with MongoDB, the official "mongodb/laravel-mongodb
 
 Adding images to blog or page content and sizing them was done with Spatie Media Library, but this package was not compatible with MongoDB. To make it compatible, I forked the spatie/laravel-medialibrary repo to my own github account and included it in this project with composer after making the necessary edits.
 
-#### For this system to work, the following PHP functions must not be disabled on the server:
+#### The following PHP functions need to be enabled on the server for this system to work:
 
 ```bash
 escapeshellarg, escapeshellcmd, proc_open, proc_get_status, proc_close 
