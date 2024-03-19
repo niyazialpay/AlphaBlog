@@ -24,12 +24,11 @@ class HomeController extends Controller
      */
     public function index()
     {
-        /*try{
+        try{
             return response()->view(app('theme')->name.'.home', ['category' => null]);
         }
         catch (Exception $e){
             return response()->view('Default.home', ['category' => null]);
-        }*/
-        return response()->view(app('theme')->name.'.home', ['category' => null]);
+        }
     }
 }
