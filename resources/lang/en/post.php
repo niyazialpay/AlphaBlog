@@ -99,4 +99,6 @@ return [
 
     'comment_notes' => 'Your email address will not be published. Required fields are marked *',
     'no_result_found' => 'No results found for your search term. Please try again with different keywords.',
+
+    'another_language' => 'This post has a version in a different language.'
 ];
