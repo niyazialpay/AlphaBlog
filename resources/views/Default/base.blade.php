@@ -139,6 +139,19 @@
 
     @yield('rich_snipped')
 
+    @if($analytic_settings?->google_analytics)
+        {!! $analytic_settings->google_analytics !!}
+    @endif
+    @if($analytic_settings?->yandex_metrica)
+        {!! $analytic_settings->yandex_metrica !!}
+    @endif
+    @if($analytic_settings?->log_rocket)
+        {!! $analytic_settings->log_rocket !!}
+    @endif
+    @if($analytic_settings?->fb_pixel)
+        {!! $analytic_settings->fb_pixel !!}
+    @endif
+
     {!! $ad_settings?->google_ad_manager !!}
 </head>
 <body >
