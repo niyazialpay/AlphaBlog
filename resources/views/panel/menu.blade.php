@@ -15,6 +15,9 @@
         <a href="{{route('admin.posts', ['type' => 'blogs', 'language' => app('default_language')->code])}}"
            class="nav-link @if(request()->is(config('settings.admin_panel_path').'/blogs*')) active @endif ">
             <i class="fa-duotone fa-file-lines nav-icon"></i>
+            @if($newCommentsCount>0)
+                <span class="badge badge-danger navbar-badge">{{$newCommentsCount}}</span>
+            @endif
             <p>
                 @lang('post.blogs')
             </p>
@@ -57,6 +60,9 @@
                        class="nav-link
                    @if(request()->is(config('settings.admin_panel_path').'/blogs/comments*')) active @endif ">
                         <i class="fa-duotone fa-comments nav-icon"></i>
+                        @if($newCommentsCount>0)
+                            <span class="badge badge-danger navbar-badge">{{$newCommentsCount}}</span>
+                        @endif
                         <p>
                             @lang('comments.comments')
                         </p>

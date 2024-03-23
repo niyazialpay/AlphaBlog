@@ -154,7 +154,7 @@
                            value="{{dateformat($post->created_at, 'Y-m-d H:i:s', config('app.timezone'))}}">
                 </div>
                 @csrf
-                <input type="hidden" id="post_id" name="id" value="{{$post->id}}">
+                <input type="hidden" id="id" name="id" value="{{$post->id}}">
 
                 <div class="col-12">
                     <button type="submit" class="btn btn-primary">@if($post->id)
@@ -414,7 +414,7 @@
                     post_url = '{{route('admin.post.save', $type)}}/' + json.blog_id;
                     image_post_url = '{{route('admin.post.editor.image.upload', $type)}}' + '/' + json.blog_id;
 
-                    $('#post_id').val(json.blog_id);
+                    $('#id').val(json.blog_id);
                 };
 
                 xhr.onerror = () => {

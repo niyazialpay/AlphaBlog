@@ -16,53 +16,57 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['web', 'auth'])
-    ->prefix(config('settings.admin_panel_path'))
-    ->group(base_path('routes/panel/panel.php'));
+Route::group([
+    'middleware' => \App\Http\Middleware\NewCommentsCount::class
+], function () {
+    Route::middleware(['web', 'auth'])
+        ->prefix(config('settings.admin_panel_path'))
+        ->group(base_path('routes/panel/panel.php'));
 
-Route::middleware(['web', 'auth'])
-    ->prefix(config('settings.admin_panel_path').'/settings')
-    ->group(base_path('routes/panel/settings/settings.php'));
+    Route::middleware(['web', 'auth'])
+        ->prefix(config('settings.admin_panel_path').'/settings')
+        ->group(base_path('routes/panel/settings/settings.php'));
 
-Route::middleware(['web', 'auth'])
-    ->prefix(config('settings.admin_panel_path').'/routes')
-    ->group(base_path('routes/panel/routes.php'));
+    Route::middleware(['web', 'auth'])
+        ->prefix(config('settings.admin_panel_path').'/routes')
+        ->group(base_path('routes/panel/routes.php'));
 
-Route::middleware(['web', 'auth'])
-    ->prefix(config('settings.admin_panel_path').'/menu')
-    ->group(base_path('routes/panel/menu.php'));
+    Route::middleware(['web', 'auth'])
+        ->prefix(config('settings.admin_panel_path').'/menu')
+        ->group(base_path('routes/panel/menu.php'));
 
-Route::middleware(['web', 'auth'])
-    ->prefix(config('settings.admin_panel_path').'/ip-filter')
-    ->group(base_path('routes/panel/ip-filter.php'));
+    Route::middleware(['web', 'auth'])
+        ->prefix(config('settings.admin_panel_path').'/ip-filter')
+        ->group(base_path('routes/panel/ip-filter.php'));
 
-Route::middleware(['web', 'auth'])
-    ->prefix(config('settings.admin_panel_path').'/profile')
-    ->group(base_path('routes/panel/profile.php'));
+    Route::middleware(['web', 'auth'])
+        ->prefix(config('settings.admin_panel_path').'/profile')
+        ->group(base_path('routes/panel/profile.php'));
 
-Route::middleware(['web', 'auth'])
-    ->prefix(config('settings.admin_panel_path').'/users')
-    ->group(base_path('routes/panel/users.php'));
+    Route::middleware(['web', 'auth'])
+        ->prefix(config('settings.admin_panel_path').'/users')
+        ->group(base_path('routes/panel/users.php'));
 
-Route::middleware(['web', 'auth'])
-    ->prefix(config('settings.admin_panel_path').'/notes')
-    ->group(base_path('routes/panel/notes.php'));
+    Route::middleware(['web', 'auth'])
+        ->prefix(config('settings.admin_panel_path').'/notes')
+        ->group(base_path('routes/panel/notes.php'));
 
-Route::middleware(['web', 'auth'])
-    ->prefix(config('settings.admin_panel_path').'/blogs/comments')
-    ->group(base_path('routes/panel/blogs/comments.php'));
+    Route::middleware(['web', 'auth'])
+        ->prefix(config('settings.admin_panel_path').'/blogs/comments')
+        ->group(base_path('routes/panel/blogs/comments.php'));
 
-Route::middleware(['web', 'auth'])
-    ->prefix(config('settings.admin_panel_path').'/blogs/categories')
-    ->group(base_path('routes/panel/blogs/categories.php'));
+    Route::middleware(['web', 'auth'])
+        ->prefix(config('settings.admin_panel_path').'/blogs/categories')
+        ->group(base_path('routes/panel/blogs/categories.php'));
 
-Route::middleware(['web', 'auth'])
-    ->prefix(config('settings.admin_panel_path').'/{type}')
-    ->group(base_path('routes/panel/page-post.php'));
+    Route::middleware(['web', 'auth'])
+        ->prefix(config('settings.admin_panel_path').'/{type}')
+        ->group(base_path('routes/panel/page-post.php'));
 
-Route::middleware(['web', 'auth'])
-    ->prefix(config('settings.admin_panel_path').'/{type}/history')
-    ->group(base_path('routes/panel/history.php'));
+    Route::middleware(['web', 'auth'])
+        ->prefix(config('settings.admin_panel_path').'/{type}/history')
+        ->group(base_path('routes/panel/history.php'));
+});
 
 Route::any('/corbado/webhook', [\App\Http\Controllers\Admin\WebAuthnController::class, 'webhook'])
     ->name('corbado.webhook');
