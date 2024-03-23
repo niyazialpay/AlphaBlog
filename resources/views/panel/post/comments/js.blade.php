@@ -187,11 +187,30 @@
     }
 
     $(document).ready(function(){
+        tinymce.init({
+            selector: 'textarea#comment',
+            height: 300,
+            promotion: false,
+            language: '{{app('default_language')->code}}',
+            branding: false,
+            toolbar: 'undo redo | insert | style select | bold italic | font | fontsize select | link',
+            menubar : false,
+            statusbar:false,
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor', 'pagebreak',
+                'searchreplace', 'wordcount', 'visualblocks', 'visualchars', 'code', 'fullscreen',
+                'insertdatetime', 'media', 'nonbreaking', 'table', 'directionality',
+                'emoticons', 'codesample', 'help'
+            ],
+        });
+
         $('#commentEditForm').submit(function(){
             $.ajax({
                 url: comment_save_url,
                 type: 'POST',
-                data: $(this).serialize(),
+                data: new FormData(this),
+                processData: false,
+                contentType: false,
                 success: function () {
                     Swal.fire(
                         '{{__('general.saved')}}',
@@ -209,23 +228,6 @@
                 }
             });
         });
-
-        tinymce.init({
-            selector: 'textarea#comment',
-            height: 300,
-            promotion: false,
-            language: '{{app('default_language')->code}}',
-            branding: false,
-            toolbar: 'undo redo | insert | style select | bold italic | font | fontsize select | link',
-            menubar : false,
-            statusbar:false,
-            plugins: [
-                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor', 'pagebreak',
-                'searchreplace', 'wordcount', 'visualblocks', 'visualchars', 'code', 'fullscreen',
-                'insertdatetime', 'media', 'nonbreaking', 'table', 'directionality',
-                'emoticons', 'codesample', 'help'
-            ],
-        })
     });
 
     // Prevent Bootstrap dialog from blocking focusin

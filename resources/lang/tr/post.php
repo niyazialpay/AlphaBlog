@@ -17,6 +17,7 @@ return [
         "meta_description_string" => "Meta açıklaması metin tipinde olmalıdır.",
         "meta_keywords_string" => "Meta anahtar kelimeleri metin tipinde olmalıdır.",
         "category_id_required" => "Kategori zorunludur.",
+        "category_id_array" => "Kategori dizi tipinde olmalıdır.",
         "category_id_exists" => "Kategori bulunamadı.",
         "user_id_required" => "Kullanıcı zorunludur.",
         "user_id_exists" => "Kullanıcı bulunamadı.",

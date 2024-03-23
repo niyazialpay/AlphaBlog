@@ -211,8 +211,18 @@ class PostController extends Controller
     public function editorImageUpload($type, Posts $post, Request $request)
     {
         if(!$post->id){
-            $post->title="draft";
+            $post->title = GetPost($request->post('title'))." (draft)";
+            if ($request->slug == null) {
+                $slug = Str::slug($request->post('title'));
+            } else {
+                $slug = Str::slug($request->post('slug'));
+            }
+            $post->slug = $slug;
+            $post->content = content($request->post('content'));
+            $post->post_type = GetPost($request->post('post_type'));
             $post->language=$request->post('language');
+            $post->user_id=auth()->user()->id;
+            $post->meta_keywords = explode(',', $request->post('meta_keywords'));
             $post->save();
         }
 

@@ -72,7 +72,8 @@
                 <div class="col-12 mb-3">
                     <label for="meta_keywords">@lang('post.meta_keywords')</label>
                     <input type="text" class="form-control" name="meta_keywords" id="meta_keywords"
-                           placeholder="@lang('post.meta_keywords')" value="@if($post->_id){{implode(',', $post->meta_keywords)}}@endif">
+                           placeholder="@lang('post.meta_keywords')"
+                           value="@if($post->_id){{implode(',', $post->meta_keywords)}}@endif">
                 </div>
                 <div class="col-12 mb-3">
                     <label for="meta_description">@lang('post.meta_description')</label>
@@ -83,8 +84,12 @@
                 <div class="col-12 mb-3">
                     <label for="is_published">@lang('post.is_published')</label>
                     <select name="is_published" id="is_published" class="form-control">
-                        <option value="1" @if($post->is_published) selected @endif>@lang('post.status_active')</option>
-                        <option value="0" @if(!$post->is_published) selected @endif>@lang('post.status_passive')</option>
+                        <option value="1" @if($post->is_published) selected @endif>
+                            @lang('post.status_active')
+                        </option>
+                        <option value="0" @if(!$post->is_published) selected @endif>
+                            @lang('post.status_passive')
+                        </option>
                     </select>
                 </div>
                 <div class="col-12 mb-3">
@@ -115,14 +120,21 @@
                 <div class="col-12 mb-3 border rounded p-3">
                     <ul class="nav nav-pills border-bottom">
                         @foreach(app('languages') as $n => $language)
-                            <li class="nav-item"><a class="nav-link @if($n==0) active @endif " href="#form_{{$language->code}}" data-bs-toggle="tab">{{$language->name}}</a></li>
+                            <li class="nav-item">
+                                <a class="nav-link @if($n==0) active @endif "
+                                   href="#form_{{$language->code}}"
+                                   data-bs-toggle="tab">
+                                    {{$language->name}}
+                                </a>
+                            </li>
                         @endforeach
                     </ul>
                     <div class="tab-content">
                         @foreach(app('languages') as $n => $language)
 
                             <div class="tab-pane @if($n==0) active @endif" id="form_{{$language->code}}">
-                                <input type="hidden" name="hreflang[{{$language->code}}]" value="{{$post->hreflang[$language->code] ?? ''}}">
+                                <input type="hidden" name="hreflang[{{$language->code}}]"
+                                       value="{{$post->hreflang[$language->code] ?? ''}}">
                                 <label for="hreflang_url[{{$language->code}}]">Href Lang ({{$language->code}})</label>
                                 <input type="text" class="form-control" name="hreflang_url[{{$language->code}}]"
                                        id="hreflang_url[{{$language->code}}]"
@@ -142,7 +154,7 @@
                            value="{{dateformat($post->created_at, 'Y-m-d H:i:s', config('app.timezone'))}}">
                 </div>
                 @csrf
-                <input type="hidden" name="id" value="{{$post->id}}">
+                <input type="hidden" id="post_id" name="id" value="{{$post->id}}">
 
                 <div class="col-12">
                     <button type="submit" class="btn btn-primary">@if($post->id)
@@ -299,10 +311,13 @@
     </style>
     <script>
         let post_url;
+        let image_post_url;
         @if($post->id)
             post_url = '{{route('admin.post.update', [$type, $post])}}';
+            image_post_url = '{{route('admin.post.editor.image.upload', [$type, $post])}}'
         @else
             post_url = '{{route('admin.post.save', [$type])}}';
+            image_post_url = '{{route('admin.post.editor.image.upload', [$type])}}'
         @endif
 
         function imageDelete(image_id) {
@@ -370,7 +385,7 @@
             const post_image_upload_handler = (blobInfo, progress) => new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
                 xhr.withCredentials = false;
-                xhr.open('POST', '{{route('admin.post.editor.image.upload', [$type, $post])}}');
+                xhr.open('POST', image_post_url);
 
                 xhr.upload.onprogress = (e) => {
                     progress(e.loaded / e.total * 100);
@@ -397,6 +412,9 @@
                     resolve(json.location);
 
                     post_url = '{{route('admin.post.save', $type)}}/' + json.blog_id;
+                    image_post_url = '{{route('admin.post.editor.image.upload', $type)}}' + '/' + json.blog_id;
+
+                    $('#post_id').val(json.blog_id);
                 };
 
                 xhr.onerror = () => {
@@ -406,6 +424,10 @@
                 const formData = new FormData();
                 formData.append('file', blobInfo.blob(), blobInfo.filename());
                 formData.append('_token', '{{csrf_token()}}');
+                formData.append('language', $('#language').val());
+                formData.append('meta_keywords', $('#meta_keywords').val());
+                formData.append('title', $('#title').val());
+                formData.append('slug', $('#slug').val());
 
                 xhr.send(formData);
             });
