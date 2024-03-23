@@ -13,7 +13,7 @@ Route::get('/create', [App\Http\Controllers\Admin\Post\PostController::class, 'c
     ->can('create', 'App\Models\Post\Posts');
 
 Route::post('/save', [App\Http\Controllers\Admin\Post\PostController::class, 'save'])
-    ->middleware([MergePostTypeToRequest::class, CheckPostType::class])
+    ->middleware([CheckPostType::class, MergePostTypeToRequest::class])
     ->name('admin.post.save')
     ->can('create', 'App\Models\Post\Posts');
 
@@ -27,7 +27,7 @@ Route::get('/{post}/edit', [App\Http\Controllers\Admin\Post\PostController::clas
 
 Route::post('/save/{post}', [App\Http\Controllers\Admin\Post\PostController::class, 'save'])
     ->name('admin.post.update')
-    ->middleware([MergePostTypeToRequest::class, CheckPostType::class])
+    ->middleware([CheckPostType::class, MergePostTypeToRequest::class])
     ->can('edit', 'post');
 
 Route::post('/{post}/delete', [App\Http\Controllers\Admin\Post\PostController::class, 'delete'])
@@ -54,11 +54,13 @@ Route::get('/{category}', [App\Http\Controllers\Admin\Post\PostController::class
 
 Route::post('/editor/image/upload',
     [App\Http\Controllers\Admin\Post\PostController::class, 'editorImageUpload'])
+    ->middleware([CheckPostType::class, MergePostTypeToRequest::class])
     ->can('createPost', 'App\Models\Post\Posts')
     ->name('admin.post.editor.image.upload');
 
 Route::post('/editor/image/upload/{post?}',
     [App\Http\Controllers\Admin\Post\PostController::class, 'editorImageUpload'])
+    ->middleware([CheckPostType::class, MergePostTypeToRequest::class])
     ->can('edit', 'post');
 
 Route::post('/editor/image/delete/{post}',

@@ -24,7 +24,7 @@
 
 <script>
     $(document).ready(function () {
-        @if(!session()->has('encryption_key'))
+        @if(!request()->cookie('encryption_key'))
         $('#encryption_key_modal').modal('show');
         @endif
         $('#encryptionForm').submit(function(){

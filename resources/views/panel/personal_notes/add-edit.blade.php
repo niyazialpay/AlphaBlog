@@ -47,12 +47,13 @@
     @endif
     <script>
         let post_url = '{{route('admin.notes.save', $note)}}';
+        let image_post_url = '{{route('admin.notes.editor.image.upload', $note)}}';
         $(document).ready(function () {
 
             const post_image_upload_handler = (blobInfo, progress) => new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
                 xhr.withCredentials = false;
-                xhr.open('POST', '{{route('admin.notes.editor.image.upload', $note)}}');
+                xhr.open('POST', image_post_url);
 
                 xhr.upload.onprogress = (e) => {
                     progress(e.loaded / e.total * 100);
@@ -79,6 +80,7 @@
                     resolve(json.location);
 
                     post_url = '{{route('admin.notes.save')}}/' + json.note_id;
+                    image_post_url = '{{route('admin.notes.editor.image.upload')}}' + '/' + json.note_id;
                 };
 
                 xhr.onerror = () => {
@@ -88,6 +90,7 @@
                 const formData = new FormData();
                 formData.append('file', blobInfo.blob(), blobInfo.filename());
                 formData.append('_token', '{{csrf_token()}}');
+                formData.append('title', $('#title').val());
 
                 xhr.send(formData);
             });

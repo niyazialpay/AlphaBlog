@@ -17,6 +17,7 @@ return [
         "meta_description_string" => "Meta description must be a string.",
         "meta_keywords_string" => "Meta keywords must be a string.",
         "category_id_required" => "Category is required.",
+        "category_id_array" => "Category must be an array.",
         "category_id_exists" => "Category not found.",
         "user_id_required" => "User is required.",
         "user_id_exists" => "User not found.",
