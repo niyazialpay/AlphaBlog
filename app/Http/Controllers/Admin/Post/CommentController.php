@@ -97,7 +97,7 @@ class CommentController extends Controller
         $comment->name = $request->name;
         $comment->email = $request->email;
         $comment->comment = $request->comment;
-        $comment->created_at = GetPost($request->created_date);
+        $comment->created_at = dateformat($request->post('created_date'), 'Y-m-d H:i:s', config('app.timezone'));
         $comment->post_id = GetPost($request->post_id);
         if($comment->save()){
             return response()->json(['status' => 'success', 'message' => __('comments.success_save')]);
