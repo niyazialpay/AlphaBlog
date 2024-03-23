@@ -107,7 +107,13 @@
             let user_types_view = [];
 
             @foreach($user_types as $user_type)
-            user_types.push('@lang('dashboard.user_type.'.$user_type['newVsReturning'])');
+                @if($user_type['newVsReturning']== 'new')
+                    user_types.push('@lang('dashboard.user_type.'.$user_type['newVsReturning'])');
+                @elseif($user_type['newVsReturning']== 'returning')
+                    user_types.push('@lang('dashboard.user_type.'.$user_type['newVsReturning'])');
+                @else
+                    user_types.push('@lang('dashboard.user_type.others')');
+               @endif
             user_types_view.push({{$user_type['activeUsers']}});
             @endforeach
             let user_types_options = {

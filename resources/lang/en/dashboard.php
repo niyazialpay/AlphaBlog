@@ -16,5 +16,6 @@ return [
     'user_type' => [
         'new' => 'New Visitors',
         'returning' => 'Returning Visitors',
+        'others' => 'Others'
     ]
 ];
