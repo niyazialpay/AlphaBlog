@@ -3,10 +3,9 @@
 *.blade.php diff=html
 
 *.css linguist-detectable=false
-*.js linguist-detectable=true
+*.js linguist-detectable=false
+*.html linguist-detectable=false
 
-*.html diff=html
-*.md diff=markdown
 *.php diff=php
 
 
