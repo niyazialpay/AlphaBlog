@@ -33,11 +33,15 @@
                             {{$comment->name}}
                         @endif
                             <span class="float-right text-sm text-danger">
-                                <i class="fa-duotone fa-book-open" title="@lang('post.read_more')" data-bs-toggle="tooltip" data-bs-placement="left"></i>
+                                <i class="fa-duotone fa-book-open"
+                                   title="@lang('post.read_more')"
+                                   data-bs-toggle="tooltip" data-bs-placement="left"></i>
                             </span>
                     </h3>
-                    <p class="text-sm">{{substr($comment->comment, 0,50)}}...</p>
-                    <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> {{dateformat($comment->created_at, diff_for_humans: true)}}</p>
+                    <p class="text-sm">{{substr(strip_tags($comment->comment), 0,50)}}...</p>
+                    <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i>
+                        {{dateformat($comment->created_at, diff_for_humans: true)}}
+                    </p>
                 </div>
             </div>
             <!-- Message End -->
