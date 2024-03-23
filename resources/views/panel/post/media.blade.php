@@ -59,9 +59,9 @@
 @endsection
 @section('script')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"
-          integrity="sha512-B0SXtacbXxcsbeU/+wPUJZ/cI8li66QGwowBgC1ZkbC+qPJO0oLm5+Inm20I9oYBVLU10jihQ+5uHXsEtXaJjQ==" crossorigin="anonymous">
+          crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"
-            integrity="sha512-OHypLu0g2YzbekzJgCyb3Smdm0PN5kxWA3FZ4OLeQI3ebuH+xtw+RmHbZ/8bvS5KE8k0C9WDLgQLhYlObFm/BQ==" crossorigin="anonymous"></script>
+            crossorigin="anonymous"></script>
 
     <script>
         Fancybox.bind('[data-fancybox]', {
