@@ -23,6 +23,6 @@ class SocialMenu extends Component
      */
     public function render(): View|Closure|string
     {
-        return view(app('theme')->name.'.components.menu.social-menu');
+        return view('themes.'.app('theme')->name.'.components.menu.social-menu');
     }
 }

@@ -23,7 +23,7 @@ class FooterMenu extends Component
      */
     public function render(): View|Closure|string
     {
-        /*if(Cache::has(config('cache.prefix').'footer_menu_'.session('language'))){
+        if(Cache::has(config('cache.prefix').'footer_menu_'.session('language'))){
             $menu = Cache::get(config('cache.prefix').'footer_menu_'.session('language'));
         }
         else{
@@ -34,14 +34,10 @@ class FooterMenu extends Component
                     ->where('menu_position', 'footer')
                     ->get();
             });
-        }*/
+        }
 
-        return view(app('theme')->name.'.components.menu.footer-menu',  [
-            'menu' => Menu::with(['menuItems' => function($query){
-                $query->where('parent_id', null);
-            }])->where('language', session('language'))
-                ->where('menu_position', 'footer')
-                ->get(),
+        return view('themes.'.app('theme')->name.'.components.menu.footer-menu',  [
+            'menu' => $menu
         ]);
     }
 }

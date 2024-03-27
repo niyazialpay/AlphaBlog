@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ThemeSettingsRequest;
 use App\Models\Themes;
 use Exception;
-//use Illuminate\Filesystem\Filesystem as File;
 use File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -59,8 +58,8 @@ class ThemesSettingsController extends Controller
                     'message' => __('themes.theme_has_default')
                 ]);
             }
-            $theme_public_path = public_path('themes/' . $theme->name);
-            $theme_resource_path = resource_path('views/' . $theme->name);
+            $theme_public_path = public_path('theme/' . $theme->name);
+            $theme_resource_path = resource_path('views/themes/' . $theme->name);
             if ($file->exists($theme_public_path)) {
                 $file->deleteDirectory($theme_public_path);
             }

@@ -29,6 +29,6 @@ class MostReadPosts extends Component
      */
     public function render(): View|Closure|string
     {
-        return view(app('theme')->name.'.components.posts.most-read-posts');
+        return view('themes.'.app('theme')->name.'.components.posts.most-read-posts');
     }
 }

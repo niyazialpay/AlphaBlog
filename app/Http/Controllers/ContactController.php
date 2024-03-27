@@ -11,7 +11,7 @@ class ContactController extends Controller
 {
     public function index($language, $contact)
     {
-        return view(app('theme')->name.'.contact', [
+        return view('themes.'.app('theme')->name.'.contact', [
             'contact' => ContactPage::where('language', $language)->first()
         ]);
     }

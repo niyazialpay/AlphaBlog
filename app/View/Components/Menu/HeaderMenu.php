@@ -44,7 +44,7 @@ class HeaderMenu extends Component
 
         }
 
-        return view(app('theme')->name.'.components.menu.header_menu', [
+        return view('themes.'.app('theme')->name.'.components.menu.header_menu', [
             'menu' => $menu,
             'menu_items' => $menu_items
         ]);

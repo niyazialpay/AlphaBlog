@@ -9,7 +9,7 @@ class TagController extends Controller
 {
     public function show($language, $tags, $showTag){
         try{
-            return response()->view(app('theme')->name.'.tags', [
+            return response()->view('themes.'.app('theme')->name.'.tags', [
                 'posts' => $showTag,
                 'tag' => request()->segment(3)
             ]);

@@ -53,7 +53,7 @@ class TopCategories extends Component
                 ],
             ]);
         });
-        return view(app('theme')->name.'.components.top-categories', [
+        return view('themes.'.app('theme')->name.'.components.top-categories', [
             'categories' =>  $topCategories
         ]);
     }
