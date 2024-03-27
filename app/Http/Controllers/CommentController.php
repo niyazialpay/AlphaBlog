@@ -19,6 +19,7 @@ class CommentController extends Controller
         $comment->email = $request->validated('email');
         $comment->ip_address = $request->ip();
         $comment->user_agent = $request->userAgent();
+        $comment->is_approved = false;
 
         if($comment->save()){
             $content = [
@@ -29,7 +30,7 @@ class CommentController extends Controller
                 session('language') => __('comments.new_comment_notification'),
             ];
 
-            OneSignal::sendPush($content, $title, 10);
+            //OneSignal::sendPush($content, $title, 10);
             return response()->json([
                 'status' => 'success',
                 'message' => __('comments.comment_saved')

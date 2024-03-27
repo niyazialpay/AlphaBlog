@@ -25,16 +25,16 @@ class OneSignal extends Model
         $client = new \GuzzleHttp\Client();
 
         $response = $client->request('POST', 'https://onesignal.com/api/v1/notifications', [
-            'body' => '{
-                "app_id":"'.$onesignal->app_id.'",
-                "included_segments": [
-                    "Subscribed Users"
+            'body' => [
+                'app_id' => $onesignal->app_id,
+                'included_segments' => [
+                    'Subscribed Users'
                 ],
-                "contents": '.json_encode($content).',
-                "name":"INTERNAL_CAMPAIGN_NAME",
-                "headings":'.json_encode($title).',
-                "priority":'.$priority.'
-            }',
+                'contents' => $content,
+                'name' => 'INTERNAL_CAMPAIGN_NAME',
+                'headings' => $title,
+                'priority' => $priority,
+            ],
             'headers' => [
                 'Authorization' => 'Basic '.$onesignal->auth_key,
                 'accept' => 'application/json',
