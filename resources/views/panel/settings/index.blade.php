@@ -775,6 +775,21 @@
                                               name="onesignal">{!! $admin_notification?->onesignal !!}</textarea>
                                 </div>
                                 <div class="col-12 mb-3">
+                                    <label for="app_id">App ID</label>
+                                    <input type="text" class="form-control" id="app_id" name="app_id"
+                                           value="{{$admin_notification?->app_id}}">
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="auth_key">Auth Key</label>
+                                    <input type="text" class="form-control" id="auth_key" name="auth_key"
+                                           value="{{$admin_notification?->auth_key}}">
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="safari_web_id">Safari Web ID</label>
+                                    <input type="text" class="form-control" id="safari_web_id" name="safari_web_id"
+                                           value="{{$admin_notification?->safari_web_id}}">
+                                </div>
+                                <div class="col-12 mb-3">
                                     <button type="submit" class="btn btn-primary">@lang('general.save')</button>
                                 </div>
                                 @csrf
