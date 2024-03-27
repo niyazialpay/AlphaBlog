@@ -159,7 +159,10 @@ Route::group(['prefix' => '/{language}'], function () use($languages) {
         ->name('sitemap.users');
 
     Route::post('/comment-save', [\App\Http\Controllers\CommentController::class, 'store'])
-        ->middleware(['cloudflare_turnstile', 'honeypot'])
+        ->middleware([
+            \App\Http\Middleware\CloudflareTurnstile::class,
+            \Spatie\Honeypot\ProtectAgainstSpam::class
+        ])
         ->name('comment.save');
 
     Route::get('/{tags}/{showTag:tag}', [\App\Http\Controllers\TagController::class, 'show'])
