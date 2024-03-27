@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CommentRequest;
+use App\Models\OneSignal;
 use App\Models\Post\Comments;
+use App\Models\Post\Posts;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
@@ -19,6 +21,15 @@ class CommentController extends Controller
         $comment->user_agent = $request->userAgent();
 
         if($comment->save()){
+            $content = [
+                session('language') => Posts::find($request->validated('post_id'))->title
+            ];
+
+            $title = [
+                session('language') => __('comments.new_comment_notification'),
+            ];
+
+            OneSignal::sendPush($content, $title, 10);
             return response()->json([
                 'status' => 'success',
                 'message' => __('comments.comment_saved')

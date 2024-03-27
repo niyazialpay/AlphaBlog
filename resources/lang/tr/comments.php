@@ -36,4 +36,6 @@ return [
 
     'comment_saved' => 'Yorumunuz yönetici onayı sonrası yayınlanacaktır.',
     'comment_error' => 'Yorum kaydedilirken bir hata oluştu.',
+
+    'new_comment_notification' => 'Yeni bir yorum yapıldı!',
 ];
