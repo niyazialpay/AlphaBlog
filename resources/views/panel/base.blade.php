@@ -24,6 +24,57 @@
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 
+    <link rel="shortcut icon" href="{{$general_settings->getFirstMediaUrl('site_favicon')}}" type="image/x-icon">
+    <link rel="icon" href="{{$general_settings->getFirstMediaUrl('site_favicon')}}" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="57x57"
+          href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_57x57')}}"
+          type="image/x-icon">
+
+    <link rel="apple-touch-icon" sizes="60x60"
+          href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_60x60')}}"
+          type="image/x-icon">
+
+    <link rel="apple-touch-icon" sizes="72x72"
+          href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_72x72')}}"
+          type="image/x-icon">
+
+    <link rel="apple-touch-icon" sizes="76x76"
+          href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_76x76')}}"
+          type="image/x-icon">
+
+    <link rel="apple-touch-icon" sizes="114x114"
+          href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_114x114')}}"
+          type="image/x-icon">
+
+    <link rel="apple-touch-icon" sizes="120x120"
+          href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_120x120')}}"
+          type="image/x-icon">
+
+    <link rel="apple-touch-icon" sizes="144x144"
+          href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_144x144')}}"
+          type="image/x-icon">
+
+    <link rel="apple-touch-icon" sizes="152x152"
+          href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_152x152')}}"
+          type="image/x-icon">
+
+    <link rel="apple-touch-icon" sizes="180x180"
+          href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_180x180')}}"
+          type="image/x-icon">
+
+    <link rel="icon" type="image/png" sizes="192x192"
+          href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_192x192')}}">
+
+    <link rel="icon" type="image/png" sizes="32x32"
+          href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_32x32')}}">
+
+    <link rel="icon" type="image/png" sizes="96x96"
+          href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_96x96')}}">
+
+    <link rel="icon" type="image/png" sizes="16x16"
+          href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_16x16')}}">
+
+
     <link rel="manifest" href="{{route('manifest.panel')}}">
     {!! $admin_notification?->onesignal !!}
 </head>
