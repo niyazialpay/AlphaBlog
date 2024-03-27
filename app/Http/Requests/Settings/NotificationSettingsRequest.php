@@ -5,7 +5,7 @@ namespace App\Http\Requests\Settings;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class GeneralSettingsRequest extends FormRequest
+class NotificationSettingsRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,11 +23,19 @@ class GeneralSettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'site_logo' => 'nullable|file|image|max:4096|mimes:jpeg,png,jpg,gif,svg,webp',
-            'site_favicon' => 'nullable|file|image|max:4096|mimes:jpeg,png,jpg,gif,svg,webp,ico',
-            'app_icon' => 'nullable|file|image|max:4096|mimes:jpeg,png,jpg,gif,svg,webp,ico',
-            'contact_email' => 'nullable|email',
-            'sharethis' => 'nullable|string|max:255'
+            'onesignal' => 'nullable|string'
+        ];
+    }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'onesignal.string' => __('settings.onesignal_string')
         ];
     }
 }

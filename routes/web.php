@@ -17,7 +17,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::group([
-    'middleware' => \App\Http\Middleware\NewCommentsCount::class
+    'middleware' => [
+        \App\Http\Middleware\NewCommentsCount::class,
+        \App\Http\Middleware\AdminOneSignal::class
+    ]
 ], function () {
     Route::any('/'.config('settings.admin_panel_path').'/manifest.json',
         [\App\Http\Controllers\ManifestController::class, 'manifestPanel'])
