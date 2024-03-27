@@ -110,14 +110,18 @@
         @if(request()->is(config('settings.admin_panel_path').'/notes*')) active @endif "
            href="{{route('admin.notes')}}">
             <i class="fa-duotone fa-file-lock nav-icon"></i>
-            @lang('notes.notes')
+            <p>
+                @lang('notes.notes')
+            </p>
         </a>
     </li>
     @can('admin', 'App\Models\User')
         <li class="nav-item">
             <a href="{{route('admin.contact_page')}}" class="nav-link @if(request()->is(config('settings.admin_panel_path').'/contact*')) active @endif ">
                 <i class="fa-duotone fa-message-text nav-icon"></i>
-                @lang('contact.contact_page')
+                <p>
+                    @lang('contact.contact_page')
+                </p>
             </a>
         </li>
         <li class="nav-item">

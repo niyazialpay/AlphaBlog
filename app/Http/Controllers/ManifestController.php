@@ -6,7 +6,8 @@ use Illuminate\Http\Request;
 
 class ManifestController extends Controller
 {
-    public function manifest(){
+    public function manifest($start_url = '/')
+    {
         $general_settings = app('general_settings');
         $seo_settings = app('seo_settings');
 
@@ -33,14 +34,18 @@ class ManifestController extends Controller
 
         $manifest_body = [
             '$schema' => 'https://json.schemastore.org/web-manifest-combined.json',
-            'name' => $general_settings->title,
+            'name' => $seo_settings->title,
             'description' => $seo_settings->description,
-            'short_name' => $general_settings->site_name,
+            'short_name' => $seo_settings->site_name,
             'display' => 'standalone',
+            'display_override' => [
+                'fullscreen',
+                'minimal-ui'
+            ],
             'scope' => '/',
             'theme_color' => '#182330',
             'background_color' => '#182330',
-            'start_url' => '/',
+            'start_url' => $start_url,
             'manifest_version' => 2,
             'version' => '1.0.2',
             'shortcuts' => [
@@ -49,10 +54,24 @@ class ManifestController extends Controller
                     'short_name' => config('app.name'),
                     'description' => $seo_settings->description,
                     'url' => config('app.url'),
-                    'icons' => [[
-                        'src' => $general_settings->getFirstMediaUrl('app_icon', 'r_192x192'),
-                        'sizes' => '192x192'
-                    ]]
+                    'icons' => [
+                        [
+                            'src' => $general_settings->getFirstMediaUrl('app_icon', 'r_32x32'),
+                            'sizes' => '32x32'
+                        ],
+                        [
+                            'src' => $general_settings->getFirstMediaUrl('app_icon', 'r_72x72'),
+                            'sizes' => '72x72'
+                        ],
+                        [
+                            'src' => $general_settings->getFirstMediaUrl('app_icon', 'r_96x96'),
+                            'sizes' => '96x96'
+                        ],
+                        [
+                            'src' => $general_settings->getFirstMediaUrl('app_icon', 'r_192x192'),
+                            'sizes' => '192x192'
+                        ]
+                    ]
                 ]
             ],
             'icons' => [
@@ -83,7 +102,11 @@ class ManifestController extends Controller
             ]
         ];
 
-        return response(json_encode($manifest_body), 200)
+        return response()->json($manifest_body, options:JSON_PRETTY_PRINT)
             ->header('Content-Type', 'application/json');
+    }
+
+    public function manifestPanel(){
+        return $this->manifest('/'.config('settings.admin_panel_path').'/');
     }
 }

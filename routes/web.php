@@ -19,6 +19,10 @@ use Illuminate\Support\Facades\Route;
 Route::group([
     'middleware' => \App\Http\Middleware\NewCommentsCount::class
 ], function () {
+    Route::any('/'.config('settings.admin_panel_path').'/manifest.json',
+        [\App\Http\Controllers\ManifestController::class, 'manifestPanel'])
+        ->name('manifest.panel');
+
     Route::middleware(['web', 'auth'])
         ->prefix(config('settings.admin_panel_path'))
         ->group(base_path('routes/panel/panel.php'));
@@ -125,7 +129,8 @@ Route::get('/sitemap', [\App\Http\Controllers\SiteMap\SitemapController::class, 
     ->name('sitemap');
 
 
-Route::any('/manifest.json', [\App\Http\Controllers\ManifestController::class, 'manifest'])->name('manifest');
+Route::any('/manifest.json', [\App\Http\Controllers\ManifestController::class, 'manifest'])
+    ->name('manifest');
 
 $languages = Languages::all();
 

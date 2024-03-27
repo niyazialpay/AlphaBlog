@@ -2,7 +2,9 @@
 @section('content')
     <form action="javascript:void(0)" id="login_panel" method="post">
         <div class="input-group mb-3">
-            <input type="text" name="login" class="form-control" placeholder="@lang('user.username_or_email')" aria-label="login">
+            <input type="text" name="login" class="form-control"
+                   placeholder="@lang('user.username_or_email')"
+                   aria-label="login">
             <div class="input-group-append">
                 <div class="input-group-text">
                     <span class="fas fa-envelope"></span>
@@ -10,7 +12,8 @@
             </div>
         </div>
         <div class="input-group mb-3">
-            <input type="password" name="password" class="form-control" placeholder="@lang('user.password')" aria-label="password">
+            <input type="password" name="password" class="form-control"
+                   placeholder="@lang('user.password')" aria-label="password">
             <div class="input-group-append">
                 <div class="input-group-text">
                     <span class="fas fa-lock"></span>
