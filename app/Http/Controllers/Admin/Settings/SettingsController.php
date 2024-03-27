@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\Languages;
+use App\Models\OneSignal;
 use App\Models\Settings\SeoSettings;
 use App\Models\Themes;
 
@@ -21,7 +22,8 @@ class SettingsController extends Controller
             'robots_txt' => file_exists(public_path('robots.txt')) ?
                 file_get_contents(public_path('robots.txt')) : null,
             'themes' => Themes::all(),
-            'social_settings' => app('social_settings')
+            'social_settings' => app('social_settings'),
+            'onesignal' => Onesignal::first()
         ]);
     }
 }
