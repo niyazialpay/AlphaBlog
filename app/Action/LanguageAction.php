@@ -65,12 +65,12 @@ class LanguageAction
                 }
             }
         }
-        session()->put('language', $language->code);
-        session()->put('language_flag', $language->flag);
-        session()->put('language_name', $language->name);
+        session()->put('language', $language?->code);
+        session()->put('language_flag', $language?->flag);
+        session()->put('language_name', $language?->name);
 
-        app()->setLocale($language->code);
-        setlocale(LC_ALL, $language->code);
-        setlocale(LC_TIME, $language->code);
+        app()->setLocale($language?->code);
+        setlocale(LC_ALL, $language?->code);
+        setlocale(LC_TIME, $language?->code);
     }
 }
