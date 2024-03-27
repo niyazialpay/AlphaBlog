@@ -34,7 +34,7 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         Route::bind('showPost', function ($slug) {
-            return Posts::with(['user', 'categories', 'comments', 'comments.user'])
+            return Posts::with(['user', 'categories', 'comments' => function ($query){ return $query->where('is_approved', true);}, 'comments.user'])
                 ->where('slug', $slug)
                 ->where('language', session()->get('language'))
                 ->where('is_published', true)->firstOrFail();
