@@ -38,4 +38,6 @@ return [
     'advertise_save_success' => 'Advertisement settings saved successfully',
     'default_language' => 'Default Language',
     'default_theme' => 'Default Theme',
+
+    'notifications' => 'Notifications',
 ];

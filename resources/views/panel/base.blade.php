@@ -14,13 +14,17 @@
     <link rel="stylesheet" href="{{config('app.url')}}/themes/fontawesome/css/all.min.css">
 
     <!-- Theme style -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+          crossorigin="anonymous">
 
     <link rel="stylesheet" href="{{config('app.url')}}/themes/panel/css/adminlte.min.css">
     <link rel="stylesheet" href="{{config('app.url')}}/themes/panel/css/custom.css">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+
+    <link rel="manifest" href="{{route('manifest.panel')}}">
 </head>
 <body class="hold-transition sidebar-mini dark-mode">
 <div class="wrapper">
@@ -31,6 +35,11 @@
         <ul class="navbar-nav">
             <li class="nav-item">
                 <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{config('app.url')}}">
+                    <i class="fa-duotone fa-house top-icon"></i> @lang('home.back_to_home')
+                </a>
             </li>
         </ul>
 
@@ -67,9 +76,9 @@
         <!-- Brand Logo -->
         <a href="{{route('admin.index')}}" class="brand-link">
             <img src="{{app('general_settings')->getFirstMediaUrl('site_favicon')}}"
-                 alt="{{config('app.name')}}" class="brand-image img-circle elevation-3"
+                 alt="{{app('seo_settings')->site_name}}" class="brand-image img-circle elevation-3"
                  style="opacity: .8">
-            <span class="brand-text font-weight-light">{{config('app.name')}}</span>
+            <span class="brand-text font-weight-light">{{app('seo_settings')->site_name}}</span>
         </a>
 
         <!-- Sidebar -->
@@ -128,7 +137,9 @@
 
         </div>
         <!-- Default to the left -->
-        <strong>Copyright &copy; {{date('Y')}} <a href="https://niyazi.net">Niyazi.Net</a>.</strong> All rights reserved.
+        <strong>
+            Copyright &copy; {{date('Y')}} <a href="https://niyazi.net">Niyazi.Net</a>.
+        </strong> All rights reserved.
     </footer>
 </div>
 <!-- ./wrapper -->
@@ -157,9 +168,13 @@
 <!-- REQUIRED SCRIPTS -->
 
 <!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+        crossorigin="anonymous"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
 
 <!-- AdminLTE App -->
 

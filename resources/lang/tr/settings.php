@@ -38,4 +38,6 @@ return [
     'advertise_save_success' => 'Reklam ayarları başarıyla kaydedildi',
     'default_language' => 'Varsayılan Dil',
     'default_theme' => 'Varsayılan Tema',
+
+    'notifications' => 'Bildirimler',
 ];

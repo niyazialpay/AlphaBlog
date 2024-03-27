@@ -41,7 +41,7 @@ class LanguageAction
             }
             else{
                 if($request->segment(1)==null){
-                    $language = $languages->getLanguage(app('default_language')->code);
+                    $language = $languages->getLanguage(app('default_language')?->code);
                 }
                 else{
                     $language = $languages->getLanguage($request->segment(1));
