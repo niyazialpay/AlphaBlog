@@ -72,6 +72,14 @@
                                 @lang('settings.languages')
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link settings-links @if(request()->get('tab')=='notifications') active @endif"
+                               href="javascript:ChangeTab('notifications')"
+                               id="notifications-menu">
+                                <i class="fa-duotone fa-bell"></i>
+                                @lang('settings.notifications')
+                            </a>
+                        </li>
                     </ul>
                 </div>
                 <div class="card-body">
@@ -744,6 +752,33 @@
                                 @endforeach
                             </table>
                             <a href="javascript:openLanguageModal()" class="btn btn-primary">@lang('general.new')</a>
+                        </div>
+
+                        <div class="tab-pane settings-tabs @if(request()->get('tab')=='notifications') active @endif"
+                             id="notifications">
+                            @if(session('success'))
+                                <div class="alert alert-success">
+                                    {{session('success')}}
+                                </div>
+                            @endif
+                            @if(session('error'))
+                                <div class="alert alert-danger">
+                                    {{session('error')}}
+                                </div>
+                            @endif
+                            <form class="row" id="notificationsForm" method="post"
+                                  action="{{route('admin.settings.notifications.save')}}">
+                                <div class="col-12 mb-3">
+                                    <label for="onesignal">OneSignal</label>
+                                    <textarea class="form-control" id="onesignal"
+                                              rows="15"
+                                              name="onesignal">{!! $admin_notification?->onesignal !!}</textarea>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <button type="submit" class="btn btn-primary">@lang('general.save')</button>
+                                </div>
+                                @csrf
+                            </form>
                         </div>
                     </div>
                 </div>

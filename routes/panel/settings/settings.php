@@ -68,6 +68,11 @@ Route::post('/theme/upload' , [App\Http\Controllers\Admin\Settings\ThemesSetting
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.themes.upload');
 
-Route::get('/theme/activate/{theme}', [App\Http\Controllers\Admin\Settings\ThemesSettingsController::class, 'makeDefault'])
+Route::get('/theme/activate/{theme}',
+    [App\Http\Controllers\Admin\Settings\ThemesSettingsController::class, 'makeDefault'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.themes.default');
+
+Route::post('/notification/save', [App\Http\Controllers\Admin\Settings\NotificationsController::class, 'save'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.settings.notifications.save');
