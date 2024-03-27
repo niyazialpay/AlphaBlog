@@ -36,4 +36,6 @@ return [
 
     'comment_saved' => 'Your comment will be published after admin approval.',
     'comment_error' => 'An error occurred while saving the comment.',
+
+    'new_comment_notification' => 'A new comment has been made!',
 ];
