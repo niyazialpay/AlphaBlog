@@ -60,7 +60,7 @@ class PostsComponents extends Component
                 ->orderBy('created_at', 'desc')
                 ->paginate($this->paginate)->withQueryString();
         }
-        return view(app('theme')->name . '.components.posts.posts', [
+        return view('themes.'.app('theme')->name.'.components.posts.posts', [
             'posts' => $posts,
             'search' => $search,
             'category' => $this->category

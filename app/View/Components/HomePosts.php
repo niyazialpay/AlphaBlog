@@ -25,7 +25,7 @@ class HomePosts extends Component
      */
     public function render(): View|Closure|string
     {
-        return view(app('theme')->name . '.components.posts.home-posts', [
+        return view('themes.'.app('theme')->name.'.components.posts.home-posts', [
             'posts' => Posts::with(['categories', 'user'])
                 ->where('post_type', 'post')
                 ->where('language', session('language'))

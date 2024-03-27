@@ -9,7 +9,7 @@ class CategoryController extends Controller
 {
     public function show($language, $categories, $showCategory){
         try{
-            return response()->view(app('theme')->name.'.categories', [
+            return response()->view('themes.'.app('theme')->name.'.categories', [
                 'category' => $showCategory
             ]);
         }

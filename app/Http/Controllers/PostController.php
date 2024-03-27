@@ -15,7 +15,7 @@ class PostController extends Controller
             Cookie::queue(Cookie::make($showPost->slug, true, 7200));
         }
         try{
-            return response()->view(app('theme')->name.'.post', [
+            return response()->view('themes.'.app('theme')->name.'.post', [
                 'post' => $showPost
             ]);
         }

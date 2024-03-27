@@ -62,7 +62,7 @@ class SimilarPosts extends Component
      */
     public function render(): View|Closure|string
     {
-        return view(app('theme')->name . '.components.posts.similar-posts', [
+        return view('themes.'.app('theme')->name.'.components.posts.similar-posts', [
             'posts' => $this->post,
         ]);
     }

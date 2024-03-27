@@ -34,7 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 }
             }
             if ($e->getStatusCode() == 404) {
-                return response()->view(app('theme')->name.'.404', [], 404);
+                return response()->view('themes.'.app('theme')->name.'.404', [], 404);
             }
 
             return $request;

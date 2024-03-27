@@ -32,7 +32,7 @@ class ArchiveController extends Controller
             ->whereDate('created_at', '<=', dateformat($end_date, 'Y-m-d H:i:s', config('app.timezone')))
             ->orderBy('created_at', 'desc')
             ->paginate(10)->withQueryString();
-        return view(app('theme')->name . '.archive', [
+        return view('themes.'.app('theme')->name.'.archive', [
             'posts' => $posts,
             'date' => $date,
             'day' => $day,

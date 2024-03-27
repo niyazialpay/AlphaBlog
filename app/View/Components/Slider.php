@@ -22,7 +22,7 @@ class Slider extends Component
      */
     public function render(): View|Closure|string
     {
-        return view(app('theme')->name.'.components.slider', [
+        return view('themes.'.app('theme')->name.'.components.slider', [
             'slider' => Posts::with('media', 'media.model', 'user')
                 ->where('is_published', true)
                 ->where('language', session('language'))
