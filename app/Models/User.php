@@ -36,7 +36,6 @@ class User extends Authenticatable
         'job_title',
         'skills',
         'role'
-
     ];
 
     /**
