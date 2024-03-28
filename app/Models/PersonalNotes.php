@@ -22,11 +22,15 @@ class PersonalNotes extends Model implements HasMedia
         'user_id',
     ];
 
-    protected $casts = [
-        'title' => 'string',
-        'content' => 'encrypted',
-        'user_id' => 'string',
-    ];
+
+    protected function casts(): array
+    {
+        return [
+            'title' => 'string',
+            'content' => 'encrypted',
+            'user_id' => 'string',
+        ];
+    }
 
     public function user(): BelongsTo
     {

@@ -31,6 +31,16 @@ class OneSignal extends Model
 
     public $timestamps = false;
 
+    protected function casts(): array
+    {
+        return [
+            'app_id' => 'encrypted',
+            'auth_key' => 'encrypted',
+        ];
+    }
+
+
+
     static function sendPush($content, $title, $priority = 10): StreamInterface
     {
         $onesignal = self::first();
