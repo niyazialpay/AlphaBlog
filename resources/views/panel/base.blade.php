@@ -76,7 +76,7 @@
 
 
     <link rel="manifest" href="{{route('manifest.panel')}}">
-    @if(auth()->user()->role == 'admin')
+    @if(auth()->user()->role == 'owner' || auth()->user()->role == 'admin')
         {!! $admin_notification?->onesignal !!}
     @endif
 </head>
