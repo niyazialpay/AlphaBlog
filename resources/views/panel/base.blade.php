@@ -76,7 +76,9 @@
 
 
     <link rel="manifest" href="{{route('manifest.panel')}}">
-    {!! $admin_notification?->onesignal !!}
+    @if(auth()->user()->role == 'admin')
+        {!! $admin_notification?->onesignal !!}
+    @endif
 </head>
 <body class="hold-transition sidebar-mini dark-mode">
 <div class="wrapper">
