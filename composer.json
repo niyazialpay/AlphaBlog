@@ -21,8 +21,8 @@
         "spatie/image": "^3.4",
         "spatie/laravel-analytics": "^5.3",
         "spatie/laravel-honeypot": "^4.5",
-      "ext-imagick": "*",
-      "ext-zip": "*"
+        "ext-imagick": "*",
+        "ext-zip": "*"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.12",
