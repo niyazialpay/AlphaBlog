@@ -781,7 +781,7 @@
                                 </div>
                                 <div class="col-12 mb-3">
                                     <label for="auth_key">Auth Key</label>
-                                    <input type="text" class="form-control" id="auth_key" name="auth_key"
+                                    <input type="password" class="form-control" id="auth_key" name="auth_key"
                                            value="{{$onesignal?->auth_key}}">
                                 </div>
                                 <div class="col-12 mb-3">
