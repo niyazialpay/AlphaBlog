@@ -8,7 +8,7 @@ use Spatie\Analytics\Period;
 
 class DashboardController extends Controller
 {
-    function index(){
+    public function index(){
         if(file_exists(storage_path().'/app/analytics/service-account-credentials.json')){
             $analytics = new Analytics();
             $period = Period::days(7);

@@ -139,8 +139,8 @@
             @endforeach
 
             let browsers_options = {
-                series: operating_systems_view,
-                labels: operating_systems,
+                series: browsers_view,
+                labels: browsers,
                 chart: {
                     type: 'pie'
                 },
