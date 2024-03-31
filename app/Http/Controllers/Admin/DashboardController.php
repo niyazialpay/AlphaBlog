@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Languages;
 use Spatie\Analytics\Facades\Analytics;
 use Spatie\Analytics\Period;
 
@@ -40,5 +41,20 @@ class DashboardController extends Controller
 
 
         return view("panel.dashboard", $dashboard);
+    }
+
+    public function changeLanguage($language){
+        $languages = new Languages();
+        $language = $languages->getLanguage($language);
+
+        session()->put('language', $language?->code);
+        session()->put('language_flag', $language?->flag);
+        session()->put('language_name', $language?->name);
+
+        app()->setLocale($language?->code);
+        setlocale(LC_ALL, $language?->code);
+        setlocale(LC_TIME, $language?->code);
+
+        return redirect()->back();
     }
 }

@@ -92,8 +92,36 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{config('app.url')}}">
-                    <i class="fa-duotone fa-house top-icon"></i> @lang('home.back_to_home')
+                    <i class="fa-duotone fa-house top-icon"></i>
                 </a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link" data-bs-toggle="dropdown"
+                   href="javascript:void(0);" id="top-comment-button"
+                   data-bs-placement="right"
+                   title="{{session('language_name')}}">
+                    <img src="{{config('app.url')}}/themes/flags/{{session('language_flag')}}.webp"
+                         class="img-circle elevation-2" alt="{{session('language_name')}}" height="12">
+                </a>
+                <div class="dropdown-menu">
+                    @foreach($languages as $language)
+                        @if(session('language') != $language->code)
+                            <a href="{{route('admin.change_language', ['language' => $language->code])}}"
+                               class="dropdown-item">
+
+                                <div class="media">
+                                    <div class="media-body">
+                                        <span class="dropdown-item-title">
+                                            <img src="{{config('app.url')}}/themes/flags/{{$language->flag}}.webp"
+                                                 alt="{{$language->name}}" height="12" class="elevation-2">
+                                                    {{$language->name}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </a>
+                        @endif
+                    @endforeach
+                </div>
             </li>
         </ul>
 
