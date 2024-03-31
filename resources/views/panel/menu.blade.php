@@ -105,19 +105,53 @@
             </ul>
         </li>
     @endcan
-    <li class="nav-item">
+    <li class="nav-item has-treeview
+    @if(request()->is(config('settings.admin_panel_path').'/notes*')) menu-open @endif ">
         <a class="nav-link
         @if(request()->is(config('settings.admin_panel_path').'/notes*')) active @endif "
-           href="{{route('admin.notes')}}">
+           href="javascript:void(0);">
             <i class="fa-duotone fa-file-lock nav-icon"></i>
             <p>
                 @lang('notes.notes')
             </p>
+            <i class="right fas fa-angle-left"></i>
         </a>
+        <ul class="nav nav-treeview shadow rounded py-2">
+            <li class="nav-item">
+                <a href="{{route('admin.notes.create')}}"
+                   class="nav-link
+                   @if(request()->is(config('settings.admin_panel_path').'/notes/create')) active @endif ">
+                    <i class="fa-duotone fa-page  nav-icon"></i>
+                    <p>@lang('general.new')</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{route('admin.notes')}}"
+                   class="nav-link
+                   @if(request()->is(
+                        config('settings.admin_panel_path').'/notes',
+                        config('settings.admin_panel_path').'/notes/show/*'
+                    )) active @endif ">
+                    <i class="fa-duotone fa-file-lock nav-icon"></i>
+                    <p>@lang('notes.notes')</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{route('admin.notes.categories')}}"
+                   class="nav-link
+                   @if(request()->is(config('settings.admin_panel_path').'/notes/categories*')) active @endif ">
+                    <i class="fa-duotone fa-list nav-icon"></i>
+                    <p>
+                        @lang('categories.categories')
+                    </p>
+                </a>
+            </li>
+        </ul>
     </li>
     @can('admin', 'App\Models\User')
         <li class="nav-item">
-            <a href="{{route('admin.contact_page')}}" class="nav-link @if(request()->is(config('settings.admin_panel_path').'/contact*')) active @endif ">
+            <a href="{{route('admin.contact_page')}}" class="nav-link
+            @if(request()->is(config('settings.admin_panel_path').'/contact*')) active @endif ">
                 <i class="fa-duotone fa-message-text nav-icon"></i>
                 <p>
                     @lang('contact.contact_page')

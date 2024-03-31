@@ -36,6 +36,19 @@
                     @lang('notes.define_encryption_key')
                 </a>
             </p>
+            <div class="col-12 mb-3">
+                <label for="category_id">@lang('notes.category')</label>
+                <select name="category_id" id="category_id" class="form-control"
+                        onchange="window.location='{{route('admin.notes')}}?category='+this.value">
+                    <option value="">@lang('notes.select_category')</option>
+                    @foreach($categories as $category)
+                        <option value="{{$category->id}}"
+                                @if(request()->get('category') == $category->id) selected @endif>
+                            {{$category->name}}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
             <form method="post" id="searchForm" action="javascript:void(0)">
                 <div class="input-group mb-3">
                     <input class="form-control form-control-navbar" type="search" name="search" placeholder="@lang('general.search')" aria-label="@lang('general.search')" value="{{GetPost(request()->search)}}">
@@ -50,6 +63,7 @@
                 <thead>
                 <tr>
                     <th scope="col">@lang('post.title')</th>
+                    <th scope="col">@lang('notes.category')</th>
                     <th scope="col" class="text-center" style="width: 200px">@lang('general.created_at')</th>
                     <th scope="col" class="text-center" style="width: 200px">@lang('general.updated_at')</th>
                     <th scope="col" style="width: 150px">@lang('general.actions')</th>
@@ -60,6 +74,11 @@
                         <td>
                             <a href="{{route('admin.notes.show', $note)}}">
                                 {{$note->title}}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{{route('admin.notes')}}?category={{$note->category->id}}">
+                                {{$note->category->name}}
                             </a>
                         </td>
                         <td class="text-center">

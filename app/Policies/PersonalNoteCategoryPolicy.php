@@ -2,10 +2,10 @@
 
 namespace App\Policies;
 
-use App\Models\PersonalNotes\PersonalNotes;
+use App\Models\PersonalNotes\PersonalNoteCategories;
 use App\Models\User;
 
-class PersonalNotesPolicy
+class PersonalNoteCategoryPolicy
 {
     /**
      * Create a new policy instance.
@@ -15,7 +15,7 @@ class PersonalNotesPolicy
         //
     }
 
-    public function own(User $user, PersonalNotes $note): bool
+    public function own(User $user, PersonalNoteCategories $note): bool
     {
         return $user->id == $note->user_id;
     }

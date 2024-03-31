@@ -2,13 +2,15 @@
 
 namespace App\Providers;
 
-use App\Models\PersonalNotes;
+use App\Models\PersonalNotes\PersonalNoteCategories;
+use App\Models\PersonalNotes\PersonalNotes;
 use App\Models\Post\Categories;
 use App\Models\Post\Comments;
 use App\Models\Post\Posts;
 use App\Models\User;
 use App\Observers\PostsObserver;
 use App\Policies\CommentPolicy;
+use App\Policies\PersonalNoteCategoryPolicy;
 use App\Policies\PersonalNotesPolicy;
 use App\Policies\PostPolicy;
 use App\Policies\UserPolicy;
@@ -25,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         Gate::policy(PersonalNotes::class, PersonalNotesPolicy::class);
+        Gate::policy(PersonalNoteCategories::class, PersonalNoteCategoryPolicy::class);
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(Posts::class, PostPolicy::class);
         Gate::policy(Comments::class, CommentPolicy::class);

@@ -1,5 +1,5 @@
 @extends('panel.base')
-@section('title',__('notes.notes'))
+@section('title',$note->title)
 @section('breadcrumb_link')
     <ol class="breadcrumb float-sm-right">
         <li class="breadcrumb-item"><a href="{{route('admin.index')}}">@lang('dashboard.dashboard')</a></li>
@@ -12,7 +12,7 @@
 @section('content')
     <div class="card">
         <div class="card-header d-flex">
-            <h3 class="card-title">{{$note->title}}</h3>
+            <h3 class="card-title">{{$note->category->name}}</h3>
             <div class="ml-auto">
                 <a href="{{route('admin.notes.media', $note)}}" class="btn btn-sm btn-primary"
                    data-bs-toggle="tooltip" data-bs-placement="top"
