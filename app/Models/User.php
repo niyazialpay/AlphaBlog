@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\PersonalNotes\PersonalNoteCategories;
+use App\Models\PersonalNotes\PersonalNotes;
 use App\Models\Post\Posts;
-use Laravel\Fortify\TwoFactorAuthenticationProvider;
-use MongoDB\Laravel\Auth\User as Authenticatable;
-use Laravel\Fortify\TwoFactorAuthenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
+use MongoDB\Laravel\Auth\User as Authenticatable;
 use MongoDB\Laravel\Relations\HasMany;
 use MongoDB\Laravel\Relations\HasOne;
 
@@ -77,5 +78,10 @@ class User extends Authenticatable
     public function posts(): HasMany
     {
         return $this->hasMany(Posts::class, 'user_id', '_id');
+    }
+
+    public function noteCategories(): HasMany
+    {
+        return $this->hasMany(PersonalNoteCategories::class, 'user_id', '_id');
     }
 }

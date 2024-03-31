@@ -176,16 +176,19 @@ return [
             ],
             'personal_notes' => [
                 'filterableAttributes'=> [
-                    'user_id'
+                    'user_id',
+                    'category_id',
                 ],
                 'searchableAttributes'=> [
                     'title',
-                    'content'
+                    'content',
+                    'category_id'
                 ],
                 'sortableAttributes'=> [
                     'created_at',
                     'updated_at',
-                    'user_id'
+                    'user_id',
+                    'category_id'
                 ],
             ],
         ],

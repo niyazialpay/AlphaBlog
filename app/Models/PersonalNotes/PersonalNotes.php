@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\PersonalNotes;
 
+use App\Models\User;
 use App\Traits\Searchable;
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
@@ -20,21 +21,25 @@ class PersonalNotes extends Model implements HasMedia
         'title',
         'content',
         'user_id',
+        'category_id'
     ];
 
 
     protected function casts(): array
     {
         return [
-            'title' => 'string',
-            'content' => 'encrypted',
-            'user_id' => 'string',
+            'content' => 'encrypted'
         ];
     }
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', '_id');
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(PersonalNoteCategories::class, 'category_id', '_id');
     }
 
     public function searchableAs(): string
@@ -48,6 +53,7 @@ class PersonalNotes extends Model implements HasMedia
         $array["title"] = $this->title;
         $array["created_at"] = $this->created_at;
         $array["updated_at"] = $this->updated_at;
+        $array["category_id"] = $this->category_id;
 
         return $array;
     }

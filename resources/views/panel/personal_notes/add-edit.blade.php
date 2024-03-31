@@ -33,6 +33,18 @@
                     <textarea name="content" id="content" class="form-control"
                               placeholder="@lang('post.content')">{!! $note->content !!}</textarea>
                 </div>
+                <div class="col-12 mb-3">
+                    <label for="category_id">@lang('notes.category')</label>
+                    <select name="category_id" id="category_id" class="form-control" required>
+                        <option value="">@lang('notes.select_category')</option>
+                        @foreach($categories as $category)
+                            <option value="{{$category->id}}"
+                                    @if($note?->category_id == $category->id) selected @endif>
+                                {{$category->name}}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
                 @csrf
                 <div class="col-12 mb-3">
                     <button type="submit" class="btn btn-primary">@lang('general.save')</button>
@@ -46,7 +58,11 @@
         @include('panel.personal_notes.scripts')
     @endif
     <script>
-        let post_url = '{{route('admin.notes.save', $note)}}';
+        @if($note->id)
+            let post_url = '{{route('admin.notes.edit.save', $note)}}';
+        @else
+            let post_url = '{{route('admin.notes.save')}}';
+        @endif
         let image_post_url = '{{route('admin.notes.editor.image.upload', $note)}}';
         $(document).ready(function () {
 

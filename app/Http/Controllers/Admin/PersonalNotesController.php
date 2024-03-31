@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PersonalNotes\PersonalNotesRequest;
-use App\Models\PersonalNotes;
+use App\Models\PersonalNotes\PersonalNoteCategories;
+use App\Models\PersonalNotes\PersonalNotes;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
@@ -15,11 +16,25 @@ use niyazialpay\MediaLibrary\MediaCollections\Exceptions\MediaCannotBeDeleted;
 class PersonalNotesController extends Controller
 {
     public function index(Request $request, PersonalNotes $notes){
+        if(!request()->cookie('encryption_key')){
+            return view('panel.personal_notes.encryption-form');
+        }
+        $notes::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
+
+         $note = $notes->search($request->input('search'))
+            ->query(function ($query) {
+                $query->with('category');
+            })
+            ->where('user_id', auth()->id());
+
+        if($request->has('category') && $request->get('category') != ''){
+            $note->where('category_id', $request->get('category'));
+        }
+
         return view('panel.personal_notes.index', [
-            'notes' => $notes->search($request->input('search'))
-                ->where('user_id', auth()->id())
-                ->orderBy('created_at', 'desc')
+            'notes' => $note->orderBy('created_at', 'desc')
                 ->paginate(10),
+            'categories' => auth()->user()->noteCategories,
         ]);
     }
 
@@ -35,7 +50,7 @@ class PersonalNotesController extends Controller
             abort(403, __('notes.encryption_key_invalid'));
         }
         return view('panel.personal_notes.show', [
-            'note' => $note,
+            'note' => $note->load('category'),
         ]);
     }
 
@@ -51,7 +66,8 @@ class PersonalNotesController extends Controller
             abort(403, __('notes.encryption_key_invalid'));
         }
         return view('panel.personal_notes.add-edit', [
-            'note' => $note
+            'note' => $note,
+            'categories' => auth()->user()->noteCategories,
         ]);
     }
 
@@ -60,6 +76,7 @@ class PersonalNotesController extends Controller
         $note->user_id = auth()->id();
         $note->title = $request->post('title');
         $note->content = $request->post('content');
+        $note->category_id = $request->post('category_id');
         $note->save();
         return response()->json([
             'status' => 'success',
@@ -123,5 +140,45 @@ class PersonalNotesController extends Controller
             'status' => 'success',
             'message' => __('personal_notes.encryption_key_saved'),
         ])->withCookie(cookie('encryption_key', md5($request->post('encryption_key')), 1440, null, null, true, true));
+    }
+
+    public function categories(PersonalNoteCategories $category){
+        if(!request()->cookie('encryption_key')){
+            abort(403, __('notes.encryption_key_required'));
+        }
+        $category::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
+        return view('panel.personal_notes.categories.index', [
+            'categories' => auth()->user()->noteCategories->load('notes'),
+            'category' => $category
+        ]);
+    }
+
+    public function categorySave(Request $request, PersonalNoteCategories $category){
+        if(!request()->cookie('encryption_key')){
+            abort(403, __('notes.encryption_key_required'));
+        }
+        $category::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
+
+        $request->validate([
+            'name' => 'required',
+        ]);
+        $category->name = $request->post('name');
+        $category->user_id = auth()->id();
+        $category->save();
+        return response()->json([
+            'status' => 'success',
+            'id' => $category->id,
+        ]);
+    }
+
+    public function categoryDelete(PersonalNoteCategories $category){
+        if($category->notes->count()>0){
+            return response()->json(['status' => false, 'message' => __('notes.error_delete_notes')]);
+        }
+        if($category->delete()){
+            return response()->json(['status' => true, 'message' => __('notes.success_delete')]);
+        }else{
+            return response()->json(['status' => false, 'message' => __('notes.error_delete')]);
+        }
     }
 }

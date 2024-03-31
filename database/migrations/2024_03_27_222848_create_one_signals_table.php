@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('one_signals', function (Blueprint $table) {
+        Schema::create('onesignal', function (Blueprint $table) {
             $table->id();
             $table->string('app_id');
             $table->string('auth_key');
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('one_signals');
+        Schema::dropIfExists('onesignal');
     }
 };
