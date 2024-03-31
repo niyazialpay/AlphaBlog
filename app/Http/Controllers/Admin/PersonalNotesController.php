@@ -40,7 +40,7 @@ class PersonalNotesController extends Controller
 
     public function show(PersonalNotes $note){
         if(!request()->cookie('encryption_key')){
-            abort(403, __('notes.encryption_key_required'));
+            return view('panel.personal_notes.encryption-form');
         }
         $note::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
         try{
@@ -56,7 +56,7 @@ class PersonalNotesController extends Controller
 
     public function create(PersonalNotes $note){
         if(!request()->cookie('encryption_key')){
-            abort(403, __('notes.encryption_key_required'));
+            return view('panel.personal_notes.encryption-form');
         }
         $note::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
         try{
@@ -144,7 +144,7 @@ class PersonalNotesController extends Controller
 
     public function categories(PersonalNoteCategories $category){
         if(!request()->cookie('encryption_key')){
-            abort(403, __('notes.encryption_key_required'));
+            return view('panel.personal_notes.encryption-form');
         }
         $category::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
         return view('panel.personal_notes.categories.index', [
@@ -155,7 +155,7 @@ class PersonalNotesController extends Controller
 
     public function categorySave(Request $request, PersonalNoteCategories $category){
         if(!request()->cookie('encryption_key')){
-            abort(403, __('notes.encryption_key_required'));
+            return view('panel.personal_notes.encryption-form');
         }
         $category::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
 
