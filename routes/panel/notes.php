@@ -48,11 +48,11 @@ Route::post('/encryption', [App\Http\Controllers\Admin\PersonalNotesController::
 
 Route::post('/categories', [App\Http\Controllers\Admin\PersonalNotesController::class, 'categorySave'])
     ->can('create', 'App\Models\PersonalNotes\PersonalNoteCategories')
-    ->name('admin.notes.categories.save');
+    ->name('admin.notes.categories.create');
 
 Route::post('/categories/{category}', [App\Http\Controllers\Admin\PersonalNotesController::class, 'categorySave'])
     ->can('own', 'category')
-    ->name('admin.notes.categories.save');
+    ->name('admin.notes.categories.update');
 
 Route::get('/categories/{category}', [App\Http\Controllers\Admin\PersonalNotesController::class, 'categories'])
     ->can('own', 'category')
