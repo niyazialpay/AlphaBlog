@@ -54,9 +54,6 @@
     </div>
 @endsection
 @section('script')
-    @if(!$note->id)
-        @include('panel.personal_notes.scripts')
-    @endif
     <script>
         @if($note->id)
             let post_url = '{{route('admin.notes.edit.save', $note)}}';
