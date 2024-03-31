@@ -13,3 +13,6 @@ Route::get('/contact', [App\Http\Controllers\Admin\ContactController::class, 'in
 
 Route::post('/contact', [App\Http\Controllers\Admin\ContactController::class, 'save'])
     ->can('admin', 'App\Models\User');
+
+Route::get('/change-language/{language}', [App\Http\Controllers\Admin\DashboardController::class, 'changeLanguage'])
+    ->name('admin.change_language');
