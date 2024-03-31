@@ -118,7 +118,6 @@
     </div>
 @endsection
 @section('script')
-    @include('panel.personal_notes.scripts')
     <script>
         function DeleteNote(note_id) {
             Swal.fire({

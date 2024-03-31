@@ -113,7 +113,6 @@
 @endsection
 
 @section('script')
-    @include('panel.personal_notes.scripts')
     <script>
         function Delete(id) {
             //delete confirmation
