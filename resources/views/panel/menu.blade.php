@@ -133,7 +133,7 @@
                         config('settings.admin_panel_path').'/notes/show/*'
                     )) active @endif ">
                     <i class="fa-duotone fa-file-lock nav-icon"></i>
-                    <p>@lang('notes.notes')</p>
+                    <p>@lang('notes.all_notes')</p>
                 </a>
             </li>
             <li class="nav-item">

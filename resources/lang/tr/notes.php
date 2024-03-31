@@ -21,4 +21,5 @@ return [
     'category_id_required' => 'Kategori alanı gereklidir',
     'category_id_string' => 'Kategori alanı metin olmalıdır',
     'category_id_exists' => 'Seçili kategori geçersizdir',
+    'all_notes' => 'Tüm Notlar',
 ];

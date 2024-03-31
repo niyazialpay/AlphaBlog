@@ -21,4 +21,5 @@ return [
     'category_id_required' => 'Category is required',
     'category_id_string' => 'Category must be a string',
     'category_id_exists' => 'Selected category is invalid',
+    'all_notes' => 'All Notes',
 ];
