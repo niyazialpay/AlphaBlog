@@ -101,7 +101,7 @@
                    data-bs-placement="right"
                    title="{{session('language_name')}}">
                     <img src="{{config('app.url')}}/themes/flags/{{session('language_flag')}}.webp"
-                         class="img-circle elevation-2" alt="{{session('language_name')}}" height="12">
+                         class="elevation-2" alt="{{session('language_name')}}" height="12">
                 </a>
                 <div class="dropdown-menu">
                     @foreach($languages as $language)
