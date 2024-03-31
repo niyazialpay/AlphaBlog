@@ -114,6 +114,9 @@
                 @endforelse
                 </tbody>
             </table>
+            <div class="d-flex justify-content-center">
+                {{$notes->withQueryString()->links()}}
+            </div>
         </div>
     </div>
 @endsection
