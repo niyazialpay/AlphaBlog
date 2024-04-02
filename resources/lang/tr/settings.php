@@ -42,5 +42,6 @@ return [
     'notifications' => 'Bildirimler',
 
     'onesignal_string' => 'OneSignal takip kodu bir metin olmalıdır',
-    'onesignal_success' => 'OneSignal takip kodu başarıyla kaydedildi'
+    'onesignal_success' => 'OneSignal takip kodu başarıyla kaydedildi',
+    'management' => 'Yönetim',
 ];

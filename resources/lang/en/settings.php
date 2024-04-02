@@ -42,5 +42,6 @@ return [
     'notifications' => 'Notifications',
 
     'onesignal_string' => 'OneSignal tracking code must be a string',
-    'onesignal_success' => 'OneSignal tracking code saved successfully'
+    'onesignal_success' => 'OneSignal tracking code saved successfully',
+    'management' => 'Management',
 ];
