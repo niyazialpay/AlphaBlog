@@ -25,4 +25,9 @@ return [
     'all_notes' => 'Tüm Notlar',
     'note' => 'Not',
     'journal' => 'Günlük',
+    'remember_me' => 'Beni Hatırla',
+    'remember_time' => 'Hatırlama süresi',
+    'remember_time_1_day' => '1 gün',
+    'remember_time_month' => '{1}1 ay|[2,Inf]:n ay',
+    'remember_time_1_year' => '1 yıl',
 ];

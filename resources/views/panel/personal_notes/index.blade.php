@@ -31,11 +31,6 @@
             </p>
         </div>
         <div class="card-body table-responsive">
-            <p class="text-center mt-2">
-                <a href="javascript:$('#encryption_key_modal').modal('show')" class="btn btn-default">
-                    @lang('notes.define_encryption_key')
-                </a>
-            </p>
             <div class="col-12 mb-3">
                 <label for="category_id">@lang('notes.category')</label>
                 <select name="category_id" id="category_id" class="form-control"
