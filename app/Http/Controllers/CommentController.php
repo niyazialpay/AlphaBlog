@@ -6,7 +6,6 @@ use App\Http\Requests\CommentRequest;
 use App\Models\OneSignal;
 use App\Models\Post\Comments;
 use App\Models\Post\Posts;
-use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
@@ -20,20 +19,22 @@ class CommentController extends Controller
         $comment->ip_address = $request->ip();
         $comment->user_agent = $request->userAgent();
 
-        if($comment->save()){
+        if ($comment->save()) {
             OneSignal::sendPush([
-                'en' => Posts::find($request->validated('post_id'))->title
+                'en' => Posts::find($request->validated('post_id'))->title,
             ], [
                 'en' => __('comments.new_comment_notification'),
             ]);
+
             return response()->json([
                 'status' => 'success',
-                'message' => __('comments.comment_saved')
+                'message' => __('comments.comment_saved'),
             ]);
         }
+
         return response()->json([
             'status' => 'error',
-            'message' => __('comments.comment_error')
+            'message' => __('comments.comment_error'),
         ]);
     }
 }

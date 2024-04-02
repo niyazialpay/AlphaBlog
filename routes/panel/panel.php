@@ -1,7 +1,8 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 
-#admin panel
+//admin panel
 Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'index'])
     ->name('admin.index');
 

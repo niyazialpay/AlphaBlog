@@ -23,12 +23,11 @@ class HeaderMenu extends Component
      */
     public function render(): View|Closure|string
     {
-        if(Cache::has(config('cache.prefix').'header_menu_'.session('language'))){
+        if (Cache::has(config('cache.prefix').'header_menu_'.session('language'))) {
             $menu = Cache::get(config('cache.prefix').'header_menu_'.session('language'));
-        }
-        else{
-            $menu = Cache::rememberForever(config('cache.prefix').'header_menu_'.session('language'), function(){
-                return Menu::with(['menuItems.children', 'menuItems' => function($query){
+        } else {
+            $menu = Cache::rememberForever(config('cache.prefix').'header_menu_'.session('language'), function () {
+                return Menu::with(['menuItems.children', 'menuItems' => function ($query) {
                     $query->where('parent_id', null);
                 }])->where('language', session('language'))
                     ->where('menu_position', 'header')
@@ -36,17 +35,16 @@ class HeaderMenu extends Component
             });
         }
 
-        if($menu){
+        if ($menu) {
             $menu_items = $menu->menuItems;
-        }
-        else{
+        } else {
             $menu_items = [];
 
         }
 
         return view('themes.'.app('theme')->name.'.components.menu.header_menu', [
             'menu' => $menu,
-            'menu_items' => $menu_items
+            'menu_items' => $menu_items,
         ]);
     }
 }

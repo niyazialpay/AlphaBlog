@@ -1,4 +1,5 @@
 <?php
+
 return [
     'name' => 'Category Name',
     'sort' => 'Sort',
@@ -37,5 +38,5 @@ return [
         'slug_unique' => 'Category slug must be unique.',
         'meta_description_string' => 'Meta description must be a string.',
         'meta_keywords_string' => 'Meta keywords must be a string.',
-    ]
+    ],
 ];

@@ -13,11 +13,12 @@ class NewCommentsCount
     /**
      * Handle an incoming request.
      *
-     * @param Closure(Request): (Response) $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
         View::share('newCommentsCount', Comments::where('is_approved', false)->count());
+
         return $next($request);
     }
 }

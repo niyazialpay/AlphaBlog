@@ -11,21 +11,19 @@ class MergePostTypeToRequest
     /**
      * Handle an incoming request.
      *
-     * @param Closure(Request): (Response) $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if($request->route()->parameter('type') == 'pages'){
+        if ($request->route()->parameter('type') == 'pages') {
             $request->merge([
                 'post_type' => 'page',
             ]);
-        }
-        elseif($request->route()->parameter('type') == 'blogs'){
+        } elseif ($request->route()->parameter('type') == 'blogs') {
             $request->merge([
                 'post_type' => 'post',
             ]);
-        }
-        else{
+        } else {
             abort(404);
         }
 

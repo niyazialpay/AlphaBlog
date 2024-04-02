@@ -6,16 +6,15 @@ use App\Models\Post\Posts;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 
 class HomePosts extends Component
 {
     public mixed $paginate;
+
     /**
      * Create a new component instance.
      */
-    public function __construct($paginate=10)
+    public function __construct($paginate = 10)
     {
         $this->paginate = $paginate;
     }
@@ -31,7 +30,7 @@ class HomePosts extends Component
                 ->where('language', session('language'))
                 ->where('is_published', true)
                 ->orderBy('created_at', 'desc')
-                ->paginate($this->paginate)->withQueryString()
+                ->paginate($this->paginate)->withQueryString(),
         ]);
     }
 }

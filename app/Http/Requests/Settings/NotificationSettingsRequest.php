@@ -23,7 +23,7 @@ class NotificationSettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'onesignal' => 'nullable|string'
+            'onesignal' => 'nullable|string',
         ];
     }
 
@@ -35,7 +35,7 @@ class NotificationSettingsRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'onesignal.string' => __('settings.onesignal_string')
+            'onesignal.string' => __('settings.onesignal_string'),
         ];
     }
 }

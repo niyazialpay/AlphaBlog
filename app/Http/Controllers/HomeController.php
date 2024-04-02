@@ -24,10 +24,9 @@ class HomeController extends Controller
      */
     public function index()
     {
-        try{
+        try {
             return response()->view('themes.'.app('theme')->name.'.home', ['category' => null]);
-        }
-        catch (Exception $e){
+        } catch (Exception $e) {
             return response()->view('Default.home', ['category' => null]);
         }
     }

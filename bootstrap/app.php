@@ -17,20 +17,19 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->use([
             \Illuminate\Session\Middleware\StartSession::class,
             \App\Http\Middleware\TrustProxies::class,
-			\App\Http\Middleware\Language::class,
-			\App\Http\Middleware\IpFilter::class,
-			\App\Http\Middleware\RouteRedirect::class,
-		]);
+            \App\Http\Middleware\Language::class,
+            \App\Http\Middleware\IpFilter::class,
+            \App\Http\Middleware\RouteRedirect::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             $route = RouteRedirectAction::RouteRedirect($request);
             if ($route) {
-                if($route->redirect_code == 404) {
+                if ($route->redirect_code == 404) {
                     abort(404);
-                }
-                else{
-                    return redirect($route->new_url, (int)$route->redirect_code);
+                } else {
+                    return redirect($route->new_url, (int) $route->redirect_code);
                 }
             }
             if ($e->getStatusCode() == 404) {

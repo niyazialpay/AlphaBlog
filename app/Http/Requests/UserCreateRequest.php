@@ -23,19 +23,19 @@ class UserCreateRequest extends FormRequest
      */
     public function rules(): array
     {
-        if($this->id){
+        if ($this->id) {
             $username_unique = Rule::unique('users', 'username')
                 ->whereNot('_id', $this->input('id'));
             $nickname_unique = Rule::unique('users', 'nickname')
                 ->whereNot('_id', $this->input('id'));
             $email_unique = Rule::unique('users', 'email')
                 ->whereNot('_id', $this->input('id'));
-        }
-        else{
+        } else {
             $username_unique = Rule::unique('users', 'username');
             $nickname_unique = Rule::unique('users', 'nickname');
             $email_unique = Rule::unique('users', 'email');
         }
+
         return [
             'name' => [
                 'required',

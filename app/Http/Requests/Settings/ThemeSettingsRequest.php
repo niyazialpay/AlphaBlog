@@ -23,7 +23,7 @@ class ThemeSettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "theme" => "file|mimes:zip|max:51200",
+            'theme' => 'file|mimes:zip|max:51200',
         ];
     }
 }

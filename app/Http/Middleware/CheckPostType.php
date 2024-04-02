@@ -11,15 +11,14 @@ class CheckPostType
     /**
      * Handle an incoming request.
      *
-     * @param Closure(Request): (Response) $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(($request->route()->parameter('type') == 'pages') ||
-            ($request->route()->parameter('type') == 'blogs')){
+        if (($request->route()->parameter('type') == 'pages') ||
+            ($request->route()->parameter('type') == 'blogs')) {
             return $next($request);
-        }
-        else{
+        } else {
             abort(404);
         }
 

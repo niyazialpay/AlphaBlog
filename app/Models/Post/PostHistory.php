@@ -16,7 +16,7 @@ class PostHistory extends Model
         'post_id',
         'title',
         'content',
-        'slug'
+        'slug',
     ];
 
     public function post(): BelongsTo

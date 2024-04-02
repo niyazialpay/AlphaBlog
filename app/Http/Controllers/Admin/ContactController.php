@@ -12,15 +12,15 @@ class ContactController extends Controller
     public function index()
     {
         return view('panel.contact', [
-            'contactPage' => new ContactPage()
+            'contactPage' => new ContactPage(),
         ]);
     }
 
     public function save(Request $request)
     {
-        foreach(app('languages') as $language){
+        foreach (app('languages') as $language) {
             $contact = ContactPage::where('language', $language->code)->first();
-            if(!$contact){
+            if (! $contact) {
                 $contact = new ContactPage();
                 $contact->language = $language->code;
             }
@@ -31,8 +31,7 @@ class ContactController extends Controller
             $contact->save();
             Cache::forget(config('cache.prefix').'contact_page_'.$language->code);
         }
+
         return redirect()->back()->with('success', __('contact.saved'));
     }
 }
-
-

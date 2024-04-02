@@ -3,7 +3,6 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Middleware\TrustProxies as Middleware;
-use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Request as RequestAlias;
 
 class TrustProxies extends Middleware
@@ -15,7 +14,7 @@ class TrustProxies extends Middleware
      */
     protected $proxies = [
         '127.0.0.1',
-        '192.168.58.0/24'
+        '192.168.58.0/24',
     ];
 
     /**

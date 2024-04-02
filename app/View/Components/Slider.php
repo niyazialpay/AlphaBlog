@@ -29,7 +29,7 @@ class Slider extends Component
                 ->where('post_type', 'post')
                 ->orderBy('created_at', 'desc')
                 ->take(5)
-                ->get()
+                ->get(),
         ]);
     }
 }

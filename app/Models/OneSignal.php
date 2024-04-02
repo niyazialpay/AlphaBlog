@@ -2,22 +2,8 @@
 
 namespace App\Models;
 
-
 use MongoDB\Laravel\Eloquent\Model;
 use Psr\Http\Message\StreamInterface;
-use DateTime;
-use onesignal\client\api\DefaultApi;
-use onesignal\client\Configuration;
-use onesignal\client\model\GetNotificationRequestBody;
-use onesignal\client\model\Notification;
-use onesignal\client\model\StringMap;
-use onesignal\client\model\Player;
-use onesignal\client\model\UpdatePlayerTagsRequestBody;
-use onesignal\client\model\ExportPlayersRequestBody;
-use onesignal\client\model\Segment;
-use onesignal\client\model\FilterExpressions;
-use PHPUnit\Framework\TestCase;
-use GuzzleHttp;
 
 class OneSignal extends Model
 {
@@ -39,9 +25,7 @@ class OneSignal extends Model
         ];
     }
 
-
-
-    static function sendPush($content, $title, $priority = 10): StreamInterface
+    public static function sendPush($content, $title, $priority = 10): StreamInterface
     {
         $onesignal = self::first();
 
@@ -51,7 +35,7 @@ class OneSignal extends Model
             'body' => json_encode([
                 'app_id' => $onesignal->app_id,
                 'included_segments' => [
-                    'Subscribed Users'
+                    'Subscribed Users',
                 ],
                 'contents' => $content,
                 'name' => 'INTERNAL_CAMPAIGN_NAME',

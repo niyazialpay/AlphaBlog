@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('/{menu?}', [\App\Http\Controllers\Admin\Menu\MenuController::class, 'index'])

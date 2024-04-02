@@ -2,7 +2,6 @@
 
 namespace App\Models\Settings;
 
-
 use MongoDB\Laravel\Eloquent\Model;
 
 class SeoSettings extends Model
@@ -14,7 +13,7 @@ class SeoSettings extends Model
         'keywords',
         'author',
         'robots',
-        'language'
+        'language',
     ];
 
     public $timestamps = false;

@@ -33,7 +33,6 @@ Route::post('/save/{note}', [App\Http\Controllers\Admin\PersonalNotesController:
     ->can('own', 'note')
     ->name('admin.notes.edit.save');
 
-
 Route::get('/{note}/media', [App\Http\Controllers\Admin\PersonalNotesController::class, 'media'])
     ->can('own', 'note')
     ->name('admin.notes.media');
@@ -44,7 +43,6 @@ Route::post('/delete/{note}', [App\Http\Controllers\Admin\PersonalNotesControlle
 
 Route::post('/encryption', [App\Http\Controllers\Admin\PersonalNotesController::class, 'encryption'])
     ->name('admin.notes.encryption');
-
 
 Route::post('/categories', [App\Http\Controllers\Admin\PersonalNotesController::class, 'categorySave'])
     ->can('create', 'App\Models\PersonalNotes\PersonalNoteCategories')

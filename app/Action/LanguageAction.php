@@ -24,43 +24,37 @@ class LanguageAction
             'up',
         ];
         $languages = new Languages();
-        if(!in_array($request->segment(1), $except)){
-            if(session()->has('language')) {
-                if($request->segment(1)==session('language')){
+        if (! in_array($request->segment(1), $except)) {
+            if (session()->has('language')) {
+                if ($request->segment(1) == session('language')) {
                     $language = $languages->getLanguage(session('language'));
-                }
-                elseif($request->segment(1)==null){
+                } elseif ($request->segment(1) == null) {
                     $language = $languages->getLanguage(app('default_language')->code);
-                }
-                else{
+                } else {
                     $language = $languages->getLanguage($request->segment(1));
-                    if($language==null){
+                    if ($language == null) {
                         abort(404);
                     }
                 }
-            }
-            else{
-                if($request->segment(1)==null){
+            } else {
+                if ($request->segment(1) == null) {
                     $language = $languages->getLanguage(app('default_language')?->code);
-                }
-                else{
+                } else {
                     $language = $languages->getLanguage($request->segment(1));
-                    if($language==null){
+                    if ($language == null) {
                         abort(404);
                     }
                 }
             }
-        }
-        else{
-            if(session()->has('language')) {
+        } else {
+            if (session()->has('language')) {
                 $language = $languages->getLanguage(session('language'));
-            }
-            else{
+            } else {
                 $language = $languages->getLanguage(
-                    explode("-", explode(",",$request->server('HTTP_ACCEPT_LANGUAGE')
+                    explode('-', explode(',', $request->server('HTTP_ACCEPT_LANGUAGE')
                     )[0])[0]
                 );
-                if(!$language) {
+                if (! $language) {
                     $language = $languages->getLanguage(app('default_language')->code);
                 }
             }

@@ -10,7 +10,7 @@ class PostsObserver
     public function updated(Posts $post): void
     {
         $original = $post->getOriginal();
-        if($original['views'] == $post->views){
+        if ($original['views'] == $post->views) {
             PostHistory::create([
                 'post_id' => $post->_id,
                 'title' => $original['title'],
@@ -21,18 +21,15 @@ class PostsObserver
         }
     }
 
-
     public function deleted(Posts $post): void
     {
         PostHistory::where('post_id', $post->_id)->delete();
     }
 
-
     public function restored(Posts $post): void
     {
         PostHistory::withTrashed()->where('post_id', $post->_id)->restore();
     }
-
 
     public function forceDeleted(Posts $post): void
     {

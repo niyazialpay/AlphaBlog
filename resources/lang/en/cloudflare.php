@@ -1,4 +1,5 @@
 <?php
+
 return [
     'missing-input-secret' => 'The secret parameter was not passed.',
     'invalid-input-secret' => 'The secret parameter was invalid or did not exist.',
@@ -8,5 +9,5 @@ return [
     'invalid-parsed-secret' => 'The secret extracted from the parsed site secret key was invalid.',
     'bad-request' => 'The request was rejected because it was malformed.',
     'timeout-or-duplicate' => 'The response parameter has already been validated before.',
-    'internal-error' => 'An internal error happened while validating the response. The request can be retried.'
+    'internal-error' => 'An internal error happened while validating the response. The request can be retried.',
 ];

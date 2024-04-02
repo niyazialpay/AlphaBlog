@@ -3,29 +3,24 @@
 namespace App\Traits;
 
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection as BaseCollection;
-use Illuminate\Database\Eloquent\Collection;
 use Laravel\Scout\Builder;
 use Laravel\Scout\EngineManager;
 use Laravel\Scout\ModelObserver;
 use Laravel\Scout\Scout;
 use Laravel\Scout\SearchableScope;
 
-
 trait Searchable
 {
     /**
      * Additional metadata attributes managed by Scout.
-     *
-     * @var array
      */
     protected array $scoutMetadata = [];
 
     /**
      * Boot the trait.
-     *
-     * @return void
      */
     public static function bootSearchable(): void
     {
@@ -38,8 +33,6 @@ trait Searchable
 
     /**
      * Register the searchable macros.
-     *
-     * @return void
      */
     public function registerSearchableMacros(): void
     {
@@ -129,7 +122,7 @@ trait Searchable
             'model' => new static,
             'query' => $query,
             'callback' => $callback,
-            'softDelete'=> static::usesSoftDelete() && config('scout.soft_delete', false)
+            'softDelete' => static::usesSoftDelete() && config('scout.soft_delete', false),
         ]);
     }
 
@@ -161,7 +154,6 @@ trait Searchable
     /**
      * Modify the collection of models being made searchable.
      *
-     * @param  \Illuminate\Support\Collection  $models
      * @return \Illuminate\Support\Collection
      */
     public function makeSearchableUsing(BaseCollection $models)
@@ -172,7 +164,6 @@ trait Searchable
     /**
      * Modify the query used to retrieve models when making all of the models searchable.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     protected function makeAllSearchableUsing(EloquentBuilder $query)
@@ -235,8 +226,6 @@ trait Searchable
     /**
      * Get the requested models from an array of object IDs.
      *
-     * @param Builder $builder
-     * @param  array  $ids
      * @return mixed
      */
     public function getScoutModelsByIds(Builder $builder, array $ids)
@@ -247,8 +236,6 @@ trait Searchable
     /**
      * Get a query builder for retrieving the requested models from an array of object IDs.
      *
-     * @param Builder $builder
-     * @param  array  $ids
      * @return mixed
      */
     public function queryScoutModelsByIds(Builder $builder, array $ids)

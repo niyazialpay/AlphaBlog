@@ -2,7 +2,6 @@
 
 namespace App\Models\Post;
 
-
 use App\Models\User;
 use App\Traits\Searchable;
 use MongoDB\Laravel\Eloquent\Model;
@@ -14,12 +13,11 @@ use niyazialpay\MediaLibrary\HasMedia;
 use niyazialpay\MediaLibrary\InteractsWithMedia;
 use niyazialpay\MediaLibrary\MediaCollections\Models\Media;
 
-
 class Posts extends Model implements HasMedia
 {
+    use InteractsWithMedia;
     use Searchable;
     use SoftDeletes;
-    use InteractsWithMedia;
 
     /**
      * @var bool|mixed
@@ -68,7 +66,8 @@ class Posts extends Model implements HasMedia
         return $this->hasMany(PostHistory::class, 'post_id', '_id')->orderBy('created_at', 'DESC');
     }
 
-    public function commentCount(){
+    public function commentCount()
+    {
         return $this->hasManyThrough(Comments::class, Posts::class, 'post_id', '_id', '_id', '_id');
     }
 
@@ -90,7 +89,7 @@ class Posts extends Model implements HasMedia
     public function toSearchableArray(): array
     {
         $array = $this->toArray();
-        $array['user'] = $this->user?->name. ' ' . $this->user?->surname;
+        $array['user'] = $this->user?->name.' '.$this->user?->surname;
         $array['username'] = $this->user?->nickname;
         $array['categories'] = $this->categories->pluck('name')->toArray();
         $array['tags'] = $this->tags;

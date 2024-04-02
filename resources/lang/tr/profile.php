@@ -1,4 +1,5 @@
 <?php
+
 return [
     'about-me' => 'Hakkımda',
     'change-password' => 'Şifre Değiştir',

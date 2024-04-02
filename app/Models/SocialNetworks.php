@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 
@@ -25,7 +24,7 @@ class SocialNetworks extends Model
         'reddit',
         'xbox',
         'deviantart',
-        'website'
+        'website',
     ];
 
     public function user(): BelongsTo

@@ -2,7 +2,6 @@
 
 namespace App\Models\Menu;
 
-
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\HasMany;
@@ -19,7 +18,7 @@ class MenuItems extends Model
         'parent_id',
         'language',
         'menu_type',
-        'menu_id'
+        'menu_id',
     ];
 
     protected $casts = [

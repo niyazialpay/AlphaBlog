@@ -1,4 +1,5 @@
 <?php
+
 return [
     'contact_page' => 'Contact Page',
     'title' => 'Contact',
@@ -15,6 +16,6 @@ return [
     'mail' => [
         'subject' => 'Contact Form',
         'success' => 'Your message has been sent successfully',
-        'error' => 'Your message could not be sent'
-    ]
+        'error' => 'Your message could not be sent',
+    ],
 ];

@@ -25,27 +25,27 @@ class PostRequest extends FormRequest
     public function rules(): array
     {
         $predefined_slugs = [];
-        foreach(app('languages') as $language){
+        foreach (app('languages') as $language) {
             foreach (Lang::get('routes', locale: $language->code) as $item) {
                 $predefined_slugs[] = $item;
             }
         }
-        if($this->id){
+        if ($this->id) {
             $slug_unique = Rule::unique('posts', 'slug')
                 ->where('language_code', $this->input('language_code'))
                 ->whereNot('_id', $this->input('id'));
-        }
-        else{
+        } else {
             $slug_unique = Rule::unique('posts', 'slug')
                 ->where('language_code', $this->input('language_code'));
         }
+
         return [
             'title' => ['required', 'string'],
             'slug' => [
                 'nullable',
                 'string',
                 $slug_unique,
-                Rule::notIn($predefined_slugs)
+                Rule::notIn($predefined_slugs),
             ],
             'content' => ['string', 'nullable'],
             'image' => 'nullable|file|image|max:51200|mimes:jpeg,png,jpg,gif,svg,webp',

@@ -1,5 +1,6 @@
 <?php
+
 return [
-    "text" => "Tüm hakları saklıdır.",
-    "software" => "Yazılım",
+    'text' => 'Tüm hakları saklıdır.',
+    'software' => 'Yazılım',
 ];

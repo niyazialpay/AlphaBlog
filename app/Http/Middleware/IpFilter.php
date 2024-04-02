@@ -18,56 +18,49 @@ class IpFilter
     public function handle(
         Request $request,
         Closure $next,
-    ): Response
-    {
-        if(Cache::has(config('cache.prefix').'ip_filter')){
+    ): Response {
+        if (Cache::has(config('cache.prefix').'ip_filter')) {
             $filter = Cache::get(config('cache.prefix').'ip_filter');
-        }
-        else{
-            $filter = Cache::rememberForever(config('cache.prefix').'ip_filter', function(){
-                return  \App\Models\IPFilter::where('is_active', true)->get();
+        } else {
+            $filter = Cache::rememberForever(config('cache.prefix').'ip_filter', function () {
+                return \App\Models\IPFilter::where('is_active', true)->get();
             });
         }
 
         $status = false;
 
-        if($filter->count() == 0){
+        if ($filter->count() == 0) {
             $status = true;
         }
         foreach ($filter as $filter_item) {
-            if (IpUtils::checkIp($request->getClientIp(), $filter_item->ip_range)){
-                if($request->is($filter_item->routes)){
-                    if($filter_item->list_type == 'blacklist'){
+            if (IpUtils::checkIp($request->getClientIp(), $filter_item->ip_range)) {
+                if ($request->is($filter_item->routes)) {
+                    if ($filter_item->list_type == 'blacklist') {
                         $status = false;
-                    }
-                    else{
+                    } else {
                         $status = true;
                         break;
                     }
-                }
-                else{
+                } else {
                     $status = true;
                     break;
                 }
-            }
-            else{
-                if($request->is($filter_item->routes)){
-                    if($filter_item->list_type == 'blacklist'){
+            } else {
+                if ($request->is($filter_item->routes)) {
+                    if ($filter_item->list_type == 'blacklist') {
                         $status = true;
-                    }
-                    else{
+                    } else {
                         $status = false;
                         break;
                     }
-                }
-                else{
+                } else {
                     $status = true;
                     break;
                 }
             }
         }
 
-        if($status){
+        if ($status) {
             return $next($request);
         }
         abort(404);

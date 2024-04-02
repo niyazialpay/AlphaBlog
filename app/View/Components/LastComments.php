@@ -10,6 +10,7 @@ use Illuminate\View\Component;
 class LastComments extends Component
 {
     public $lastComments;
+
     /**
      * Create a new component instance.
      */
@@ -23,11 +24,11 @@ class LastComments extends Component
                 $query->select('nickname', 'email');
             },
             'post.media',
-            'post.media.model'
+            'post.media.model',
         ])->where('is_approved', true)
-        ->whereHas('post', function ($query) {
-            $query->where('is_published', true)->where('language', session('language'));
-        })
+            ->whereHas('post', function ($query) {
+                $query->where('is_published', true)->where('language', session('language'));
+            })
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();

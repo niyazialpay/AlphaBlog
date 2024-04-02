@@ -2,7 +2,6 @@
 
 namespace App\Models\Settings;
 
-
 use MongoDB\Laravel\Eloquent\Model;
 use niyazialpay\MediaLibrary\HasMedia;
 use niyazialpay\MediaLibrary\InteractsWithMedia;
@@ -14,7 +13,7 @@ class GeneralSettings extends Model implements HasMedia
 
     protected $fillable = [
         'contact_email',
-        'sharethis'
+        'sharethis',
     ];
 
     public $timestamps = false;

@@ -12,38 +12,39 @@ class ContactController extends Controller
     public function index($language, $contact)
     {
         return view('themes.'.app('theme')->name.'.contact', [
-            'contact' => ContactPage::where('language', $language)->first()
+            'contact' => ContactPage::where('language', $language)->first(),
         ]);
     }
 
-    private function emailSend($request){
+    private function emailSend($request)
+    {
         $send = Mail::send(new Contact([
             'name' => $request->name,
             'subject' => $request->subject,
             'email' => $request->email,
-            'message' => $request->message
+            'message' => $request->message,
         ]));
-        if($send) {
+        if ($send) {
             return true;
-        }
-        else{
+        } else {
             return false;
         }
     }
-    public function send(Request $request){
-        if($this->emailSend($request)) {
+
+    public function send(Request $request)
+    {
+        if ($this->emailSend($request)) {
             return redirect()->back()->with('success', __('contact.mail.success'));
-        }
-        else{
+        } else {
             return redirect()->back()->with('error', __('contact.mail.error'));
         }
     }
 
-    function send_ajax(Request $request){
-        if($this->emailSend($request)) {
+    public function send_ajax(Request $request)
+    {
+        if ($this->emailSend($request)) {
             return response()->json(['message' => __('contact.mail.success')]);
-        }
-        else{
+        } else {
             return response()->json(['message' => __('contact.mail.error')]);
         }
     }

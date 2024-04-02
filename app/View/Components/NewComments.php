@@ -23,14 +23,13 @@ class NewComments extends Component
             },
             'user' => function ($query) {
                 $query->select('id', 'nickname', 'email');
-            }
+            },
         ])->where('is_approved', false);
-        if(auth()->user()->can('view', $comments_class)){
+        if (auth()->user()->can('view', $comments_class)) {
             $this->newComments = $comments->orderBy('created_at', 'desc')
                 ->limit(5)
                 ->get();
-        }
-        else{
+        } else {
             $this->newComments = $comments->where('user_id', auth()->id())
                 ->orderBy('created_at', 'desc')
                 ->limit(5)
@@ -45,7 +44,7 @@ class NewComments extends Component
     public function render(): View|Closure|string
     {
         return view('panel.components.new-comments', [
-            'new_comments' => $this->newComments
+            'new_comments' => $this->newComments,
         ]);
     }
 }

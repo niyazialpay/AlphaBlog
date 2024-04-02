@@ -27,7 +27,7 @@ class GeneralSettingsRequest extends FormRequest
             'site_favicon' => 'nullable|file|image|max:4096|mimes:jpeg,png,jpg,gif,svg,webp,ico',
             'app_icon' => 'nullable|file|image|max:4096|mimes:jpeg,png,jpg,gif,svg,webp,ico',
             'contact_email' => 'nullable|email',
-            'sharethis' => 'nullable|string|max:255'
+            'sharethis' => 'nullable|string|max:255',
         ];
     }
 }

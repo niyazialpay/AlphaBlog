@@ -10,6 +10,7 @@ use Illuminate\View\Component;
 class MostReadPosts extends Component
 {
     public mixed $posts;
+
     /**
      * Create a new component instance.
      */

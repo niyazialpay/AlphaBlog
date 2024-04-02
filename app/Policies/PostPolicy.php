@@ -17,13 +17,12 @@ class PostPolicy
 
     public function create(User $user): bool
     {
-        if(request()->route()->parameter('type') == 'blogs') {
+        if (request()->route()->parameter('type') == 'blogs') {
             return $user->role === 'owner' ||
                 $user->role === 'admin' ||
                 $user->role === 'editor' ||
                 $user->role === 'author';
-        }
-        else{
+        } else {
             return $user->role === 'owner' ||
                 $user->role === 'admin' ||
                 $user->role === 'editor';

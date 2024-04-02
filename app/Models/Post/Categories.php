@@ -4,7 +4,6 @@ namespace App\Models\Post;
 
 use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
 use MongoDB\Laravel\Relations\BelongsToMany;
@@ -15,8 +14,8 @@ use niyazialpay\MediaLibrary\MediaCollections\Models\Media;
 
 class Categories extends Model implements HasMedia
 {
-    use Searchable;
     use InteractsWithMedia;
+    use Searchable;
 
     protected $collection = 'categories';
 
@@ -32,7 +31,7 @@ class Categories extends Model implements HasMedia
     ];
 
     protected $attributes = [
-        'parent_id' => null
+        'parent_id' => null,
     ];
 
     public function posts(): BelongsToMany
@@ -50,7 +49,6 @@ class Categories extends Model implements HasMedia
         return $this->hasMany(Categories::class, 'parent_id', '_id');
     }
 
-
     public function PostCount(): Attribute
     {
         return Attribute::make(
@@ -58,10 +56,10 @@ class Categories extends Model implements HasMedia
         );
     }
 
-    public function CategoryPosts(){
+    public function CategoryPosts()
+    {
         return $this->hasManyThrough(Posts::class, Categories::class, 'category_id', 'post_id', '_id', '_id');
     }
-
 
     public function categoryMedia()
     {

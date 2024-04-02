@@ -1,20 +1,22 @@
 <?php
+
 namespace App\Action;
 
 use App\Models\SocialNetworks;
 
-class SocialNetworkSaveAction{
-    public static function execute($request, $type, $user_id=null){
-        if($type == 'user') {
+class SocialNetworkSaveAction
+{
+    public static function execute($request, $type, $user_id = null)
+    {
+        if ($type == 'user') {
             $social = SocialNetworks::where('user_id', $user_id)->first();
             if ($social == null) {
                 $social = new SocialNetworks();
             }
             $social->user_id = $user_id;
-        }
-        else{
+        } else {
             $social = SocialNetworks::where('type', 'website')->first();
-            if($social == null){
+            if ($social == null) {
                 $social = new SocialNetworks();
             }
         }
@@ -31,6 +33,7 @@ class SocialNetworkSaveAction{
         $social->website = $request->website;
         $social->x = $request->x;
         $social->type = $type;
+
         return $social->save();
     }
 }

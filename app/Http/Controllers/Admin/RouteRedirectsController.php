@@ -25,20 +25,23 @@ class RouteRedirectsController extends Controller
         return response()->json($route);
     }
 
-    public function delete(Request $request){
+    public function delete(Request $request)
+    {
         $route = RouteRedirects::find($request->post('route_id'));
         Cache::forget(config('cache.prefix').'routes_'.Str::slug($route->old_url));
         $route->delete();
+
         return response()->json(['success' => true]);
     }
 
-    public function save(RouteRedirects $route, RouteRequest $request){
+    public function save(RouteRedirects $route, RouteRequest $request)
+    {
         $route->old_url = $request->post('old_url');
         $route->new_url = $request->post('new_url');
         $route->redirect_code = $request->post('redirect_code');
         $route->save();
         Cache::forget(config('cache.prefix').'routes_'.Str::slug($route->old_url));
+
         return response()->json(['success' => true]);
     }
-
 }

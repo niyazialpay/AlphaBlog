@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Str;
-
 return [
 
     /*
@@ -43,7 +41,7 @@ return [
                 'tls' => env('MONGODB_TLS', false),
                 //'tlsCAFile' => env('MONGODB_TLS_CA_FILE', storage_path('app/ca.cer')),
                 'tlsUseSystemCA' => env('MONGODB_TLS_USE_SYSTEM_CA', true),
-            ]
+            ],
         ],
     ],
 

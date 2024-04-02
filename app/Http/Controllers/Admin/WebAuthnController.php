@@ -6,15 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Corbado\Classes\Exceptions\Assert;
 use Corbado\Classes\Exceptions\Configuration;
-use Corbado\Classes\WebhookModels\AuthMethodsDataResponse;
 use Corbado\Classes\Webhook;
+use Corbado\Classes\WebhookModels\AuthMethodsDataResponse;
 use Corbado\Generated\ApiException;
 use Corbado\Generated\Model\AuthTokenValidateRsp;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use stdClass;
 use Throwable;
 
 class WebAuthnController extends Controller
@@ -36,7 +35,7 @@ class WebAuthnController extends Controller
 
         if (WebAuthnCredentials::where('authenticatable_id', auth()->user()->id)->count() == 0) {
             $auth_user = User::where('id', auth()->user()->id)->first();
-            if (!$auth_user?->two_factor_confirmed && $auth_user?->two_factor_secret == null) {
+            if (! $auth_user?->two_factor_confirmed && $auth_user?->two_factor_secret == null) {
                 $auth_user->otp = false;
                 $auth_user->save();
             }
@@ -54,7 +53,6 @@ class WebAuthnController extends Controller
         return response()->json(['status' => true]);
     }
 
-
     public function webhook()
     {
         try {
@@ -70,7 +68,7 @@ class WebAuthnController extends Controller
 
             // Check if request has been made with POST. For Corbado webhooks
             // only POST is allowed/used.
-            if (!$webhook->isPost()) {
+            if (! $webhook->isPost()) {
                 throw new Exception('Only POST is allowed');
             }
 
@@ -90,8 +88,8 @@ class WebAuthnController extends Controller
 
                     break;
 
-                // Handle the "passwordVerify" action which basically checks
-                // if the given username and password are valid.
+                    // Handle the "passwordVerify" action which basically checks
+                    // if the given username and password are valid.
                 case $webhook::ACTION_PASSWORD_VERIFY:
                     $request = $webhook->getPasswordVerifyRequest();
 
@@ -106,7 +104,7 @@ class WebAuthnController extends Controller
                     break;
 
                 default:
-                    throw new Exception('Invalid action "' . $webhook->getAction() . '"');
+                    throw new Exception('Invalid action "'.$webhook->getAction().'"');
             }
         } catch (Throwable $e) {
             // If something went wrong just return HTTP status
@@ -130,6 +128,7 @@ class WebAuthnController extends Controller
         if (Auth::validate(['email' => $username, 'password' => $password])) {
             return true;
         }
+
         return false;
     }
 
@@ -152,7 +151,8 @@ class WebAuthnController extends Controller
      * @throws Assert
      * @throws Exception
      */
-    public function redirect(Request $request){
+    public function redirect(Request $request)
+    {
         $corbadoAuthToken = $request->get('corbadoAuthToken');
         $remoteAddress = $request->getClientIp();
         $userAgent = $request->header('User-Agent');
@@ -168,18 +168,16 @@ class WebAuthnController extends Controller
             /** @var AuthTokenValidateRsp $response */
             $response = $corbado->authTokens()->authTokenValidate($corbado_request);
 
-
-            if($response->getHttpStatusCode()==200){
+            if ($response->getHttpStatusCode() == 200) {
                 $user = User::where('email', json_decode($response->getData()->getUserData())->username)->first();
-                if($user){
+                if ($user) {
                     Auth::login($user, true);
+
                     return redirect()->route('admin.index');
-                }
-                else{
+                } else {
                     return redirect()->route('admin.login');
                 }
-            }
-            else{
+            } else {
                 return redirect()->route('login');
             }
 
@@ -191,5 +189,4 @@ class WebAuthnController extends Controller
             throw new Exception($e);
         }
     }
-
 }

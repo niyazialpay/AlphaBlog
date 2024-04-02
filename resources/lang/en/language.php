@@ -1,4 +1,5 @@
 <?php
+
 return [
     'language' => 'Language',
     'icon' => 'Icon',

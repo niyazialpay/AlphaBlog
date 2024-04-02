@@ -25,7 +25,7 @@ class PersonalNotesRequest extends FormRequest
         return [
             'title' => 'nullable|string|max:255',
             'content' => 'nullable|string',
-            'category_id' => 'required|string|exists:personal_note_categories,_id'
+            'category_id' => 'required|string|exists:personal_note_categories,_id',
         ];
     }
 

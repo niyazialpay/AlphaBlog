@@ -1,4 +1,5 @@
 <?php
+
 return [
     'title_required' => 'Title is required',
     'content_required' => 'Content is required',

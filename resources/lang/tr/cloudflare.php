@@ -1,4 +1,5 @@
 <?php
+
 return [
     'missing-input-secret' => 'Gizli parametre geçilmemiş.',
     'invalid-input-secret' => 'Gizli parametre geçersiz veya mevcut değil.',
@@ -8,5 +9,5 @@ return [
     'invalid-parsed-secret' => 'Ayrıştırılmış site gizli anahtarından alınan gizli bilgi geçersiz.',
     'bad-request' => 'İstek hatalı olduğu için reddedildi.',
     'timeout-or-duplicate' => 'Yanıt parametresi daha önce doğrulandı.',
-    'internal-error' => 'Yanıt doğrulanırken iç bir hata oluştu. İstek tekrar denenebilir.'
+    'internal-error' => 'Yanıt doğrulanırken iç bir hata oluştu. İstek tekrar denenebilir.',
 ];

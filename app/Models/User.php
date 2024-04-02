@@ -36,7 +36,7 @@ class User extends Authenticatable
         'education',
         'job_title',
         'skills',
-        'role'
+        'role',
     ];
 
     /**
@@ -47,12 +47,12 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
-        'username'
+        'username',
     ];
 
     protected $attributes = [
         'otp' => false,
-        'role' => 'user'
+        'role' => 'user',
     ];
 
     /**
