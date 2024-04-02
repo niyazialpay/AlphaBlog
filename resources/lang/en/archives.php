@@ -1,4 +1,5 @@
 <?php
+
 return [
-    'page_title' => 'Archives'
+    'page_title' => 'Archives',
 ];

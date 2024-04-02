@@ -1,4 +1,5 @@
 <?php
+
 return [
     'name' => 'Kategori Adı',
     'sort' => 'Sıralama',
@@ -37,5 +38,5 @@ return [
         'slug_unique' => 'Kategori URL benzersiz olmalıdır.',
         'meta_description_string' => 'Meta açıklaması metin tipinde olmalıdır.',
         'meta_keywords_string' => 'Meta anahtar kelimeleri metin tipinde olmalıdır.',
-    ]
+    ],
 ];

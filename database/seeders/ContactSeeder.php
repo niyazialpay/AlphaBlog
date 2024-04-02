@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\ContactPage;
 use App\Models\Languages;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class ContactSeeder extends Seeder
@@ -14,7 +13,7 @@ class ContactSeeder extends Seeder
      */
     public function run(): void
     {
-        foreach(Languages::all() as $language){
+        foreach (Languages::all() as $language) {
             ContactPage::create([
                 'language' => $language->code,
                 'title' => 'Contact '.$language->code,

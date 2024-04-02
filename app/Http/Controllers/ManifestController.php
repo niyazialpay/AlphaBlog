@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 class ManifestController extends Controller
 {
     public function manifest($start_url = '/')
@@ -13,22 +11,17 @@ class ManifestController extends Controller
 
         $site_logo_extension = pathinfo($general_settings->getFirstMediaUrl('app_icon'), PATHINFO_EXTENSION);
 
-        if($site_logo_extension == 'svg'){
+        if ($site_logo_extension == 'svg') {
             $imageType = 'image/svg+xml';
-        }
-        elseif($site_logo_extension == 'ico'){
+        } elseif ($site_logo_extension == 'ico') {
             $imageType = 'image/x-icon';
-        }
-        elseif($site_logo_extension == 'png'){
+        } elseif ($site_logo_extension == 'png') {
             $imageType = 'image/png';
-        }
-        elseif($site_logo_extension == 'jpg' || $site_logo_extension == 'jpeg'){
+        } elseif ($site_logo_extension == 'jpg' || $site_logo_extension == 'jpeg') {
             $imageType = 'image/jpeg';
-        }
-        elseif($site_logo_extension == 'webp'){
+        } elseif ($site_logo_extension == 'webp') {
             $imageType = 'image/webp';
-        }
-        else{
+        } else {
             $imageType = 'image/webp';
         }
 
@@ -40,7 +33,7 @@ class ManifestController extends Controller
             'display' => 'standalone',
             'display_override' => [
                 'fullscreen',
-                'minimal-ui'
+                'minimal-ui',
             ],
             'scope' => '/',
             'theme_color' => '#182330',
@@ -57,56 +50,57 @@ class ManifestController extends Controller
                     'icons' => [
                         [
                             'src' => $general_settings->getFirstMediaUrl('app_icon', 'r_32x32'),
-                            'sizes' => '32x32'
+                            'sizes' => '32x32',
                         ],
                         [
                             'src' => $general_settings->getFirstMediaUrl('app_icon', 'r_72x72'),
-                            'sizes' => '72x72'
+                            'sizes' => '72x72',
                         ],
                         [
                             'src' => $general_settings->getFirstMediaUrl('app_icon', 'r_96x96'),
-                            'sizes' => '96x96'
+                            'sizes' => '96x96',
                         ],
                         [
                             'src' => $general_settings->getFirstMediaUrl('app_icon', 'r_192x192'),
-                            'sizes' => '192x192'
-                        ]
-                    ]
-                ]
+                            'sizes' => '192x192',
+                        ],
+                    ],
+                ],
             ],
             'icons' => [
                 [
                     'src' => $general_settings->getFirstMediaUrl('app_icon', 'r_32x32'),
                     'sizes' => '32x32',
                     'type' => $imageType,
-                    'density' => '0.75'
+                    'density' => '0.75',
                 ],
                 [
                     'src' => $general_settings->getFirstMediaUrl('app_icon', 'r_72x72'),
                     'sizes' => '72x72',
                     'type' => $imageType,
-                    'density' => '1.5'
+                    'density' => '1.5',
                 ],
                 [
                     'src' => $general_settings->getFirstMediaUrl('app_icon', 'r_96x96'),
                     'sizes' => '96x96',
                     'type' => $imageType,
-                    'density' => '2.0'
+                    'density' => '2.0',
                 ],
                 [
                     'src' => $general_settings->getFirstMediaUrl('app_icon', 'r_192x192'),
                     'sizes' => '192x192',
                     'type' => $imageType,
-                    'density' => '4.0'
-                ]
-            ]
+                    'density' => '4.0',
+                ],
+            ],
         ];
 
-        return response()->json($manifest_body, options:JSON_PRETTY_PRINT)
+        return response()->json($manifest_body, options: JSON_PRETTY_PRINT)
             ->header('Content-Type', 'application/json');
     }
 
-    public function manifestPanel(){
+    public function manifestPanel()
+    {
         return $this->manifest('/'.config('settings.admin_panel_path').'/');
     }
 }

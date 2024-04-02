@@ -1,4 +1,5 @@
 <?php
+
 return [
     'settings' => 'Ayarlar',
     'general_settings' => 'Genel Ayarlar',

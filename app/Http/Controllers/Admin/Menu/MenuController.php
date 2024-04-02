@@ -24,6 +24,7 @@ class MenuController extends Controller
         $menu->save();
         Cache::forget(config('cache.prefix').'header_menu_'.$menu->language);
         Cache::forget(config('cache.prefix').'footer_menu_'.$menu->language);
+
         return response()->json([
             'message' => __('menu.menu_saved'),
             'status' => 'success',
@@ -37,6 +38,7 @@ class MenuController extends Controller
         Cache::forget(config('cache.prefix').'footer_menu_'.$menu->language);
         $menu->menuItems()->delete();
         $menu->delete();
+
         return response()->json([
             'message' => __('menu.menu_deleted'),
             'status' => 'success',

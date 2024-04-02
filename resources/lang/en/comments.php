@@ -1,4 +1,5 @@
 <?php
+
 return [
     'request' => [
         'comment_required' => 'Comment field cannot be empty!',

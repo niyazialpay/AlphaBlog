@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin\Settings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\GeneralSettingsRequest;
 use App\Models\Settings\GeneralSettings;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use niyazialpay\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
 use niyazialpay\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
@@ -17,7 +16,8 @@ class GeneralSettingsController extends Controller
      * @throws FileDoesNotExist
      * @throws FileIsTooBig
      */
-    public function save(GeneralSettingsRequest $request){
+    public function save(GeneralSettingsRequest $request)
+    {
         $settings = GeneralSettings::first();
         $settings->contact_email = $request->contact_email;
         $settings->sharethis = $request->sharethis;
@@ -47,29 +47,36 @@ class GeneralSettingsController extends Controller
     /**
      * @throws MediaCannotBeDeleted
      */
-    public function deleteLogo($type){
+    public function deleteLogo($type)
+    {
         $settings = GeneralSettings::first();
         $settings->deleteMedia($settings->getFirstMedia('site_logo_'.$type));
         Cache::forget(config('cache.prefix').'general_settings');
+
         return response()->json(['success' => __('settings.logo_deleted_successfully')]);
     }
 
     /**
      * @throws MediaCannotBeDeleted
      */
-    public function deleteFavicon(){
+    public function deleteFavicon()
+    {
         $settings = GeneralSettings::first();
         $settings->deleteMedia($settings->getFirstMedia('site_favicon'));
         Cache::forget(config('cache.prefix').'general_settings');
+
         return response()->json(['success' => __('settings.favicon_deleted_successfully')]);
     }
+
     /**
      * @throws MediaCannotBeDeleted
      */
-    public function deleteAppIcon(){
+    public function deleteAppIcon()
+    {
         $settings = GeneralSettings::first();
         $settings->deleteMedia($settings->getFirstMedia('app_icon'));
         Cache::forget(config('cache.prefix').'general_settings');
+
         return response()->json(['success' => __('settings.favicon_deleted_successfully')]);
     }
 }

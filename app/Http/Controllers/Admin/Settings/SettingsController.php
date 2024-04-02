@@ -23,7 +23,7 @@ class SettingsController extends Controller
                 file_get_contents(public_path('robots.txt')) : null,
             'themes' => Themes::all(),
             'social_settings' => app('social_settings'),
-            'onesignal' => Onesignal::first()
+            'onesignal' => Onesignal::first(),
         ]);
     }
 }

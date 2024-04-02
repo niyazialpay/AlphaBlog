@@ -2,7 +2,6 @@
 
 namespace App\Action;
 
-
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 
@@ -18,19 +17,21 @@ class UserAction
         $user->education = $request->education;
         $user->job_title = $request->job_title;
         $user->skills = $request->skills;
-        if($request->has('role')){
+        if ($request->has('role')) {
             $user->role = $request->role;
         }
         $user->save();
+
         return response()->json([
             'status' => 'success',
-            'message' => __('profile.save_success')
+            'message' => __('profile.save_success'),
         ], 200);
     }
 
     public static function changePassword($request, $user): bool
     {
         $user->password = Hash::make($request->password);
+
         return $user->save();
     }
 }

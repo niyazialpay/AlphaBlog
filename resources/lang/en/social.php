@@ -1,4 +1,5 @@
 <?php
+
 return [
     'social_networks' => 'Social Networks',
     'linkedin_username' => 'Linkedin Username',

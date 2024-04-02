@@ -1,4 +1,5 @@
 <?php
+
 return [
     'old_url_required' => 'Eski URL alanı zorunludur.',
     'old_url_string' => 'Eski URL bir metin olmalıdır.',

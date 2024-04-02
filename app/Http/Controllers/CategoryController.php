@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Post\Categories;
 use Exception;
 
 class CategoryController extends Controller
 {
-    public function show($language, $categories, $showCategory){
-        try{
+    public function show($language, $categories, $showCategory)
+    {
+        try {
             return response()->view('themes.'.app('theme')->name.'.categories', [
-                'category' => $showCategory
+                'category' => $showCategory,
             ]);
-        }
-        catch (Exception $e){
+        } catch (Exception $e) {
             return response()->view('Default.categories', [
-                'category' => $showCategory
+                'category' => $showCategory,
             ]);
         }
     }

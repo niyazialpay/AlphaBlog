@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class CommentRequest extends FormRequest
 {
@@ -16,7 +15,6 @@ class CommentRequest extends FormRequest
         return true;
     }
 
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -27,7 +25,7 @@ class CommentRequest extends FormRequest
         return [
             'comment' => ['required', 'string'],
             'post_id' => ['required', 'string', 'exists:posts,_id'],
-            'name'  => ['required', 'string'],
+            'name' => ['required', 'string'],
             'email' => ['required', 'string', 'email'],
         ];
     }

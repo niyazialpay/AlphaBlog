@@ -1,5 +1,6 @@
 <?php
+
 return [
     'categories',
-    'kategoriler'
+    'kategoriler',
 ];

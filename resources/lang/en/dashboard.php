@@ -1,4 +1,5 @@
 <?php
+
 return [
     'dashboard' => 'Dashboard',
     'top_pages' => 'Top Pages',
@@ -16,6 +17,6 @@ return [
     'user_type' => [
         'new' => 'New Visitors',
         'returning' => 'Returning Visitors',
-        'others' => 'Others'
-    ]
+        'others' => 'Others',
+    ],
 ];

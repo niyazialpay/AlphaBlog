@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [\App\Http\Controllers\Admin\Settings\SettingsController::class, 'index'])
@@ -64,7 +65,7 @@ Route::post('/themes/delete', [App\Http\Controllers\Admin\Settings\ThemesSetting
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.themes.delete');
 
-Route::post('/theme/upload' , [App\Http\Controllers\Admin\Settings\ThemesSettingsController::class, 'upload'])
+Route::post('/theme/upload', [App\Http\Controllers\Admin\Settings\ThemesSettingsController::class, 'upload'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.themes.upload');
 

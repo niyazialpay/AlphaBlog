@@ -44,7 +44,6 @@ Route::post('/{post}/restore', [App\Http\Controllers\Admin\Post\PostController::
     ->can('edit', 'post')
     ->withTrashed();
 
-
 Route::post('/image/delete/{post?}', [App\Http\Controllers\Admin\Post\PostController::class, 'imageDelete'])
     ->can('delete', 'post')
     ->name('admin.post.image.delete');

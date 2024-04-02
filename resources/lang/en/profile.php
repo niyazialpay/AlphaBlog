@@ -1,4 +1,5 @@
 <?php
+
 return [
     'about-me' => 'About me',
     'change-password' => 'Change password',

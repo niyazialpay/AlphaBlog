@@ -23,15 +23,15 @@ class CategoryRequest extends FormRequest
      */
     public function rules(): array
     {
-        if($this->input('id')){
-             $slug_unique = Rule::unique('categories', 'slug')
-                 ->where('language', $this->input('language'))
-                 ->whereNot('_id', $this->input('id'));
-        }
-        else{
+        if ($this->input('id')) {
+            $slug_unique = Rule::unique('categories', 'slug')
+                ->where('language', $this->input('language'))
+                ->whereNot('_id', $this->input('id'));
+        } else {
             $slug_unique = Rule::unique('categories', 'slug')
                 ->where('language', $this->input('language'));
         }
+
         return [
             'name' => ['required', 'string'],
             'slug' => [
@@ -47,7 +47,6 @@ class CategoryRequest extends FormRequest
     /**
      * Get the error messages for the defined validation rules.
      */
-
     public function messages(): array
     {
         return [

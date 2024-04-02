@@ -2,7 +2,6 @@
 
 namespace App\Models\PersonalNotes;
 
-
 use App\Models\User;
 use MongoDB\Laravel\Eloquent\Model;
 use MongoDB\Laravel\Relations\BelongsTo;
@@ -14,15 +13,15 @@ class PersonalNoteCategories extends Model
 
     protected $fillable = [
         'name',
-        'user_id'
+        'user_id',
     ];
 
     public $timestamps = false;
 
-protected function casts(): array
+    protected function casts(): array
     {
         return [
-            'name' => 'encrypted'
+            'name' => 'encrypted',
         ];
     }
 

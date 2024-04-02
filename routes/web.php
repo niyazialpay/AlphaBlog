@@ -19,8 +19,8 @@ use Illuminate\Support\Facades\Route;
 Route::group([
     'middleware' => [
         \App\Http\Middleware\NewCommentsCount::class,
-        \App\Http\Middleware\AdminOneSignal::class
-    ]
+        \App\Http\Middleware\AdminOneSignal::class,
+    ],
 ], function () {
     Route::any('/'.config('settings.admin_panel_path').'/manifest.json',
         [\App\Http\Controllers\ManifestController::class, 'manifestPanel'])
@@ -78,7 +78,7 @@ Route::group([
 Route::any('/corbado/webhook', [\App\Http\Controllers\Admin\WebAuthnController::class, 'webhook'])
     ->name('corbado.webhook');
 
-Route::any('/corbado/redirect',  [\App\Http\Controllers\Admin\WebAuthnController::class, 'redirect']);
+Route::any('/corbado/redirect', [\App\Http\Controllers\Admin\WebAuthnController::class, 'redirect']);
 
 Route::get('/login',
     [\App\Http\Controllers\Admin\UserController::class, 'login'])
@@ -86,10 +86,10 @@ Route::get('/login',
 
 Route::post('/login',
     [\App\Http\Controllers\Auth\LoginController::class, 'login'])->middleware([
-    \Spatie\Honeypot\ProtectAgainstSpam::class,
-    //'throttle:login',
-    \App\Http\Middleware\CloudflareTurnstile::class
-]);
+        \Spatie\Honeypot\ProtectAgainstSpam::class,
+        //'throttle:login',
+        \App\Http\Middleware\CloudflareTurnstile::class,
+    ]);
 
 Route::get('/forgot-password',
     [\App\Http\Controllers\Auth\LoginController::class, 'forgotPassword'])
@@ -100,7 +100,7 @@ Route::post('/forgot-password',
     ->middleware([
         'guest',
         'honeypot',
-        'cloudflare_turnstile'
+        'cloudflare_turnstile',
     ]);
 
 Route::get('/reset-password/{token}',
@@ -112,7 +112,7 @@ Route::post('/reset-password',
     ->middleware([
         'guest',
         'honeypot',
-        'cloudflare_turnstile'
+        'cloudflare_turnstile',
     ])->name('password.update');
 
 Route::get('/image/{path}/{width}/{height}/{type}/{image}',
@@ -123,7 +123,7 @@ Route::get('/image/{path}/{width}/{height}/{type}/{image}',
         'image' => '[a-zA-Z0-9\/\.\-_]+',
         'width' => '[0-9]+',
         'height' => '[0-9]+',
-        'type' => '[a-zA-Z0-9\/]+'
+        'type' => '[a-zA-Z0-9\/]+',
     ]);
 
 Route::get('/sitemap.xml', [\App\Http\Controllers\SiteMap\SitemapController::class, 'index']);
@@ -131,17 +131,16 @@ Route::get('/sitemap.xml', [\App\Http\Controllers\SiteMap\SitemapController::cla
 Route::get('/sitemap', [\App\Http\Controllers\SiteMap\SitemapController::class, 'index'])
     ->name('sitemap');
 
-
 Route::any('/manifest.json', [\App\Http\Controllers\ManifestController::class, 'manifest'])
     ->name('manifest');
 
 $languages = Languages::all();
 
-Route::group(['prefix' => '/{language}'], function () use($languages) {
+Route::group(['prefix' => '/{language}'], function () use ($languages) {
     App::setLocale(session('language'));
 
     foreach ($languages as $language) {
-        foreach(Lang::get('routes', locale:$language->code) as $k => $v) {
+        foreach (Lang::get('routes', locale: $language->code) as $k => $v) {
             Route::pattern($k, $v);
         }
     }
@@ -161,7 +160,7 @@ Route::group(['prefix' => '/{language}'], function () use($languages) {
     Route::post('/comment-save', [\App\Http\Controllers\CommentController::class, 'store'])
         ->middleware([
             \App\Http\Middleware\CloudflareTurnstile::class,
-            \Spatie\Honeypot\ProtectAgainstSpam::class
+            \Spatie\Honeypot\ProtectAgainstSpam::class,
         ])
         ->name('comment.save');
 
@@ -203,5 +202,3 @@ Route::group(['prefix' => '/{language}'], function () use($languages) {
 })->whereIn('language', $languages->pluck('code')->toArray());
 
 Route::get('/{language?}', [\App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
-

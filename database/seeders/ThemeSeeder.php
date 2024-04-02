@@ -14,7 +14,7 @@ class ThemeSeeder extends Seeder
     {
         Themes::create([
             'name' => 'Default',
-            'is_default' => true
+            'is_default' => true,
         ]);
     }
 }

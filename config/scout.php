@@ -134,7 +134,7 @@ return [
         'key' => env('MEILISEARCH_KEY'),
         'index-settings' => [
             'posts' => [
-                'filterableAttributes'=> [
+                'filterableAttributes' => [
                     'user_id',
                     'category_id',
                     'post_type',
@@ -143,9 +143,9 @@ return [
                     'deleted_at',
                     'is_published',
                     'language',
-                    'post_type'
+                    'post_type',
                 ],
-                'searchableAttributes'=> [
+                'searchableAttributes' => [
                     'title',
                     'content',
                     'username',
@@ -153,42 +153,42 @@ return [
                     'categories',
                     'tags',
                     'meta_description',
-                    'meta_keywords'
+                    'meta_keywords',
                 ],
-                'sortableAttributes'=> [
+                'sortableAttributes' => [
                     'created_at',
                     'updated_at',
                     'user_id',
-                    'categories'
+                    'categories',
                 ],
             ],
             'categories' => [
-                'filterableAttributes'=> [
+                'filterableAttributes' => [
                     'parent_id',
-                    'language'
+                    'language',
                 ],
-                'searchableAttributes'=> [
+                'searchableAttributes' => [
                     'name',
                     'description',
                     'meta_description',
-                    'meta_keywords'
+                    'meta_keywords',
                 ],
             ],
             'personal_notes' => [
-                'filterableAttributes'=> [
+                'filterableAttributes' => [
                     'user_id',
                     'category_id',
                 ],
-                'searchableAttributes'=> [
+                'searchableAttributes' => [
                     'title',
                     'content',
-                    'category_id'
+                    'category_id',
                 ],
-                'sortableAttributes'=> [
+                'sortableAttributes' => [
                     'created_at',
                     'updated_at',
                     'user_id',
-                    'category_id'
+                    'category_id',
                 ],
             ],
         ],

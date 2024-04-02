@@ -24,9 +24,9 @@ class LanguagesController extends Controller
 
     public function save(LanguageRequest $request, Languages $language)
     {
-        try{
+        try {
             $seo_settings = new SeoSettings();
-            if (!$language->id) {
+            if (! $language->id) {
                 $language = new Languages();
                 $default_lang = $language::where('is_default', true)->first();
                 $seo_setting = $seo_settings::where('language', $default_lang->code)->first();
@@ -63,14 +63,13 @@ class LanguagesController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => __('language.save_success')
+                'message' => __('language.save_success'),
             ]);
-        }
-        catch (Exception $e){
+        } catch (Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => __('language.save_error'),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
 
@@ -98,7 +97,7 @@ class LanguagesController extends Controller
             if (isset($error_message)) {
                 return response()->json([
                     'status' => false,
-                    'message' => $error_message
+                    'message' => $error_message,
                 ]);
             }
 
@@ -106,16 +105,16 @@ class LanguagesController extends Controller
             $language->delete();
             Cache::forget(config('cache.prefix').'default_language');
             Cache::forget(config('cache.prefix').'languages');
+
             return response()->json([
                 'status' => true,
-                'message' => __('language.delete_success')
+                'message' => __('language.delete_success'),
             ]);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => __('language.delete_error'),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }

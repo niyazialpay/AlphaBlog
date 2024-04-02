@@ -1,4 +1,5 @@
 <?php
+
 return [
     'contact_page' => 'İletişim Sayfası',
     'title' => 'İletişim',
@@ -15,6 +16,6 @@ return [
     'mail' => [
         'subject' => 'İletişim Formu',
         'success' => 'Mesajınız başarıyla gönderildi',
-        'error' => 'Mesajınız gönderilemedi'
-    ]
+        'error' => 'Mesajınız gönderilemedi',
+    ],
 ];

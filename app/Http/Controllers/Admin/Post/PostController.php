@@ -13,46 +13,42 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
 use niyazialpay\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
 use niyazialpay\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
 use niyazialpay\MediaLibrary\MediaCollections\Exceptions\MediaCannotBeDeleted;
 
-
 class PostController extends Controller
 {
     public function index(
-                $type,
+        $type,
         Request $request,
-        Posts   $post,
-                $category = null
-    ): View|Application|Factory|\Illuminate\Contracts\Foundation\Application
-    {
-        if($type == 'pages'){
+        Posts $post,
+        $category = null
+    ): View|Application|Factory|\Illuminate\Contracts\Foundation\Application {
+        if ($type == 'pages') {
             $type = 'pages';
             $post_type = 'page';
-        }
-        elseif($type == 'blogs'){
+        } elseif ($type == 'blogs') {
             $type = 'blogs';
             $post_type = 'post';
-        }
-        else{
+        } else {
             abort(404);
         }
         $with = ['user', 'categories', 'comments'];
         if ($category && $post_type == 'post') {
-            $posts = $post::search(GetPost($request->search))->query(function ($query) use($with) {
+            $posts = $post::search(GetPost($request->search))->query(function ($query) use ($with) {
                 $query->with($with);
             })->where('category_id', $category)->where('post_type', $post_type);
         } else {
-            $posts = $post::search(GetPost($request->search))->query(function ($query) use($with) {
+            $posts = $post::search(GetPost($request->search))->query(function ($query) use ($with) {
                 $query->with($with);
             })->where('post_type', $post_type);
         }
-        if(!(auth()->user()->role == 'owner' || auth()->user()->role == 'admin' || auth()->user()->role == 'editor')){
+        if (! (auth()->user()->role == 'owner' || auth()->user()->role == 'admin' || auth()->user()->role == 'editor')) {
             $posts = $posts->where('user_id', auth()->user()->id);
         }
+
         return view('panel.post.index', [
             'posts' => $posts->where('language', GetPost($request->get('language')))
                 ->orderBy('created_at', 'desc')
@@ -65,31 +61,30 @@ class PostController extends Controller
     }
 
     public function create(
-                $type,
-        Posts   $post,
+        $type,
+        Posts $post,
 
-    ): View|Application|Factory|\Illuminate\Contracts\Foundation\Application
-    {
-        if(!($type == 'pages' || $type == 'blogs')){
+    ): View|Application|Factory|\Illuminate\Contracts\Foundation\Application {
+        if (! ($type == 'pages' || $type == 'blogs')) {
             abort(404);
         }
-        if($post->id){
+        if ($post->id) {
             $post->load([
                 'categories',
                 'user',
                 'comments',
                 'comments.user',
-                'history'
+                'history',
             ]);
         }
+
         return view('panel.post.add-edit', [
             'post' => $post,
             'categories' => Categories::all(),
             'users' => User::all(),
-            'type' => $type
+            'type' => $type,
         ]);
     }
-
 
     /**
      * @throws FileDoesNotExist
@@ -98,9 +93,8 @@ class PostController extends Controller
     public function save(
         $type,
         PostRequest $request,
-        Posts       $post
-    ): JsonResponse
-    {
+        Posts $post
+    ): JsonResponse {
         if ($post->id) {
             $message = __('post.success_update');
         } else {
@@ -126,17 +120,18 @@ class PostController extends Controller
         $post->created_at = dateformat($request->post('published_at'), 'Y-m-d H:i:s', config('app.timezone'));
 
         $hreflang = [];
-        foreach($request->hreflang_url as $key => $value){
-            if($value != null) {
+        foreach ($request->hreflang_url as $key => $value) {
+            if ($value != null) {
                 $hreflang[$key] = GetPost($value);
             }
         }
         $post->href_lang = $hreflang;
 
         if ($post->save()) {
-            if($request->post('post_type') == 'post') {
+            if ($request->post('post_type') == 'post') {
                 $post->categories()->sync($request->post('category_id'));
             }
+
             return response()->json(['status' => 'success', 'message' => $message, 'id' => $post->id]);
         } else {
             return response()->json(['status' => 'error', 'message' => __('post.error')]);
@@ -146,7 +141,7 @@ class PostController extends Controller
 
     public function delete($type, Posts $post)
     {
-        if(!($type == 'pages' || $type == 'blogs')){
+        if (! ($type == 'pages' || $type == 'blogs')) {
             abort(404);
         }
         Comments::where('post_id', $post->id)->delete();
@@ -159,11 +154,11 @@ class PostController extends Controller
 
     public function forceDelete($type, Posts $post)
     {
-        if(!($type == 'pages' || $type == 'blogs')){
+        if (! ($type == 'pages' || $type == 'blogs')) {
             abort(404);
         }
         $post->categories()->detach();
-        foreach ($post->getMedia("*") as $media) {
+        foreach ($post->getMedia('*') as $media) {
             $media->delete();
         }
         Comments::where('post_id', $post->id)->forceDelete();
@@ -176,11 +171,12 @@ class PostController extends Controller
 
     public function restore($type, Posts $post)
     {
-        if(!($type == 'pages' || $type == 'blogs')){
+        if (! ($type == 'pages' || $type == 'blogs')) {
             abort(404);
         }
         if ($post->restore()) {
             Comments::onlyTrashed()->where('post_id', $post->id)->restore();
+
             return response()->json(['status' => 'success', 'message' => __('post.post.success_restore')]);
         } else {
             return response()->json(['status' => 'error', 'message' => __('post.post.error_restore')]);
@@ -193,6 +189,7 @@ class PostController extends Controller
     public function imageDelete($type, Posts $post)
     {
         $post->deleteMedia($post->getFirstMedia('posts'));
+
         return response()->json(['status' => true, 'message' => __('post.success_image_delete')]);
     }
 
@@ -210,8 +207,8 @@ class PostController extends Controller
      */
     public function editorImageUpload($type, Posts $post, Request $request)
     {
-        if(!$post->id){
-            $post->title = GetPost($request->post('title'))." (draft)";
+        if (! $post->id) {
+            $post->title = GetPost($request->post('title')).' (draft)';
             if ($request->slug == null) {
                 $slug = Str::slug($request->post('title'));
             } else {
@@ -220,15 +217,16 @@ class PostController extends Controller
             $post->slug = $slug;
             $post->content = content($request->post('content'));
             $post->post_type = GetPost($request->post('post_type'));
-            $post->language=$request->post('language');
-            $post->user_id=auth()->user()->id;
+            $post->language = $request->post('language');
+            $post->user_id = auth()->user()->id;
             $post->meta_keywords = explode(',', $request->post('meta_keywords'));
             $post->save();
         }
 
-        if($request->hasFile('file') && $request->file('file')->isValid()){
+        if ($request->hasFile('file') && $request->file('file')->isValid()) {
             $post->addMediaFromRequest('file')->toMediaCollection('content_images');
         }
+
         return response()->json([
             'success' => true,
             'blog_id' => $post->id,
@@ -242,6 +240,7 @@ class PostController extends Controller
     public function postImageDelete($type, Posts $post, Request $request)
     {
         $post->deleteMedia($request->post('media_id'));
+
         return response()->json([
             'success' => true,
         ]);

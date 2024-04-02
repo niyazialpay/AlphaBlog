@@ -1,4 +1,5 @@
 <?php
+
 return [
     'title_required' => 'Başlık alanı gereklidir',
     'content_required' => 'İçerik alanı gereklidir',

@@ -1,5 +1,7 @@
 <?php
-function social_list(){
+
+function social_list()
+{
     return [
         'facebook' => 'Facebook',
         'x' => 'X',

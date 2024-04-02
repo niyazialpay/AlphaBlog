@@ -37,6 +37,7 @@ class CreateUser extends Command
 
         if ($password != $password_confirmation) {
             $this->error('Passwords do not match');
+
             return;
         }
 
@@ -48,10 +49,9 @@ class CreateUser extends Command
         $user->email = $email;
         $user->password = Hash::make($password);
 
-        if($user::count() == 0){
+        if ($user::count() == 0) {
             $user->role = 'owner';
-        }
-        else{
+        } else {
             $user->role = 'admin';
         }
         $user->save();

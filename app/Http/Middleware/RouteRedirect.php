@@ -12,19 +12,19 @@ class RouteRedirect
     /**
      * Handle an incoming request.
      *
-     * @param Closure(Request): (Response) $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
         $route = RouteRedirectAction::RouteRedirect($request);
         if ($route) {
-            if($route->redirect_code == 404) {
+            if ($route->redirect_code == 404) {
                 abort(404);
-            }
-            else{
-                return redirect($route->new_url, (int)$route->redirect_code);
+            } else {
+                return redirect($route->new_url, (int) $route->redirect_code);
             }
         }
+
         return $next($request);
     }
 }

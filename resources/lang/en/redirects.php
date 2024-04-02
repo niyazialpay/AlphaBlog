@@ -1,4 +1,5 @@
 <?php
+
 return [
     'old_url_required' => 'The old url field is required.',
     'old_url_string' => 'The old url must be a string.',

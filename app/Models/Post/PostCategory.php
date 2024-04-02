@@ -7,17 +7,16 @@ use MongoDB\Laravel\Relations\BelongsTo;
 
 class PostCategory extends Model
 {
-
     protected $collection = 'post_categories';
 
     protected $fillable = [
         'post_id',
         'category_id',
-        'is_primary'
+        'is_primary',
     ];
 
     protected $attributes = [
-        'is_primary' => false
+        'is_primary' => false,
     ];
 
     public function post(): BelongsTo
@@ -29,5 +28,4 @@ class PostCategory extends Model
     {
         return $this->belongsTo(Categories::class, 'category_id', '_id');
     }
-
 }

@@ -51,7 +51,7 @@ class SettingsSeeder extends Seeder
         GeneralSettings::create([
             'logo' => null,
             'favicon' => null,
-            'contact_email' => null
+            'contact_email' => null,
         ]);
 
         AdvertiseSettings::create([
@@ -65,12 +65,12 @@ class SettingsSeeder extends Seeder
             'google_analytics' => null,
             'yandex_metrica' => null,
             'fb_pixel' => null,
-            'log_rocket' => null
+            'log_rocket' => null,
         ]);
 
         SocialSettings::create([
             'social_networks_header' => [],
-            'social_networks_footer' => []
+            'social_networks_footer' => [],
         ]);
     }
 }

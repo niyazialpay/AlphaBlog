@@ -24,18 +24,16 @@ class CategoryController extends Controller
 
     public function store(CategoryRequest $request, Categories $category): JsonResponse
     {
-        if($category->id){
+        if ($category->id) {
             $message = __('categories.success_update');
-        }
-        else{
+        } else {
             $message = __('categories.success');
         }
         $category->name = GetPost($request->name);
-        if($request->slug == null) {
+        if ($request->slug == null) {
             $category->slug = Str::slug($request->name);
-        }
-        else{
-            $category->slug =  Str::slug($request->slug);
+        } else {
+            $category->slug = Str::slug($request->slug);
         }
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
             $category->addMediaFromRequest('image')->toMediaCollection('categories');
@@ -44,26 +42,24 @@ class CategoryController extends Controller
         $category->meta_keywords = GetPost($request->meta_keywords);
         $category->language = GetPost($request->language);
         $hreflang = [];
-        foreach($request->hreflang_url as $key => $value){
-            if($value != null) {
+        foreach ($request->hreflang_url as $key => $value) {
+            if ($value != null) {
                 $hreflang[$key] = GetPost($value);
             }
         }
         $category->href_lang = $hreflang;
-        if($category->save()){
+        if ($category->save()) {
             return response()->json(['status' => 'success', 'message' => $message]);
-        }
-        else{
+        } else {
             return response()->json(['status' => 'error', 'message' => __('categories.error')]);
         }
     }
 
     public function delete(CategoryDeleteRequest $request, Categories $category): JsonResponse
     {
-        if($category::find($request->id)->delete()){
+        if ($category::find($request->id)->delete()) {
             return response()->json(['status' => 'success', 'message' => __('categories.success_delete')]);
-        }
-        else{
+        } else {
             return response()->json(['status' => 'error', 'message' => __('categories.error_delete')]);
         }
     }

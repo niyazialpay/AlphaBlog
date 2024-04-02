@@ -1,4 +1,5 @@
 <?php
+
 return [
     'dashboard' => 'Kontrol Paneli',
     'top_pages' => 'En Çok Ziyaret Edilen Sayfalar',
@@ -16,6 +17,6 @@ return [
     'user_type' => [
         'new' => 'Yeni Ziyaretçiler',
         'returning' => 'Geri Gelen Ziyaretçiler',
-        'others' => 'Diğerleri'
-    ]
+        'others' => 'Diğerleri',
+    ],
 ];

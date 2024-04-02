@@ -14,6 +14,6 @@ class IPFilter extends Model
         'routes',
         'list_type',
         'is_active',
-        'route_type'
+        'route_type',
     ];
 }

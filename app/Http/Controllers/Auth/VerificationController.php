@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\VerifiesEmails;
 use Illuminate\Routing\Controllers\Middleware;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 
 class VerificationController extends Controller
 {
@@ -25,11 +24,8 @@ class VerificationController extends Controller
 
     /**
      * Where to redirect users after verification.
-     *
-     * @var string
      */
     protected string $redirectTo = RouteServiceProvider::HOME;
-
 
     public static function middleware(): array
     {

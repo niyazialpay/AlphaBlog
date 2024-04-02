@@ -12,8 +12,8 @@ use niyazialpay\MediaLibrary\MediaCollections\Models\Media;
 
 class PersonalNotes extends Model implements HasMedia
 {
-    use Searchable;
     use InteractsWithMedia;
+    use Searchable;
 
     protected $collection = 'personal_notes';
 
@@ -21,14 +21,13 @@ class PersonalNotes extends Model implements HasMedia
         'title',
         'content',
         'user_id',
-        'category_id'
+        'category_id',
     ];
-
 
     protected function casts(): array
     {
         return [
-            'content' => 'encrypted'
+            'content' => 'encrypted',
         ];
     }
 
@@ -50,10 +49,10 @@ class PersonalNotes extends Model implements HasMedia
     public function toSearchableArray(): array
     {
         $array['user_id'] = $this->user->_id;
-        $array["title"] = $this->title;
-        $array["created_at"] = $this->created_at;
-        $array["updated_at"] = $this->updated_at;
-        $array["category_id"] = $this->category_id;
+        $array['title'] = $this->title;
+        $array['created_at'] = $this->created_at;
+        $array['updated_at'] = $this->updated_at;
+        $array['category_id'] = $this->category_id;
 
         return $array;
     }

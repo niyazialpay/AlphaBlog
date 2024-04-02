@@ -34,7 +34,9 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         Route::bind('showPost', function ($slug) {
-            return Posts::with(['user', 'categories', 'comments' => function ($query){ return $query->where('is_approved', true);}, 'comments.user'])
+            return Posts::with(['user', 'categories', 'comments' => function ($query) {
+                return $query->where('is_approved', true);
+            }, 'comments.user'])
                 ->where('slug', $slug)
                 ->where('language', session()->get('language'))
                 ->where('is_published', true)->firstOrFail();
@@ -47,7 +49,7 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::bind('showTag', function ($tag) {
             return Posts::search($tag)
-                ->query(function($query){
+                ->query(function ($query) {
                     $query->with(['user', 'categories', 'comments', 'comments.user']);
                 })
                 ->where('language', session()->get('language'))
@@ -57,7 +59,7 @@ class RouteServiceProvider extends ServiceProvider
         Route::bind('showUserPosts', function ($nickname) {
             return User::select(['name', 'surname', 'nickname', 'email'])
                 ->with(['posts', 'posts.categories', 'posts.media', 'posts.media.model'])
-                ->whereHas('posts', function($query){
+                ->whereHas('posts', function ($query) {
                     $query->where('language', session()->get('language'))
                         ->where('is_published', true);
                 })

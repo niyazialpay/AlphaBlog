@@ -1,4 +1,5 @@
 <?php
+
 return [
     'error_not_found' => 'IP rule not found',
     'name' => 'Rule Name',

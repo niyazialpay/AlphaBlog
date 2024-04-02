@@ -1,4 +1,5 @@
 <?php
+
 return [
     'menu_type' => 'Menü Türü',
     'header' => 'Üst Menü',

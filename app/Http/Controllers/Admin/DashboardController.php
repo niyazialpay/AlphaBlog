@@ -9,12 +9,13 @@ use Spatie\Analytics\Period;
 
 class DashboardController extends Controller
 {
-    public function index(){
-        if(file_exists(storage_path().'/app/analytics/service-account-credentials.json')){
+    public function index()
+    {
+        if (file_exists(storage_path().'/app/analytics/service-account-credentials.json')) {
             $analytics = new Analytics();
             $period = Period::days(7);
             $dashboard = [
-                'viewData' => $analytics::fetchMostVisitedPages($period, maxResults:10),
+                'viewData' => $analytics::fetchMostVisitedPages($period, maxResults: 10),
                 'operatingSystem' => $analytics::fetchTopOperatingSystems($period),
                 'topCountries' => $analytics::fetchTopCountries($period),
                 'topBrowsers' => $analytics::fetchTopBrowsers($period),
@@ -26,8 +27,7 @@ class DashboardController extends Controller
                 'TotalVisitorsAndPageViews' => $analytics::fetchTotalVisitorsAndPageViews($period),
                 'user_types' => $analytics::fetchUserTypes($period),
             ];
-        }
-        else{
+        } else {
             $dashboard = [
                 'viewData' => [],
                 'operatingSystem' => [],
@@ -39,11 +39,11 @@ class DashboardController extends Controller
             ];
         }
 
-
-        return view("panel.dashboard", $dashboard);
+        return view('panel.dashboard', $dashboard);
     }
 
-    public function changeLanguage($language){
+    public function changeLanguage($language)
+    {
         $languages = new Languages();
         $language = $languages->getLanguage($language);
 
