@@ -10,6 +10,7 @@
             </p>
         </a>
     </li>
+    <li class="nav-header">@lang('post.blog')</li>
     <li class="nav-item has-treeview
         @if(request()->is(config('settings.admin_panel_path').'/blogs*')) menu-open @endif ">
         <a href="{{route('admin.posts', ['type' => 'blogs', 'language' => app('default_language')->code])}}"
@@ -72,6 +73,7 @@
         </ul>
     </li>
     @can('viewPages', 'App\Models\Post\Posts')
+        <li class="nav-header">@lang('post.page')</li>
         <li class="nav-item has-treeview
         @if(request()->is(config('settings.admin_panel_path').'/pages*')) menu-open @endif ">
             <a href="{{route('admin.posts', ['type' => 'pages', 'language' => app('default_language')->code])}}"
@@ -105,6 +107,18 @@
             </ul>
         </li>
     @endcan
+    @can('admin', 'App\Models\User')
+        <li class="nav-item">
+            <a href="{{route('admin.contact_page')}}" class="nav-link
+            @if(request()->is(config('settings.admin_panel_path').'/contact*')) active @endif ">
+                <i class="fa-duotone fa-message-text nav-icon"></i>
+                <p>
+                    @lang('contact.contact_page')
+                </p>
+            </a>
+        </li>
+    @endcan
+    <li class="nav-header">@lang('notes.note') / @lang('notes.journal')</li>
     <li class="nav-item has-treeview
     @if(request()->is(config('settings.admin_panel_path').'/notes*')) menu-open @endif ">
         <a class="nav-link
@@ -149,15 +163,7 @@
         </ul>
     </li>
     @can('admin', 'App\Models\User')
-        <li class="nav-item">
-            <a href="{{route('admin.contact_page')}}" class="nav-link
-            @if(request()->is(config('settings.admin_panel_path').'/contact*')) active @endif ">
-                <i class="fa-duotone fa-message-text nav-icon"></i>
-                <p>
-                    @lang('contact.contact_page')
-                </p>
-            </a>
-        </li>
+        <li class="nav-header">@lang('settings.management')</li>
         <li class="nav-item">
             <a href="{{route('admin.ip-filter')}}" class="nav-link
         @if(request()->is(config('settings.admin_panel_path').'/ip-filter*')) active @endif">

@@ -22,4 +22,6 @@ return [
     'category_id_string' => 'Kategori alanı metin olmalıdır',
     'category_id_exists' => 'Seçili kategori geçersizdir',
     'all_notes' => 'Tüm Notlar',
+    'note' => 'Not',
+    'journal' => 'Günlük',
 ];
