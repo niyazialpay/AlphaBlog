@@ -25,4 +25,9 @@ return [
     'all_notes' => 'All Notes',
     'note' => 'Note',
     'journal' => 'Journal',
+    'remember_me' => 'Remember Me',
+    'remember_time' => 'Remember Time',
+    'remember_time_1_day' => '1 day',
+    'remember_time_month' => '{1} 1 month|[2,Inf]:n months',
+    'remember_time_1_year' => '1 year',
 ];

@@ -144,12 +144,19 @@ class PersonalNotesController extends Controller
     {
         $request->validate([
             'encryption_key' => 'required',
+            'remember_time' => 'required|integer|in:1,30,90,180,365',
         ]);
 
         return response()->json([
             'status' => 'success',
             'message' => __('personal_notes.encryption_key_saved'),
-        ])->withCookie(cookie('encryption_key', md5($request->post('encryption_key')), 1440, null, null, true, true));
+        ])->withCookie(cookie('encryption_key',
+            md5($request->post('encryption_key')),
+            1440*$request->post('remember_time'),
+            null,
+            null,
+            true,
+            true));
     }
 
     public function categories(PersonalNoteCategories $category)

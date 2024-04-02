@@ -21,11 +21,6 @@
             </p>
         </div>
         <div class="card-body">
-            <p class="text-center mt-2">
-                <a href="javascript:$('#encryption_key_modal').modal('show')" class="btn btn-default">
-                    @lang('notes.define_encryption_key')
-                </a>
-            </p>
             <div class="row">
                 <div class="col-6  table-responsive border-end-1">
                     <div class="tab-content">

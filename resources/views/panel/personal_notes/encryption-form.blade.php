@@ -23,6 +23,30 @@
                                    id="encryption_key" name="encryption_key"
                                    placeholder="@lang('notes.encryption_key')">
                         </div>
+                        <div class="col-12">
+                            <label for="remember_time">@lang('notes.remember_time')</label>
+                            <select class="form-control" id="remember_time" name="remember_time">
+                                <option value="1">
+                                    @lang('notes.remember_time_1_day')
+                                </option>
+
+                                <option value="30">
+                                    {{trans_choice('notes.remember_time_month', 1, ['n' => 1])}}
+                                </option>
+
+                                <option value="90">
+                                    {{trans_choice('notes.remember_time_month', 3, ['n' => 3])}}
+                                </option>
+
+                                <option value="180">
+                                    {{trans_choice('notes.remember_time_month', 6, ['n' => 6])}}
+                                </option>
+
+                                <option value="365">
+                                    @lang('notes.remember_time_1_year')
+                                </option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 @csrf
