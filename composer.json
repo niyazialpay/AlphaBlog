@@ -6,6 +6,9 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "ext-imagick": "*",
+        "ext-zip": "*",
+        "google-gemini-php/laravel": "^1.0",
         "guzzlehttp/guzzle": "^7.8",
         "laravel/fortify": "^1.21",
         "laravel/framework": "^11.0",
@@ -20,9 +23,7 @@
         "qazd/text-diff": "^0.1.1",
         "spatie/image": "^3.4",
         "spatie/laravel-analytics": "^5.3",
-        "spatie/laravel-honeypot": "^4.5",
-        "ext-imagick": "*",
-        "ext-zip": "*"
+        "spatie/laravel-honeypot": "^4.5"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.12",

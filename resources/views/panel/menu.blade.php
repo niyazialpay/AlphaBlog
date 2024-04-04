@@ -10,6 +10,15 @@
             </p>
         </a>
     </li>
+    <li class="nav-item">
+        <a href="{{route('alphabot')}}" class="nav-link"
+           @if(request()->is(config('settings.admin_panel_path').'/alphabot*')) active @endif ">
+            <i class="fa-duotone fa-robot nav-icon"></i>
+            <p>
+                @lang('chatbot.chatbot')
+            </p>
+        </a>
+    </li>
     <li class="nav-header">@lang('post.blog')</li>
     <li class="nav-item has-treeview
         @if(request()->is(config('settings.admin_panel_path').'/blogs*')) menu-open @endif ">
