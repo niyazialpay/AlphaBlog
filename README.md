@@ -49,6 +49,13 @@ To create a user after these operations
 php artisan app:create-user
 ```
 
+### For activate Gemini Chatbot
+If you want to activate Gemini Chatbot you have to get an API key from https://makersuite.google.com/app/apikey and add it to the .env file
+
+```bash
+GEMINI_API_KEY=
+```
+
 ## Features
 
 - Blogs with Categories
@@ -59,6 +66,7 @@ php artisan app:create-user
   - Your notes can not accessed by the admin or any other user.
 - In-site search engine (Meilisearch)
 - Admin panel
+- AI Chatbot - Based by Gemini
 - IP Filter (Blacklist and Whitelist)
 - User management
 - Cloudflare Turnstile (similar to Google Recaptcha)

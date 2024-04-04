@@ -19,10 +19,20 @@ class DashboardController extends Controller
                 'operatingSystem' => $analytics::fetchTopOperatingSystems($period),
                 'topCountries' => $analytics::fetchTopCountries($period),
                 'topBrowsers' => $analytics::fetchTopBrowsers($period),
-                'ad_impression' => $analytics::get(
-                    Period::days(7),
-                    metrics: ['publisherAdImpressions'],
-                    dimensions: ['eventName'],
+                'events' => $analytics::get(
+                    $period,
+                    metrics: [
+                        'publisherAdImpressions',
+                        'publisherAdClicks',
+                        'sessions',
+                        'screenPageViews',
+                        'userEngagementDuration',
+                    ],
+                    dimensions: [
+                        'eventName',
+                        'platform',
+                        'region',
+                    ],
                 ),
                 'TotalVisitorsAndPageViews' => $analytics::fetchTotalVisitorsAndPageViews($period),
                 'user_types' => $analytics::fetchUserTypes($period),
@@ -33,7 +43,7 @@ class DashboardController extends Controller
                 'operatingSystem' => [],
                 'topCountries' => [],
                 'topBrowsers' => [],
-                'ad_impression' => [],
+                'events' => [],
                 'TotalVisitorsAndPageViews' => [],
                 'user_types' => [],
             ];

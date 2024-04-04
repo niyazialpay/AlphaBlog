@@ -95,6 +95,11 @@
                     <i class="fa-duotone fa-house top-icon"></i>
                 </a>
             </li>
+            <li class="nab-item">
+                <a class="nav-link" href="{{route('alphabot')}}">
+                    <i class="fa-duotone fa-robot nav-icon"></i>
+                </a>
+            </li>
             <li class="nav-item dropdown">
                 <a class="nav-link" data-bs-toggle="dropdown"
                    href="javascript:void(0);" id="top-comment-button"
