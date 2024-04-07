@@ -57,7 +57,6 @@ GEMINI_API_KEY=
 ```
 
 ## Features
-
 - Blogs with Categories
 - Page
 - Personal notes
@@ -65,6 +64,8 @@ GEMINI_API_KEY=
   - Your encryption key is not stored in the database. If you forget your encryption key, you will not be able to access your notes. 
   - Your notes can not accessed by the admin or any other user.
 - In-site search engine (Meilisearch)
+  - The words searched in the search engine are kept in the database
+    - It saves the words that are not found among the words in the on-site searches to generate ideas for content on that topic later.
 - Admin panel
 - AI Chatbot - Based by Gemini
 - IP Filter (Blacklist and Whitelist)
