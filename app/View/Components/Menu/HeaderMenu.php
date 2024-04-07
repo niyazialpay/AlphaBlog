@@ -42,9 +42,17 @@ class HeaderMenu extends Component
 
         }
 
-        return view('themes.'.app('theme')->name.'.components.menu.header_menu', [
-            'menu' => $menu,
-            'menu_items' => $menu_items,
-        ]);
+        try{
+            return view('themes.'.app('theme')->name.'.components.menu.header_menu', [
+                'menu' => $menu,
+                'menu_items' => $menu_items,
+            ]);
+        }
+        catch (\Exception $exception){
+            return view('Default.components.menu.header_menu', [
+                'menu' => $menu,
+                'menu_items' => $menu_items,
+            ]);
+        }
     }
 }
