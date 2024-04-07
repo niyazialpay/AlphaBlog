@@ -2,9 +2,12 @@
 
 namespace App\View\Components;
 
+use App\Http\Requests\SearchRequest;
 use App\Models\Post\Posts;
+use App\Models\Search;
 use Closure;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
 use Illuminate\View\Component;
 
 class PostsComponents extends Component
@@ -35,7 +38,7 @@ class PostsComponents extends Component
     {
         $search = $this->search;
         if ($search) {
-            $posts = Posts::search(GetPost($search))
+            $posts = Posts::search(replace_characters(GetPost($search)))
                 ->query(function ($query) {
                     $query->with(['user', 'categories']);
                 })
@@ -44,6 +47,14 @@ class PostsComponents extends Component
                 ->where('is_published', true)
                 ->orderBy('created_at', 'desc')
                 ->paginate($this->paginate)->withQueryString();
+            if($posts->count()==0){
+                Search::create([
+                    'search' => $search,
+                    'language' => session('language'),
+                    'ip' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ]);
+            }
         } else {
             $posts = Posts::with(['user', 'categories'])
                 ->where('post_type', 'post')

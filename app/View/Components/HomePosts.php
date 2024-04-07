@@ -24,13 +24,25 @@ class HomePosts extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('themes.'.app('theme')->name.'.components.posts.home-posts', [
-            'posts' => Posts::with(['categories', 'user'])
-                ->where('post_type', 'post')
-                ->where('language', session('language'))
-                ->where('is_published', true)
-                ->orderBy('created_at', 'desc')
-                ->paginate($this->paginate)->withQueryString(),
-        ]);
+        try{
+            return view('themes.'.app('theme')->name.'.components.posts.home-posts', [
+                'posts' => Posts::with(['categories', 'user'])
+                    ->where('post_type', 'post')
+                    ->where('language', session('language'))
+                    ->where('is_published', true)
+                    ->orderBy('created_at', 'desc')
+                    ->paginate($this->paginate)->withQueryString(),
+            ]);
+        }
+        catch (\Exception $exception){
+            return view('Default.components.posts.home-posts', [
+                'posts' => Posts::with(['categories', 'user'])
+                    ->where('post_type', 'post')
+                    ->where('language', session('language'))
+                    ->where('is_published', true)
+                    ->orderBy('created_at', 'desc')
+                    ->paginate($this->paginate)->withQueryString(),
+            ]);
+        }
     }
 }

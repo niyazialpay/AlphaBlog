@@ -39,6 +39,11 @@ class LastComments extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('themes.'.app('theme')->name.'.components.posts.last-comments');
+        try{
+            return view('themes.'.app('theme')->name.'.components.posts.last-comments');
+        }
+        catch (\Exception $exception){
+            return view('Default.components.posts.last-comments');
+        }
     }
 }

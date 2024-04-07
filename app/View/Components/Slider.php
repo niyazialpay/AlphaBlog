@@ -22,14 +22,27 @@ class Slider extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('themes.'.app('theme')->name.'.components.slider', [
-            'slider' => Posts::with('media', 'media.model', 'user')
-                ->where('is_published', true)
-                ->where('language', session('language'))
-                ->where('post_type', 'post')
-                ->orderBy('created_at', 'desc')
-                ->take(5)
-                ->get(),
-        ]);
+        try{
+            return view('themes.'.app('theme')->name.'.components.slider', [
+                'slider' => Posts::with('media', 'media.model', 'user')
+                    ->where('is_published', true)
+                    ->where('language', session('language'))
+                    ->where('post_type', 'post')
+                    ->orderBy('created_at', 'desc')
+                    ->take(5)
+                    ->get(),
+            ]);
+        }
+        catch (\Exception $exception){
+            return view('Default.components.slider', [
+                'slider' => Posts::with('media', 'media.model', 'user')
+                    ->where('is_published', true)
+                    ->where('language', session('language'))
+                    ->where('post_type', 'post')
+                    ->orderBy('created_at', 'desc')
+                    ->take(5)
+                    ->get(),
+            ]);
+        }
     }
 }

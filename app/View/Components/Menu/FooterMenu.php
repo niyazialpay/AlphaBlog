@@ -35,8 +35,15 @@ class FooterMenu extends Component
             });
         }
 
-        return view('themes.'.app('theme')->name.'.components.menu.footer-menu', [
-            'menu' => $menu,
-        ]);
+        try{
+            return view('themes.'.app('theme')->name.'.components.menu.footer-menu', [
+                'menu' => $menu,
+            ]);
+        }
+        catch (\Exception $exception){
+            return view('Default.components.menu.footer-menu', [
+                'menu' => $menu,
+            ]);
+        }
     }
 }
