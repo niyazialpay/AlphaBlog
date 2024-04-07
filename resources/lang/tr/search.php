@@ -19,4 +19,5 @@ return [
         'delete_all_warning' => 'Tüm kelimeleri silmek istediğinize emin misiniz?',
     ],
     'total' => 'Toplam',
+    'notification' => 'Hakkında konusu bulunmayan bir kelime arandı: :search',
 ];
