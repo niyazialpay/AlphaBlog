@@ -20,6 +20,7 @@ Route::group([
     'middleware' => [
         \App\Http\Middleware\NewCommentsCount::class,
         \App\Http\Middleware\AdminOneSignal::class,
+        \App\Http\Middleware\SearchedWords::class
     ],
 ], function () {
     Route::any('/'.config('settings.admin_panel_path').'/manifest.json',
@@ -29,6 +30,10 @@ Route::group([
     Route::middleware(['web', 'auth'])
         ->prefix(config('settings.admin_panel_path'))
         ->group(base_path('routes/panel/panel.php'));
+
+    Route::middleware(['web', 'auth'])
+        ->prefix(config('settings.admin_panel_path').'/search')
+        ->group(base_path('routes/panel/search.php'));
 
     Route::middleware(['web', 'auth'])
         ->prefix(config('settings.admin_panel_path').'/settings')

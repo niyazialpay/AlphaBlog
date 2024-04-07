@@ -21,12 +21,18 @@
     </li>
     <li class="nav-header">@lang('post.blog')</li>
     <li class="nav-item has-treeview
-        @if(request()->is(config('settings.admin_panel_path').'/blogs*')) menu-open @endif ">
+        @if(request()->is(config('settings.admin_panel_path').'/blogs*', config('settings.admin_panel_path').'/search*')) menu-open @endif ">
         <a href="{{route('admin.posts', ['type' => 'blogs', 'language' => app('default_language')->code])}}"
            class="nav-link @if(request()->is(config('settings.admin_panel_path').'/blogs*')) active @endif ">
             <i class="fa-duotone fa-file-lines nav-icon"></i>
-            @if($newCommentsCount>0)
-                <span class="badge badge-danger navbar-badge">{{$newCommentsCount}}</span>
+            @if($newCommentsCount>0 || $searchedWordsCount>0)
+                <span class="badge badge-danger navbar-badge">
+                    @if($newCommentsCount+$searchedWordsCount>99)
+                        99+
+                    @else
+                        {{$newCommentsCount+$searchedWordsCount}}
+                    @endif
+                </span>
             @endif
             <p>
                 @lang('post.blogs')
@@ -71,10 +77,37 @@
                    @if(request()->is(config('settings.admin_panel_path').'/blogs/comments*')) active @endif ">
                         <i class="fa-duotone fa-comments nav-icon"></i>
                         @if($newCommentsCount>0)
-                            <span class="badge badge-danger navbar-badge">{{$newCommentsCount}}</span>
+                            <span class="badge badge-danger navbar-badge">
+                                @if($newCommentsCount>99)
+                                    99+
+                                @else
+                                    {{$newCommentsCount}}
+                                @endif
+                            </span>
                         @endif
                         <p>
                             @lang('comments.comments')
+                        </p>
+                    </a>
+                </li>
+            @endcan
+            @can('createPost', 'App\Models\Post\Posts')
+                <li class="nav-item">
+                    <a href="{{route('admin.search.index')}}"
+                       class="nav-link
+                   @if(request()->is(config('settings.admin_panel_path').'/search*')) active @endif ">
+                        <i class="fa-duotone fa-file-magnifying-glass nav-icon"></i>
+                        @if($searchedWordsCount>0)
+                            <span class="badge badge-danger navbar-badge">
+                                @if($searchedWordsCount>99)
+                                    99+
+                                @else
+                                    {{$searchedWordsCount}}
+                                @endif
+                            </span>
+                        @endif
+                        <p>
+                            @lang('search.searched_words')
                         </p>
                     </a>
                 </li>

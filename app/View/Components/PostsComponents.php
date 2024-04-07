@@ -2,12 +2,10 @@
 
 namespace App\View\Components;
 
-use App\Http\Requests\SearchRequest;
 use App\Models\Post\Posts;
 use App\Models\Search;
 use Closure;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\Request;
 use Illuminate\View\Component;
 
 class PostsComponents extends Component
@@ -48,12 +46,16 @@ class PostsComponents extends Component
                 ->orderBy('created_at', 'desc')
                 ->paginate($this->paginate)->withQueryString();
             if($posts->count()==0){
-                Search::create([
-                    'search' => $search,
-                    'language' => session('language'),
-                    'ip' => request()->ip(),
-                    'user_agent' => request()->userAgent(),
-                ]);
+                $search_model = new Search();
+                $searched_word = $search_model::where('search', $search)->count();
+                if($searched_word==0){
+                    $search_model::create([
+                        'search' => $search,
+                        'language' => session('language'),
+                        'ip' => request()->ip(),
+                        'user_agent' => request()->userAgent(),
+                    ]);
+                }
             }
         } else {
             $posts = Posts::with(['user', 'categories'])
