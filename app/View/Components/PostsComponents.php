@@ -2,6 +2,7 @@
 
 namespace App\View\Components;
 
+use App\Models\OneSignal;
 use App\Models\Post\Posts;
 use App\Models\Search;
 use Closure;
@@ -54,6 +55,12 @@ class PostsComponents extends Component
                         'language' => session('language'),
                         'ip' => request()->ip(),
                         'user_agent' => request()->userAgent(),
+                    ]);
+
+                    OneSignal::sendPush([
+                        'en' => $search,
+                    ], [
+                        'en' => __('search.notification', ['search' => $search]),
                     ]);
                 }
             }

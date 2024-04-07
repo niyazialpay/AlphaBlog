@@ -19,4 +19,5 @@ return [
         'delete_all_warning' => 'Are you sure you want to delete all words?',
     ],
     'total' => 'Total',
+    'notification' => 'A word was searched without a subject: :search',
 ];
