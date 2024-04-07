@@ -331,8 +331,7 @@
                         }
                     });
                 }
-            }
-            );
+            });
         }
         $(document).ready(function(){
             @if(request()->get('tab') == 'trashed')
