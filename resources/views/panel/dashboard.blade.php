@@ -85,6 +85,19 @@
             let operating_systems = [];
             let operating_systems_view = [];
 
+            let dashboard_theme_mode;
+            let dashboard_text_color;
+
+            if(localStorage.getItem("dark-mode") === "true"){
+                dashboard_theme_mode = 'dark';
+                dashboard_text_color = '#ffffff';
+            }
+            else{
+                dashboard_theme_mode = 'light';
+                dashboard_text_color = '#000000';
+            }
+
+
             @foreach($operatingSystem as $system)
             operating_systems.push('{{$system['operatingSystem']}}');
             operating_systems_view.push({{$system['screenPageViews']}});
@@ -101,7 +114,7 @@
                     }
                 }
             };
-            new ApexCharts(document.querySelector("#operating_system_chart"), operating_system_options).render();
+           let operation_system_chart = new ApexCharts(document.querySelector("#operating_system_chart"), operating_system_options);
 
             let user_types = [];
             let user_types_view = [];
@@ -128,7 +141,7 @@
                     }
                 }
             };
-            new ApexCharts(document.querySelector("#user_types_chart"), user_types_options).render();
+            let user_type_chart = new ApexCharts(document.querySelector("#user_types_chart"), user_types_options);
 
             let browsers = [];
             let browsers_view = [];
@@ -150,7 +163,7 @@
                     }
                 }
             };
-            new ApexCharts(document.querySelector("#browsers_chart"), browsers_options).render();
+            let browser_chart = new ApexCharts(document.querySelector("#browsers_chart"), browsers_options);
 
             let topCountries = [];
             let topCountries_view = [];
@@ -172,7 +185,7 @@
                     }
                 }
             };
-            new ApexCharts(document.querySelector("#countries_chart"), topCountries_options).render();
+            let countries_chart = new ApexCharts(document.querySelector("#countries_chart"), topCountries_options);
 
             let TotalVisitorsAndPageViews = [];
             let TotalVisitorsAndPageViews_view = [];
@@ -243,7 +256,7 @@
                     opacity: 1
                 }
             };
-            new ApexCharts(document.querySelector("#total_visitors_chart"), totalVisitors_options).render();
+            let visitors_chart = new ApexCharts(document.querySelector("#total_visitors_chart"), totalVisitors_options);
 
             let topViewed = [];
             let topViewed_view = [];
@@ -336,7 +349,51 @@
                     }
                 }
             };
-            new ApexCharts(document.querySelector("#top_viewed_chart"), topViewed_options).render();
+            let viewed_chart = new ApexCharts(document.querySelector("#top_viewed_chart"), topViewed_options);
+
+            user_type_chart.render();
+            browser_chart.render();
+            countries_chart.render();
+            visitors_chart.render();
+            viewed_chart.render();
+            operation_system_chart.render();
+
+            $('#dark-mode-switcher-button').on('click', function(){
+                if(localStorage.getItem("dark-mode") === "true"){
+                    dashboard_theme_mode = 'dark';
+                    dashboard_text_color = '#ffffff';
+                }
+                else{
+                    dashboard_theme_mode = 'light';
+                    dashboard_text_color = '#000000';
+                }
+
+                updateChartThemeMode(user_type_chart, dashboard_theme_mode, dashboard_text_color);
+                updateChartThemeMode(browser_chart, dashboard_theme_mode, dashboard_text_color);
+                updateChartThemeMode(countries_chart, dashboard_theme_mode, dashboard_text_color);
+                updateChartThemeMode(visitors_chart, dashboard_theme_mode, dashboard_text_color);
+                updateChartThemeMode(viewed_chart, dashboard_theme_mode, dashboard_text_color);
+                updateChartThemeMode(operation_system_chart, dashboard_theme_mode, dashboard_text_color);
+            });
+
+            updateChartThemeMode(user_type_chart, dashboard_theme_mode, dashboard_text_color);
+            updateChartThemeMode(browser_chart, dashboard_theme_mode, dashboard_text_color);
+            updateChartThemeMode(countries_chart, dashboard_theme_mode, dashboard_text_color);
+            updateChartThemeMode(visitors_chart, dashboard_theme_mode, dashboard_text_color);
+            updateChartThemeMode(viewed_chart, dashboard_theme_mode, dashboard_text_color);
+            updateChartThemeMode(operation_system_chart, dashboard_theme_mode, dashboard_text_color);
+
         });
+
+        function updateChartThemeMode(chart, theme_mode, color){
+            chart.updateOptions({
+                theme: {
+                    mode: theme_mode,
+                    monochrome: {
+                        color: color
+                    },
+                }
+            });
+        }
     </script>
 @endsection

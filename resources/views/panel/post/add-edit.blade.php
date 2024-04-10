@@ -311,6 +311,7 @@
 @endsection
 
 @section('script')
+
     @include('panel.post.comments.modal')
     <style>
         .select2-container--default .select2-selection--multiple .select2-selection__choice {
@@ -327,6 +328,21 @@
             post_url = '{{route('admin.post.save', [$type])}}';
             image_post_url = '{{route('admin.post.editor.image.upload', [$type])}}'
         @endif
+
+        let tinymce_skin;
+        let tinymce_content_css;
+        let select2_theme;
+
+        if(localStorage.getItem("dark-mode") === "true"){
+            tinymce_skin = 'oxide-dark';
+            tinymce_content_css = 'dark';
+            select2_theme = 'dark-adminlte';
+        }
+        else{
+            tinymce_skin = 'oxide';
+            tinymce_content_css = 'default';
+            select2_theme = 'classic';
+        }
 
         function imageDelete(image_id) {
             Swal.fire({
@@ -440,12 +456,11 @@
                 xhr.send(formData);
             });
 
-            const useDarkMode = localStorage.getItem("dark-mode")==="true";
-
-            tinymce.init({
+            let tinymce_settings = {
                 selector: 'textarea#content',  // change this value according to your HTML
                 language: '{{app('default_language')->code}}',
                 branding: false,
+                license_key: 'gpl',
                 height: 600,
                 mobile: {
                     theme: 'silver',
@@ -497,12 +512,37 @@
                 relative_urls: false,
                 remove_script_host: false,
                 convert_urls: true,
-                skin: useDarkMode ? 'oxide-dark' : 'oxide',
-                content_css: useDarkMode ? 'dark' : 'default',
+                skin: tinymce_skin,
+                content_css: tinymce_content_css,
                 images_upload_handler: post_image_upload_handler
+            }
+
+            tinymce.init(tinymce_settings);
+
+            $('.select2').select2({
+                theme: select2_theme
             });
 
-            $('.select2').select2();
+            $('#dark-mode-switcher-button').on('click', function(){
+
+                if(localStorage.getItem("dark-mode") === "true"){
+                    tinymce_settings.content_css = 'dark';
+                    tinymce_settings.skin = 'oxide-dark';
+                    select2_theme = 'dark-adminlte';
+                }
+                else{
+                    tinymce_settings.content_css = 'default';
+                    tinymce_settings.skin = 'oxide';
+                    select2_theme = 'classic';
+                }
+                tinymce.get('content').remove();
+                tinymce.init(tinymce_settings);
+                $('.select2').select2({
+                    theme: select2_theme
+                });
+            });
+
+
 
             @if($post->id)
             $('#category_id').val({!! json_encode($post->category_id) !!}).trigger('change');
@@ -535,6 +575,7 @@
                     }
                 });
             });
+
         });
     </script>
     @include('panel.post.comments.js')

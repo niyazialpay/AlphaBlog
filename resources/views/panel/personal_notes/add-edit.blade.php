@@ -108,12 +108,23 @@
                 xhr.send(formData);
             });
 
-            const useDarkMode = localStorage.getItem("dark-mode")==="true";
+            let tinymce_skin;
+            let tinymce_content_css;
 
-            tinymce.init({
+            if(localStorage.getItem("dark-mode") === "true"){
+                tinymce_skin = 'oxide-dark';
+                tinymce_content_css = 'dark';
+            }
+            else{
+                tinymce_skin = 'oxide';
+                tinymce_content_css = 'default';
+            }
+
+            let tinymce_settings = {
                 selector: 'textarea#content',  // change this value according to your HTML
                 language: '{{app('default_language')->code}}',
                 branding: false,
+                license_key: 'gpl',
                 height: 600,
                 mobile: {
                     theme: 'silver',
@@ -165,9 +176,25 @@
                 relative_urls: false,
                 remove_script_host: false,
                 convert_urls: true,
-                skin: useDarkMode ? 'oxide-dark' : 'oxide',
-                content_css: useDarkMode ? 'dark' : 'default',
+                skin: tinymce_skin,
+                content_css: tinymce_content_css,
                 images_upload_handler: post_image_upload_handler
+            }
+
+            tinymce.init(tinymce_settings);
+
+            $('#dark-mode-switcher-button').on('click', function(){
+
+                if(localStorage.getItem("dark-mode") === "true"){
+                    tinymce_settings.content_css = 'dark';
+                    tinymce_settings.skin = 'oxide-dark';
+                }
+                else{
+                    tinymce_settings.content_css = 'default';
+                    tinymce_settings.skin = 'oxide';
+                }
+                tinymce.get('content').remove();
+                tinymce.init(tinymce_settings);
             });
 
             $('#noteSave').submit(function () {
