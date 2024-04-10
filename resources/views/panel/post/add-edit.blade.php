@@ -43,25 +43,33 @@
                 </div>
                 @if($type=='blogs')
                     <div class="col-12 mb-3">
-                        <label for="category_id">@lang('post.category')</label>
-                        <select name="category_id[]" id="category_id" class="form-control select2" style="width: 100%"
-                                multiple>
-                            @foreach($categories as $item)
-                                <option value="{{$item->id}}">{{stripslashesNull($item->name)}} ({{$item->language}})</option>
-                            @endforeach
-                        </select>
+                        <div class="form-group">
+                            <label for="category_id">@lang('post.category')</label>
+                            <select name="category_id[]" id="category_id" class="form-control select2" style="width: 100%"
+                                    multiple>
+                                @foreach($categories as $item)
+                                    <option value="{{$item->id}}">{{stripslashesNull($item->name)}} ({{$item->language}})</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                 @endif
                 <div class="col-12 mb-3" id="image_input">
-                    <label for="image">@lang('post.image')</label>
                     @if($post->getFirstMediaUrl('posts', 'thumb'))
+                        <label for="image">@lang('post.image')</label>
                         <img src="{{$post->getFirstMediaUrl('posts', 'thumb')}}" id="image"
                              alt="{{stripslashesNull($post->title)}}" class="img-fluid" width="450">
                         <a href="javascript:imageDelete('{{$post->id}}')" class="text-danger">
                             <i class="fa fa-trash"></i>
                         </a>
                     @else
-                        <input type="file" class="form-control" name="image" id="image">
+                        <div class="input-group">
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" name="image" id="image">
+                                <label class="custom-file-label" for="image">@lang('post.image')</label>
+                            </div>
+                        </div>
+
                     @endif
                 </div>
                 <div class="col-12 mb-3">
@@ -432,12 +440,12 @@
                 xhr.send(formData);
             });
 
+            const useDarkMode = localStorage.getItem("dark-mode")==="true";
+
             tinymce.init({
                 selector: 'textarea#content',  // change this value according to your HTML
                 language: '{{app('default_language')->code}}',
                 branding: false,
-                //skin: (window.matchMedia("(prefers-color-scheme: dark)").matches ? "oxide-dark" : ""),
-                //content_css: (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : ""),
                 height: 600,
                 mobile: {
                     theme: 'silver',
@@ -445,14 +453,36 @@
                     menubar: false
                 },
                 plugins: [
-                    'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor', 'pagebreak',
-                    'searchreplace', 'wordcount', 'visualblocks', 'visualchars', 'code', 'fullscreen',
-                    'insertdatetime', 'media', 'nonbreaking', 'table', 'directionality',
-                    'emoticons', 'codesample', 'help'
+                    'advlist',
+                    'autolink',
+                    'lists',
+                    'link',
+                    'image',
+                    'charmap',
+                    'preview',
+                    'anchor',
+                    'pagebreak',
+                    'searchreplace',
+                    'wordcount',
+                    'visualblocks',
+                    'visualchars',
+                    'code',
+                    'fullscreen',
+                    'insertdatetime',
+                    'media',
+                    'nonbreaking',
+                    'table',
+                    'directionality',
+                    'emoticons',
+                    'codesample',
+                    'help',
+                    'quickbars',
+                    'emoticons',
+                    'accordion'
                 ],
-                toolbar1: 'undo redo | insert | style select | bold italic | fontselect | fontsize select | ' +
-                    'alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link ',
-                toolbar2: 'print preview media image | forecolor backcolor | size select | emoticons | codesample',
+                toolbar1: 'undo redo | bold italic | fontsize blocks forecolor backcolor | ' +
+                    'alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link | help ',
+                toolbar2: 'print preview media image | charmap emoticons codesample code | visualblocks',
                 image_advtab: true,
                 fontsize_formats: "8pt 10pt 12pt 14pt 18pt 24pt 36pt",
                 extended_valid_elements: "a[class|name|href|target|title|onclick|rel]," +
@@ -467,8 +497,8 @@
                 relative_urls: false,
                 remove_script_host: false,
                 convert_urls: true,
-                //images_upload_url: '{{route('admin.post.editor.image.upload', [$type, $post])}}',
-
+                skin: useDarkMode ? 'oxide-dark' : 'oxide',
+                content_css: useDarkMode ? 'dark' : 'default',
                 images_upload_handler: post_image_upload_handler
             });
 

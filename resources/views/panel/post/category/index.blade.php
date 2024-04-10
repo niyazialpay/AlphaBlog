@@ -114,15 +114,20 @@
                                    placeholder="@lang('categories.slug_placeholder')" value="{{$category->slug}}">
                         </div>
                         <div class="col-12 mb-3" id="image_input">
-                            <label for="image">@lang('post.image')</label>
                             @if($category->getFirstMediaUrl('categories', 'thumb'))
+                                <label for="image">@lang('post.image')</label>
                                 <img src="{{$category->getFirstMediaUrl('categories', 'thumb')}}" id="image"
                                      alt="{{stripslashesNull($category->title)}}" class="img-fluid" width="150">
                                 <a href="javascript:imageDelete('{{$category->id}}')" class="text-danger">
                                     <i class="fa fa-trash"></i>
                                 </a>
                             @else
-                                <input type="file" class="form-control" name="image" id="image">
+                                <div class="input-group">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" name="image" id="image">
+                                        <label class="custom-file-label" for="image">@lang('post.image')</label>
+                                    </div>
+                                </div>
                             @endif
                         </div>
                         <div class="col-12 mb-3">

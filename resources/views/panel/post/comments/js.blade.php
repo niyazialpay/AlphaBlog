@@ -187,6 +187,7 @@
     }
 
     $(document).ready(function(){
+        const useDarkModeComment = localStorage.getItem("dark-mode")==="true";
         tinymce.init({
             selector: 'textarea#comment',
             height: 300,
@@ -202,6 +203,8 @@
                 'insertdatetime', 'media', 'nonbreaking', 'table', 'directionality',
                 'emoticons', 'codesample', 'help'
             ],
+            skin: useDarkModeComment ? 'oxide-dark' : 'oxide',
+            content_css: useDarkModeComment ? 'dark' : 'default',
         });
 
         $('#commentEditForm').submit(function(){

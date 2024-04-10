@@ -19,7 +19,7 @@
           integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
           crossorigin="anonymous">
 
-    <link rel="stylesheet" href="{{config('app.url')}}/themes/panel/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
     <link rel="stylesheet" href="{{config('app.url')}}/themes/panel/css/custom.css">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
@@ -80,11 +80,18 @@
         {!! $admin_notification?->onesignal !!}
     @endif
 </head>
-<body class="hold-transition sidebar-mini dark-mode">
+<body class="hold-transition sidebar-mini">
 <div class="wrapper">
 
+    <div class="preloader flex-column justify-content-center align-items-center">
+        <img class="animation__shake"
+             src="{{app('general_settings')->getFirstMediaUrl('site_favicon')}}"
+             alt="{{app('seo_settings')->site_name}}" height="60" width="60">
+    </div>
+
+
     <!-- Navbar -->
-    <nav class="main-header navbar navbar-expand navbar-white navbar-light" aria-label="top-menu">
+    <nav class="main-header navbar navbar-expand navbar-light" id="top-navbar" aria-label="top-menu">
         <!-- Left navbar links -->
         <ul class="navbar-nav">
             <li class="nav-item">
@@ -252,6 +259,12 @@
 </div>
 <!-- Logout Modal End -->
 
+<div id="dark-mode-switcher">
+    <button onclick="toggleDark()" id="dark-mode-switcher-button" class="btn btn-dark">
+        <i class="fa-duotone fa-moon"></i>
+    </button>
+</div>
+
 <!-- REQUIRED SCRIPTS -->
 
 <!-- jQuery -->
@@ -268,7 +281,7 @@
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-<script src="{{config('app.url')}}/themes/panel/js/adminlte.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
 <script src="{{config('app.url')}}/themes/panel/js/custom.js"></script>
 <script src="{{config('app.url')}}/themes/panel/js/tinymce/tinymce.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -280,9 +293,35 @@
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 
 <script>
+    function toggleDark() {
+        document.body.classList.toggle("dark-mode");
+        localStorage.setItem("dark-mode", document.body.classList.contains("dark-mode"));
+        checkDarkMode();
+    }
+
+    function checkDarkMode(){
+        if(localStorage.getItem("dark-mode") === "true"){
+            document.getElementById("dark-mode-switcher-button").innerHTML = '<i class="fa-duotone fa-sun"></i>';
+            $('body').addClass("dark-mode");
+            $('#top-navbar').addClass("navbar-dark").removeClass("navbar-light");
+            $('.table').addClass("table-dark");
+            $('.input-group input').removeClass("form-control-navbar").addClass("form-control-navbar-dark");
+            $('#dark-mode-switcher-button').removeClass('btn-dark').addClass('btn-light');
+
+        }else{
+            document.getElementById("dark-mode-switcher-button").innerHTML = '<i class="fa-duotone fa-moon"></i>';
+            $('body').removeClass("dark-mode");
+            $('#top-navbar').addClass("navbar-light").removeClass("navbar-dark");
+            $('.table').removeClass("table-dark");
+            $('.input-group input').addClass("form-control-navbar").removeClass("form-control-navbar-dark");
+            $('#dark-mode-switcher-button').addClass('btn-dark').removeClass('btn-light');
+        }
+    }
+
     $(document).ready(function(){
+        checkDarkMode();
         let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
         });
 
