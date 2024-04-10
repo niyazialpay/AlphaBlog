@@ -10,8 +10,7 @@
 <div class="row">
     <div class="col-sm-11 col-md-11 col-lg-11 container px-4">
         <div class="card">
-            <div id="chat-list" class="card-body" style="height: 600px; overflow-y: auto;">
-            </div>
+            <div id="chat-list" class="card-body" style="height: 600px; overflow-y: auto;"></div>
         </div>
     </div>
 </div>
@@ -25,7 +24,7 @@
                               autocomplete="off"
                               aria-label="@lang('chatbot.type_your_message')"
                               placeholder="@lang('chatbot.type_your_message')"></textarea>
-                    <button id="btn-send" class="btn">@lang('chatbot.send')</button>
+                    <button id="btn-send" class="btn d-none">@lang('chatbot.send')</button>
                 </div>
             </div>
         </div>
@@ -47,6 +46,17 @@
     const chatListEl = document.getElementById("chat-list");
     const inputMessage = document.getElementById("input-message");
 
+    let chat_messages_div = $('.chat-messages');
+    let chat_message_class;
+    if(localStorage.getItem("dark-mode") === "true"){
+        chat_messages_div.removeClass('chat-light').addClass('chat-dark');
+        chat_message_class = 'chat-dark';
+    }
+    else{
+        chat_messages_div.removeClass('chat-dark').addClass('chat-light');
+        chat_message_class = 'chat-light';
+    }
+
     const createElementFromStr = (str) => {
         const div = document.createElement('div');
         div.innerHTML = str;
@@ -55,7 +65,7 @@
 
     const createElementChatItem = (type) => {
         const chatItemElementTemplateBot = `
-            <div class="d-flex p-2 rounded mb-2" style="background-color: #f3f4f6">
+            <div class="d-flex p-2 rounded mb-2 chat-messages ` + chat_message_class + `">
                 <div class="mb-1">
                     <img src="{{config("app.url")}}/themes/panel/img/chatbot.png"
                     class="img-circle elevation-2 img-fluid"
@@ -66,12 +76,16 @@
                 </div>
                 <div class="px-3">
                     <div class="text-muted">AlpaBot</div>
-                    <div id="message-content"></div>
+                    <div id="message-content">
+                        <div id="chatbot-typing">
+                            @lang('chatbot.typing')<span>.</span><span>.</span><span>.</span>
+                        </div>
+                    </div>
                     <div id="scroll-item"></div>
                 </div>
             </div>`;
         const chatItemElementTemplateUser = `
-            <div class="d-flex p-2 rounded mb-2" style="background-color: #f3f4f6; ">
+            <div class="d-flex p-2 rounded mb-2 chat-messages ` + chat_message_class + `">
                 <div class="mb-1">
                     <img src="https://www.gravatar.com/avatar/{{md5(strtolower(trim(auth()->user()->email)))}}"
                     class="img-circle elevation-2 img-fluid"
@@ -98,7 +112,7 @@
 
     const createErrorElement = (message) => {
         const templete = `
-            <div class="d-flex p-2 rounded mb-2" style="background-color: #f3f4f6">
+            <div class="d-flex p-2 rounded mb-2 chat-messages ` + chat_message_class + `">
                 <img src="{{config("app.url")}}/themes/panel/img/chatbot.png"
                     class="img-circle elevation-2 img-fluid"
                     height="80"
@@ -171,7 +185,7 @@
 
         const inputText = inputMessage.value;
         const btnRetry = document.getElementById("btn-retry");
-        if (inputText != "") {
+        if (inputText !== "") {
             if (btnRetry) {
                 btnRetry.remove();
             }
@@ -183,16 +197,32 @@
     }
 
     btnSend.addEventListener("click", () => {
-        submitSendMessage()
+        submitSendMessage();
     })
 
     inputMessage.addEventListener("keyup", function(event) {
-        if (event.keyCode === 13) {
-            event.preventDefault();
-            submitSendMessage();
+        if (event.key === 'Enter') {
+            if((event.ctrlKey ||event.shiftKey) && event.key === 'Enter'){
+                inputMessage.rows = inputMessage.rows + 1;
+            }else{
+                submitSendMessage();
+            }
         }
     });
 
+
+    $(document).ready(function(){
+        $('#dark-mode-switcher-button').on('click', function(){
+
+            let div = $('#chat-list div div');
+            if(localStorage.getItem("dark-mode") === "true"){
+                div.removeClass('chat-light').addClass('chat-dark');
+            }
+            else{
+                div.removeClass('chat-dark').addClass('chat-light');
+            }
+        });
+    });
 
 </script>
 @endsection
