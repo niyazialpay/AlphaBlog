@@ -108,25 +108,49 @@
                 xhr.send(formData);
             });
 
+            const useDarkMode = localStorage.getItem("dark-mode")==="true";
+
             tinymce.init({
-                selector: 'textarea#content',
+                selector: 'textarea#content',  // change this value according to your HTML
                 language: '{{app('default_language')->code}}',
                 branding: false,
                 height: 600,
                 mobile: {
                     theme: 'silver',
-                    toolbar: 'undo | bold italic | link | image | font size select forecolor | shorturl',
+                    toolbar: 'undo | bold italic | link | image | font size select forecolor',
                     menubar: false
                 },
                 plugins: [
-                    'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor', 'pagebreak',
-                    'searchreplace', 'wordcount', 'visualblocks', 'visualchars', 'code', 'fullscreen',
-                    'insertdatetime', 'media', 'nonbreaking', 'table', 'directionality',
-                    'emoticons', 'codesample', 'help'
+                    'advlist',
+                    'autolink',
+                    'lists',
+                    'link',
+                    'image',
+                    'charmap',
+                    'preview',
+                    'anchor',
+                    'pagebreak',
+                    'searchreplace',
+                    'wordcount',
+                    'visualblocks',
+                    'visualchars',
+                    'code',
+                    'fullscreen',
+                    'insertdatetime',
+                    'media',
+                    'nonbreaking',
+                    'table',
+                    'directionality',
+                    'emoticons',
+                    'codesample',
+                    'help',
+                    'quickbars',
+                    'emoticons',
+                    'accordion'
                 ],
-                toolbar1: 'undo redo | insert | style select | bold italic | fontselect | fontsize select | ' +
-                    'alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link ',
-                toolbar2: 'print preview media image | forecolor backcolor | size select | emoticons | codesample',
+                toolbar1: 'undo redo | bold italic | fontsize blocks forecolor backcolor | ' +
+                    'alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link | help ',
+                toolbar2: 'print preview media image | charmap emoticons codesample code | visualblocks',
                 image_advtab: true,
                 fontsize_formats: "8pt 10pt 12pt 14pt 18pt 24pt 36pt",
                 extended_valid_elements: "a[class|name|href|target|title|onclick|rel]," +
@@ -141,7 +165,8 @@
                 relative_urls: false,
                 remove_script_host: false,
                 convert_urls: true,
-
+                skin: useDarkMode ? 'oxide-dark' : 'oxide',
+                content_css: useDarkMode ? 'dark' : 'default',
                 images_upload_handler: post_image_upload_handler
             });
 

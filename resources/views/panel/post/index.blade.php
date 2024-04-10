@@ -242,7 +242,6 @@
             list-style: none;
             margin:0;
             padding:0;
-            background: #eee;
             border-bottom: 1px solid #999;
         }
         .tab-menu li {
@@ -250,11 +249,9 @@
             padding: 10px;
         }
         .active-tab {
-            background: #999;
             box-shadow: inset -3px 0 8px -5px #111, inset 3px 0 8px -5px #111;
         }
         .active-tab a {
-            color: #fff;
         }
     </style>
     <script>
