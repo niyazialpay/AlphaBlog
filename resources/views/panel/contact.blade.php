@@ -70,12 +70,23 @@
 @section('script')
     <script>
         $(document).ready(function(){
-            tinymce.init({
-                selector: 'textarea.description',  // change this value according to your HTML
+            let tinymce_skin;
+            let tinymce_content_css;
+
+            if(localStorage.getItem("dark-mode") === "true"){
+                tinymce_skin = 'oxide-dark';
+                tinymce_content_css = 'dark';
+            }
+            else{
+                tinymce_skin = 'oxide';
+                tinymce_content_css = 'default';
+            }
+
+            let tinymce_settings = {
+                selector: 'textarea.description',
                 language: '{{app('default_language')->code}}',
                 branding: false,
-                //skin: (window.matchMedia("(prefers-color-scheme: dark)").matches ? "oxide-dark" : ""),
-                //content_css: (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : ""),
+                license_key: 'gpl',
                 height: 600,
                 mobile: {
                     theme: 'silver',
@@ -83,14 +94,36 @@
                     menubar: false
                 },
                 plugins: [
-                    'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor', 'pagebreak',
-                    'searchreplace', 'wordcount', 'visualblocks', 'visualchars', 'code', 'fullscreen',
-                    'insertdatetime', 'media', 'nonbreaking', 'table', 'directionality',
-                    'emoticons', 'codesample', 'help'
+                    'advlist',
+                    'autolink',
+                    'lists',
+                    'link',
+                    'image',
+                    'charmap',
+                    'preview',
+                    'anchor',
+                    'pagebreak',
+                    'searchreplace',
+                    'wordcount',
+                    'visualblocks',
+                    'visualchars',
+                    'code',
+                    'fullscreen',
+                    'insertdatetime',
+                    'media',
+                    'nonbreaking',
+                    'table',
+                    'directionality',
+                    'emoticons',
+                    'codesample',
+                    'help',
+                    'quickbars',
+                    'emoticons',
+                    'accordion'
                 ],
-                toolbar1: 'undo redo | insert | style select | bold italic | fontselect | fontsize select | ' +
-                    'alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link ',
-                toolbar2: 'print preview media image | forecolor backcolor | size select | emoticons | codesample',
+                toolbar1: 'undo redo | bold italic | fontsize blocks forecolor backcolor | ' +
+                    'alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link | help ',
+                toolbar2: 'print preview media image | charmap emoticons codesample code | visualblocks',
                 image_advtab: true,
                 fontsize_formats: "8pt 10pt 12pt 14pt 18pt 24pt 36pt",
                 extended_valid_elements: "a[class|name|href|target|title|onclick|rel]," +
@@ -105,7 +138,24 @@
                 relative_urls: false,
                 remove_script_host: false,
                 convert_urls: true,
+                skin: tinymce_skin,
+                content_css: tinymce_content_css,
 
+            }
+            tinymce.init(tinymce_settings);
+
+            $('#dark-mode-switcher-button').on('click', function(){
+
+                if(localStorage.getItem("dark-mode") === "true"){
+                    tinymce_settings.content_css = 'dark';
+                    tinymce_settings.skin = 'oxide-dark';
+                }
+                else{
+                    tinymce_settings.content_css = 'default';
+                    tinymce_settings.skin = 'oxide';
+                }
+                tinymce.remove();
+                tinymce.init(tinymce_settings);
             });
         });
     </script>

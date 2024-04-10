@@ -187,13 +187,13 @@
     }
 
     $(document).ready(function(){
-        const useDarkModeComment = localStorage.getItem("dark-mode")==="true";
-        tinymce.init({
+        let tinymce_comment_settings = {
             selector: 'textarea#comment',
             height: 300,
             promotion: false,
             language: '{{app('default_language')->code}}',
             branding: false,
+            license_key: 'gpl',
             toolbar: 'undo redo | insert | style select | bold italic | font | fontsize select | link',
             menubar : false,
             statusbar:false,
@@ -203,8 +203,24 @@
                 'insertdatetime', 'media', 'nonbreaking', 'table', 'directionality',
                 'emoticons', 'codesample', 'help'
             ],
-            skin: useDarkModeComment ? 'oxide-dark' : 'oxide',
-            content_css: useDarkModeComment ? 'dark' : 'default',
+            skin: tinymce_skin,
+            content_css: tinymce_content_css,
+        }
+
+        tinymce.init(tinymce_comment_settings);
+
+        $('#dark-mode-switcher-button').on('click', function(){
+
+            if(localStorage.getItem("dark-mode") === "true"){
+                tinymce_comment_settings.content_css = 'dark';
+                tinymce_comment_settings.skin = 'oxide-dark';
+            }
+            else{
+                tinymce_comment_settings.content_css = 'default';
+                tinymce_comment_settings.skin = 'oxide';
+            }
+            tinymce.get('comment').remove();
+            tinymce.init(tinymce_comment_settings);
         });
 
         $('#commentEditForm').submit(function(){
