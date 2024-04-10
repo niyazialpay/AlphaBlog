@@ -238,7 +238,8 @@
                                 enabled: true,
                                 style: {
                                     fontSize: '13px',
-                                    fontWeight: 900
+                                    fontWeight: 900,
+                                    color: '#009500'
                                 }
                             }
                         }
@@ -389,8 +390,10 @@
             chart.updateOptions({
                 theme: {
                     mode: theme_mode,
+                    palette: 'palette1',
                     monochrome: {
-                        color: color
+                        color: color,
+                        shadeTo: theme_mode,
                     },
                 }
             });
