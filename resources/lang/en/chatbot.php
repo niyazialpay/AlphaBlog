@@ -5,4 +5,5 @@ return [
     'title' => 'Personal Chatbot',
     'send' => 'Send',
     'type_your_message' => 'Type your message...',
+    'typing' => 'Typing',
 ];
