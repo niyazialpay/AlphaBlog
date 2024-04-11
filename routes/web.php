@@ -20,7 +20,8 @@ Route::group([
     'middleware' => [
         \App\Http\Middleware\NewCommentsCount::class,
         \App\Http\Middleware\AdminOneSignal::class,
-        \App\Http\Middleware\SearchedWords::class
+        \App\Http\Middleware\SearchedWords::class,
+        \App\Http\Middleware\VerifyOTP::class,
     ],
 ], function () {
     Route::any('/'.config('settings.admin_panel_path').'/manifest.json',
@@ -95,6 +96,9 @@ Route::post('/login',
         //'throttle:login',
         \App\Http\Middleware\CloudflareTurnstile::class,
     ]);
+
+Route::post('/user/2fa-verify', [\App\Http\Controllers\Admin\TwoFactorAuthController::class, 'verify'])->name('two-factor.verify');
+Route::get('/user/lock-screen', [\App\Http\Controllers\Admin\TwoFactorAuthController::class, 'lock'])->name('lockscreen');
 
 Route::get('/forgot-password',
     [\App\Http\Controllers\Auth\LoginController::class, 'forgotPassword'])

@@ -48,4 +48,10 @@ return [
     'new_user' => 'New User',
     'user_deleted' => 'User deleted!',
     'something_wrong' => 'Something went wrong!',
+
+    'two_fa' => [
+        'invalid_code' => 'Invalid Two Factor Authentication code',
+        'code_verified' => 'Two Factor Authentication code verified',
+    ],
+    'lockscreen' => 'Lock Screen',
 ];

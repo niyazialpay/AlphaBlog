@@ -376,7 +376,7 @@
                                         <div class="card-header">
                                             <ul class="nav nav-pills">
                                                 <li class="nav-item"><a class="nav-link active" href="#password-change-tab" data-bs-toggle="tab">@lang('profile.change-password')</a></li>
-                                                <li class="nav-item"><a class="nav-link" href="#two-fa-tab" data-bs-toggle="tab">Security</a></li>
+                                                <li class="nav-item"><a class="nav-link" href="#two-fa-tab" data-bs-toggle="tab">2FA</a></li>
                                             </ul>
                                         </div>
                                         <div class="card-body">
@@ -414,6 +414,55 @@
                                                         </div>
                                                         @csrf
                                                     </form>
+                                                </div>
+                                                <div class="tab-pane" id="two-fa-tab">
+                                                    @if(auth()->user()->two_factor_confirmed_at)
+                                                        <div class="col-12">
+                                                            <div class="row">
+                                                                <div class="col-12">
+                                                                    <h3>{{__('Recovery codes')}}</h3>
+                                                                </div>
+                                                                @foreach(auth()->user()->recoveryCodes() as $codes)
+                                                                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mt-1 mb-1">
+                                                                        <div class="row justify-content-center">
+                                                                            <div class="col-11 bg-bitbucket rounded p-1">
+                                                                                {{$codes}}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                        <form action="{{route('two-factor.disable')}}" class="mt-2" method="post">
+                                                            @csrf
+                                                            @method('delete')
+                                                            <button type="submit" class="btn btn-danger">Disable 2FA</button>
+                                                        </form>
+                                                        <!-- 2FA enabled but not yet confirmed, we show the QRcode and ask for confirmation : -->
+                                                    @elseif(auth()->user()->two_factor_secret)
+                                                        <form action="javascript:void(0);" id="two-factor-confirm" class="row" method="post">
+                                                            @csrf
+                                                            <div class="col-md-6 col-12">
+                                                                {!! auth()->user()->twoFactorQrCodeSvg() !!}
+                                                                <br>
+                                                                {{decrypt(auth()->user()->two_factor_secret)}}
+                                                            </div>
+                                                            <div class="col-md-6 col-12">
+                                                                <div class="mb-1">
+                                                                    <label class="form-label" for="code">{{__('OTP Code')}}</label>
+                                                                    <input type="text" id="code" class="form-control" placeholder="{{__('OTP Code')}}" name="code" required>
+                                                                </div>
+                                                                <button type="submit" class="btn btn-primary">Validate 2FA</button>
+                                                            </div>
+
+                                                        </form>
+                                                        <!-- 2FA not enabled at all, we show an 'enable' button  : -->
+                                                    @else
+                                                        <form action="{{route('two-factor.enable')}}" method="post">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-primary">Activate 2FA</button>
+                                                        </form>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -558,6 +607,46 @@
                                 confirmButtonText: "@lang('general.ok')",
                                 reverseButtons: true
                             });
+                        } else {
+                            Swal.fire({
+                                title: "@lang('general.error')",
+                                text: response.message,
+                                icon: "error",
+                                showCancelButton: false,
+                                confirmButtonText: "@lang('general.ok')",
+                                reverseButtons: true
+                            });
+                        }
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        Swal.fire({
+                            title: "Error",
+                            text: xhr.responseJSON.message,
+                            icon: "error",
+                            showCancelButton: false,
+                            confirmButtonText: "@lang('general.ok')",
+                            reverseButtons: true
+                        });
+                    }
+                });
+            });
+
+            $('#two-factor-confirm').submit(function(){
+                $.ajax({
+                    url: '{{route('two-factor.confirm')}}',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            Swal.fire({
+                                title: "@lang('general.success')",
+                                text: response.message,
+                                icon: "success",
+                                showCancelButton: false,
+                                confirmButtonText: "@lang('general.ok')",
+                                reverseButtons: true
+                            });
+                            window.location.reload();
                         } else {
                             Swal.fire({
                                 title: "@lang('general.error')",

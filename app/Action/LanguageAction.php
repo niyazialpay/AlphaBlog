@@ -22,6 +22,7 @@ class LanguageAction
             'login',
             'cdn-cgi',
             'up',
+            'user',
         ];
         $languages = new Languages();
         if (! in_array($request->segment(1), $except)) {
