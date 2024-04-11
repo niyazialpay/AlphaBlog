@@ -34,6 +34,12 @@
     border-right-width: 0 !important;
 }
 
+#dark-mode-switcher-button{
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+}
+
 .chat-light{
     background-color: #f3f4f6;
 }
