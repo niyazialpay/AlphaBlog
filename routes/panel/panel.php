@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\StreamingChatController;
 use Illuminate\Support\Facades\Route;
 
 //admin panel
@@ -19,5 +18,5 @@ Route::post('/contact', [App\Http\Controllers\Admin\ContactController::class, 's
 Route::get('/change-language/{language}', [App\Http\Controllers\Admin\DashboardController::class, 'changeLanguage'])
     ->name('admin.change_language');
 
-Route::get('/alphabot', [StreamingChatController::class, 'index'])->name('alphabot');
-Route::get("/alphabot/streaming", [StreamingChatController::class, 'chat'])->name('alphabot.streaming');
+Route::get('/alphabot', [App\Http\Controllers\StreamingChatController::class, 'index'])->name('alphabot');
+Route::get("/alphabot/streaming", [App\Http\Controllers\StreamingChatController::class, 'chat'])->name('alphabot.streaming');
