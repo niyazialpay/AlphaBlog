@@ -67,6 +67,7 @@ GEMINI_API_KEY=
   - The words searched in the search engine are kept in the database
     - It saves the words that are not found among the words in the on-site searches to generate ideas for content on that topic later.
 - Admin panel
+- 2-Factor Authentication
 - AI Chatbot - Based by Gemini
 - IP Filter (Blacklist and Whitelist)
 - User management
