@@ -7,6 +7,7 @@ use App\Models\PersonalNotes\PersonalNotes;
 use App\Models\Post\Posts;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Fortify\TwoFactorAuthenticationProvider;
 use Laravel\Sanctum\HasApiTokens;
 use MongoDB\Laravel\Auth\User as Authenticatable;
 use MongoDB\Laravel\Relations\HasMany;
@@ -83,5 +84,21 @@ class User extends Authenticatable
     public function noteCategories(): HasMany
     {
         return $this->hasMany(PersonalNoteCategories::class, 'user_id', '_id');
+    }
+
+    public function confirmTwoFactorAuth($code): bool
+    {
+        $codeIsValid = app(TwoFactorAuthenticationProvider::class)
+            ->verify(decrypt($this->two_factor_secret), $code);
+
+        if ($codeIsValid) {
+            $this->two_factor_confirmed_at = true;
+            $this->otp = true;
+            $this->save();
+
+            return true;
+        }
+
+        return false;
     }
 }

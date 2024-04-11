@@ -48,4 +48,10 @@ return [
     'new_user' => 'Yeni Kullanıcı',
     'user_deleted' => 'Kullanıcı silindi!',
     'something_wrong' => 'Bir şeyler ters gitti!',
+
+    'two_fa' => [
+        'invalid_code' => 'Geçersiz doğrulama kodu',
+        'code_verified' => 'Doğrulama kodu doğrulandı',
+    ],
+    'lockscreen' => 'Kilit Ekranı',
 ];

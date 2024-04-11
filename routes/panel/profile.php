@@ -28,3 +28,11 @@ Route::post('/webauthn/rename', [App\Http\Controllers\Admin\WebAuthnController::
 Route::post('/social-save', [App\Http\Controllers\Admin\UserController::class, 'socialSave'])
     ->can('own', 'App\Models\User')
     ->name('admin.profile.social.save');
+
+Route::post('/2fa-confirm', [App\Http\Controllers\Admin\TwoFactorAuthController::class, 'confirm'])
+    ->can('own', 'App\Models\User')
+    ->name('two-factor.confirm');
+
+Route::delete('2fa-disable', [App\Http\Controllers\Admin\TwoFactorAuthController::class, 'destroy'])
+    ->can('own', 'App\Models\User')
+    ->name('two-factor.disable');
