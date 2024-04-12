@@ -93,11 +93,15 @@ Route::get('/login',
 Route::post('/login',
     [\App\Http\Controllers\Auth\LoginController::class, 'login'])->middleware([
         \Spatie\Honeypot\ProtectAgainstSpam::class,
-        //'throttle:login',
+        'throttle:login',
         \App\Http\Middleware\CloudflareTurnstile::class,
     ]);
 
-Route::post('/login/2fa-verify', [\App\Http\Controllers\Admin\TwoFactorAuthController::class, 'verify'])->name('two-factor.verify');
+Route::post('/login/2fa-verify', [\App\Http\Controllers\Admin\TwoFactorAuthController::class, 'verify'])
+    ->middleware([
+        \Spatie\Honeypot\ProtectAgainstSpam::class,
+    ])
+    ->name('two-factor.verify');
 
 Route::get('/forgot-password',
     [\App\Http\Controllers\Auth\LoginController::class, 'forgotPassword'])
@@ -107,8 +111,8 @@ Route::post('/forgot-password',
     [\App\Http\Controllers\Auth\LoginController::class, 'resetPassword'])
     ->middleware([
         'guest',
-        'honeypot',
-        'cloudflare_turnstile',
+        \Spatie\Honeypot\ProtectAgainstSpam::class,
+        \App\Http\Middleware\CloudflareTurnstile::class,
     ]);
 
 Route::get('/reset-password/{token}',
@@ -119,8 +123,8 @@ Route::post('/reset-password',
     [\App\Http\Controllers\Auth\LoginController::class, 'reset'])
     ->middleware([
         'guest',
-        'honeypot',
-        'cloudflare_turnstile',
+        \Spatie\Honeypot\ProtectAgainstSpam::class,
+        \App\Http\Middleware\CloudflareTurnstile::class,
     ])->name('password.update');
 
 Route::get('/image/{path}/{width}/{height}/{type}/{image}',
