@@ -24,6 +24,7 @@
                     <label for="ip_range">@lang('ip_filter.ip_range')</label>
                     <textarea name="ip_range" id="ip_range"
                               class="form-control"
+                              rows="5"
                               placeholder="@lang('ip_filter.ip_range_placeholder')"></textarea>
                 </div>
                 <div class="col-12 mb-3">
@@ -105,6 +106,7 @@
                     $('#route_list').html(`
                         <label for="routes">@lang('ip_filter.routes')</label>
                         <textarea name="routes" id="routes"
+                                  rows="5"
                                   class="form-control"
                                   placeholder="@lang('ip_filter.routes_placeholder')"></textarea>
                     `);
