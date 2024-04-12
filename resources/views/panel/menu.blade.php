@@ -26,7 +26,7 @@
            class="nav-link @if(request()->is(config('settings.admin_panel_path').'/blogs*')) active @endif ">
             <i class="fa-duotone fa-file-lines nav-icon"></i>
             @if($newCommentsCount>0 || $searchedWordsCount>0)
-                <span class="badge badge-danger navbar-badge">
+                <span class="badge badge-danger right">
                     @if($newCommentsCount+$searchedWordsCount>99)
                         99+
                     @else
@@ -77,7 +77,7 @@
                    @if(request()->is(config('settings.admin_panel_path').'/blogs/comments*')) active @endif ">
                         <i class="fa-duotone fa-comments nav-icon"></i>
                         @if($newCommentsCount>0)
-                            <span class="badge badge-danger navbar-badge">
+                            <span class="badge badge-danger right">
                                 @if($newCommentsCount>99)
                                     99+
                                 @else
@@ -98,7 +98,7 @@
                    @if(request()->is(config('settings.admin_panel_path').'/search*')) active @endif ">
                         <i class="fa-duotone fa-file-magnifying-glass nav-icon"></i>
                         @if($searchedWordsCount>0)
-                            <span class="badge badge-danger navbar-badge">
+                            <span class="badge badge-danger right">
                                 @if($searchedWordsCount>99)
                                     99+
                                 @else

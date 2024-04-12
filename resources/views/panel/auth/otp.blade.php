@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{session('language')}}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AdminLTE 3 | Lockscreen</title>
+    <title>{{config('app.name')}} | @lang('user.lockscreen')</title>
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -44,11 +44,10 @@
         <form class="lockscreen-credentials" id="otp-login" method="post" action="javascript:void(0)">
             <div class="input-group">
                 @csrf
+                @honeypot
                 <input type="password" name="code" class="form-control" placeholder="OTP">
-
                 <div class="input-group-append">
-                    <button type="submit
-                    " class="btn">
+                    <button type="submit" class="btn">
                         <i class="fas fa-arrow-right text-muted"></i>
                     </button>
                 </div>
