@@ -49,6 +49,23 @@ To create a user after these operations
 php artisan app:create-user
 ```
 
+To delete posts and comments in the trash, as well as words you don't intend to use in search words
+
+```bash
+php artisan app:clear-trash
+```
+
+Cron job definition to automatically delete unused search words, trashed posts and comments from the last 30 days
+
+```bash
+* * * * * php artisan schedule:run >> /dev/null 2>&1
+```
+
+or
+```bash
+0 0 * * *  php artisan clear-trash >> /dev/null 2>&1
+```
+
 ### For activate Gemini Chatbot
 If you want to activate Gemini Chatbot you have to get an API key from https://makersuite.google.com/app/apikey and add it to the .env file
 
