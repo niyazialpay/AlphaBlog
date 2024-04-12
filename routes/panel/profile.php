@@ -33,6 +33,6 @@ Route::post('/2fa-confirm', [App\Http\Controllers\Admin\TwoFactorAuthController:
     ->can('own', 'App\Models\User')
     ->name('two-factor.confirm');
 
-Route::delete('2fa-disable', [App\Http\Controllers\Admin\TwoFactorAuthController::class, 'destroy'])
+Route::delete('/2fa-disable', [App\Http\Controllers\Admin\TwoFactorAuthController::class, 'destroy'])
     ->can('own', 'App\Models\User')
     ->name('two-factor.disable');

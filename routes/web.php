@@ -97,8 +97,7 @@ Route::post('/login',
         \App\Http\Middleware\CloudflareTurnstile::class,
     ]);
 
-Route::post('/user/2fa-verify', [\App\Http\Controllers\Admin\TwoFactorAuthController::class, 'verify'])->name('two-factor.verify');
-Route::get('/user/lock-screen', [\App\Http\Controllers\Admin\TwoFactorAuthController::class, 'lock'])->name('lockscreen');
+Route::post('/login/2fa-verify', [\App\Http\Controllers\Admin\TwoFactorAuthController::class, 'verify'])->name('two-factor.verify');
 
 Route::get('/forgot-password',
     [\App\Http\Controllers\Auth\LoginController::class, 'forgotPassword'])
