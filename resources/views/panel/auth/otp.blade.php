@@ -47,7 +47,8 @@
                 <input type="password" name="code" class="form-control" placeholder="OTP">
 
                 <div class="input-group-append">
-                    <button type="button" class="btn">
+                    <button type="submit
+                    " class="btn">
                         <i class="fas fa-arrow-right text-muted"></i>
                     </button>
                 </div>
