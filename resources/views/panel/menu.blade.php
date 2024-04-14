@@ -36,8 +36,8 @@
             @endif
             <p>
                 @lang('post.blogs')
+                <i class="right fas fa-angle-left"></i>
             </p>
-            <i class="right fas fa-angle-left"></i>
         </a>
         <ul class="nav nav-treeview shadow rounded py-2">
 
@@ -124,8 +124,8 @@
                 <i class="fa-duotone fa-page  nav-icon"></i>
                 <p>
                     @lang('post.pages')
+                    <i class="right fas fa-angle-left"></i>
                 </p>
-                <i class="right fas fa-angle-left"></i>
             </a>
             <ul class="nav nav-treeview shadow rounded py-2">
                 <li class="nav-item">
@@ -169,8 +169,8 @@
             <i class="fa-duotone fa-file-lock nav-icon"></i>
             <p>
                 @lang('notes.notes')
+                <i class="right fas fa-angle-left"></i>
             </p>
-            <i class="right fas fa-angle-left"></i>
         </a>
         <ul class="nav nav-treeview shadow rounded py-2">
             <li class="nav-item">
