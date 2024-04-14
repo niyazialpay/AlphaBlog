@@ -74,3 +74,23 @@
 #chatbot-typing span:nth-child(3) {
     animation-delay: .4s;
 }
+
+/* width */
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #a3a2a2;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #717171;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #3c3c3c;
+}
