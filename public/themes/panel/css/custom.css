@@ -21,7 +21,7 @@
     margin: 2px 3px 0 3px;
 }
 #social-networks input{
-    border-left:0;
+    border-left:0 !important;
 }
 #dark-mode-switcher{
     position:fixed;

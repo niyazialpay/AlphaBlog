@@ -73,15 +73,30 @@
                     <div class="card">
                         <div class="card-header">
                             <ul class="nav nav-pills">
-                                <li class="nav-item"><a class="nav-link active" href="#about-me" data-bs-toggle="tab">@lang('profile.about-me')</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#social-networks" data-bs-toggle="tab">@lang('social.social_networks')</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#security" data-bs-toggle="tab">Security</a></li>
+                                <li class="nav-item">
+                                    <a class="nav-link profile-link @if(request()->get('tab')=='about-me') active @endif"
+                                       href="javascript:ChangeTab('about-me')" id="about-me-menu">
+                                        @lang('profile.about-me')
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link profile-link @if(request()->get('tab')=='social-networks') active @endif"
+                                       href="javascript:ChangeTab('social-networks')" id="social-networks-menu">
+                                        @lang('social.social_networks')
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link profile-link @if(request()->get('tab')=='security') active @endif"
+                                       href="javascript:ChangeTab('security')" id="security-menu">
+                                        Security
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                         <div class="card-body">
                             <div class="tab-content">
-                                <div class="tab-pane active" id="about-me">
-
+                                <div class="tab-pane profile-tab @if(request()->get('tab')=='about-me') active @endif"
+                                     id="about-me">
                                     <form method="post" action="javascript:void(0)" id="profileUpdate" class="row">
                                         <div class="col-12 mb-3">
                                             <label for="name" class="form-label">@lang('profile.name.text')</label>
@@ -158,9 +173,9 @@
                                             <button type="submit" class="btn btn-primary">@lang('general.save')</button>
                                         </div>
                                     </form>
-
                                 </div>
-                                <div class="tab-pane" id="social-networks">
+                                <div class="tab-pane profile-tab @if(request()->get('tab')=='social-networks') active @endif"
+                                     id="social-networks">
                                     <form class="row" method="post" id="socialNetworkForm" action="javascript:void(0)">
                                         <div class="col-12 mb-3">
                                             <div class="input-group">
@@ -371,99 +386,28 @@
                                         </div>
                                     </form>
                                 </div>
-                                <div class="tab-pane" id="security">
+                                <div class="tab-pane profile-tab @if(request()->get('tab')=='security') active @endif"
+                                     id="security">
                                     <div class="card">
                                         <div class="card-header">
                                             <ul class="nav nav-pills">
-                                                <li class="nav-item"><a class="nav-link active" href="#password-change-tab" data-bs-toggle="tab">@lang('profile.change-password')</a></li>
-                                                <li class="nav-item"><a class="nav-link" href="#two-fa-tab" data-bs-toggle="tab">2FA</a></li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link active" href="#password-change-tab"
+                                                                        data-bs-toggle="tab">
+                                                        @lang('profile.change-password')
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="#two-fa-tab" data-bs-toggle="tab">
+                                                        OTP
+                                                    </a>
+                                                </li>
                                             </ul>
                                         </div>
                                         <div class="card-body">
                                             <div class="tab-content">
-                                                <div class="tab-pane active" id="password-change-tab">
-                                                    <form class="row" action="javascript:void(0)" id="passwordChangeForm">
-                                                        @if(!request()->route()->parameter('user'))
-                                                        <div class="col-12 mb-3">
-                                                            <label for="old_password" class="form-label">
-                                                                @lang('profile.old_password.text')
-                                                            </label>
-                                                            <input type="password" class="form-control"
-                                                                   id="old_password" name="old_password"
-                                                                   placeholder="@lang('profile.old_password.placeholder')">
-                                                        </div>
-                                                        @endif
-                                                        <div class="col-12 mb-3">
-                                                            <label for="password" class="form-label">
-                                                                @lang('profile.new_password.text')
-                                                            </label>
-                                                            <input type="password" class="form-control"
-                                                                   id="password" name="password"
-                                                                   placeholder="@lang('profile.new_password_confirmation.placeholder')">
-                                                        </div>
-                                                        <div class="col-12 mb-3">
-                                                            <label for="password_confirmation" class="form-label">
-                                                                @lang('profile.new_password_confirmation.text')
-                                                            </label>
-                                                            <input type="password" class="form-control"
-                                                                   id="password_confirmation" name="password_confirmation"
-                                                                   placeholder="@lang('profile.new_password_confirmation.placeholder')">
-                                                        </div>
-                                                        <div class="col-12 mb-3">
-                                                            <button type="submit" class="btn btn-primary">@lang('general.save')</button>
-                                                        </div>
-                                                        @csrf
-                                                    </form>
-                                                </div>
-                                                <div class="tab-pane" id="two-fa-tab">
-                                                    @if(auth()->user()->two_factor_confirmed_at)
-                                                        <div class="col-12">
-                                                            <div class="row">
-                                                                <div class="col-12">
-                                                                    <h3>{{__('Recovery codes')}}</h3>
-                                                                </div>
-                                                                @foreach(auth()->user()->recoveryCodes() as $codes)
-                                                                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mt-1 mb-1">
-                                                                        <div class="row justify-content-center">
-                                                                            <div class="col-11 bg-bitbucket rounded p-1">
-                                                                                {{$codes}}
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                @endforeach
-                                                            </div>
-                                                        </div>
-                                                        <form action="{{route('two-factor.disable')}}" class="mt-2" method="post">
-                                                            @csrf
-                                                            @method('delete')
-                                                            <button type="submit" class="btn btn-danger">Disable 2FA</button>
-                                                        </form>
-                                                        <!-- 2FA enabled but not yet confirmed, we show the QRcode and ask for confirmation : -->
-                                                    @elseif(auth()->user()->two_factor_secret)
-                                                        <form action="javascript:void(0);" id="two-factor-confirm" class="row" method="post">
-                                                            @csrf
-                                                            <div class="col-md-6 col-12">
-                                                                {!! auth()->user()->twoFactorQrCodeSvg() !!}
-                                                                <br>
-                                                                {{decrypt(auth()->user()->two_factor_secret)}}
-                                                            </div>
-                                                            <div class="col-md-6 col-12">
-                                                                <div class="mb-1">
-                                                                    <label class="form-label" for="code">{{__('OTP Code')}}</label>
-                                                                    <input type="text" id="code" class="form-control" placeholder="{{__('OTP Code')}}" name="code" required>
-                                                                </div>
-                                                                <button type="submit" class="btn btn-primary">Validate 2FA</button>
-                                                            </div>
-
-                                                        </form>
-                                                        <!-- 2FA not enabled at all, we show an 'enable' button  : -->
-                                                    @else
-                                                        <form action="{{route('two-factor.enable')}}" method="post">
-                                                            @csrf
-                                                            <button type="submit" class="btn btn-primary">Activate 2FA</button>
-                                                        </form>
-                                                    @endif
-                                                </div>
+                                                @include('panel.profile.partials.password-change-tab')
+                                                @include('panel.profile.partials.two-factor-authentication-tab')
                                             </div>
                                         </div>
                                     </div>
@@ -495,7 +439,23 @@
             }
         }
 
+        function ChangeTab(tab) {
+            window.history.pushState("", "", '{{route('admin.profile.index')}}?tab=' + tab);
+            $('.profile-tab').removeClass('active');
+            $('#' + tab).addClass('active').click();
+            $('.profile-link').removeClass('active');
+            $('#' + tab + '-menu').addClass('active');
+        }
+
         $(document).ready(function () {
+
+            let urlParams = new URLSearchParams(window.location.search);
+
+            if (urlParams.has('tab')) {
+                ChangeTab(urlParams.get('tab'));
+            } else {
+                ChangeTab('about-me');
+            }
 
             let profile_update_url;
             let social_network_update_url;

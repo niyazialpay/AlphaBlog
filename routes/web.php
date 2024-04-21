@@ -81,11 +81,6 @@ Route::group([
         ->group(base_path('routes/panel/history.php'));
 });
 
-Route::any('/corbado/webhook', [\App\Http\Controllers\Admin\WebAuthnController::class, 'webhook'])
-    ->name('corbado.webhook');
-
-Route::any('/corbado/redirect', [\App\Http\Controllers\Admin\WebAuthnController::class, 'redirect']);
-
 Route::get('/login',
     [\App\Http\Controllers\Admin\UserController::class, 'login'])
     ->name('login');
