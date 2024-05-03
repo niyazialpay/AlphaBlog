@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('admin_one_signal', function (Blueprint $table) {
             $table->id();
-            $table->string('onesignal')->nullable();
+            $table->text('onesignal')->nullable();
         });
     }
 

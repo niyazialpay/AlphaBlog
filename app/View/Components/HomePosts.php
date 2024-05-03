@@ -24,24 +24,28 @@ class HomePosts extends Component
      */
     public function render(): View|Closure|string
     {
-        try{
+        $post = Posts::with('categories')->join('users', 'posts.user_id', '=', 'users.id')
+            ->join('media', 'posts.id', '=', 'media.model_id')
+            ->select([
+                'posts.*',
+                'users.nickname',
+                'users.email',
+                'media.file_name',
+                'media.id as media_id'
+            ])
+            ->where('posts.post_type', 'post')
+            ->where('posts.language', session('language'))
+            ->where('posts.is_published', true)
+            ->where('media.collection_name', 'posts')
+            ->orderBy('posts.created_at', 'desc')
+            ->paginate($this->paginate)->withQueryString();
+        try {
             return view('themes.'.app('theme')->name.'.components.posts.home-posts', [
-                'posts' => Posts::with(['categories', 'user'])
-                    ->where('post_type', 'post')
-                    ->where('language', session('language'))
-                    ->where('is_published', true)
-                    ->orderBy('created_at', 'desc')
-                    ->paginate($this->paginate)->withQueryString(),
+                'posts' => $post,
             ]);
-        }
-        catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return view('Default.components.posts.home-posts', [
-                'posts' => Posts::with(['categories', 'user'])
-                    ->where('post_type', 'post')
-                    ->where('language', session('language'))
-                    ->where('is_published', true)
-                    ->orderBy('created_at', 'desc')
-                    ->paginate($this->paginate)->withQueryString(),
+                'posts' => $post,
             ]);
         }
     }

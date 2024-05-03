@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Laragear\WebAuthn\Models\WebAuthnCredential;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,10 +16,10 @@ class VerifyOTP
         '/yubikey',
         '/webauthn/login/',
         '/webauthn/login/*',
-        '/2fa-verify'
+        '/2fa-verify',
     ];
 
-    protected function inExceptArray($request)
+    protected function inExceptArray($request): bool
     {
         foreach ($this->except as $except) {
             if ($except !== '/') {
@@ -36,16 +37,16 @@ class VerifyOTP
     /**
      * Handle an incoming request.
      *
-     * @param Closure(Request): (Response) $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if($this->inExceptArray($request)) {
+        if ($this->inExceptArray($request)) {
             return $next($request);
-        }
-        else{
-            if(!Auth::guest()){
-                if(Auth::user()->otp){
+        } else {
+            if (! Auth::guest()) {
+                $user = Auth::user();
+                if ($user->otp || $user->webauthn) {
                     try {
                         if (session()->has('otp') && session('otp')) {
                             return $next($request);
@@ -60,8 +61,10 @@ class VerifyOTP
                 }
 
             } else {
-                if (session()->has('otp'))
+                if (session()->has('otp')) {
                     session()->remove('otp');
+                }
+
                 return $next($request);
             }
         }
@@ -69,8 +72,9 @@ class VerifyOTP
 
     private function UserHasWebAuthnOrTOTP(): array
     {
-        $webauthn = null; //WebAuthn::where('authenticatable_id', Auth::user()->id)->count() > 0;
+        $webauthn = WebAuthnCredential::where('authenticatable_id', Auth::user()->id)->count() > 0;
         $totp = Auth::user()->two_factor_confirmed_at;
-        return ["webauthn" => $webauthn, "totp" => $totp];
+
+        return ['webauthn' => $webauthn, 'totp' => $totp];
     }
 }

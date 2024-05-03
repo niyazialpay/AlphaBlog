@@ -26,6 +26,7 @@ return [
     'menu_deleted' => 'Menu deleted successfully!',
     'add_menu_item' => 'Add Menu Item',
     'special_link' => 'Special Link',
+    'menu_save_error' => 'An error occurred while saving the menu!',
 
     'title_required' => 'Title is required',
     'title_string' => 'Title must be a string',

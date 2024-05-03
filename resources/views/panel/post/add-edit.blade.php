@@ -65,7 +65,7 @@
                     @else
                         <div class="input-group">
                             <div class="custom-file">
-                                <input type="file" class="custom-file-input" name="image" id="image">
+                                <input type="file" class="custom-file-input" name="image" id="image" accept="image/*">
                                 <label class="custom-file-label" for="image">@lang('post.image')</label>
                             </div>
                         </div>
@@ -79,9 +79,9 @@
                 </div>
                 <div class="col-12 mb-3">
                     <label for="meta_keywords">@lang('post.meta_keywords')</label>
-                    <input type="text" class="form-control" name="meta_keywords" id="meta_keywords"
+                    <input type="text" class="form-control" name="meta_keywords" id="meta_keywords" maxlength="255"
                            placeholder="@lang('post.meta_keywords')"
-                           value="@if($post->_id){{implode(',', $post->meta_keywords)}}@endif">
+                           value="@if($post->id){{$post->meta_keywords}}@endif">
                 </div>
                 <div class="col-12 mb-3">
                     <label for="meta_description">@lang('post.meta_description')</label>
@@ -148,8 +148,8 @@
                                        id="hreflang_url[{{$language->code}}]"
                                        placeholder="Href Lang ({{$language->code}})"
                                        @if($post->href_lang)
-                                       @if(array_key_exists($language->code, $post->href_lang))
-                                           value="{{$post->href_lang[$language->code]}}"
+                                       @if(array_key_exists($language->code, json_decode($post->href_lang, true)))
+                                           value="{{json_decode($post->href_lang, true)[$language->code]}}"
                                     @endif @endif>
                             </div>
                         @endforeach
@@ -545,7 +545,7 @@
 
 
             @if($post->id)
-            $('#category_id').val({!! json_encode($post->category_id) !!}).trigger('change');
+            $('#category_id').val({!! json_encode($post->categories->pluck('id')) !!}).trigger('change');
             @endif
 
             $('#blogSave').submit(function () {

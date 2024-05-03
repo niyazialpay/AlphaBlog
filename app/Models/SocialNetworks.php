@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use MongoDB\Laravel\Eloquent\Model;
-use MongoDB\Laravel\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SocialNetworks extends Model
 {
-    protected $collection = 'social_networks';
+    protected $table = 'social_networks';
 
     protected $fillable = [
         'type',
@@ -29,6 +29,6 @@ class SocialNetworks extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', '_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

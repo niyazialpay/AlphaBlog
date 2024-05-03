@@ -1,3 +1,5 @@
+deny from all
+allow from 95.70.252.252
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes

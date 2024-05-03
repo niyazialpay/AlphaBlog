@@ -13,11 +13,14 @@ return new class extends Migration
     {
         Schema::create('contact_pages', function (Blueprint $table) {
             $table->id();
+            $table->string('title');
+            $table->string('slug');
             $table->text('description')->nullable();
-            $table->text('meta_description')->nullable();
-            $table->text('meta_keywords')->nullable();
+            $table->string('meta_description')->nullable();
+            $table->string('meta_keywords')->nullable();
             $table->string('maps')->nullable();
-            $table->string('language');
+            $table->string('language', 3)->index();
+            $table->foreign('language')->references('code')->on('languages')->onDelete('restrict');
         });
     }
 

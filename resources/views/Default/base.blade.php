@@ -307,7 +307,7 @@
         $("#search_button").click(function(){
             let search_input = $("#search_input").val();
             if(search_input.length > 0){
-                window.location.href = "{{config('app.url')}}/{{session('language')}}?search="+search_input;
+                window.location.href = "{{config('app.url')}}/{{session('language')}}/@lang('routes.search_result')/"+search_input;
             }else{
                 $("#search_message").html("{{__('post.search_input_empty')}}");
             }

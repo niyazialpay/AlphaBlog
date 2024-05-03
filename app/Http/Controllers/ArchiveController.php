@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post\Posts;
+use Exception;
 
 class ArchiveController extends Controller
 {
@@ -30,12 +31,23 @@ class ArchiveController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10)->withQueryString();
 
-        return view('themes.'.app('theme')->name.'.archive', [
-            'posts' => $posts,
-            'date' => $date,
-            'day' => $day,
-            'month' => $month,
-            'year' => $year,
-        ]);
+        try{
+            return view('themes.'.app('theme')->name.'.archive', [
+                'posts' => $posts,
+                'date' => $date,
+                'day' => $day,
+                'month' => $month,
+                'year' => $year,
+            ]);
+        }
+        catch (Exception $e){
+            return view('Default.archive', [
+                'posts' => $posts,
+                'date' => $date,
+                'day' => $day,
+                'month' => $month,
+                'year' => $year,
+            ]);
+        }
     }
 }

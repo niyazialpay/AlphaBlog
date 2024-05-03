@@ -34,12 +34,12 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         Route::bind('showPost', function ($slug) {
-            return Posts::with(['user', 'categories', 'comments' => function ($query) {
-                return $query->where('is_approved', true);
+            return Posts::with(['user', 'user.social', 'categories', 'comments' => function ($query) {
+                return $query->where('is_approved', 1);
             }, 'comments.user'])
                 ->where('slug', $slug)
                 ->where('language', session()->get('language'))
-                ->where('is_published', true)->firstOrFail();
+                ->where('is_published', 1)->firstOrFail();
         });
 
         Route::bind('showCategory', function ($slug) {
@@ -52,8 +52,11 @@ class RouteServiceProvider extends ServiceProvider
                 ->query(function ($query) {
                     $query->with(['user', 'categories', 'comments', 'comments.user']);
                 })
-                ->where('language', session()->get('language'))
-                ->where('is_published', true)->paginate(10);
+                ->where('post_type', 'post')
+                ->where('language', session('language'))
+                ->where('is_published', 1)
+                ->orderBy('created_at', 'desc')
+                ->paginate(10)->withQueryString();
         });
 
         Route::bind('showUserPosts', function ($nickname) {
@@ -61,9 +64,10 @@ class RouteServiceProvider extends ServiceProvider
                 ->with(['posts', 'posts.categories', 'posts.media', 'posts.media.model'])
                 ->whereHas('posts', function ($query) {
                     $query->where('language', session()->get('language'))
-                        ->where('is_published', true);
+                        ->where('is_published', 1);
                 })
-                ->where('nickname', $nickname)->paginate();
+                ->where('nickname', $nickname)
+                ->paginate(10)->withQueryString();
         });
 
     }

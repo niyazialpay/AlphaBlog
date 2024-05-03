@@ -8,15 +8,17 @@ use App\Models\Post\Categories;
 use App\Models\Post\Comments;
 use App\Models\Post\Posts;
 use App\Models\User;
+use Exception;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use niyazialpay\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
-use niyazialpay\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
-use niyazialpay\MediaLibrary\MediaCollections\Exceptions\MediaCannotBeDeleted;
+use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
+use Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
+use Spatie\MediaLibrary\MediaCollections\Exceptions\MediaCannotBeDeleted;
 
 class PostController extends Controller
 {
@@ -86,100 +88,129 @@ class PostController extends Controller
         ]);
     }
 
-    /**
-     * @throws FileDoesNotExist
-     * @throws FileIsTooBig
-     */
     public function save(
         $type,
         PostRequest $request,
         Posts $post
     ): JsonResponse {
-        if ($post->id) {
-            $message = __('post.success_update');
-        } else {
-            $message = __('post.success');
-        }
-        $post->title = GetPost($request->post('title'));
-        if ($request->slug == null) {
-            $slug = Str::slug($request->post('title'));
-        } else {
-            $slug = Str::slug($request->post('slug'));
-        }
-        $post->slug = $slug;
-        if ($request->hasFile('image') && $request->file('image')->isValid()) {
-            $post->addMediaFromRequest('image')->toMediaCollection('posts');
-        }
-        $post->content = content($request->post('content'));
-        $post->meta_description = GetPost($request->post('meta_description'));
-        $post->meta_keywords = explode(',', $request->post('meta_keywords'));
-        $post->user_id = GetPost($request->post('user_id'));
-        $post->is_published = $request->post('is_published') == 1;
-        $post->post_type = GetPost($request->post('post_type'));
-        $post->language = GetPost($request->post('language'));
-        $post->created_at = dateformat($request->post('published_at'), 'Y-m-d H:i:s', config('app.timezone'));
-
-        $hreflang = [];
-        foreach ($request->hreflang_url as $key => $value) {
-            if ($value != null) {
-                $hreflang[$key] = GetPost($value);
+        try {
+            DB::beginTransaction();
+            if ($post->id) {
+                $message = __('post.success_update');
+            } else {
+                $message = __('post.success');
             }
-        }
-        $post->href_lang = $hreflang;
-
-        if ($post->save()) {
-            if ($request->post('post_type') == 'post') {
-                $post->categories()->sync($request->post('category_id'));
+            $post->title = GetPost($request->post('title'));
+            if ($request->slug == null) {
+                $slug = Str::slug($request->post('title'));
+            } else {
+                $slug = Str::slug($request->post('slug'));
             }
+            $post->slug = $slug;
+            if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                $post->addMediaFromRequest('image')->toMediaCollection('posts');
+            }
+            $post->content = content($request->post('content'));
+            $post->meta_description = GetPost($request->post('meta_description'));
+            $post->meta_keywords = content($request->post('meta_keywords'));
+            $post->user_id = GetPost($request->post('user_id'));
+            $post->is_published = $request->post('is_published') == 1;
+            $post->post_type = GetPost($request->post('post_type'));
+            $post->language = GetPost($request->post('language'));
+            $post->created_at = dateformat($request->post('published_at'), 'Y-m-d H:i:s', config('app.timezone'));
 
-            return response()->json(['status' => 'success', 'message' => $message, 'id' => $post->id]);
-        } else {
-            return response()->json(['status' => 'error', 'message' => __('post.error')]);
+            $hreflang = [];
+            foreach ($request->hreflang_url as $key => $value) {
+                if ($value != null) {
+                    $hreflang[$key] = GetPost($value);
+                }
+            }
+            $post->href_lang = json_encode($hreflang);
+
+            if ($post->save()) {
+                if ($request->post('post_type') == 'post') {
+                    $post->categories()->sync($request->post('category_id'));
+                }
+                DB::commit();
+
+                return response()->json(['status' => 'success', 'message' => $message, 'id' => $post->id]);
+            } else {
+                return response()->json(['status' => 'error', 'message' => __('post.error')])->setStatusCode(500);
+            }
+        } catch (Exception $exception) {
+            DB::rollBack();
+
+            return response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
         }
-
     }
 
     public function delete($type, Posts $post)
     {
-        if (! ($type == 'pages' || $type == 'blogs')) {
-            abort(404);
-        }
-        Comments::where('post_id', $post->id)->delete();
-        if ($post->delete()) {
-            return response()->json(['status' => 'success', 'message' => __('post.success_delete')]);
-        } else {
-            return response()->json(['status' => 'error', 'message' => __('post.post.error_delete')]);
+        try {
+            DB::beginTransaction();
+            if (! ($type == 'pages' || $type == 'blogs')) {
+                abort(404);
+            }
+            if ($post->delete()) {
+                Comments::where('post_id', $post->id)->delete();
+                DB::commit();
+
+                return response()->json(['status' => 'success', 'message' => __('post.success_delete')]);
+            } else {
+                return response()->json(['status' => 'error', 'message' => __('post.post.error_delete')]);
+            }
+        } catch (Exception $exception) {
+            DB::rollBack();
+
+            return response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
         }
     }
 
     public function forceDelete($type, Posts $post)
     {
-        if (! ($type == 'pages' || $type == 'blogs')) {
-            abort(404);
-        }
-        $post->categories()->detach();
-        foreach ($post->getMedia('*') as $media) {
-            $media->delete();
-        }
-        Comments::where('post_id', $post->id)->forceDelete();
-        if ($post->forceDelete()) {
-            return response()->json(['status' => 'success', 'message' => __('post.post.success_force_delete')]);
-        } else {
-            return response()->json(['status' => 'error', 'message' => __('post.post.error_force_delete')]);
+        try {
+            DB::beginTransaction();
+            if (! ($type == 'pages' || $type == 'blogs')) {
+                abort(404);
+            }
+            $post->categories()->detach();
+            foreach ($post->getMedia('*') as $media) {
+                $media->delete();
+            }
+            Comments::where('post_id', $post->id)->forceDelete();
+            if ($post->forceDelete()) {
+                DB::commit();
+
+                return response()->json(['status' => 'success', 'message' => __('post.post.success_force_delete')]);
+            } else {
+                return response()->json(['status' => 'error', 'message' => __('post.post.error_force_delete')]);
+            }
+        } catch (Exception $exception) {
+            DB::rollBack();
+
+            return response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
         }
     }
 
     public function restore($type, Posts $post)
     {
-        if (! ($type == 'pages' || $type == 'blogs')) {
-            abort(404);
-        }
-        if ($post->restore()) {
-            Comments::onlyTrashed()->where('post_id', $post->id)->restore();
+        try {
+            DB::beginTransaction();
+            if (! ($type == 'pages' || $type == 'blogs')) {
+                abort(404);
+            }
+            if ($post->restore()) {
+                Comments::onlyTrashed()->where('post_id', $post->id)->restore();
+                DB::commit();
 
-            return response()->json(['status' => 'success', 'message' => __('post.post.success_restore')]);
-        } else {
-            return response()->json(['status' => 'error', 'message' => __('post.post.error_restore')]);
+                return response()->json(['status' => 'success', 'message' => __('post.post.success_restore')]);
+            } else {
+                return response()->json(['status' => 'error', 'message' => __('post.post.error_restore')]);
+            }
+        } catch (Exception $exception) {
+            DB::rollBack();
+
+            return response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
         }
     }
 
@@ -219,7 +250,7 @@ class PostController extends Controller
             $post->post_type = GetPost($request->post('post_type'));
             $post->language = $request->post('language');
             $post->user_id = auth()->user()->id;
-            $post->meta_keywords = explode(',', $request->post('meta_keywords'));
+            $post->meta_keywords = $request->post('meta_keywords');
             $post->save();
         }
 

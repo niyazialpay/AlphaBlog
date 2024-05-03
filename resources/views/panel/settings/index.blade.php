@@ -236,7 +236,7 @@
                                                         <input type="text" class="form-control"
                                                                id="site_keywords_{{$language->code}}"
                                                                name="site_keywords_{{$language->code}}"
-                                                               value="{{implode(',', $seo->keywords)}}">
+                                                               value="{{$seo->keywords}}">
                                                     </div>
                                                     <div class="col-12 mb-3">
                                                         <label for="site_author_{{$language->code}}">
@@ -406,7 +406,7 @@
                                             id="social_networks_header" multiple style="height: 250px">
                                         @foreach(social_list() as $key => $value)
                                             <option value="{{$key}}"
-                                                @if(in_array($key, $social_settings?->social_networks_header))
+                                                @if(in_array($key, json_decode($social_settings?->social_networks_header)))
                                                     selected
                                                 @endif>
                                                 {{$value}}
@@ -420,7 +420,7 @@
                                             id="social_networks_footer" multiple style="height: 250px">
                                         @foreach(social_list() as $key => $value)
                                             <option value="{{$key}}"
-                                                    @if(in_array($key, $social_settings?->social_networks_footer))
+                                                    @if(in_array($key, json_decode($social_settings?->social_networks_footer)))
                                                         selected
                                                 @endif>
                                                 {{$value}}

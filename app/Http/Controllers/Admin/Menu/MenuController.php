@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin\Menu;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Menu\MenuRequest;
 use App\Models\Menu\Menu;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class MenuController extends Controller
 {
@@ -20,28 +22,50 @@ class MenuController extends Controller
 
     public function save(Menu $menu, MenuRequest $request)
     {
-        $menu->fill($request->except('_token'));
-        $menu->save();
-        Cache::forget(config('cache.prefix').'header_menu_'.$menu->language);
-        Cache::forget(config('cache.prefix').'footer_menu_'.$menu->language);
+        try {
+            DB::beginTransaction();
+            $menu->fill($request->except('_token'));
+            $menu->save();
+            Cache::forget(config('cache.prefix').'header_menu_'.$menu->language);
+            Cache::forget(config('cache.prefix').'footer_menu_'.$menu->language);
+            DB::commit();
 
-        return response()->json([
-            'message' => __('menu.menu_saved'),
-            'status' => 'success',
-        ]);
+            return response()->json([
+                'message' => __('menu.menu_saved'),
+                'status' => 'success',
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => __('menu.menu_save_error'),
+                'status' => 'error',
+            ]);
+        }
     }
 
     public function delete(Request $request)
     {
-        $menu = Menu::find($request->post('menu_id'));
-        Cache::forget(config('cache.prefix').'header_menu_'.$menu->language);
-        Cache::forget(config('cache.prefix').'footer_menu_'.$menu->language);
-        $menu->menuItems()->delete();
-        $menu->delete();
+        try {
+            DB::beginTransaction();
+            $menu = Menu::find($request->post('menu_id'));
+            Cache::forget(config('cache.prefix').'header_menu_'.$menu->language);
+            Cache::forget(config('cache.prefix').'footer_menu_'.$menu->language);
+            $menu->menuItems()->delete();
+            $menu->delete();
+            DB::commit();
 
-        return response()->json([
-            'message' => __('menu.menu_deleted'),
-            'status' => 'success',
-        ]);
+            return response()->json([
+                'message' => __('menu.menu_deleted'),
+                'status' => 'success',
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => __('menu.menu_delete_error'),
+                'status' => 'error',
+            ]);
+        }
     }
 }

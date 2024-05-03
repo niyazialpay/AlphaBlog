@@ -26,7 +26,7 @@ class CategoryRequest extends FormRequest
         if ($this->input('id')) {
             $slug_unique = Rule::unique('categories', 'slug')
                 ->where('language', $this->input('language'))
-                ->whereNot('_id', $this->input('id'));
+                ->whereNot('id', $this->input('id'));
         } else {
             $slug_unique = Rule::unique('categories', 'slug')
                 ->where('language', $this->input('language'));

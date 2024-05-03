@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [App\Http\Controllers\Admin\UserController::class, 'index'])
@@ -7,23 +8,34 @@ Route::get('/', [App\Http\Controllers\Admin\UserController::class, 'index'])
     ->name('admin.profile.index');
 
 Route::post('/save', [App\Http\Controllers\Admin\UserController::class, 'save'])
-    ->can('own', 'App\Models\User')
+    ->can('own', 'App\Models\WebAuthnCredential')
     ->name('admin.profile.save');
+
+Route::post('/webauthn', [App\Http\Controllers\WebAuthn\WebAuthnController::class, 'list'])
+    ->can('own', 'App\Models\WebAuthnCredential')
+    ->name('user.security.webauthn');
+
+Route::post('/webauthn/delete', [App\Http\Controllers\WebAuthn\WebAuthnController::class, 'delete'])
+    ->can('own', 'App\Models\WebAuthnCredential')
+    ->name('user.security.webauthn.delete');
+
+Route::post('/webauthn/rename', [App\Http\Controllers\WebAuthn\WebAuthnController::class, 'rename'])
+    ->can('own', 'App\Models\WebAuthnCredential')
+    ->name('user.security.webauthn.rename');
+
+Route::post('/webauthn/register/options', [\App\Http\Controllers\WebAuthn\WebAuthnRegisterController::class, 'options'])
+    ->withoutMiddleware(VerifyCsrfToken::class)
+    ->can('own', 'App\Models\WebAuthnCredential')
+    ->name('webauthn.register.options');
+
+Route::post('/webauthn/register', [\App\Http\Controllers\WebAuthn\WebAuthnRegisterController::class, 'register'])
+    ->withoutMiddleware(VerifyCsrfToken::class)
+    ->can('own', 'App\Models\WebAuthnCredential')
+    ->name('webauthn.register');
 
 Route::post('/password/change', [App\Http\Controllers\Admin\UserController::class, 'changePassword'])
     ->can('own', 'App\Models\User')
     ->name('admin.profile.password');
-
-Route::post('/webauthn', [App\Http\Controllers\Admin\WebAuthnController::class, 'list'])
-    ->can('own', 'App\Models\User')
-    ->name('user.security.webauthn');
-Route::post('/webauthn/delete', [App\Http\Controllers\Admin\WebAuthnController::class, 'delete'])
-    ->can('own', 'App\Models\User')
-    ->name('user.security.webauthn.delete');
-
-Route::post('/webauthn/rename', [App\Http\Controllers\Admin\WebAuthnController::class, 'rename'])
-    ->can('own', 'App\Models\User')
-    ->name('user.security.webauthn.rename');
 
 Route::post('/social-save', [App\Http\Controllers\Admin\UserController::class, 'socialSave'])
     ->can('own', 'App\Models\User')

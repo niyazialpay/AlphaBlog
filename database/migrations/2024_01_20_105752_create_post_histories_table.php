@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('post_histories', function (Blueprint $table) {
             $table->id();
-            $table->id('post_id')->index();
+            $table->unsignedBigInteger('post_id')->index();
             $table->string('title')->nullable();
             $table->string('slug')->nullable();
             $table->text('content')->nullable();
-            $table->foreign('post_id')->references('_id')->on('posts')->onDelete('cascade');
+            $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();
         });

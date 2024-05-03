@@ -26,6 +26,7 @@ return [
     'menu_deleted' => 'Menü başarıyla silindi!',
     'add_menu_item' => 'Menü Öğesi Ekle',
     'special_link' => 'Özel Bağlantı',
+    'menu_save_error' => 'Menü kaydedilirken bir hata oluştu!',
 
     'title_required' => 'Başlık zorunludur',
     'title_string' => 'Başlık metin türünde olmalıdır',

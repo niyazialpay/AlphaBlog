@@ -12,7 +12,7 @@ class PostsObserver
         $original = $post->getOriginal();
         if ($original['views'] == $post->views) {
             PostHistory::create([
-                'post_id' => $post->_id,
+                'post_id' => $post->id,
                 'title' => $original['title'],
                 'content' => $original['content'],
                 'slug' => $original['slug'],
@@ -23,16 +23,16 @@ class PostsObserver
 
     public function deleted(Posts $post): void
     {
-        PostHistory::where('post_id', $post->_id)->delete();
+        PostHistory::where('post_id', $post->id)->delete();
     }
 
     public function restored(Posts $post): void
     {
-        PostHistory::withTrashed()->where('post_id', $post->_id)->restore();
+        PostHistory::withTrashed()->where('post_id', $post->id)->restore();
     }
 
     public function forceDeleted(Posts $post): void
     {
-        PostHistory::withTrashed()->where('post_id', $post->_id)->forceDelete();
+        PostHistory::withTrashed()->where('post_id', $post->id)->forceDelete();
     }
 }

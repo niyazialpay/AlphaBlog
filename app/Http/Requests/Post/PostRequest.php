@@ -32,11 +32,11 @@ class PostRequest extends FormRequest
         }
         if ($this->id) {
             $slug_unique = Rule::unique('posts', 'slug')
-                ->where('language_code', $this->input('language_code'))
-                ->whereNot('_id', $this->input('id'));
+                ->where('language', $this->input('language_code'))
+                ->whereNot('id', $this->input('id'));
         } else {
             $slug_unique = Rule::unique('posts', 'slug')
-                ->where('language_code', $this->input('language_code'));
+                ->where('language', $this->input('language_code'));
         }
 
         return [
@@ -49,12 +49,12 @@ class PostRequest extends FormRequest
             ],
             'content' => ['string', 'nullable'],
             'image' => 'nullable|file|image|max:51200|mimes:jpeg,png,jpg,gif,svg,webp',
-            'meta_description' => ['nullable', 'string'],
+            'meta_description' => ['nullable', 'string', 'max:255'],
             'meta_keywords' => ['nullable', 'string'],
             'category_id' => ['required_if:post_type,post', 'array'],
-            'category_id.*' => ['required_if:post_type,post', 'string', 'exists:categories,_id'],
+            'category_id.*' => ['required_if:post_type,post', 'string', 'exists:categories,id'],
             'is_published' => ['required', 'boolean'],
-            'user_id' => ['required', 'string', 'exists:users,_id'],
+            'user_id' => ['required', 'string', 'exists:users,id'],
         ];
     }
 
@@ -68,6 +68,7 @@ class PostRequest extends FormRequest
             'slug.unique' => __('post.request.slug_unique'),
             'content.required' => __('post.request.content_required'),
             'meta_description.string' => __('post.request.meta_description_string'),
+            'meta_description.max' => __('post.request.meta_description_max'),
             'meta_keywords.string' => __('post.request.meta_keywords_string'),
             'category_id.required' => __('post.request.category_id_required'),
             'category_id.array' => __('post.request.category_id_array'),

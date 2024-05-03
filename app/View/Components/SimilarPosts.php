@@ -4,6 +4,7 @@ namespace App\View\Components;
 
 use App\Models\Post\Posts;
 use Closure;
+use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\Component;
@@ -18,8 +19,8 @@ class SimilarPosts extends Component
      */
     public function __construct($post, $limit)
     {
-        if (Cache::has(config('cache.prefix').'similar_posts_'.$post->_id.'_'.$limit)) {
-            $this->post = Cache::get(config('cache.prefix').'similar_posts_'.$post->_id.'_'.$limit);
+        if (Cache::has(config('cache.prefix').'similar_posts_'.$post->id.'_'.$limit)) {
+            $this->post = Cache::get(config('cache.prefix').'similar_posts_'.$post->id.'_'.$limit);
         } else {
             $this->post = Cache::rememberForever(config('cache.prefix').'similar_posts_'.$post->id.'_'.$limit,
                 function () use ($post, $limit) {
@@ -27,10 +28,10 @@ class SimilarPosts extends Component
                     $index = $client->index(config('scout.prefix').'posts');
 
                     $post_ids = [];
-                    foreach ($post->meta_keywords as $keyword) {
+                    foreach (explode(',', $post->meta_keywords) as $keyword) {
                         $search = $index->search($keyword)->getHits();
                         foreach ($search as $result) {
-                            $post_ids[] = $result['_id'];
+                            $post_ids[] = $result['id'];
                         }
                     }
 
@@ -38,7 +39,7 @@ class SimilarPosts extends Component
                     foreach ($title_parse as $keyword) {
                         $search = $index->search($keyword)->getHits();
                         foreach ($search as $result) {
-                            $post_ids[] = $result['_id'];
+                            $post_ids[] = $result['id'];
                         }
                     }
 
@@ -48,7 +49,7 @@ class SimilarPosts extends Component
                         ->where('language', session('language'))
                         ->where('is_published', true)
                         ->where('slug', '!=', $post->slug)
-                        ->whereIn('_id', $post_ids)
+                        ->whereIn('id', $post_ids)
                         ->orderBy('created_at', 'desc')
                         ->take($limit)
                         ->get();
@@ -65,8 +66,7 @@ class SimilarPosts extends Component
             return view('themes.'.app('theme')->name.'.components.posts.similar-posts', [
                 'posts' => $this->post,
             ]);
-        }
-        catch (\Exception $e) {
+        } catch (Exception $e) {
             return view('Default.components.posts.similar-posts', [
                 'posts' => $this->post,
             ]);

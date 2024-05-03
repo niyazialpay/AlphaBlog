@@ -29,6 +29,12 @@ class PostPolicy
         }
     }
 
+    public function moderator(User $user): bool
+    {
+        return $user->role === 'owner' ||
+            $user->role === 'admin' || $user->role === 'editor';
+    }
+
     public function createPost(User $user): bool
     {
         return $user->role === 'owner' ||

@@ -1,4 +1,4 @@
-@if($social_networks?->github && in_array('github',$show))
+@if($social_networks?->github && in_array('github',json_decode($show, true)))
     <li>
         <a href="https://github.com/{{$social_networks->github}}" target="_blank" rel="nofollow">
             <i class="fa-brands fa-github"></i>
@@ -6,7 +6,7 @@
     </li>
 @endif
 
-@if($social_networks?->linkedin && in_array('linkedin',$show))
+@if($social_networks?->linkedin && in_array('linkedin',json_decode($show, true)))
     <li>
         <a href="https://www.linkedin.com/in/{{$social_networks->linkedin}}" target="_blank" rel="nofollow">
             <i class="fa-brands fa-linkedin"></i>
@@ -14,7 +14,7 @@
     </li>
 @endif
 
-@if($social_networks?->facebook && in_array('facebook',$show))
+@if($social_networks?->facebook && in_array('facebook',json_decode($show, true)))
     <li>
         <a href="https://facebook.com/{{$social_networks->facebook}}" target="_blank" rel="nofollow">
             <i class="fa-brands fa-facebook"></i>
@@ -22,7 +22,7 @@
     </li>
 @endif
 
-@if($social_networks?->x && in_array('x',$show))
+@if($social_networks?->x && in_array('x',json_decode($show, true)))
     <li>
         <a href="https://twitter.com/{{$social_networks->x}}" target="_blank" rel="nofollow">
             <i class="fa-brands fa-x-twitter"></i>
@@ -30,7 +30,7 @@
     </li>
 @endif
 
-@if($social_networks?->devto && in_array('devto',$show))
+@if($social_networks?->devto && in_array('devto',json_decode($show, true)))
     <li>
         <a href="https://dev.to/{{$social_networks->devto}}" target="_blank" rel="nofollow">
             <i class="fa-brands fa-dev"></i>
@@ -38,7 +38,7 @@
     </li>
 @endif
 
-@if($social_networks?->instagram && in_array('instagram',$show))
+@if($social_networks?->instagram && in_array('instagram',json_decode($show, true)))
     <li>
         <a href="https://instagram.com/{{$social_networks->instagram}}" target="_blank" rel="nofollow">
             <i class="fa-brands fa-instagram"></i>
@@ -46,7 +46,7 @@
     </li>
 @endif
 
-@if($social_networks?->medium && in_array('medium',$show))
+@if($social_networks?->medium && in_array('medium',json_decode($show, true)))
     <li>
         <a href="https://medium.com/{{'@'.$social_networks->medium}}" target="_blank" rel="nofollow">
             <i class="fa-brands fa-medium"></i>
@@ -54,7 +54,7 @@
     </li>
 @endif
 
-@if($social_networks?->deviantart && in_array('deviantart',$show))
+@if($social_networks?->deviantart && in_array('deviantart',json_decode($show, true)))
     <li>
         <a href="https://eviantart.com/{{$social_networks->deviantart}}" target="_blank" rel="nofollow">
             <i class="fa-brands fa-deviantart"></i>
@@ -62,7 +62,7 @@
     </li>
 @endif
 
-@if($social_networks?->youtube && in_array('youtube',$show))
+@if($social_networks?->youtube && in_array('youtube',json_decode($show, true)))
     <li>
         <a href="https://youtube.com/{{$social_networks->youtube}}" target="_blank" rel="nofollow">
             <i class="fa-brands fa-youtube"></i>
@@ -70,7 +70,7 @@
     </li>
 @endif
 
-@if($social_networks?->reddit && in_array('reddit',$show))
+@if($social_networks?->reddit && in_array('reddit',json_decode($show, true)))
     <li>
         <a href="https://reddit.com/{{$social_networks->reddit}}" target="_blank" rel="nofollow">
             <i class="fa-brands fa-reddit-alien"></i>
@@ -78,7 +78,7 @@
     </li>
 @endif
 
-@if($social_networks?->xbox && in_array('xbox',$show))
+@if($social_networks?->xbox && in_array('xbox',json_decode($show, true)))
     <li>
         <a href="https://account.xbox.com/en-us/profile?gamertag={{$social_networks->xbox}}" target="_blank" rel="nofollow">
             <i class="fa-brands fa-xbox"></i>

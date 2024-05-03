@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('analytics_settings', function (Blueprint $table) {
             $table->id();
-            $table->string('google_analytics')->nullable();
-            $table->string('yandex_metrica')->nullable();
-            $table->string('fb_pixel')->nullable();
-            $table->string('log_rocket')->nullable();
+            $table->text('google_analytics')->nullable();
+            $table->text('yandex_metrica')->nullable();
+            $table->text('fb_pixel')->nullable();
+            $table->text('log_rocket')->nullable();
         });
     }
 

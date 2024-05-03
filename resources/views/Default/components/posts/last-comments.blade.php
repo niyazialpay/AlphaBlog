@@ -7,8 +7,8 @@
                 <article>
                     <header>
                         <h3>
-                            <a href="{{route('page', ['language' => $item->post->language, $item->post])}}">
-                                {{stripslashes($item->post->title)}} - {{$item->nickname}}
+                            <a href="{{route('page', ['language' => $item->language, $item])}}">
+                                {{stripslashes($item->title)}} - {{$item->user_id?$item->user_nickname:$item->name}}
                             </a>
                         </h3>
                         <time class="published" datetime="{{dateformat($item->created_at, 'Y-m-d')}}">
@@ -23,17 +23,16 @@
                             </a>
                         </time>
                     </header>
-                    @if($item->post->media->last())
-                    @php($media = $item->post->media->last())
-                    <a href="{{route('page', ['language' => $item->post->language, $item->post])}}" class="image">
+                    @if($item->media_id)
+                    <a href="{{route('page', ['language' => $item->language, $item])}}" class="image">
                         <img class="lazy" src="{{config('app.url')}}/themes/Default/images/loading.svg"
                              data-src="{{route('image', [
-                                'path' => $media->_id,
+                                'path' => $item->media_id,
                                 'width' => 300,
                                 'height' => 200,
                                 'type' => 'cover',
-                                'image' => $media->file_name
-                            ])}}" alt="{{stripslashes($item->post->title)}}" />
+                                'image' => $item->file_name
+                            ])}}" alt="{{stripslashes($item->title)}}" />
                     </a>
                     @endif
                 </article>

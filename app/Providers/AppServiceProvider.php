@@ -14,7 +14,6 @@ use App\Policies\PersonalNoteCategoryPolicy;
 use App\Policies\PersonalNotesPolicy;
 use App\Policies\PostPolicy;
 use App\Policies\UserPolicy;
-use Illuminate\Foundation\AliasLoader;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -29,6 +28,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(PersonalNotes::class, PersonalNotesPolicy::class);
         Gate::policy(PersonalNoteCategories::class, PersonalNoteCategoryPolicy::class);
         Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(\Laragear\WebAuthn\Models\WebAuthnCredential::class, UserPolicy::class);
+        Gate::policy(\App\Models\WebAuthnCredential::class, UserPolicy::class);
         Gate::policy(Posts::class, PostPolicy::class);
         Gate::policy(Comments::class, CommentPolicy::class);
         Gate::policy(Categories::class, PostPolicy::class);
@@ -40,11 +41,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useBootstrap();
-
-        $loader = AliasLoader::getInstance();
-
-        $loader->alias(\Laravel\Sanctum\PersonalAccessToken::class,
-            \App\Models\PersonalAccessToken::class);
 
         Posts::observe(PostsObserver::class);
     }

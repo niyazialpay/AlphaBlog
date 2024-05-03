@@ -116,7 +116,7 @@
                                             </a>
                                         </td>
                                         <td class="text-center">
-                                            {{$post->user->username}}
+                                            {{$post->user->nickname}}
                                         </td>
                                         <td class="text-center">
                                             {{dateformat($post->created_at, format: 'd M. Y D. H:i:s', timezone: config('app.timezone'), locale: session('language'))}}

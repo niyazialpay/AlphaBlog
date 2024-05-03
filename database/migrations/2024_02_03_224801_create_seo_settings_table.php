@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('author')->nullable();
             $table->string('robots')->nullable();
             $table->string('language')->nullable()->index();
+            $table->foreign('language')->on('languages')->references('code')->onDelete('restrict');
         });
     }
 

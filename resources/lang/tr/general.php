@@ -39,4 +39,5 @@ return [
     'passive' => 'Pasif',
     'previous' => 'Önceki',
     'next' => 'Sonraki',
+    'rename' => 'Yeniden Adlandır',
 ];

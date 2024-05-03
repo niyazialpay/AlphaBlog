@@ -2,7 +2,7 @@
 
 namespace App\Models\Settings;
 
-use MongoDB\Laravel\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model;
 
 class SeoSettings extends Model
 {

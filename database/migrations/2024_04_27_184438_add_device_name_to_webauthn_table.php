@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('routes', function (Blueprint $table) {
-            $table->id();
-            $table->string('old_url');
-            $table->string('new_url');
-            $table->enum('redirect_code', [301, 302, 303, 307, 308, 404])->default(301);
-            $table->timestamps();
+        Schema::table('webauthn_credentials', function (Blueprint $table) {
+            $table->string('device_name')->nullable()->after('id');
         });
     }
 
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('routes');
+        Schema::table('webauthn_credentials', function (Blueprint $table) {
+            $table->dropColumn('device_name');
+        });
     }
 };

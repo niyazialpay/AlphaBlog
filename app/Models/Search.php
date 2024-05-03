@@ -2,12 +2,11 @@
 
 namespace App\Models;
 
-
-use MongoDB\Laravel\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model;
 
 class Search extends Model
 {
-    protected $collection = 'search';
+    protected $table = 'search';
 
     protected $fillable = [
         'search',
@@ -15,13 +14,11 @@ class Search extends Model
         'ip',
         'user_agent',
         'checked',
-        'think'
+        'think',
     ];
 
     protected $attributes = [
         'checked' => false,
-        'think' => false
+        'think' => false,
     ];
-
-    
 }

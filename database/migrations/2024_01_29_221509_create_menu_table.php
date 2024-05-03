@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('menu', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('language')->index();
+            $table->string('language', 3)->index();
             $table->enum('menu_position', ['header', 'footer'])->index();
+            $table->foreign('language')->references('code')->on('languages')->onDelete('restrict');
         });
     }
 

@@ -153,7 +153,7 @@
                                                    placeholder="@lang('profile.job_title.placeholder')"
                                                    value="{{$user->job_title}}">
                                         </div>
-                                        @if(request()->route()->parameter('user'))
+                                        @if(request()->route()->parameter('user_id'))
                                             <div class="col-12 mb-3">
                                                 <label for="role">@lang('user.role')</label>
                                                 <select name="role" id="role" class="form-control">
@@ -163,11 +163,18 @@
                                                     <option value="author" @if($user->role == 'author') selected @endif>
                                                         @lang('user.role_author')
                                                     </option>
+                                                    <option value="editor" @if($user->role == 'editor') selected @endif>
+                                                        @lang('user.role_editor')
+                                                    </option>
                                                     <option value="user" @if($user->role == 'user') selected @endif>
                                                         @lang('user.role_user')
                                                     </option>
                                                 </select>
                                             </div>
+                                        @endif
+                                        @csrf
+                                        @if(request()->route()->parameter('user_id'))
+                                            <input type="hidden" name="user_id" value="{{$user->id}}">
                                         @endif
                                         <div class="col-12 mb-3">
                                             <button type="submit" class="btn btn-primary">@lang('general.save')</button>
@@ -402,12 +409,18 @@
                                                         OTP
                                                     </a>
                                                 </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="#webauthn-tab" data-bs-toggle="tab">
+                                                        WebAuthn
+                                                    </a>
+                                                </li>
                                             </ul>
                                         </div>
                                         <div class="card-body">
                                             <div class="tab-content">
                                                 @include('panel.profile.partials.password-change-tab')
                                                 @include('panel.profile.partials.two-factor-authentication-tab')
+                                                @include('panel.profile.partials.webauthn-tab')
                                             </div>
                                         </div>
                                     </div>
@@ -419,35 +432,197 @@
             </div>
         </div>
     </div>
+
+    <div class="modal" id="webauthnRenameModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{__('Rename Device')}}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form class="row" id="rename-form" action="javascript:void(0)" method="post">
+                        <input id="rename_device_name" name="device_name" class="form-control">
+                        <input type="hidden" id="rename_webauthn_id" name="webauthn_id">
+                        @csrf
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" onclick="$('#rename-form').submit()">{{__('Rename Device')}}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="webauthnDeleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{__('Delete Device')}}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form class="row" id="delete-form" action="javascript:void(0)" method="post">
+                        Are you want to sure delete this device?
+                        <em id="delete_device_name"></em>
+                        <input type="hidden" id="delete_webauthn_id" name="webauthn_id">
+                        @csrf
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" onclick="$('#delete-form').submit()">{{__('Delete Device')}}</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('script')
-    <script>
+    <style>
+        #webauthn_device_list, webauthn_device_list li{
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #webauthn_device_list li:last-child{
+            border: 0 !important;
+        }
+    </style>
 
-        function notify_alert(message, type) {
-            if (type === 'success') {
-                toastr.success(message, 'Success!', {
-                    closeButton: true,
-                    tapToDismiss: false
-                });
-                window.location = '{{route('home')}}'
-            } else {
-                toastr.error(message, 'Error!', {
+    <script src="https://cdn.jsdelivr.net/npm/@laragear/webpass@2/dist/webpass.js"></script>
+
+    <script>
+        function notify_alert(message, type, log) {
+            if(log.success){
+                if (type === 'success') {
+                    toastr.success(message, 'Success!', {
+                        closeButton: true,
+                        tapToDismiss: false
+                    });
+                    listWebauthn();
+                } else {
+                    toastr.error(message, 'Error!', {
+                        closeButton: true,
+                        tapToDismiss: false
+                    });
+                }
+            }
+            else{
+                toastr.error(log.error.message, 'Error!', {
                     closeButton: true,
                     tapToDismiss: false
                 });
             }
+            console.log(log);
         }
 
         function ChangeTab(tab) {
-            window.history.pushState("", "", '{{route('admin.profile.index')}}?tab=' + tab);
+            window.history.pushState("", "", '{{ request()->url() }}?tab=' + tab);
             $('.profile-tab').removeClass('active');
             $('#' + tab).addClass('active').click();
             $('.profile-link').removeClass('active');
             $('#' + tab + '-menu').addClass('active');
         }
 
+        @if(auth()->id() == $user->id)
+            const register = async event => {
+                const { id, success, error } = await Webpass.attest("{{route('webauthn.register.options')}}", "{{route('webauthn.register')}}")
+                    .then(response => notify_alert('{{__('Registration successful!')}}', 'success', response))
+                    .catch(error => notify_alert('{{__('Something went wrong, try again!')}}', 'error', error));
+                listWebauthn();
+            }
+            document.getElementById('register-form').addEventListener('submit', register);
+        @endif
+
+        function deleteWebauthn(id, name) {
+            $('#delete_webauthn_id').val(id);
+            $('#delete_device_name').html(name);
+            $('#webauthnDeleteModal').modal('show');
+        }
+
+        function renameWebauthn(id, name) {
+            $('#rename_webauthn_id').val(id);
+            $('#rename_device_name').val(name);
+            $('#webauthnRenameModal').modal('show');
+        }
+
+        function listWebauthn() {
+            let url
+            @if(request()->route()->parameter('user_id'))
+                url = '{{route('admin.user.webauthn', $user)}}';
+            @else
+                url = '{{route('user.security.webauthn')}}';
+            @endif
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function (data) {
+                    console.log(data);
+                    let devices = '<ul id="webauthn_device_list">';
+                    $.each(data, function (index, value) {
+                        devices += '<li class="mt-1 pb-1 border-bottom">' +
+                            '<div class="row"> ' +
+                            '<div class="col-sm-12 col-md-7 mt-1">' + value.device_name + '</div>' +
+                            '<div class="col-sm-12 col-md-5 text-end">' +
+                            '<a href="javascript:renameWebauthn(\'' + value.id + '\', \'' + value.device_name + '\')"  class="btn btn-primary">@lang('general.rename')</a> ' +
+                            '<a href="javascript:deleteWebauthn(\'' + value.id + '\', \'' + value.device_name + '\')" class="btn btn-danger">' +
+                            '<i class="fa-solid fa-trash-can"></i>' +
+                            '</a> ' +
+                            '</div> ' +
+                            '</div>' +
+                            '</li>';
+                    });
+                    devices += '</ul>';
+                    $('#webauthn_list').html(devices);
+                }
+            });
+        }
+
         $(document).ready(function () {
+            listWebauthn();
+
+            $('#delete-form').submit(function(){
+                let url;
+                @if(request()->route()->parameter('user_id'))
+                    url = '{{route('admin.user.webauthn.delete', $user)}}';
+                @else
+                    url = '{{route('user.security.webauthn.delete')}}';
+                @endif
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: $(this).serialize(),
+                    success: function (data) {
+                        if(data.status){
+                            $('#webauthnDeleteModal').modal('hide');
+                            listWebauthn();
+                        }
+                    }
+                });
+            });
+            $('#rename-form').submit(function(){
+                let url;
+                @if(request()->route()->parameter('user_id'))
+                    url = '{{route('admin.user.webauthn.rename', $user)}}';
+                @else
+                    url = '{{route('user.security.webauthn.rename')}}';
+                @endif
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: $(this).serialize(),
+                    success: function (data) {
+                        if(data.status){
+                            $('#webauthnRenameModal').modal('hide');
+                            listWebauthn();
+                        }
+                    }
+                });
+            });
 
             let urlParams = new URLSearchParams(window.location.search);
 
@@ -460,7 +635,7 @@
             let profile_update_url;
             let social_network_update_url;
             let password_change_url;
-            @if(request()->route()->parameter('user'))
+            @if(request()->route()->parameter('user_id'))
                 profile_update_url = '{{route('admin.user.edit', $user)}}';
                 social_network_update_url = '{{route('admin.user.social.save', $user)}}';
                 password_change_url = '{{route('admin.user.password', $user)}}';

@@ -21,8 +21,6 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\IpFilter::class,
             \App\Http\Middleware\RouteRedirect::class,
             //\App\Http\Middleware\VerifyCsrfToken::class,
-        ])->alias([
-            'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
@@ -36,7 +34,11 @@ return Application::configure(basePath: dirname(__DIR__))
                 }
             }
             if ($e->getStatusCode() == 404) {
-                return response()->view('themes.'.app('theme')->name.'.404', [], 404);
+                try {
+                    return response()->view('themes.'.app('theme')->name.'.404', [], 404);
+                } catch (Exception $e) {
+                    return response()->view('Default.404', [], 404);
+                }
             }
 
             return $request;

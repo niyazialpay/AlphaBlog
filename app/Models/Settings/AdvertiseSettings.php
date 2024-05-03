@@ -2,7 +2,7 @@
 
 namespace App\Models\Settings;
 
-use MongoDB\Laravel\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model;
 
 class AdvertiseSettings extends Model
 {
@@ -12,4 +12,6 @@ class AdvertiseSettings extends Model
         'vertical_display_advertise',
         'horizontal_display_advertise',
     ];
+
+    public $timestamps = false;
 }

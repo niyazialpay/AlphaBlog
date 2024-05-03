@@ -85,10 +85,16 @@ Route::get('/login',
     [\App\Http\Controllers\Admin\UserController::class, 'login'])
     ->name('login');
 
+Route::post('/login/first',
+    [\App\Http\Controllers\Auth\LoginController::class, 'loginFirst'])->name('login.first_step')->middleware([
+        \Spatie\Honeypot\ProtectAgainstSpam::class,
+        //'throttle:3,1',
+    ]);
+
 Route::post('/login',
     [\App\Http\Controllers\Auth\LoginController::class, 'login'])->middleware([
         \Spatie\Honeypot\ProtectAgainstSpam::class,
-        'throttle:login',
+        //'throttle:3,1',
         \App\Http\Middleware\CloudflareTurnstile::class,
     ]);
 
@@ -122,6 +128,16 @@ Route::post('/reset-password',
         \App\Http\Middleware\CloudflareTurnstile::class,
     ])->name('password.update');
 
+Route::post('/webauthn/login/options',
+    [\App\Http\Controllers\WebAuthn\WebAuthnLoginController::class, 'options'])
+    ->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class)
+    ->name('webauthn.login.options');
+
+Route::post('/webauthn/login',
+    [\App\Http\Controllers\WebAuthn\WebAuthnLoginController::class, 'login'])
+    ->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class)
+    ->name('webauthn.login');
+
 Route::get('/image/{path}/{width}/{height}/{type}/{image}',
     [\App\Http\Controllers\ImageProcessController::class, 'index'])
     ->name('image')
@@ -141,7 +157,11 @@ Route::get('/sitemap', [\App\Http\Controllers\SiteMap\SitemapController::class, 
 Route::any('/manifest.json', [\App\Http\Controllers\ManifestController::class, 'manifest'])
     ->name('manifest');
 
-$languages = Languages::all();
+try {
+    $languages = Languages::all();
+} catch (\Exception $e) {
+    $languages = collect();
+}
 
 Route::group(['prefix' => '/{language}'], function () use ($languages) {
     App::setLocale(session('language'));
@@ -198,12 +218,18 @@ Route::group(['prefix' => '/{language}'], function () use ($languages) {
     Route::post('/{contact}', [\App\Http\Controllers\ContactController::class, 'send'])
         ->name('contact.send')
         ->whereIn('contact', Lang::get('route_contact'))
-        ->middleware(['cloudflare_turnstile', 'honeypot']);
+        ->middleware([
+            \App\Http\Middleware\CloudflareTurnstile::class,
+            \Spatie\Honeypot\ProtectAgainstSpam::class,
+        ]);
 
     Route::post('/{contact}/ajax', [\App\Http\Controllers\ContactController::class, 'send_ajax'])
         ->name('contact.send-ajax')
         ->whereIn('contact', Lang::get('route_contact'))
-        ->middleware(['cloudflare_turnstile', 'honeypot']);
+        ->middleware([
+            \App\Http\Middleware\CloudflareTurnstile::class,
+            \Spatie\Honeypot\ProtectAgainstSpam::class,
+        ]);
 
     Route::get('/{showPost:slug}', [\App\Http\Controllers\PostController::class, 'show'])->name('page');
 })->whereIn('language', $languages->pluck('code')->toArray());

@@ -8,7 +8,9 @@ use App\Models\Menu\Menu;
 use App\Models\Menu\MenuItems;
 use App\Models\Post\Categories;
 use App\Models\Post\Posts;
+use Exception;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class MenuItemsController extends Controller
 {
@@ -33,41 +35,44 @@ class MenuItemsController extends Controller
 
     public function save(MenuItemRequest $request)
     {
+        try {
+            DB::beginTransaction();
+            $menu = $request->post('menu');
+            $array_menu = json_decode($menu, true);
+            MenuItems::where('menu_id', $request->post('menu_id'))->delete();
+            $this->updateMenu($request->post('menu_id'), $array_menu);
+            DB::commit();
+            return response()->json([
+                'message' => __('menu.menu_saved'),
+                'status' => 'success',
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
 
-        $menu = $request->post('menu');
-        $array_menu = json_decode($menu, true);
-
-        MenuItems::where('menu_id', $request->post('menu_id'))->delete();
-
-        $this->updateMenu($request->post('menu_id'), $array_menu);
-
-        return response()->json([
-            'message' => __('menu.menu_saved'),
-            'status' => 'success',
-        ]);
+            return response()->json([
+                'message' => __('menu.menu_save_error'),
+                'status' => 'error',
+            ]);
+        }
     }
 
     private function updateMenu($menu_id, $menu, $parent = null): void
     {
         if (! empty($menu)) {
-
             foreach ($menu as $value) {
                 $menu_item = new MenuItems();
-                $menu_item->fill([
-                    'title' => $value['title'],
-                    'url' => (empty($value['url'])) ? 'javascript:void(0)' : $value['url'],
-                    'parent_id' => $parent,
-                    'menu_id' => $menu_id,
-                    'language' => $value['language'],
-                    'icon' => $value['icon'],
-                    'target' => $value['nav_target'],
-                ]);
+                $menu_item->title = $value['title'];
+                $menu_item->url = (empty($value['url'])) ? 'javascript:void(0)' : $value['url'];
+                $menu_item->parent_id = $parent;
+                $menu_item->menu_id = $menu_id;
+                $menu_item->language = $value['language'];
+                $menu_item->icon = $value['icon'];
+                $menu_item->target = $value['nav_target'] ?: '_self';
                 $menu_item->save();
                 if (array_key_exists('children', $value)) {
                     $this->updateMenu($menu_id, $value['children'], $menu_item->id);
                 }
             }
-
         }
         foreach (app('languages') as $language) {
             Cache::forget(config('cache.prefix').'header_menu_'.$language->code);
@@ -99,7 +104,7 @@ class MenuItemsController extends Controller
     private function menuTree($menu_id, $parent_id = null): string
     {
         $items = '';
-        $query = MenuItems::where('parent_id', $parent_id)->where('menu_id', $menu_id)->orderBy('_id', 'ASC');
+        $query = MenuItems::where('parent_id', $parent_id)->where('menu_id', $menu_id)->orderBy('id', 'ASC');
         if ($query->count() > 0) {
             $items .= '<ol class="dd-list">';
             foreach ($query->get() as $row) {

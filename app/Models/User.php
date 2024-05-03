@@ -5,19 +5,21 @@ namespace App\Models;
 use App\Models\PersonalNotes\PersonalNoteCategories;
 use App\Models\PersonalNotes\PersonalNotes;
 use App\Models\Post\Posts;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laragear\WebAuthn\Contracts\WebAuthnAuthenticatable;
+use Laragear\WebAuthn\WebAuthnAuthentication;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticationProvider;
 use Laravel\Sanctum\HasApiTokens;
-use MongoDB\Laravel\Auth\User as Authenticatable;
-use MongoDB\Laravel\Relations\HasMany;
-use MongoDB\Laravel\Relations\HasOne;
 
-class User extends Authenticatable
+class User extends Authenticatable implements WebAuthnAuthenticatable
 {
-    use HasApiTokens, Notifiable, TwoFactorAuthenticatable;
+    use HasApiTokens, Notifiable, TwoFactorAuthenticatable, WebAuthnAuthentication;
 
-    protected $collection = 'users';
+    protected $table = 'users';
 
     /**
      * The attributes that are mass assignable.
@@ -68,22 +70,22 @@ class User extends Authenticatable
 
     public function notes(): HasMany
     {
-        return $this->hasMany(PersonalNotes::class, 'user_id', '_id');
+        return $this->hasMany(PersonalNotes::class, 'user_id');
     }
 
     public function social(): HasOne
     {
-        return $this->hasOne(SocialNetworks::class, 'user_id', '_id');
+        return $this->hasOne(SocialNetworks::class, 'user_id');
     }
 
     public function posts(): HasMany
     {
-        return $this->hasMany(Posts::class, 'user_id', '_id');
+        return $this->hasMany(Posts::class, 'user_id');
     }
 
     public function noteCategories(): HasMany
     {
-        return $this->hasMany(PersonalNoteCategories::class, 'user_id', '_id');
+        return $this->hasMany(PersonalNoteCategories::class, 'user_id');
     }
 
     public function confirmTwoFactorAuth($code): bool
@@ -92,7 +94,6 @@ class User extends Authenticatable
             ->verify(decrypt($this->two_factor_secret), $code);
 
         if ($codeIsValid) {
-            $this->two_factor_confirmed_at = true;
             $this->otp = true;
             $this->save();
 
@@ -100,5 +101,10 @@ class User extends Authenticatable
         }
 
         return false;
+    }
+
+    public function WebAuthn(): HasMany
+    {
+        return $this->hasMany(\App\Models\WebAuthnCredential::class, 'authenticatable_id')->select(['id', 'device_name']);
     }
 }

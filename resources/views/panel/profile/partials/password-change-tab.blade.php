@@ -1,6 +1,6 @@
 <div class="tab-pane active" id="password-change-tab">
     <form class="row" action="javascript:void(0)" id="passwordChangeForm">
-        @if(!request()->route()->parameter('user'))
+        @if(!request()->route()->parameter('user_id'))
             <div class="col-12 mb-3">
                 <label for="old_password" class="form-label">
                     @lang('profile.old_password.text')
@@ -16,7 +16,7 @@
             </label>
             <input type="password" class="form-control"
                    id="password" name="password"
-                   placeholder="@lang('profile.new_password_confirmation.placeholder')">
+                   placeholder="@lang('profile.new_password.placeholder')">
         </div>
         <div class="col-12 mb-3">
             <label for="password_confirmation" class="form-label">

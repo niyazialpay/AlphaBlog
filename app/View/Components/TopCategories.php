@@ -4,6 +4,7 @@ namespace App\View\Components;
 
 use App\Models\Post\Categories;
 use Closure;
+use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
@@ -23,43 +24,17 @@ class TopCategories extends Component
     public function render(): View|Closure|string
     {
         $language = session('language');
-        $topCategories = Categories::raw(function ($collection) use ($language) {
-            return $collection->aggregate([
-                [
-                    '$match' => [
-                        'language' => $language,
-                    ],
-                ],
-                [
-                    '$unwind' => [
-                        'path' => '$post_id',
-                    ],
-                ],
-                [
-                    '$group' => [
-                        '_id' => '$_id',
-                        'name' => ['$first' => '$name'],
-                        'slug' => ['$first' => '$slug'],
-                        'post_id_count' => ['$sum' => 1],
-                    ],
-                ],
-                [
-                    '$sort' => [
-                        'post_id_count' => -1,
-                    ],
-                ],
-                [
-                    '$limit' => 6,
-                ],
-            ]);
-        });
+        $topCategories = Categories::withCount('posts')
+            ->where('language', $language)
+            ->orderBy('posts_count', 'desc')
+            ->limit(6)
+            ->get();
 
-        try{
+        try {
             return view('themes.'.app('theme')->name.'.components.top-categories', [
                 'categories' => $topCategories,
             ]);
-        }
-        catch (\Exception $exception){
+        } catch (Exception $exception) {
             return view('Default.components.top-categories', [
                 'categories' => $topCategories,
             ]);

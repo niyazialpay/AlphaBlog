@@ -22,10 +22,17 @@ class UserRequest extends FormRequest
      */
     public function rules(): array
     {
+        if (request()->route()->parameter('user')) {
+            $user_id = $this->user_id;
+        } else {
+            $user_id = auth()->id();
+        }
+        echo $user_id;
+
         return [
             'name' => 'required|string|max:255',
             'surname' => 'required|string|max:255',
-            'nickname' => 'required|string|max:255',
+            'nickname' => 'required|string|max:255|unique:users,nickname,'.$user_id.',id',
             'location' => 'nullable|string|max:255',
             'about' => 'nullable|string|max:255',
             'website' => 'nullable|string|max:255',

@@ -124,7 +124,7 @@
                             @else
                                 <div class="input-group">
                                     <div class="custom-file">
-                                        <input type="file" class="custom-file-input" name="image" id="image">
+                                        <input type="file" class="custom-file-input" name="image" id="image" accept="image/*">
                                         <label class="custom-file-label" for="image">@lang('post.image')</label>
                                     </div>
                                 </div>
@@ -167,7 +167,7 @@
                                     <input type="text" class="form-control" name="hreflang_url[{{$language->code}}]" id="hreflang_url[{{$language->code}}]"
                                            placeholder="Href Lang ({{$language->code}})"
                                            @if($category->href_lang)
-                                           @if(array_key_exists($language->code, $category->href_lang)) value="{{$category->href_lang[$language->code]}}" @endif @endif>
+                                           @if(array_key_exists($language->code, json_decode($category->href_lang, true))) value="{{json_decode($category->href_lang, true)[$language->code]}}" @endif @endif>
                                 </div>
                                 @endforeach
                             </div>
@@ -219,7 +219,63 @@
                                     showConfirmButton: false,
                                     timer: 1500
                                 })
-                                window.location = "{{route('admin.categories')}}";
+                                //window.location = "{{route('admin.categories')}}";
+                            } else {
+                                swal.fire({
+                                    title: "@lang('general.error')",
+                                    text: response.message,
+                                    icon: "error",
+                                    showCancelButton: false,
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                })
+                            }
+                        },
+                        error: function (xhr) {
+                            swal.fire({
+                                title: "Error",
+                                text: xhr.responseJSON.message,
+                                icon: "error",
+                                showCancelButton: false,
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                        }
+                    });
+                }
+            });
+        }
+
+        function imageDelete(id){
+            //delete confirmation
+            Swal.fire({
+                title: "@lang('general.are_you_sure')",
+                text: "@lang('general.you_wont_be_able_to_revert_this')",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "@lang('general.delete_confirm_yes')",
+                cancelButtonText: "@lang('general.delete_confirm_no')",
+                reverseButtons: true
+            }).then(function (result) {
+                if (result.value) {
+                    $.ajax({
+                        url: "{{route('admin.categories.image.delete')}}",
+                        type: "POST",
+                        data: {
+                            id: id,
+                            _token: "{{csrf_token()}}"
+                        },
+                        success: function (response) {
+                            if (response.status) {
+                                swal.fire({
+                                    title: "@lang('general.success')",
+                                    text: response.message,
+                                    icon: "success",
+                                    showCancelButton: false,
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                })
+                                location.reload();
                             } else {
                                 swal.fire({
                                     title: "@lang('general.error')",

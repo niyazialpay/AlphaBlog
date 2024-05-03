@@ -21,7 +21,7 @@ class UnderConstruction
     public function handle(Request $request, Closure $next): Response
     {
         if (config('app.debug')) {
-            $filter = \App\Models\IPFilter::where('is_active', true)->where('list_type', 'whitelist')->get();
+            $filter = \App\Models\IPFilter\IPFilter::where('is_active', true)->where('list_type', 'whitelist')->get();
             if ($filter->count() > 0) {
                 $status = false;
                 foreach ($filter as $filter_item) {
