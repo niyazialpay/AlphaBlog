@@ -1,18 +1,16 @@
 <div class="slider container">
     <div class="featured-area">
-
         <div class="owl-carousel owl-theme">
             @foreach($slider as $item)
                 <div class="feat-item item slider">
-                    @if($item->media->last())
-                    @php($media = $item->media->last())
+                    @if($item->media_id)
                     <img class="lazy" src="{{config('app.url')}}/themes/Default/images/loading.svg"
                          data-src="{{route('image', [
-                            'path' => $media->_id,
+                            'path' => $item->media_id,
                             'width' => 800,
                             'height' => 400,
                             'type' => 'cover',
-                            'image' => $media->file_name
+                            'image' => $item->file_name
                         ])}}"
                          alt="{{stripslashes($item->title)}}">
                     @endif

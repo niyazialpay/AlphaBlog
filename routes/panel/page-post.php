@@ -48,19 +48,19 @@ Route::post('/image/delete/{post?}', [App\Http\Controllers\Admin\Post\PostContro
     ->can('delete', 'post')
     ->name('admin.post.image.delete');
 
-Route::get('/{category}', [App\Http\Controllers\Admin\Post\PostController::class, 'index'])
+Route::get('/category/{category}', [App\Http\Controllers\Admin\Post\PostController::class, 'index'])
     ->name('admin.post.category');
 
 Route::post('/editor/image/upload',
     [App\Http\Controllers\Admin\Post\PostController::class, 'editorImageUpload'])
     ->middleware([CheckPostType::class, MergePostTypeToRequest::class])
-    ->can('createPost', 'App\Models\Post\Posts')
-    ->name('admin.post.editor.image.upload');
+    ->can('createPost', 'App\Models\Post\Posts');
 
 Route::post('/editor/image/upload/{post?}',
     [App\Http\Controllers\Admin\Post\PostController::class, 'editorImageUpload'])
     ->middleware([CheckPostType::class, MergePostTypeToRequest::class])
-    ->can('edit', 'post');
+    ->can('edit', 'post')
+    ->name('admin.post.editor.image.upload');
 
 Route::post('/editor/image/delete/{post}',
     [App\Http\Controllers\Admin\Post\PostController::class, 'postImageDelete'])

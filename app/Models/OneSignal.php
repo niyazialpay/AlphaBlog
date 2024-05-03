@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use MongoDB\Laravel\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model;
 use Psr\Http\Message\StreamInterface;
 
 class OneSignal extends Model
 {
-    protected $collection = 'onesignal';
+    protected $table = 'onesignal';
 
     protected $fillable = [
         'app_id',

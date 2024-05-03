@@ -2,18 +2,22 @@
 
 namespace App\Models\Settings;
 
-use MongoDB\Laravel\Eloquent\Model;
-use niyazialpay\MediaLibrary\HasMedia;
-use niyazialpay\MediaLibrary\InteractsWithMedia;
-use niyazialpay\MediaLibrary\MediaCollections\Models\Media;
+use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class GeneralSettings extends Model implements HasMedia
 {
     use InteractsWithMedia;
 
+    protected $table = 'general_settings';
+
     protected $fillable = [
         'contact_email',
         'sharethis',
+        'logo',
+        'favicon',
     ];
 
     public $timestamps = false;

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\WebAuthnCredential;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,23 +32,55 @@ class LoginController extends Controller
         ];
     }
 
+    public function loginFirst(Request $request)
+    {
+        if (Auth::check()) {
+            return redirect()->route('admin.index');
+        }
+        $login = request()->input('login');
+        $fieldType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        $check = User::where($fieldType, $login)->first();
+
+        if ($check->webauthn || WebAuthnCredential::where('authenticatable_id', $check->id)->exists()) {
+            return response()->json([
+                'status' => true,
+                'webauthn' => true,
+                'login' => $login,
+            ]);
+        }
+
+        return response()->json([
+            'status' => true,
+            'webauthn' => false,
+            'login' => false,
+        ]);
+    }
+
     public function login(Request $request)
     {
         if (Auth::check()) {
             return redirect()->route('admin.index');
         }
+        $login = request()->input('login');
+        $fieldType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
         $request->validate([
             'login' => 'required',
             'password' => 'required',
         ]);
-        $login = request()->input('login');
-        $fieldType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
         if (Auth::attempt([$fieldType => $request->login, 'password' => $request->password], true)) {
-            return response()->json(['status' => true, 'message' => __('user.login_request.success')]);
+            return response()->json([
+                'status' => true,
+                'message' => __('user.login_request.success'),
+            ]);
         }
 
-        return response()->json(['status' => false, 'message' => __('user.login_request.warning')], 401);
+        return response()->json([
+            'status' => false,
+            'message' => __('user.login_request.warning'),
+        ], 401);
 
     }
 

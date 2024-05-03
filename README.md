@@ -1,11 +1,10 @@
 ## About This Project
 # <a href="https://alphablog.dev>" target="_blank">Alpha Blog</a>
 
-MongoDB is used as the database in this blog system prepared with Laravel. The in-site search engine is provided by Meilisearch.
+I had previously designed the database of this system using MongoDB, but due to various compatibility issues, I had to redesign it using MySQL.
 
-In order for Laravel to work with MongoDB, the official "mongodb/laravel-mongodb" package prepared by MongoDB was added to this project. In addition, Meilisearch integration was made compatible with MongoDB for the system to work correctly.
+The in-site search engine is provided by Meilisearch.
 
-Adding images to blog or page content and sizing them was done with Spatie Media Library, but this package was not compatible with MongoDB. To make it compatible, I forked the spatie/laravel-medialibrary repo to my own github account and included it in this project with composer after making the necessary edits.
 
 #### The following PHP functions need to be enabled on the server for this system to work:
 
@@ -84,6 +83,7 @@ GEMINI_API_KEY=
   - The words searched in the search engine are kept in the database
     - It saves the words that are not found among the words in the on-site searches to generate ideas for content on that topic later.
 - Admin panel
+- Webauthn Login
 - 2-Factor Authentication
 - AI Chatbot - Based by Gemini
 - IP Filter (Blacklist and Whitelist)
@@ -91,7 +91,7 @@ GEMINI_API_KEY=
 - Cloudflare Turnstile (similar to Google Recaptcha)
 - Email SMTP
 - Media Library
-- MongoDB
+- MySQL
 - Laravel 11
 - PHP 8.3
 - Bootstrap 5

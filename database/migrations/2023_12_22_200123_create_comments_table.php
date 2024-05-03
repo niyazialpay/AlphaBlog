@@ -13,15 +13,15 @@ return new class extends Migration
     {
         Schema::create('comments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('post_id')->constrained('blogs')->onDelete('cascade');
+            $table->foreignId('post_id')->constrained('posts')->onDelete('cascade');
             $table->string('name');
             $table->string('email');
-            $table->longText('comment')->index();
+            $table->longText('comment');
             $table->boolean('is_approved')->default(false);
             $table->string('ip_address')->nullable();
             $table->string('user_agent')->nullable();
-            $table->string('user_id')->index()->nullable();
-            $table->foreign('user_id')->references('_id')->on('users')->onDelete('cascade');
+            $table->unsignedBigInteger('user_id')->index()->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();
         });

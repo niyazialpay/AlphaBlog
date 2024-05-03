@@ -2,15 +2,15 @@
 
 namespace App\Models\Post;
 
-use MongoDB\Laravel\Eloquent\Model;
-use MongoDB\Laravel\Eloquent\SoftDeletes;
-use MongoDB\Laravel\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PostHistory extends Model
 {
     use SoftDeletes;
 
-    protected $collection = 'post_histories';
+    protected $table = 'post_histories';
 
     protected $fillable = [
         'post_id',
@@ -21,6 +21,6 @@ class PostHistory extends Model
 
     public function post(): BelongsTo
     {
-        return $this->belongsTo(Posts::class, 'post_id', '_id');
+        return $this->belongsTo(Posts::class, 'post_id');
     }
 }

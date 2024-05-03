@@ -6,12 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PersonalNotes\PersonalNotesRequest;
 use App\Models\PersonalNotes\PersonalNoteCategories;
 use App\Models\PersonalNotes\PersonalNotes;
+use Exception;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
-use niyazialpay\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
-use niyazialpay\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
-use niyazialpay\MediaLibrary\MediaCollections\Exceptions\MediaCannotBeDeleted;
+use Illuminate\Support\Facades\DB;
 
 class PersonalNotesController extends Controller
 {
@@ -47,7 +46,7 @@ class PersonalNotesController extends Controller
         $note::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
         try {
             $note->content;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             abort(403, __('notes.encryption_key_invalid'));
         }
 
@@ -64,7 +63,7 @@ class PersonalNotesController extends Controller
         $note::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
         try {
             $note->content;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             abort(403, __('notes.encryption_key_invalid'));
         }
 
@@ -76,52 +75,78 @@ class PersonalNotesController extends Controller
 
     public function save(PersonalNotesRequest $request, PersonalNotes $note)
     {
-        $note::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
-        $note->user_id = auth()->id();
-        $note->title = $request->post('title');
-        $note->content = $request->post('content');
-        $note->category_id = $request->post('category_id');
-        $note->save();
-
-        return response()->json([
-            'status' => 'success',
-            'id' => $note->id,
-        ]);
-    }
-
-    /**
-     * @throws FileDoesNotExist
-     * @throws FileIsTooBig
-     */
-    public function editorImageUpload(PersonalNotes $note, PersonalNotesRequest $request)
-    {
-        if (! $note->_id) {
-            $note->title = GetPost($request->post('title')).' (draft)';
+        try {
+            DB::beginTransaction();
+            $note::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
             $note->user_id = auth()->id();
+            $note->title = $request->post('title');
+            $note->content = $request->post('content');
+            $note->category_id = $request->post('category_id');
             $note->save();
-        }
+            DB::commit();
 
-        if ($request->hasFile('file') && $request->file('file')->isValid()) {
-            $note->addMediaFromRequest('file')->toMediaCollection('note_images');
-        }
+            return response()->json([
+                'status' => 'success',
+                'id' => $note->id,
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
 
-        return response()->json([
-            'success' => true,
-            'note_id' => $note->id,
-            'location' => $note->getMedia('note_images')->last()->getFullUrl('resized'),
-        ]);
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
 
-    /**
-     * @throws MediaCannotBeDeleted
-     */
+    public function editorImageUpload(PersonalNotes $note, Request $request)
+    {
+        try {
+            DB::beginTransaction();
+            if (! $note->id) {
+                $note->title = GetPost($request->post('title')).' (draft)';
+                $note->user_id = auth()->id();
+                $note->save();
+            }
+
+            if ($request->hasFile('file') && $request->file('file')->isValid()) {
+                $note->addMediaFromRequest('file')->toMediaCollection('note_images');
+            }
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'note_id' => $note->id,
+                'location' => $note->getMedia('note_images')->last()->getFullUrl('resized'),
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
     public function postImageDelete(PersonalNotes $note, PersonalNotesRequest $request)
     {
-        $note->deleteMedia($request->post('media_id'));
+        try {
+            DB::beginTransaction();
+            $note->deleteMedia($request->post('media_id'));
+            DB::commit();
 
-        return response()->json([
-            'success' => true,
-        ]);
+            return response()->json([
+                'success' => true,
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
 
     public function media(PersonalNotes $note)
@@ -133,10 +158,19 @@ class PersonalNotesController extends Controller
 
     public function delete(PersonalNotes $note)
     {
-        if ($note->delete()) {
-            return response()->json(['status' => 'success', 'message' => __('personal_notes.success_delete')]);
-        } else {
-            return response()->json(['status' => 'error', 'message' => __('personal_notes.error_delete')]);
+        try {
+            DB::beginTransaction();
+            if ($note->delete()) {
+                DB::commit();
+
+                return response()->json(['status' => 'success', 'message' => __('personal_notes.success_delete')]);
+            } else {
+                return response()->json(['status' => 'error', 'message' => __('personal_notes.error_delete')]);
+            }
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
 
@@ -152,7 +186,7 @@ class PersonalNotesController extends Controller
             'message' => __('personal_notes.encryption_key_saved'),
         ])->withCookie(cookie('encryption_key',
             md5($request->post('encryption_key')),
-            1440*$request->post('remember_time'),
+            1440 * $request->post('remember_time'),
             null,
             null,
             true,
@@ -174,33 +208,53 @@ class PersonalNotesController extends Controller
 
     public function categorySave(Request $request, PersonalNoteCategories $category)
     {
-        if (! request()->cookie('encryption_key')) {
-            return view('panel.personal_notes.encryption-form');
+        try {
+            DB::beginTransaction();
+            if (! request()->cookie('encryption_key')) {
+                return view('panel.personal_notes.encryption-form');
+            }
+            $category::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
+
+            $request->validate([
+                'name' => 'required',
+            ]);
+            $category->name = $request->post('name');
+            $category->user_id = auth()->id();
+            $category->save();
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'id' => $category->id,
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ]);
         }
-        $category::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
-
-        $request->validate([
-            'name' => 'required',
-        ]);
-        $category->name = $request->post('name');
-        $category->user_id = auth()->id();
-        $category->save();
-
-        return response()->json([
-            'status' => 'success',
-            'id' => $category->id,
-        ]);
     }
 
     public function categoryDelete(PersonalNoteCategories $category)
     {
-        if ($category->notes->count() > 0) {
-            return response()->json(['status' => false, 'message' => __('notes.error_delete_notes')]);
-        }
-        if ($category->delete()) {
-            return response()->json(['status' => true, 'message' => __('notes.success_delete')]);
-        } else {
-            return response()->json(['status' => false, 'message' => __('notes.error_delete')]);
+        try {
+            if ($category->notes->count() > 0) {
+                return response()->json(['status' => false, 'message' => __('notes.error_delete_notes')]);
+            }
+            DB::beginTransaction();
+            if ($category->delete()) {
+                DB::commit();
+
+                return response()->json(['status' => true, 'message' => __('notes.success_delete')]);
+            } else {
+                return response()->json(['status' => false, 'message' => __('notes.error_delete')]);
+            }
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
         }
     }
 }

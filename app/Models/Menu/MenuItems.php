@@ -2,13 +2,13 @@
 
 namespace App\Models\Menu;
 
-use MongoDB\Laravel\Eloquent\Model;
-use MongoDB\Laravel\Relations\BelongsTo;
-use MongoDB\Laravel\Relations\HasMany;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MenuItems extends Model
 {
-    protected $collection = 'menu_items';
+    protected $table = 'menu_items';
 
     protected $fillable = [
         'title',
@@ -37,11 +37,11 @@ class MenuItems extends Model
 
     public function menu(): BelongsTo
     {
-        return $this->belongsTo(Menu::class, 'menu_id', '_id');
+        return $this->belongsTo(Menu::class, 'menu_id');
     }
 
     public function children(): HasMany
     {
-        return $this->hasMany(MenuItems::class, 'parent_id', '_id');
+        return $this->hasMany(MenuItems::class, 'parent_id');
     }
 }

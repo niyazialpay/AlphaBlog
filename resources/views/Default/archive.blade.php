@@ -1,14 +1,14 @@
 @extends('Default.base')
 
 @section('site_title', __('archives.page_title'))
-@section('site_keywords', implode(',',$seo_settings->keywords))
+@section('site_keywords', $seo_settings->keywords)
 @section('site_description', $seo_settings->description)
 
 @section('canonical_url', config('app.url'))
 @section('og_image', $general_settings->logo)
 
 @section('tags')
-    @foreach($seo_settings->keywords as $item)
+    @foreach(explode(',', $seo_settings->keywords) as $item)
         <meta property="article:tag" content="{{trim($item)}}" />
     @endforeach
 @endsection

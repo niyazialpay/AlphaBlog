@@ -57,10 +57,12 @@
     <script>
         @if($note->id)
             let post_url = '{{route('admin.notes.edit.save', $note)}}';
+            let image_post_url = '{{route('admin.notes.editor.image.upload')}}/{{ $note->id }}';
         @else
             let post_url = '{{route('admin.notes.save')}}';
+            let image_post_url = '{{route('admin.notes.editor.image.upload')}}';
         @endif
-        let image_post_url = '{{route('admin.notes.editor.image.upload', $note)}}';
+
         $(document).ready(function () {
 
             const post_image_upload_handler = (blobInfo, progress) => new Promise((resolve, reject) => {

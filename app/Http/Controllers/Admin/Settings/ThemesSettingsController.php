@@ -9,6 +9,7 @@ use Exception;
 use File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use ZipArchive;
 
 class ThemesSettingsController extends Controller
@@ -16,6 +17,7 @@ class ThemesSettingsController extends Controller
     public function upload(ThemeSettingsRequest $request)
     {
         try {
+            DB::beginTransaction();
             $zip = new ZipArchive();
             $status = $zip->open($request->file('theme')->getRealPath());
             if ($status !== true) {
@@ -34,12 +36,15 @@ class ThemesSettingsController extends Controller
             $theme->is_default = false;
             $theme->save();
             unlink(base_path('theme.json'));
+            DB::commit();
 
             return response()->json([
                 'status' => 'success',
                 'message' => __('themes.theme_save_success'),
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
+
             return response()->json([
                 'status' => 'error',
                 'message' => __('themes.theme_save_error'),

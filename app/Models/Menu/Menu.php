@@ -2,12 +2,12 @@
 
 namespace App\Models\Menu;
 
-use MongoDB\Laravel\Eloquent\Model;
-use MongoDB\Laravel\Relations\HasMany;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Menu extends Model
 {
-    protected $collection = 'menu';
+    protected $table = 'menu';
 
     protected $fillable = [
         'title',
@@ -25,6 +25,6 @@ class Menu extends Model
 
     public function menuItems(): HasMany
     {
-        return $this->hasMany(MenuItems::class, 'menu_id', '_id');
+        return $this->hasMany(MenuItems::class, 'menu_id');
     }
 }

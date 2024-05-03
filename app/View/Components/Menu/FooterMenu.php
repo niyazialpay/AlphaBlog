@@ -35,12 +35,11 @@ class FooterMenu extends Component
             });
         }
 
-        try{
+        try {
             return view('themes.'.app('theme')->name.'.components.menu.footer-menu', [
                 'menu' => $menu,
             ]);
-        }
-        catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return view('Default.components.menu.footer-menu', [
                 'menu' => $menu,
             ]);

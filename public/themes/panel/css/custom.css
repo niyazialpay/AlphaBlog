@@ -94,3 +94,7 @@
 ::-webkit-scrollbar-thumb:hover {
     background: #3c3c3c;
 }
+
+.table-dark pre{
+    color: #f8f9fa;
+}

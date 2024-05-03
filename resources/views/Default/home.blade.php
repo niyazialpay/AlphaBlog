@@ -1,7 +1,7 @@
 @extends('Default.base')
 
 @section('site_title', $seo_settings->title)
-@section('site_keywords', implode(',',$seo_settings->keywords))
+@section('site_keywords', $seo_settings->keywords)
 @section('site_description', $seo_settings->description)
 @section('robots', $seo_settings->robots)
 @section('site_author', $seo_settings->site_author)
@@ -23,7 +23,7 @@
 @section('og_image', $general_settings->logo)
 
 @section('tags')
-    @foreach($seo_settings->keywords as $item)
+    @foreach(explode(',',$seo_settings->keywords) as $item)
         <meta property="article:tag" content="{{trim($item)}}" />
     @endforeach
 @endsection

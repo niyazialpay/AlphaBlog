@@ -16,7 +16,7 @@
                             <img class="lazy"
                                  src="{{config('app.url')}}/themes/Default/images/loading.svg"
                                  data-src="{{route('image', [
-                                        'path' => $media->_id,
+                                        'path' => $media->id,
                                         'width' => 720,
                                         'height' => 460,
                                         'type' => 'cover',

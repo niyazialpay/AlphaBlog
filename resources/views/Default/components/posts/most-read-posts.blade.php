@@ -22,20 +22,19 @@
                         </a>
                     </time>
                     <a href="{{route('user.posts', [
-                            'language' => session('language'), __('routes.user'), $item->user->nickname
+                            'language' => session('language'), __('routes.user'), $item->nickname
                             ])}}" class="author">
-                        <img class="lazy" src="{{config('app.url')}}/themes/Default/images/loading.svg" data-src="https://www.gravatar.com/avatar/{{md5(strtolower(trim($item->user->email)))}}" alt="{{$item->user->nickname}}" />
+                        <img class="lazy" src="{{config('app.url')}}/themes/Default/images/loading.svg" data-src="https://www.gravatar.com/avatar/{{md5(strtolower(trim($item->email)))}}" alt="{{$item->nickname}}" />
                     </a>
                 </header>
-                @if($item->media->last())
-                @php($media = $item->media->last())
+                @if($item->media_id)
                 <a href="{{route('page', ['language' => $item->language, $item])}}" class="image">
                     <img class="lazy" src="{{config('app.url')}}/themes/Default/images/loading.svg" data-src="{{route('image', [
-                        'path' => $media->_id,
+                        'path' => $item->media_id,
                         'width' => 300,
                         'height' => 150,
                         'type' => 'cover',
-                        'image' => $media->file_name
+                        'image' => $item->file_name
                     ])}}" alt="{{stripslashes($item->title)}}" />
                 </a>
                 @endif

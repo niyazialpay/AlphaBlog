@@ -35,13 +35,13 @@
                             <tr id="rule_{{$item->id}}">
                                 <td>{{$item->name}}</td>
                                 <td>
-                                    @foreach($item->ip_range as $ip)
-                                        {{$ip}}<br>
+                                    @foreach($item->ipList as $ip)
+                                        {{$ip->ip}}<br>
                                     @endforeach
                                 </td>
                                 <td>
-                                    @foreach($item->routes as $route)
-                                        {{$route}}<br>
+                                    @foreach($item->routeList as $route)
+                                        {{$route->route}}<br>
                                     @endforeach
                                 </td>
                                 <td>{{__('ip_filter.'.$item->list_type)}}</td>

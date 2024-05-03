@@ -23,7 +23,7 @@ class CategoryDeleteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => ['required', 'string', 'exists:categories,_id'],
+            'id' => ['required', 'string', 'exists:categories,id'],
         ];
     }
 }

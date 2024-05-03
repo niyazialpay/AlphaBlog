@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
-use MongoDB\Laravel\Eloquent\Model;
 
 class Languages extends Model
 {
-    protected $collection = 'languages';
+    protected $table = 'languages';
 
     protected $fillable = [
         'name',

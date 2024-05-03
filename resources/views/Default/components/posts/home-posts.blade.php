@@ -21,31 +21,30 @@
                     </a>
                 </time>
                 <a href="{{route('user.posts', [
-                            'language' => $item->language, __('routes.user'), $item->user->nickname
+                            'language' => $item->language, __('routes.user'), $item->nickname
                             ])}}" class="author">
                     <span class="name">
-                        {{$item->user->nickname}}
+                        {{$item->nickname}}
                     </span>
                     <img class="lazy"
                          src="{{config('app.url')}}/themes/Default/images/loading.svg"
-                         data-src="https://www.gravatar.com/avatar/{{md5(strtolower(trim($item->user->email)))}}"
-                         alt="{{$item->user->nickname}}" />
+                         data-src="https://www.gravatar.com/avatar/{{md5(strtolower(trim($item->email)))}}"
+                         alt="{{$item->nickname}}" />
                 </a>
             </div>
         </header>
-        @if($item->media->last())
-            @php($media = $item->media->last())
-            <a href="{{route('page', ['language' => session('language'), $item])}}" class="image featured">
+        @if($item->media_id)
+            <a href="{{route('page', ['language' => session('language'), $item->id])}}" class="image featured">
                 <img class="lazy" src="{{config('app.url')}}/themes/Default/images/loading.svg" data-src="{{route('image', [
-                'path' => $media->_id,
+                'path' => $item->media_id,
                 'width' => 800,
                 'height' => 400,
                 'type' => 'cover',
-                'image' => $media->file_name
+                'image' => $item->file_name
             ])}}" alt="{{$item->title}}" />
             </a>
         @endif
-        <p>{!! mb_substr(strip_tags(stripslashesNull($item->content),"<br><strong><p>"),0,2000) !!}</p>
+        <p>{!! mb_substr(strip_tags(stripslashesNull($item->content),"<br><p>"),0,2000) !!}</p>
         <footer>
             <ul class="actions">
                 <li>

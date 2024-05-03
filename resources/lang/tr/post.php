@@ -16,6 +16,7 @@ return [
         'slug_unique' => 'URL benzersiz olmalıdır.',
         'content_required' => 'İçerik zorunludur.',
         'meta_description_string' => 'Meta açıklaması metin tipinde olmalıdır.',
+        'meta_description_max' => 'Meta açıklaması maksimum 255 karakter olmalıdır.',
         'meta_keywords_string' => 'Meta anahtar kelimeleri metin tipinde olmalıdır.',
         'category_id_required' => 'Kategori zorunludur.',
         'category_id_array' => 'Kategori dizi tipinde olmalıdır.',

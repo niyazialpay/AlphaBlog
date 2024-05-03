@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
-use MongoDB\Laravel\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model;
 
 class RouteRedirects extends Model
 {
+    protected $table = 'route_redirects';
+
     protected $fillable = [
         'old_url',
         'new_url',

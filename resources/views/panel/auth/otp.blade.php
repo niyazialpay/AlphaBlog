@@ -41,21 +41,23 @@
         <!-- /.lockscreen-image -->
 
         <!-- lockscreen credentials (contains the form) -->
-        <form class="lockscreen-credentials" id="otp-login" method="post" action="javascript:void(0)">
-            <div class="input-group">
-                @csrf
-                @honeypot
-                <input type="password" name="code" class="form-control" placeholder="OTP">
-                <div class="input-group-append">
-                    <button type="submit" class="btn">
-                        <i class="fas fa-arrow-right text-muted"></i>
-                    </button>
-                </div>
-            </div>
-        </form>
+        @if(auth()->user()->otp && !auth()->user()->webauthn)
+            @include('panel.auth.partials.otp')
+        @elseif(!auth()->user()->otp && auth()->user()->webauthn)
+            @include('panel.auth.partials.webauthn')
+        @elseif(auth()->user()->otp && auth()->user()->webauthn)
+            @include('panel.auth.partials.otp')
+        @endif
+
         <!-- /.lockscreen credentials -->
 
     </div>
+
+    @if(auth()->user()->otp && auth()->user()->webauthn)
+        <div class="mt-1 ms-3">
+            @include('panel.auth.partials.webauthn')
+        </div>
+    @endif
 
     <div class="lockscreen-footer text-center">
         <strong>
@@ -78,28 +80,56 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/@laragear/webpass@2/dist/webpass.js"></script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+
 <script>
-    function notify_alert(message, type) {
-        if (type === 'success') {
-            Swal.fire({
-                title: '@lang('general.success')!',
-                text: message,
-                icon: 'success',
-                confirmButtonText: 'OK'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location = '{{route('admin.index')}}'
-                }
-            })
-        } else {
-            Swal.fire({
-                title: '@lang('general.error')!',
-                text: message,
-                icon: 'error',
-                confirmButtonText: 'OK'
-            })
+    function notify_alert(message, type, log) {
+        if(log.success){
+            if (type === 'success') {
+                toastr.success(message, 'Success!', {
+                    closeButton: true,
+                    tapToDismiss: false
+                });
+                window.location.reload();
+            } else {
+                toastr.error(message, 'Error!', {
+                    closeButton: true,
+                    tapToDismiss: false
+                });
+            }
         }
+        else{
+            toastr.error(log.error.message, 'Error!', {
+                closeButton: true,
+                tapToDismiss: false
+            });
+        }
+        console.log(log);
     }
+
+    const webauthnLogin = async event => {
+        const webpass = Webpass.assert({
+            method: "post",
+            redirect: "error",
+            findCsrfToken: true,
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            path: "{{route('webauthn.login.options')}}",
+            credentials: "same-origin",
+            body: {
+                email: '{{Auth::user()->email}}',
+            }
+        }, "{{route('webauthn.login')}}")
+            .then(response => notify_alert('{{__('Verification completed successfully!')}}', 'success', response))
+            .catch(error => notify_alert('{{__('Something went wrong, try again!')}}', 'error', error))
+    }
+    document.getElementById('webauthn-login').addEventListener('submit', webauthnLogin);
 
     $(document).ready(function () {
 

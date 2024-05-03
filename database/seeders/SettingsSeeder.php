@@ -33,24 +33,22 @@ class SettingsSeeder extends Seeder
         ]);
         SeoSettings::create([
             'title' => 'Laravel',
-            'description' => 'Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in most web projects.',
-            'keywords' => ['laravel', 'php', 'framework', 'web', 'artisans'],
+            'description' => 'Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. ',
+            'keywords' => 'laravel, php, framework, web, artisans',
             'author' => 'Laravel',
             'robots' => 'index, follow',
             'language' => 'en',
         ]);
         SeoSettings::create([
             'title' => 'Laravel',
-            'description' => 'Laravel, ifade edici ve zarif sözdizimi olan bir web uygulama çerçevesidir. Geliştirmenin gerçekten tatmin edici olabilmesi için keyifli ve yaratıcı bir deneyim olması gerektiğine inanıyoruz. Laravel, çoğu web projesinde kullanılan yaygın görevleri kolaylaştırarak geliştirmenin acısını hafifletmeye çalışır.',
-            'keywords' => ['laravel', 'php', 'web'],
+            'description' => 'Laravel, ifade edici ve zarif sözdizimi olan bir web uygulama çerçevesidir. Geliştirmenin gerçekten tatmin edici olabilmesi için keyifli ve yaratıcı bir deneyim olması gerektiğine inanıyoruz.',
+            'keywords' => 'laravel, php, web',
             'author' => 'Laravel',
             'robots' => 'index, follow',
             'language' => 'tr',
         ]);
 
         GeneralSettings::create([
-            'logo' => null,
-            'favicon' => null,
             'contact_email' => null,
         ]);
 
@@ -69,8 +67,8 @@ class SettingsSeeder extends Seeder
         ]);
 
         SocialSettings::create([
-            'social_networks_header' => [],
-            'social_networks_footer' => [],
+            'social_networks_header' => json_encode([]),
+            'social_networks_footer' => json_encode([]),
         ]);
     }
 }

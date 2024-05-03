@@ -25,6 +25,7 @@
         <a href="{{route('admin.posts', ['type' => 'blogs', 'language' => app('default_language')->code])}}"
            class="nav-link @if(request()->is(config('settings.admin_panel_path').'/blogs*')) active @endif ">
             <i class="fa-duotone fa-file-lines nav-icon"></i>
+            @can('moderator', 'App\Models\Post\Posts')
             @if($newCommentsCount>0 || $searchedWordsCount>0)
                 <span class="badge badge-danger right">
                     @if($newCommentsCount+$searchedWordsCount>99)
@@ -34,6 +35,7 @@
                     @endif
                 </span>
             @endif
+            @endcan
             <p>
                 @lang('post.blogs')
                 <i class="right fas fa-angle-left"></i>

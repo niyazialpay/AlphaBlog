@@ -114,18 +114,18 @@
             });
 
             @if($ip_filter->id)
-            $('#ip_range').html(`@foreach($ip_filter->ip_range as $item){{$item.PHP_EOL}}@endforeach`);
+            $('#ip_range').html(`@foreach($ip_filter->ipList->pluck('ip') as $item){{$item.PHP_EOL}}@endforeach`);
             @if($ip_filter->route_type === 'manuel')
             $('#routes_select_list').prop('checked', false);
             $('#routes_manuel').prop('checked', true).trigger('change');
 
-            $('#routes').html(`@foreach($ip_filter->routes as $item){{$item.PHP_EOL}}@endforeach`);
+            $('#routes').html(`@foreach($ip_filter->routeList->pluck('route') as $item){{$item.PHP_EOL}}@endforeach`);
 
             @else
             $('#routes_select_list').prop('checked', true).trigger('change');
             $('#routes_manuel').prop('checked', false);
 
-            $('#routes').val({!! json_encode($ip_filter->routes) !!});
+            $('#routes').val({!! json_encode($ip_filter->routeList->pluck('route')) !!});
             @endif
             @endif
 
@@ -144,7 +144,7 @@
                                 showConfirmButton: false,
                                 timer: 1500
                             })
-                            //window.location = "{{route('admin.ip-filter')}}";
+                            window.location = "{{route('admin.ip-filter')}}";
                         } else {
                             swal.fire({
                                 title: "@lang('general.error')",

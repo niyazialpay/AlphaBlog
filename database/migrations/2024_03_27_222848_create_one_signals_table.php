@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('onesignal', function (Blueprint $table) {
             $table->id();
-            $table->string('app_id');
-            $table->string('auth_key');
+            $table->text('app_id');
+            $table->text('auth_key');
             $table->string('safari_web_id');
         });
     }

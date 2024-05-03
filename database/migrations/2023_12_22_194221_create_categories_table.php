@@ -14,13 +14,12 @@ return new class extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('sort');
-            $table->string('slug')->unique();
+            $table->string('slug')->index();
             $table->string('meta_description')->nullable();
             $table->string('meta_keywords')->nullable();
-            $table->string('parent_id')->default(null)->nullable()->index();
-            $table->string('language')->index();
-            $table->string('href_lang')->nullable();
+            $table->unsignedBigInteger('parent_id')->default(null)->nullable()->index();
+            $table->string('language', 3)->index();
+            $table->json('href_lang')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

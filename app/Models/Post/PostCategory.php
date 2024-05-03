@@ -2,12 +2,12 @@
 
 namespace App\Models\Post;
 
-use MongoDB\Laravel\Eloquent\Model;
-use MongoDB\Laravel\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PostCategory extends Model
 {
-    protected $collection = 'post_categories';
+    protected $table = 'post_categories';
 
     protected $fillable = [
         'post_id',
@@ -21,11 +21,11 @@ class PostCategory extends Model
 
     public function post(): BelongsTo
     {
-        return $this->belongsTo(Posts::class, 'post_id', '_id');
+        return $this->belongsTo(Posts::class, 'post_id');
     }
 
     public function category(): BelongsTo
     {
-        return $this->belongsTo(Categories::class, 'category_id', '_id');
+        return $this->belongsTo(Categories::class, 'category_id');
     }
 }

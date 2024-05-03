@@ -18,10 +18,11 @@ return new class extends Migration
             $table->string('target')->default('_self');
             $table->string('icon')->nullable();
             $table->integer('order')->default(0);
-            $table->string('parent_id')->nullable();
-            $table->string('language')->index();
+            $table->unsignedBigInteger('parent_id')->nullable();
+            $table->string('language', 3)->index();
             $table->enum('menu_type', ['standard', 'category'])->index();
-            $table->string('menu_id')->index();
+            $table->unsignedBigInteger('menu_id')->index();
+            $table->foreign('language')->on('languages')->references('code')->onDelete('restrict');
         });
     }
 

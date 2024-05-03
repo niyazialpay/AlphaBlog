@@ -16,6 +16,7 @@ return [
         'slug_unique' => 'URL must be unique.',
         'content_required' => 'Content is required.',
         'meta_description_string' => 'Meta description must be a string.',
+        'meta_description_max' => 'Meta description may not be greater than 255 characters.',
         'meta_keywords_string' => 'Meta keywords must be a string.',
         'category_id_required' => 'Category is required.',
         'category_id_array' => 'Category must be an array.',

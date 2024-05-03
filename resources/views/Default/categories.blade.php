@@ -9,8 +9,8 @@
 @if($category->href_lang)
     @section('href_lang')
         @foreach(app('languages') as $n => $language)
-            @if(array_key_exists($language->code, $category->href_lang))
-                <link rel="alternate" hreflang="{{$language->code}}" href="{{$category->href_lang[$language->code]}}"/>
+            @if(array_key_exists($language->code, json_decode($category->href_lang, true)))
+                <link rel="alternate" hreflang="{{$language->code}}" href="{{json_decode($category->href_lang, true)[$language->code]}}"/>
             @endif
         @endforeach
     @endsection

@@ -21,12 +21,13 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->boolean('otp')->default(false);
+            $table->boolean('webauthn')->default(false);
             $table->string('location')->nullable();
             $table->string('about')->nullable();
             $table->string('education')->nullable();
             $table->string('job_title')->nullable();
             $table->string('skills')->nullable();
-            $table->enum('role', ['user', 'admin', 'author', 'editor'])->default('user');
+            $table->enum('role', ['owner', 'admin', 'author', 'editor', 'user'])->default('user');
             $table->rememberToken();
             $table->timestamps();
         });

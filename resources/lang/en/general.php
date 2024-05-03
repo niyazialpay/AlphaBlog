@@ -39,4 +39,5 @@ return [
     'passive' => 'Passive',
     'previous' => 'Previous',
     'next' => 'Next',
+    'rename' => 'Rename',
 ];

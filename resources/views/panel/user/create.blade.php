@@ -66,6 +66,7 @@
                         <option value="user" selected>@lang('user.role_user')</option>
                     </select>
                 </div>
+                @csrf
                 <div class="col-12-mb-3">
                     <button type="submit" class="btn btn-primary">
                         @lang('general.save')

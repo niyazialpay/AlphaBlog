@@ -2,22 +2,23 @@
 
 namespace App\Models\Post;
 
-use App\Traits\Searchable;
-use Illuminate\Database\Eloquent\Casts\Attribute;
-use MongoDB\Laravel\Eloquent\Model;
-use MongoDB\Laravel\Relations\BelongsTo;
-use MongoDB\Laravel\Relations\BelongsToMany;
-use MongoDB\Laravel\Relations\HasMany;
-use niyazialpay\MediaLibrary\HasMedia;
-use niyazialpay\MediaLibrary\InteractsWithMedia;
-use niyazialpay\MediaLibrary\MediaCollections\Models\Media;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Laravel\Scout\Searchable;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Categories extends Model implements HasMedia
 {
     use InteractsWithMedia;
     use Searchable;
 
-    protected $collection = 'categories';
+    protected $table = 'categories';
 
     protected $fillable = [
         'name',
@@ -36,34 +37,27 @@ class Categories extends Model implements HasMedia
 
     public function posts(): BelongsToMany
     {
-        return $this->belongsToMany(Posts::class, PostCategory::class, 'category_id', 'post_id', '_id', '_id');
+        return $this->belongsToMany(Posts::class, PostCategory::class, 'category_id', 'post_id');
     }
 
     public function parent(): BelongsTo
     {
-        return $this->belongsTo(Categories::class, 'parent_id', '_id');
+        return $this->belongsTo(Categories::class, 'parent_id');
     }
 
     public function children(): HasMany
     {
-        return $this->hasMany(Categories::class, 'parent_id', '_id');
+        return $this->hasMany(Categories::class, 'parent_id');
     }
 
-    public function PostCount(): Attribute
+    public function CategoryPosts(): HasManyThrough
     {
-        return Attribute::make(
-            get: fn () => count($this->post_id)
-        );
+        return $this->hasManyThrough(Posts::class, Categories::class, 'category_id', 'post_id');
     }
 
-    public function CategoryPosts()
+    public function categoryMedia(): HasOne
     {
-        return $this->hasManyThrough(Posts::class, Categories::class, 'category_id', 'post_id', '_id', '_id');
-    }
-
-    public function categoryMedia()
-    {
-        return $this->hasOne(Media::class, 'model_id', '_id')->where('collection_name', 'categories');
+        return $this->hasOne(Media::class, 'model_id')->where('collection_name', 'categories');
     }
 
     public function searchableAs(): string
@@ -71,7 +65,7 @@ class Categories extends Model implements HasMedia
         return config('scout.prefix').'categories';
     }
 
-    public function toSearchableArray()
+    public function toSearchableArray(): array
     {
         return [
             'name' => $this->name,

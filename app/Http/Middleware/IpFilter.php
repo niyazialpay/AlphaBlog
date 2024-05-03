@@ -23,7 +23,7 @@ class IpFilter
             $filter = Cache::get(config('cache.prefix').'ip_filter');
         } else {
             $filter = Cache::rememberForever(config('cache.prefix').'ip_filter', function () {
-                return \App\Models\IPFilter::where('is_active', true)->get();
+                return \App\Models\IPFilter\IPFilter::with('ipList', 'routeList')->where('is_active', true)->get();
             });
         }
 
@@ -33,8 +33,8 @@ class IpFilter
             $status = true;
         }
         foreach ($filter as $filter_item) {
-            if (IpUtils::checkIp($request->getClientIp(), $filter_item->ip_range)) {
-                if ($request->is($filter_item->routes)) {
+            if (IpUtils::checkIp($request->getClientIp(), $filter_item->ipList->pluck('ip_range'))) {
+                if ($request->is($filter_item->routeList->pluck('route'))) {
                     if ($filter_item->list_type == 'blacklist') {
                         $status = false;
                     } else {
@@ -46,7 +46,7 @@ class IpFilter
                     break;
                 }
             } else {
-                if ($request->is($filter_item->routes)) {
+                if ($request->is($filter_item->routeList->pluck('routes'))) {
                     if ($filter_item->list_type == 'blacklist') {
                         $status = true;
                     } else {

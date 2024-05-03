@@ -14,6 +14,7 @@ use App\Models\Settings\SeoSettings;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class LanguagesController extends Controller
 {
@@ -25,6 +26,7 @@ class LanguagesController extends Controller
     public function save(LanguageRequest $request, Languages $language)
     {
         try {
+            DB::beginTransaction();
             $seo_settings = new SeoSettings();
             if (! $language->id) {
                 $language = new Languages();
@@ -61,11 +63,15 @@ class LanguagesController extends Controller
 
             LanguageAction::setLanguage($request);
 
+            DB::commit();
+
             return response()->json([
                 'status' => 'success',
                 'message' => __('language.save_success'),
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
+
             return response()->json([
                 'status' => 'error',
                 'message' => __('language.save_error'),
@@ -78,6 +84,7 @@ class LanguagesController extends Controller
     public function delete(Request $request, Languages $languages)
     {
         try {
+            DB::beginTransaction();
             $language = $languages::where('_id', GetPost($request->post('id')))->first();
             if (Posts::where('language', $language->code)->count() > 0) {
                 $error_message = __('language.has_posts');
@@ -100,17 +107,20 @@ class LanguagesController extends Controller
                     'message' => $error_message,
                 ]);
             }
-
             SeoSettings::where('language', $language->code)->delete();
             $language->delete();
             Cache::forget(config('cache.prefix').'default_language');
             Cache::forget(config('cache.prefix').'languages');
+
+            DB::commit();
 
             return response()->json([
                 'status' => true,
                 'message' => __('language.delete_success'),
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
+
             return response()->json([
                 'status' => false,
                 'message' => __('language.delete_error'),

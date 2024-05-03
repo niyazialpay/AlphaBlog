@@ -6,6 +6,7 @@
     </ol>
 @endsection
 @section('content')
+    @can('admin', 'App\Models\User')
     <div class="row">
         <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-6">
             <div class="card radius-10">
@@ -75,6 +76,7 @@
             </div>
         </div>
     </div>
+    @endcan
 @endsection
 @section('script')
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
@@ -82,6 +84,7 @@
     <script>
 
         $(document).ready(function(){
+            @can('admin', 'App\Models\User')
             let operating_systems = [];
             let operating_systems_view = [];
 
@@ -359,6 +362,8 @@
             viewed_chart.render();
             operation_system_chart.render();
 
+            @endcan
+
             $('#dark-mode-switcher-button').on('click', function(){
                 if(localStorage.getItem("dark-mode") === "true"){
                     dashboard_theme_mode = 'dark';
@@ -368,24 +373,26 @@
                     dashboard_theme_mode = 'light';
                     dashboard_text_color = '#000000';
                 }
-
+                @can('admin', 'App\Models\User')
                 updateChartThemeMode(user_type_chart, dashboard_theme_mode, dashboard_text_color);
                 updateChartThemeMode(browser_chart, dashboard_theme_mode, dashboard_text_color);
                 updateChartThemeMode(countries_chart, dashboard_theme_mode, dashboard_text_color);
                 updateChartThemeMode(visitors_chart, dashboard_theme_mode, dashboard_text_color);
                 updateChartThemeMode(viewed_chart, dashboard_theme_mode, dashboard_text_color);
                 updateChartThemeMode(operation_system_chart, dashboard_theme_mode, dashboard_text_color);
+                @endcan
             });
-
+            @can('admin', 'App\Models\User')
             updateChartThemeMode(user_type_chart, dashboard_theme_mode, dashboard_text_color);
             updateChartThemeMode(browser_chart, dashboard_theme_mode, dashboard_text_color);
             updateChartThemeMode(countries_chart, dashboard_theme_mode, dashboard_text_color);
             updateChartThemeMode(visitors_chart, dashboard_theme_mode, dashboard_text_color);
             updateChartThemeMode(viewed_chart, dashboard_theme_mode, dashboard_text_color);
             updateChartThemeMode(operation_system_chart, dashboard_theme_mode, dashboard_text_color);
-
+            @endcan
         });
 
+        @can('admin', 'App\Models\User')
         function updateChartThemeMode(chart, theme_mode, color){
             chart.updateOptions({
                 theme: {
@@ -398,5 +405,6 @@
                 }
             });
         }
+        @endcan
     </script>
 @endsection

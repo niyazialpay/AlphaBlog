@@ -14,10 +14,9 @@ return new class extends Migration
         Schema::create('ip_filters', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->json('ip_range');
-            $table->json('routes')->index();
             $table->boolean('is_active')->default(true)->index();
             $table->enum('list_type', ['blacklist', 'whitelist'])->default('blacklist')->index();
+            $table->enum('route_type', ['manuel', 'select']);
             $table->timestamps();
         });
     }

@@ -2,10 +2,14 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::post('/editor/image/upload/{note?}',
+Route::post('/editor/image/upload',
     [App\Http\Controllers\Admin\PersonalNotesController::class, 'editorImageUpload'])
     ->can('create', 'App\Models\PersonalNotes\PersonalNotes')
     ->name('admin.notes.editor.image.upload');
+
+Route::post('/editor/image/upload/{note}',
+    [App\Http\Controllers\Admin\PersonalNotesController::class, 'editorImageUpload'])
+    ->can('own', 'note');
 
 Route::post('/{note}/image/delete', [App\Http\Controllers\Admin\PersonalNotesController::class, 'postImageDelete'])
     ->can('own', 'note')

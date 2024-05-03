@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('search', function (Blueprint $table) {
             $table->id();
             $table->string('search');
-            $table->string('language');
+            $table->string('language', 3)->index();
             $table->string('ip');
             $table->string('user_agent');
             $table->boolean('checked')->default(false);

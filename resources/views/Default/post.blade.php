@@ -1,7 +1,7 @@
 @extends('Default.base')
 
 @section('site_title', stripslashesNull($post->title))
-@section('site_keywords', implode(', ', $post->meta_keywords))
+@section('site_keywords', $post->meta_keywords)
 @section('site_description', stripslashesNull($post->meta_description))
 
 @if($post->is_published)
@@ -17,7 +17,7 @@
 @if($post->media->last())
     @php($media = $post->media->last())
     @section('og_image', route('image', [
-    'path' => $media->_id,
+    'path' => $media->id,
     'width' => 800,
     'height' => 400,
     'type' => 'cover',
@@ -29,15 +29,15 @@
 @if($post->href_lang)
     @section('href_lang')
         @foreach(app('languages') as $n => $language)
-            @if(array_key_exists($language->code, $post->href_lang))
-                <link rel="alternate" hreflang="{{$language->code}}" href="{{$post->href_lang[$language->code]}}"/>
+            @if(array_key_exists($language->code, json_decode($post->href_lang, true)))
+                <link rel="alternate" hreflang="{{$language->code}}" href="{{config('app.url')}}{{json_decode($post->href_lang, true)[$language->code]}}"/>
             @endif
         @endforeach
     @endsection
 @endif
 
 @section('tags')
-    @foreach($post->meta_keywords as $item)
+    @foreach(explode(',', $post->meta_keywords) as $item)
         <meta property="article:tag" content="{{trim($item)}}"/>
     @endforeach
 @endsection
@@ -82,7 +82,7 @@
                 <img class="lazy"
                      src="{{config('app.url')}}/themes/Default/images/loading.svg"
                      data-src="{{route('image', [
-                        'path' => $media->_id,
+                        'path' => $media->id,
                         'width' => 800,
                         'height' => 400,
                         'type' => 'cover',
@@ -96,7 +96,7 @@
                     <div class="col-sm-12">
                         <span class="col-12">@lang('post.tags'):</span>
                         <ul class="tags stats col-12">
-                            @foreach($post->meta_keywords as $item)
+                            @foreach(explode(',', $post->meta_keywords) as $item)
                                 <li>
                                     <a href="{{route('post.tags',
                                         [
@@ -129,7 +129,7 @@
             </footer>
         </article>
 
-        <x-similar-posts :post="$post" :limit="10"/>
+        <x-similar-posts :post="$post" :limit="3"/>
 
         @if($post->post_type=="post")
         <!-- Blog Comments Begins -->
@@ -142,11 +142,11 @@
                         <a class="comment-avtar">
                             <img class="lazy"
                                  src="{{config('app.url')}}/themes/Default/images/loading.svg"
-                                 data-src="https://www.gravatar.com/avatar/{{md5(strtolower(trim($item->user_email)))}}"
-                                 alt="{{$item->nickname}}"/>
+                                 data-src="https://www.gravatar.com/avatar/{{md5(strtolower(trim($item->user?->email ?? $item->email)))}}"
+                                 alt="{{$item->user?->nickname ?? $item->name}}"/>
                         </a>
                         <div class="comment-text">
-                            <h3>{{$item->nickname}}</h3>
+                            <h3>{{$item->user?->nickname ?? $item->name}}</h3>
                             <h5>{{dateformat($item->created_at, "d M Y H:i", locale: session('language'), timezone: config('app.timezone'))}}</h5>
                             <p>{!! stripslashes($item->comment) !!}</p>
                         </div>
@@ -182,7 +182,7 @@
                         <textarea id="comment" placeholder="@lang('comments.comment')" name="comment" required></textarea>
                     </div>
                 </div>
-                <input type="hidden" name="post_id" value="{{$post->_id}}">
+                <input type="hidden" name="post_id" value="{{$post->id}}">
                 @csrf
                 @honeypot
                 <div class="col-12">
@@ -228,12 +228,12 @@
             },
             "headline": "{{stripslashes($post->title)}}",
             "alternativeHeadline": "{{stripslashes($post->title)}}",
-            "keywords": "{{implode(',', $post->meta_keywords)}}",
+            "keywords": "{{$post->meta_keywords}}",
             "image": {
                 "@type": "ImageObject",
                 "url": "@if($post->media->last())
             {{route('image', [
-                'path' => $media->_id,
+                'path' => $media->id,
                 'width' => 840,
                 'height' => 341,
                 'type' => 'cover',

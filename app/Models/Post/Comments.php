@@ -3,15 +3,15 @@
 namespace App\Models\Post;
 
 use App\Models\User;
-use MongoDB\Laravel\Eloquent\Model;
-use MongoDB\Laravel\Eloquent\SoftDeletes;
-use MongoDB\Laravel\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Comments extends Model
 {
     use SoftDeletes;
 
-    protected $collection = 'comments';
+    protected $table = 'comments';
 
     protected $fillable = [
         'user_id',
@@ -33,23 +33,23 @@ class Comments extends Model
         'user_email',
     ];
 
-    public function getNicknameAttribute(): string
-    {
-        return $this->user_id ? $this->user->nickname : $this->name;
-    }
-
-    public function getUserEmailAttribute(): string
-    {
-        return $this->user_id ? $this->user->email : $this->email;
-    }
-
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', '_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function post(): BelongsTo
     {
-        return $this->belongsTo(Posts::class, 'post_id', '_id');
+        return $this->belongsTo(Posts::class, 'post_id');
     }
+
+    /*public function getNicknameAttribute(): string
+    {
+        return $this->user_id ? $this->user()->first()->nickname : $this->name;
+    }
+
+    public function getUserEmailAttribute(): string
+    {
+        return $this->user_id ? $this->user()->first()->email : $this->email;
+    }*/
 }

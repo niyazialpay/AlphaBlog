@@ -29,8 +29,8 @@ class CommentRequest extends FormRequest
     {
         return [
             'comment' => ['required', 'string'],
-            'post_id' => ['required', 'string', 'exists:posts,_id'],
-            'user_id' => ['required_if:name,null', 'string', 'exists:users,_id', 'nullable'],
+            'post_id' => ['required', 'string', 'exists:posts,id'],
+            'user_id' => ['required_if:name,null', 'string', 'exists:users,id', 'nullable'],
             'is_approved' => ['boolean'],
             'name' => ['required_if:user_id,null', 'string', 'nullable'],
             'email' => ['required_if:user_id,null', 'string', 'email', 'nullable'],

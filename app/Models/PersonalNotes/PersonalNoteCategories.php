@@ -3,13 +3,13 @@
 namespace App\Models\PersonalNotes;
 
 use App\Models\User;
-use MongoDB\Laravel\Eloquent\Model;
-use MongoDB\Laravel\Relations\BelongsTo;
-use MongoDB\Laravel\Relations\HasMany;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PersonalNoteCategories extends Model
 {
-    protected $collection = 'personal_note_categories';
+    protected $table = 'personal_note_categories';
 
     protected $fillable = [
         'name',
@@ -27,11 +27,11 @@ class PersonalNoteCategories extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id', '_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function notes(): HasMany
     {
-        return $this->hasMany(PersonalNotes::class, 'category_id', '_id');
+        return $this->hasMany(PersonalNotes::class, 'category_id');
     }
 }

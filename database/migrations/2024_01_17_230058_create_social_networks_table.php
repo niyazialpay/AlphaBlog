@@ -13,22 +13,22 @@ return new class extends Migration
     {
         Schema::create('social_networks', function (Blueprint $table) {
             $table->id();
-            $table->string('linkedin');
-            $table->string('github');
-            $table->string('instagram');
-            $table->string('x');
-            $table->string('bluesky');
-            $table->string('facebook');
-            $table->string('devto');
-            $table->string('medium');
-            $table->string('youtube');
-            $table->string('reddit');
-            $table->string('xbox');
-            $table->string('deviantart');
-            $table->string('website');
+            $table->string('linkedin')->nullable();
+            $table->string('github')->nullable();
+            $table->string('instagram')->nullable();
+            $table->string('x')->nullable();
+            $table->string('bluesky')->nullable();
+            $table->string('facebook')->nullable();
+            $table->string('devto')->nullable();
+            $table->string('medium')->nullable();
+            $table->string('youtube')->nullable();
+            $table->string('reddit')->nullable();
+            $table->string('xbox')->nullable();
+            $table->string('deviantart')->nullable();
+            $table->string('website')->nullable();
             $table->enum('type', ['user', 'website']);
-            $table->id('user_id')->index();
-            $table->foreign('user_id')->references('_id')->on('users')->onDelete('cascade');
+            $table->unsignedBigInteger('user_id')->index()->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

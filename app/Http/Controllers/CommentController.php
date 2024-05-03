@@ -20,11 +20,14 @@ class CommentController extends Controller
         $comment->user_agent = $request->userAgent();
 
         if ($comment->save()) {
-            OneSignal::sendPush([
-                'en' => Posts::find($request->validated('post_id'))->title,
-            ], [
-                'en' => __('comments.new_comment_notification'),
-            ]);
+            $onesignal = OneSignal::first();
+            if ($onesignal) {
+                OneSignal::sendPush([
+                    'en' => Posts::find($request->validated('post_id'))->title,
+                ], [
+                    'en' => __('comments.new_comment_notification'),
+                ]);
+            }
 
             return response()->json([
                 'status' => 'success',
