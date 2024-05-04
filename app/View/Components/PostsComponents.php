@@ -44,7 +44,7 @@ class PostsComponents extends Component
                 })
                 ->where('post_type', 'post')
                 ->where('language', session('language'))
-                ->where('is_published', true)
+                ->where('is_published', 1)
                 ->orderBy('created_at', 'desc')
                 ->paginate($this->paginate)->withQueryString();
             if ($posts->count() == 0) {
