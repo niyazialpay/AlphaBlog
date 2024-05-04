@@ -100,6 +100,7 @@ class Posts extends Model implements HasMedia
         $array['language'] = $this->language;
         $array['post_type'] = $this->post_type;
         $array['category_id'] = $this->categories->pluck('id')->toArray();
+        $array['is_published'] = $this->is_published;
 
         return $array;
     }

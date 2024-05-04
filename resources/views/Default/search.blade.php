@@ -61,7 +61,7 @@
     <div class="col-md-8">
         <!-- Slider -->
         <div class="clearfix"></div>
-        <x-posts-components :search="$search" :paginate="10"/>
+        <x-posts-compone    nts :search="$search" :paginate="10"/>
     </div>
     @include('Default.sidebar')
 @endsection
