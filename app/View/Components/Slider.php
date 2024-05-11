@@ -33,7 +33,7 @@ class Slider extends Component
             ->join('media', 'media.model_id', '=', 'posts.id')
             ->join('users', 'users.id', '=', 'posts.user_id')
             ->where('media.model_type', 'App\Models\Post\Posts')
-            ->where('is_published', true)
+            ->where('is_published', 1)
             ->where('language', session('language'))
             ->where('post_type', 'post')
             ->where('media.collection_name', 'posts')

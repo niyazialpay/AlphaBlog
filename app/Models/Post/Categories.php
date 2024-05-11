@@ -2,6 +2,7 @@
 
 namespace App\Models\Post;
 
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -49,6 +50,7 @@ class Categories extends Model implements HasMedia
     {
         return $this->hasMany(Categories::class, 'parent_id');
     }
+
 
     public function CategoryPosts(): HasManyThrough
     {

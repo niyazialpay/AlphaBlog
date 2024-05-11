@@ -7,7 +7,7 @@ use App\Models\WebAuthnCredential;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class WebAuthnAction{
+class  WebAuthnAction{
     public function delete(Request $request, WebAuthnCredential $webauthn, $user): JsonResponse
     {
         $webauthn = $webauthn::where('authenticatable_id', $user->id)->where('id', $request->post('webauthn_id'))->first();
@@ -15,10 +15,8 @@ class WebAuthnAction{
 
         if ($webauthn::where('authenticatable_id', $user->id)->count() == 0) {
             $auth_user = User::where('id', $user->id)->first();
-            if (! $auth_user->two_factor_confirmed && $auth_user->two_factor_secret == null) {
-                $auth_user->otp = false;
-                $auth_user->save();
-            }
+            $auth_user->webauthn = false;
+            $auth_user->save();
         }
 
         return response()->json(['status' => 'success']);

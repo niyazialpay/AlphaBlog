@@ -21,7 +21,7 @@ class CommentController extends Controller
 
         if ($comment->save()) {
             $onesignal = OneSignal::first();
-            if ($onesignal) {
+            if($onesignal){
                 OneSignal::sendPush([
                     'en' => Posts::find($request->validated('post_id'))->title,
                 ], [

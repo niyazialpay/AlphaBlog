@@ -4,6 +4,7 @@ namespace App\View\Components;
 
 use App\Models\Post\Posts;
 use Closure;
+use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
@@ -43,7 +44,7 @@ class HomePosts extends Component
             return view('themes.'.app('theme')->name.'.components.posts.home-posts', [
                 'posts' => $post,
             ]);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return view('Default.components.posts.home-posts', [
                 'posts' => $post,
             ]);

@@ -2,6 +2,7 @@
 
 namespace App\Models\Settings;
 
+
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -22,7 +23,7 @@ class GeneralSettings extends Model implements HasMedia
 
     public $timestamps = false;
 
-    public function registerMediaConversions(?Media $media = null): void
+    public function registerMediaConversions(Media|null $media = null): void
     {
         $this->addMediaConversion('r_57x57')
             ->width(57)

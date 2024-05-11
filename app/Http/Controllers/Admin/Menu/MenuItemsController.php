@@ -42,6 +42,7 @@ class MenuItemsController extends Controller
             MenuItems::where('menu_id', $request->post('menu_id'))->delete();
             $this->updateMenu($request->post('menu_id'), $array_menu);
             DB::commit();
+
             return response()->json([
                 'message' => __('menu.menu_saved'),
                 'status' => 'success',
@@ -54,6 +55,12 @@ class MenuItemsController extends Controller
                 'status' => 'error',
             ]);
         }
+        //DB::commit();
+
+        return response()->json([
+            'message' => __('menu.menu_saved'),
+            'status' => 'success',
+        ]);
     }
 
     private function updateMenu($menu_id, $menu, $parent = null): void

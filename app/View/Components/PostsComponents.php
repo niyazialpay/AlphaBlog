@@ -79,7 +79,7 @@ class PostsComponents extends Component
                         return $query->where('user_id', $user->id);
                     })
                 ->where('language', session('language'))
-                ->where('is_published', true)
+                ->where('is_published', 1)
                 ->orderBy('created_at', 'desc')
                 ->paginate($this->paginate)->withQueryString();
         }

@@ -13,7 +13,7 @@ class SeoSettingsController extends Controller
 {
     public function save(Request $request, SeoSettings $seo_settings)
     {
-        try {
+        try{
             DB::beginTransaction();
             foreach (Languages::all() as $language) {
                 $seo = $seo_settings->where('language', $language->code)->first();
@@ -27,11 +27,10 @@ class SeoSettingsController extends Controller
                 $seo->save();
             }
             DB::commit();
-
             return response()->json(['status' => 'success', 'message' => __('settings.seo_settings_saved')]);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e){
             DB::rollBack();
-
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }

@@ -24,6 +24,8 @@ class LanguageAction
             'up',
             'user',
             'webauthn',
+            'pulse',
+            'livewire'
         ];
         $languages = new Languages();
         if (! in_array($request->segment(1), $except)) {
