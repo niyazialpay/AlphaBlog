@@ -17,6 +17,7 @@ use App\Policies\UserPolicy;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Pulse\Facades\Pulse;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -43,5 +44,15 @@ class AppServiceProvider extends ServiceProvider
         Paginator::useBootstrap();
 
         Posts::observe(PostsObserver::class);
+
+        Gate::define('viewPulse', function (User $user) {
+            return $user->role === 'owner' || $user -> role === 'admin';
+        });
+
+        Pulse::user(fn ($user) => [
+            'name' => $user->name.' '.$user->surname,
+            'extra' => $user->email,
+            'avatar' => 'https://gravatar.com/avatar/'.md5($user->email).'?d=mp'
+        ]);
     }
 }

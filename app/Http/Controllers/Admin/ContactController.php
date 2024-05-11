@@ -20,7 +20,7 @@ class ContactController extends Controller
 
     public function save(Request $request)
     {
-        try {
+        try{
             DB::beginTransaction();
             foreach (app('languages') as $language) {
                 $contact = ContactPage::where('language', $language->code)->first();
@@ -36,11 +36,10 @@ class ContactController extends Controller
                 Cache::forget(config('cache.prefix').'contact_page_'.$language->code);
             }
             DB::commit();
-
             return redirect()->back()->with('success', __('contact.saved'));
-        } catch (Exception $e) {
+        }
+        catch (Exception $e){
             DB::rollBack();
-
             return redirect()->back()->with('error', $e->getMessage());
         }
     }

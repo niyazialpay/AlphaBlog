@@ -47,7 +47,7 @@ class SimilarPosts extends Component
 
                     return Posts::where('post_type', 'post')
                         ->where('language', session('language'))
-                        ->where('is_published', true)
+                        ->where('is_published', 1)
                         ->where('slug', '!=', $post->slug)
                         ->whereIn('id', $post_ids)
                         ->orderBy('created_at', 'desc')

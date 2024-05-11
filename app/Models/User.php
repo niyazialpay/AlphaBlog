@@ -7,13 +7,13 @@ use App\Models\PersonalNotes\PersonalNotes;
 use App\Models\Post\Posts;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laragear\WebAuthn\Contracts\WebAuthnAuthenticatable;
 use Laragear\WebAuthn\WebAuthnAuthentication;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticationProvider;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable implements WebAuthnAuthenticatable
 {
@@ -96,7 +96,6 @@ class User extends Authenticatable implements WebAuthnAuthenticatable
         if ($codeIsValid) {
             $this->otp = true;
             $this->save();
-
             return true;
         }
 

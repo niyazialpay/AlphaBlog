@@ -13,21 +13,20 @@ class AnalyticsSettingsController extends Controller
 {
     public function save(Request $request)
     {
-        try {
+        try{
             DB::beginTransaction();
             $settings = AnalyticsSettings::first();
             $settings->fill($request->except('_token'));
             $settings->save();
             Cache::forget(config('cache.prefix').'analytic_settings');
             DB::commit();
-
             return response()->json([
                 'status' => 'success',
                 'message' => __('settings.analytics_save_success'),
             ], 200);
-        } catch (Exception $e) {
+        }
+        catch (Exception $e){
             DB::rollBack();
-
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),

@@ -46,7 +46,9 @@ class LoginController extends Controller
             return response()->json([
                 'status' => true,
                 'webauthn' => true,
-                'login' => $login,
+                'login' => hash('sha512',$check->email.$check->id.$check->username),
+                'username' => $check->username,
+                'email' => $check->email,
             ]);
         }
 

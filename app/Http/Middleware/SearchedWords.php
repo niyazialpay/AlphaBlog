@@ -18,7 +18,6 @@ class SearchedWords
     public function handle(Request $request, Closure $next): Response
     {
         View::share('searchedWordsCount', Search::where('checked', false)->count());
-
         return $next($request);
     }
 }

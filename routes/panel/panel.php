@@ -21,4 +21,4 @@ Route::get('/change-language/{language}', [App\Http\Controllers\Admin\DashboardC
     ->name('admin.change_language');
 
 Route::get('/alphabot', [App\Http\Controllers\StreamingChatController::class, 'index'])->name('alphabot');
-Route::get('/alphabot/streaming', [App\Http\Controllers\StreamingChatController::class, 'chat'])->name('alphabot.streaming');
+Route::get("/alphabot/streaming", [App\Http\Controllers\StreamingChatController::class, 'chat'])->name('alphabot.streaming');

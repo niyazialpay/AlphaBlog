@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Search;
 use Exception;
-use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Http\Request;
+use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Support\Facades\DB;
 
 class SearchController extends Controller
@@ -34,33 +34,32 @@ class SearchController extends Controller
             ]);
             $item->save();
         }
-
         return response()->json([
             'status' => 'success',
-            'list' => $data,
+            'list' => $data
         ]);
     }
 
     public function delete(Search $search)
     {
-        try {
+        try{
             DB::beginTransaction();
-            if ($search->delete()) {
+            if($search->delete()){
                 DB::commit();
-
                 return response()->json([
-                    'status' => true,
-                ]);
-            } else {
-                return response()->json([
-                    'status' => false,
+                    'status' => true
                 ]);
             }
-        } catch (Exception $e) {
+            else{
+                return response()->json([
+                    'status' => false
+                ]);
+            }
+        }
+        catch (Exception $e){
             DB::rollBack();
-
             return response()->json([
-                'status' => false,
+                'status' => false
             ]);
         }
     }
@@ -68,67 +67,69 @@ class SearchController extends Controller
     public function think(Search $search)
     {
         $search->update([
-            'think' => ! $search->think,
+            'think' => !$search->think,
         ]);
-        if ($search->save()) {
+        if($search->save()){
             return response()->json([
                 'status' => true,
                 'think' => $search->think,
-                'message' => __('search.think.updated'),
+                'message' => __('search.think.updated')
             ]);
-        } else {
+        }
+        else{
             return response()->json([
                 'status' => false,
-                'message' => __('search.think.error'),
+                'message' => __('search.think.error')
             ]);
         }
     }
 
     public function deleteAll()
     {
-        try {
+        try{
             DB::beginTransaction();
-            if (Search::truncate()) {
+            if(Search::truncate()){
                 DB::commit();
-
                 return response()->json([
-                    'status' => true,
-                ]);
-            } else {
-                return response()->json([
-                    'status' => false,
+                    'status' => true
                 ]);
             }
-        } catch (Exception $e) {
+            else{
+                return response()->json([
+                    'status' => false
+                ]);
+            }
+        }
+        catch (Exception $e){
             DB::rollBack();
-
             return response()->json([
-                'status' => false,
+                'status' => false
             ]);
         }
     }
 
     public function deleteNotThink()
     {
-        try {
+        try{
             DB::beginTransaction();
-            if (Search::where('think', false)->delete()) {
+            if(Search::where('think', false)->delete()){
                 DB::commit();
-
                 return response()->json([
-                    'status' => true,
-                ]);
-            } else {
-                return response()->json([
-                    'status' => false,
+                    'status' => true
                 ]);
             }
-        } catch (Exception $e) {
+            else{
+                return response()->json([
+                    'status' => false
+                ]);
+            }
+        }
+        catch (Exception $e){
             DB::rollBack();
-
             return response()->json([
-                'status' => false,
+                'status' => false
             ]);
         }
     }
+
 }

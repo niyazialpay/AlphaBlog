@@ -2,6 +2,8 @@
 
 namespace App\Models\Settings;
 
+
+
 use Illuminate\Database\Eloquent\Model;
 
 class AdvertiseSettings extends Model

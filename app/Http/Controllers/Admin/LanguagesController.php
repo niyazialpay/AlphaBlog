@@ -71,7 +71,6 @@ class LanguagesController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-
             return response()->json([
                 'status' => 'error',
                 'message' => __('language.save_error'),
@@ -120,7 +119,6 @@ class LanguagesController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-
             return response()->json([
                 'status' => false,
                 'message' => __('language.delete_error'),

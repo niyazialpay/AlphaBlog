@@ -11,7 +11,7 @@ class RouteList extends Model
 
     protected $fillable = [
         'route',
-        'filter_id',
+        'filter_id'
     ];
 
     public $timestamps = false;

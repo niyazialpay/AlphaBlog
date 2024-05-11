@@ -22,21 +22,20 @@ class MenuController extends Controller
 
     public function save(Menu $menu, MenuRequest $request)
     {
-        try {
+        try{
             DB::beginTransaction();
             $menu->fill($request->except('_token'));
             $menu->save();
             Cache::forget(config('cache.prefix').'header_menu_'.$menu->language);
             Cache::forget(config('cache.prefix').'footer_menu_'.$menu->language);
             DB::commit();
-
             return response()->json([
                 'message' => __('menu.menu_saved'),
                 'status' => 'success',
             ]);
-        } catch (Exception $e) {
+        }
+        catch (Exception $e){
             DB::rollBack();
-
             return response()->json([
                 'message' => __('menu.menu_save_error'),
                 'status' => 'error',
@@ -46,7 +45,7 @@ class MenuController extends Controller
 
     public function delete(Request $request)
     {
-        try {
+        try{
             DB::beginTransaction();
             $menu = Menu::find($request->post('menu_id'));
             Cache::forget(config('cache.prefix').'header_menu_'.$menu->language);
@@ -54,14 +53,13 @@ class MenuController extends Controller
             $menu->menuItems()->delete();
             $menu->delete();
             DB::commit();
-
             return response()->json([
                 'message' => __('menu.menu_deleted'),
                 'status' => 'success',
             ]);
-        } catch (Exception $e) {
+        }
+        catch (Exception $e){
             DB::rollBack();
-
             return response()->json([
                 'message' => __('menu.menu_delete_error'),
                 'status' => 'error',

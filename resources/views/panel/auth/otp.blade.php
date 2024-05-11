@@ -112,18 +112,11 @@
 
     const webauthnLogin = async event => {
         const webpass = Webpass.assert({
-            method: "post",
-            redirect: "error",
-            findCsrfToken: true,
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "X-Requested-With": "XMLHttpRequest"
-            },
             path: "{{route('webauthn.login.options')}}",
             credentials: "same-origin",
             body: {
                 email: '{{Auth::user()->email}}',
+                username: '{{Auth::user()->username}}'
             }
         }, "{{route('webauthn.login')}}")
             .then(response => notify_alert('{{__('Verification completed successfully!')}}', 'success', response))
