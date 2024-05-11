@@ -526,13 +526,6 @@
         }
 
         @if(auth()->id() == $user->id)
-            /*const register = async event => {
-                const { id, success, error } = await Webpass.attest("{{route('webauthn.register.options')}}", "{{route('webauthn.register')}}")
-                    .then(response => notify_alert('{{__('Registration successful!')}}', 'success', response))
-                    .catch(error => notify_alert('{{__('Something went wrong, try again!')}}', 'error', error));
-                listWebauthn();
-            }
-            document.getElementById('register-form').addEventListener('submit', register);*/
             const attest = async () => await Webpass.attest({
                 path: "{{route('webauthn.register.options')}}",
                 body: {
@@ -540,8 +533,6 @@
                 }
             }, "{{route('webauthn.register')}}");
             document.getElementById('register-form').addEventListener('submit', attest);
-        /*const attest = async () => await Webpass.attest("{{route('webauthn.register.options')}}", "{{route('webauthn.register')}}");
-        document.getElementById('register-form').addEventListener('submit', attest);*/
         @endif
 
         function deleteWebauthn(id, name) {
