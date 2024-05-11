@@ -531,7 +531,9 @@
                 body: {
                     user: '{{hash('sha512', auth()->user()->email.auth()->user()->id.auth()->user()->username)}}'
                 }
-            }, "{{route('webauthn.register')}}");
+            }, "{{route('webauthn.register')}}")
+                .then(response => notify_alert('{{__('Verification completed successfully!')}}', 'success', response))
+                .catch(error => notify_alert('{{__('Something went wrong, try again!')}}', 'error', error));
             document.getElementById('register-form').addEventListener('submit', attest);
         @endif
 
