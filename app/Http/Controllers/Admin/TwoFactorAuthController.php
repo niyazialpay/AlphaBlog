@@ -7,6 +7,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Laravel\Fortify\Actions\DisableTwoFactorAuthentication;
+use Laravel\Fortify\Actions\EnableTwoFactorAuthentication;
+use Laravel\Fortify\Contracts\TwoFactorEnabledResponse;
 
 class TwoFactorAuthController extends Controller
 {
@@ -37,6 +39,13 @@ class TwoFactorAuthController extends Controller
     private function confirm_verify($request)
     {
         return $request->user()->confirmTwoFactorAuth($request->code);
+    }
+
+    public function store(Request $request, EnableTwoFactorAuthentication $enable)
+    {
+        $enable($request->user(), $request->boolean('force', false));
+
+        return app(TwoFactorEnabledResponse::class);
     }
 
     public function destroy(Request $request, DisableTwoFactorAuthentication $disable): JsonResponse|RedirectResponse
