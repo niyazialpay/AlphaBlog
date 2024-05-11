@@ -28,7 +28,6 @@ class UserRequest extends FormRequest
         else{
             $user_id = auth()->id();
         }
-        echo $user_id;
         return [
             'name' => 'required|string|max:255',
             'surname' => 'required|string|max:255',
