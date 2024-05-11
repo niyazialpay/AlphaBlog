@@ -19,4 +19,5 @@ return [
         'returning' => 'Geri Gelen Ziyaretçiler',
         'others' => 'Diğerleri',
     ],
+    'back_to_dashboard' => 'Kontrol Paneline Geri Dön',
 ];

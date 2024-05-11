@@ -19,4 +19,5 @@ return [
         'returning' => 'Returning Visitors',
         'others' => 'Others',
     ],
+    'back_to_dashboard' => 'Back to Dashboard',
 ];

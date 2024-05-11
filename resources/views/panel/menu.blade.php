@@ -254,5 +254,13 @@
                 </p>
             </a>
         </li>
+        <li class="nav-item">
+            <a href="{{route('pulse')}}" class="nav-link">
+                <i class="fa-duotone fa-wave-pulse nav-icon"></i>
+                <p>
+                    Pulse
+                </p>
+            </a>
+        </li>
     @endcan
 </ul>
