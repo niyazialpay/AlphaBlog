@@ -54,4 +54,5 @@ return [
         'code_verified' => 'Two Factor Authentication code verified',
     ],
     'lockscreen' => 'Lock Screen',
+
 ];

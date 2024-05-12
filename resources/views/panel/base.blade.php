@@ -154,10 +154,17 @@
                     <a href="{{route('admin.profile.index')}}" class="dropdown-item">
                         <i class="fa-duotone fa-user top-icon"></i> @lang('user.profile')
                     </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="{{route('lockscreen')}}" class="dropdown-item">
-                        <i class="fa-duotone fa-lock top-icon"></i> @lang('user.lockscreen')
+                    <a>
+                        <a href="{{route('admin.profile.index')}}?tab=security" class="dropdown-item">
+                            <i class="fa-duotone fa-shield-halved top-icon"></i> @lang('profile.security')
+                        </a>
                     </a>
+                    <div class="dropdown-divider"></div>
+                    @if(auth()->user()->webauthn)
+                        <a href="{{route('lockscreen')}}" class="dropdown-item">
+                            <i class="fa-duotone fa-lock top-icon"></i> @lang('user.lockscreen')
+                        </a>
+                    @endif
                     <a href="javascript:void(0)" class="dropdown-item"
                        data-bs-toggle="modal" data-bs-target="#logoutModal">
                         <i class="fa-duotone fa-right-from-bracket top-icon"></i> @lang('user.logout')

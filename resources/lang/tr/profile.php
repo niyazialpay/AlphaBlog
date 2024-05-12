@@ -81,4 +81,5 @@ return [
     'website' => 'Web Sitesi',
 
     'save_error' => 'Kaydetme sırasında bir hata oluştu',
+    'security' => 'Profil Güvenliği',
 ];

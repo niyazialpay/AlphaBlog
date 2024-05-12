@@ -88,7 +88,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link profile-link @if(request()->get('tab')=='security') active @endif"
                                        href="javascript:ChangeTab('security')" id="security-menu">
-                                        Security
+                                        @lang('user.security')
                                     </a>
                                 </li>
                             </ul>
