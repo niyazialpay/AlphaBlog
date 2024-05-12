@@ -265,5 +265,13 @@
                 </p>
             </a>
         </li>
+        <li class="nav-item">
+            <a href="{{config('log-viewer.route_path')}}" class="nav-link">
+                <i class="fa-duotone fa-clipboard-list nav-icon"></i>
+                <p>
+                    Log Viewer
+                </p>
+            </a>
+        </li>
     @endcan
 </ul>
