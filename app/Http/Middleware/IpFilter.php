@@ -33,8 +33,8 @@ class IpFilter
             $status = true;
         }
         foreach ($filter as $filter_item) {
-            if (IpUtils::checkIp($request->getClientIp(), $filter_item->ipList->pluck('ip_range'))) {
-                if ($request->is($filter_item->routeList->pluck('route'))) {
+            if (IpUtils::checkIp($request->getClientIp(), $filter_item->ipList->pluck('ip')->toArray())) {
+                if ($request->is($filter_item->routeList->pluck('route')->toArray())) {
                     if ($filter_item->list_type == 'blacklist') {
                         $status = false;
                     } else {
@@ -46,7 +46,7 @@ class IpFilter
                     break;
                 }
             } else {
-                if ($request->is($filter_item->routeList->pluck('routes'))) {
+                if ($request->is($filter_item->routeList->pluck('route')->toArray())) {
                     if ($filter_item->list_type == 'blacklist') {
                         $status = true;
                     } else {
@@ -64,5 +64,6 @@ class IpFilter
             return $next($request);
         }
         abort(404);
+        return $next($request);
     }
 }
