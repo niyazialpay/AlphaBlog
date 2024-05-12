@@ -81,4 +81,5 @@ return [
     'website' => 'Website',
 
     'save_error' => 'An error occurred while saving',
+    'security' => 'Profile Security',
 ];
