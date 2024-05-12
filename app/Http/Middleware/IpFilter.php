@@ -32,10 +32,12 @@ class IpFilter
         if ($filter->count() == 0) {
             $status = true;
         }
+
         $blacklisted_ips = [];
         $whitelisted_ips = [];
         $blacklisted_route_list = [];
         $whitelisted_route_list = [];
+
         foreach ($filter as $filter_item) {
             if($request->is($filter_item->routeList->pluck('route')->toArray())){
                 if($filter_item->list_type == 'blacklist'){
@@ -51,17 +53,17 @@ class IpFilter
         }
 
         if(count($blacklisted_ips) > 0){
-            if (IpUtils::checkIp($request->getClientIp(), $blacklisted_ips) && $request->is(implode(',', $blacklisted_route_list))) {
+            if (IpUtils::checkIp($request->getClientIp(), $blacklisted_ips) && $request->is($blacklisted_route_list)) {
                 abort(404);
             }
         }
 
         if(count($whitelisted_ips) > 0){
-            if (IpUtils::checkIp($request->getClientIp(), $whitelisted_ips) && $request->is(implode(',', $whitelisted_route_list))) {
-                abort(404);
+            if (IpUtils::checkIp($request->getClientIp(), $whitelisted_ips) && $request->is($whitelisted_route_list)) {
+                return $next($request);
             }
             else{
-                return $next($request);
+                abort(404);
             }
         }
         return $next($request);
