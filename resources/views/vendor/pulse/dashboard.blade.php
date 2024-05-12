@@ -1,5 +1,5 @@
-<link rel="stylesheet" href="{{config('app.url')}}/themes/fontawesome/css/all.min.css">
 <x-pulse>
+    <link rel="stylesheet" href="{{config('app.url')}}/themes/fontawesome/css/all.min.css">
     <section class="@container flex flex-col shadow-sm default:col-span-full default:lg:col-span-3 text-center">
         <a class="text-gray-600 dark:text-gray-300 p-3 sm:p-6 rounded-xl  ring-1" href="{{route('admin.index')}}">
             <i class="fa-duotone fa-turn-left"></i>

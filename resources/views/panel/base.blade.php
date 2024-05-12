@@ -160,7 +160,7 @@
                         </a>
                     </a>
                     <div class="dropdown-divider"></div>
-                    @if(auth()->user()->webauthn)
+                    @if(auth()->user()->webauthn || auth()->user()->otp)
                         <a href="{{route('lockscreen')}}" class="dropdown-item">
                             <i class="fa-duotone fa-lock top-icon"></i> @lang('user.lockscreen')
                         </a>
