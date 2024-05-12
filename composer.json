@@ -20,6 +20,7 @@
         "laravel/tinker": "^2.9",
         "laravel/ui": "^4.5",
         "meilisearch/meilisearch-php": "^1.7",
+        "opcodesio/log-viewer": "^3.9",
         "predis/predis": "^2.2",
         "qazd/text-diff": "^0.1.1",
         "spatie/image": "^3.4",
