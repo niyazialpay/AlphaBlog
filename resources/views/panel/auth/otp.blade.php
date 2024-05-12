@@ -113,7 +113,6 @@
     const webauthnLogin = async event => {
         const webpass = Webpass.assert({
             path: "{{route('webauthn.login.options')}}",
-            credentials: "same-origin",
             body: {
                 email: '{{Auth::user()->email}}',
                 username: '{{Auth::user()->username}}'
