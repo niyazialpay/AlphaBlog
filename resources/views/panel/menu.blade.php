@@ -258,7 +258,7 @@
             @lang('settings.monitoring')
         </li>
         <li class="nav-item">
-            <a href="{{route('pulse')}}" class="nav-link">
+            <a href="{{route('admin.monitoring.pulse')}}" class="nav-link">
                 <i class="fa-duotone fa-wave-pulse nav-icon"></i>
                 <p>
                     Pulse
@@ -266,7 +266,7 @@
             </a>
         </li>
         <li class="nav-item">
-            <a href="{{config('log-viewer.route_path')}}" class="nav-link">
+            <a href="{{route('admin.monitoring.logs')}}" class="nav-link">
                 <i class="fa-duotone fa-clipboard-list nav-icon"></i>
                 <p>
                     Log Viewer

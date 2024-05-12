@@ -48,7 +48,7 @@ return [
     |
     */
 
-    'back_to_system_url' => config('app.url').'/'.env('LOG_VIEWER_ROUTE_RETURN_PATH', null),
+    'back_to_system_url' => null,
 
     'back_to_system_label' => null, // Displayed by default: "Back to {{ app.name }}"
 
