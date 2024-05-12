@@ -101,6 +101,6 @@
 
 #monitoring{
     width: 100%;
-    height: calc(100dvh - 300px);
+    height: calc(100dvh - 255px);
     border: none;
 }
