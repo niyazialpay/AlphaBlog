@@ -98,3 +98,9 @@
 .table-dark pre{
     color: #f8f9fa;
 }
+
+#monitoring{
+    width: 100%;
+    height: calc(100dvh - 300px);
+    border: none;
+}
