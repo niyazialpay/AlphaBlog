@@ -20,7 +20,6 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\Language::class,
             \App\Http\Middleware\IpFilter::class,
             \App\Http\Middleware\RouteRedirect::class,
-            //\App\Http\Middleware\VerifyCsrfToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
