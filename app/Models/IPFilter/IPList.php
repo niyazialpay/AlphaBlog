@@ -11,7 +11,7 @@ class IPList extends Model
 
     protected $fillable = [
         'ip',
-        'filter_id'
+        'filter_id',
     ];
 
     public $timestamps = false;

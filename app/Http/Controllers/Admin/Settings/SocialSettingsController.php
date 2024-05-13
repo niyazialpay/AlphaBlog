@@ -53,12 +53,14 @@ class SocialSettingsController extends Controller
             }
             Cache::forget(config('cache.prefix').'social_settings');
             DB::commit();
+
             return response()->json([
                 'status' => 'success',
                 'message' => __('profile.save_success'),
             ], 200);
         } catch (Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => 'error',
                 'message' => __('profile.save_error'),

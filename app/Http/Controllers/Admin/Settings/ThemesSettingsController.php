@@ -37,12 +37,14 @@ class ThemesSettingsController extends Controller
             $theme->save();
             unlink(base_path('theme.json'));
             DB::commit();
+
             return response()->json([
                 'status' => 'success',
                 'message' => __('themes.theme_save_success'),
             ]);
         } catch (Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => 'error',
                 'message' => __('themes.theme_save_error'),

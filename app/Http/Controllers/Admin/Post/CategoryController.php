@@ -27,7 +27,7 @@ class CategoryController extends Controller
 
     public function store(CategoryRequest $request, Categories $category): JsonResponse
     {
-        try{
+        try {
             DB::beginTransaction();
             if ($category->id) {
                 $message = __('categories.success_update');
@@ -55,44 +55,48 @@ class CategoryController extends Controller
             $category->href_lang = json_encode($hreflang);
             if ($category->save()) {
                 DB::commit();
+
                 return response()->json(['status' => 'success', 'message' => $message]);
             } else {
                 return response()->json(['status' => 'error', 'message' => __('categories.error')]);
             }
-        }
-        catch (Exception $exception){
+        } catch (Exception $exception) {
             DB::rollBack();
+
             return response()->json(['status' => 'error', 'message' => $exception->getMessage()])->setStatusCode(500);
         }
     }
 
     public function delete(CategoryDeleteRequest $request, Categories $category): JsonResponse
     {
-        try{
+        try {
             DB::beginTransaction();
             if ($category::find($request->id)->delete()) {
                 DB::commit();
+
                 return response()->json(['status' => 'success', 'message' => __('categories.success_delete')]);
             } else {
                 return response()->json(['status' => 'error', 'message' => __('categories.error_delete')]);
             }
-        }
-        catch (Exception $exception){
+        } catch (Exception $exception) {
             DB::rollBack();
+
             return response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
         }
     }
 
-    public function deleteImage(Request $request){
-        try{
+    public function deleteImage(Request $request)
+    {
+        try {
             DB::beginTransaction();
             $image = Categories::find($request->post('id'));
             $image->deleteMedia($image->getFirstMedia('categories'));
             DB::commit();
+
             return response()->json(['status' => 'success']);
-        }
-        catch (Exception $exception){
+        } catch (Exception $exception) {
             DB::rollBack();
+
             return response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
         }
     }

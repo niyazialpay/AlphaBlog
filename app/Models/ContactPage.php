@@ -15,7 +15,7 @@ class ContactPage extends Model
         'maps',
         'language',
         'title',
-        'slug'
+        'slug',
     ];
 
     public $timestamps = false;

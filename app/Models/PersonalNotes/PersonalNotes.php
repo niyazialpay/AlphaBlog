@@ -10,7 +10,6 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-
 class PersonalNotes extends Model implements HasMedia
 {
     use InteractsWithMedia;
@@ -58,7 +57,7 @@ class PersonalNotes extends Model implements HasMedia
         return $array;
     }
 
-    public function registerMediaConversions(Media|null $media = null): void
+    public function registerMediaConversions(?Media $media = null): void
     {
         $this->addMediaConversion('resized')
             ->width(1920)

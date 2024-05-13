@@ -29,23 +29,24 @@ class RouteRedirectsController extends Controller
 
     public function delete(Request $request)
     {
-        try{
+        try {
             DB::beginTransaction();
             $route = RouteRedirects::find($request->post('route_id'));
             Cache::forget(config('cache.prefix').'routes_'.Str::slug($route->old_url));
             $route->delete();
             DB::commit();
+
             return response()->json(['success' => true]);
-        }
-        catch (Exception $e){
+        } catch (Exception $e) {
             DB::rollBack();
+
             return response()->json(['success' => false]);
         }
     }
 
     public function save(RouteRedirects $route, RouteRequest $request)
     {
-        try{
+        try {
             DB::beginTransaction();
             $route->old_url = $request->post('old_url');
             $route->new_url = $request->post('new_url');
@@ -53,10 +54,11 @@ class RouteRedirectsController extends Controller
             $route->save();
             Cache::forget(config('cache.prefix').'routes_'.Str::slug($route->old_url));
             DB::commit();
+
             return response()->json(['success' => true]);
-        }
-        catch (Exception $e){
+        } catch (Exception $e) {
             DB::rollBack();
+
             return response()->json(['success' => false]);
         }
     }

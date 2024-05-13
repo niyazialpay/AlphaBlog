@@ -8,15 +8,12 @@ use App\Models\Settings\GeneralSettings;
 use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
-use Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
-use Spatie\MediaLibrary\MediaCollections\Exceptions\MediaCannotBeDeleted;
 
 class GeneralSettingsController extends Controller
 {
     public function save(GeneralSettingsRequest $request)
     {
-        try{
+        try {
             DB::beginTransaction();
             $settings = GeneralSettings::first();
             $settings->contact_email = $request->contact_email;
@@ -41,58 +38,62 @@ class GeneralSettingsController extends Controller
             $settings->save();
             Cache::forget(config('cache.prefix').'general_settings');
             DB::commit();
+
             return redirect()->back()->with('success', __('settings.general_settings_saved'));
-        }
-        catch (Exception $e){
+        } catch (Exception $e) {
             DB::rollBack();
+
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
     public function deleteLogo($type)
     {
-        try{
+        try {
             DB::beginTransaction();
             $settings = GeneralSettings::first();
             $settings->deleteMedia($settings->getFirstMedia('site_logo_'.$type));
             Cache::forget(config('cache.prefix').'general_settings');
             DB::commit();
+
             return response()->json(['success' => __('settings.logo_deleted_successfully')]);
-        }
-        catch (Exception $e){
+        } catch (Exception $e) {
             DB::rollBack();
+
             return response()->json(['error' => $e->getMessage()]);
         }
     }
 
     public function deleteFavicon()
     {
-        try{
+        try {
             DB::beginTransaction();
             $settings = GeneralSettings::first();
             $settings->deleteMedia($settings->getFirstMedia('site_favicon'));
             Cache::forget(config('cache.prefix').'general_settings');
             DB::commit();
+
             return response()->json(['success' => __('settings.favicon_deleted_successfully')]);
-        }
-        catch (Exception $e){
+        } catch (Exception $e) {
             DB::rollBack();
+
             return response()->json(['error' => $e->getMessage()]);
         }
     }
 
     public function deleteAppIcon()
     {
-        try{
+        try {
             DB::beginTransaction();
             $settings = GeneralSettings::first();
             $settings->deleteMedia($settings->getFirstMedia('app_icon'));
             Cache::forget(config('cache.prefix').'general_settings');
             DB::commit();
+
             return response()->json(['success' => __('settings.favicon_deleted_successfully')]);
-        }
-        catch (Exception $e){
+        } catch (Exception $e) {
             DB::rollBack();
+
             return response()->json(['error' => $e->getMessage()]);
         }
     }

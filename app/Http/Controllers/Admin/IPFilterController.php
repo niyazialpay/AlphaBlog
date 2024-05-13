@@ -32,12 +32,11 @@ class IPFilterController extends Controller
 
     public function save(IPFilter $ip_filter, IPFilterRequest $request)
     {
-        try{
+        try {
             DB::beginTransaction();
             if (is_array(request()->post('routes'))) {
                 $routes = $request->post('routes');
-            }
-            else {
+            } else {
                 $routes = [];
                 foreach (explode(PHP_EOL, $request->post('routes')) as $item) {
                     $item = trim($item);
@@ -55,8 +54,7 @@ class IPFilterController extends Controller
             }
             if ($ip_filter->id) {
                 $message = __('ip_filter.success_update');
-            }
-            else {
+            } else {
                 $message = __('ip_filter.success');
             }
             $ip_filter->name = $request->post('name');
@@ -79,13 +77,14 @@ class IPFilterController extends Controller
             }
             $this->cacheRefresh();
             DB::commit();
+
             return response()->json([
                 'status' => true,
                 'message' => $message,
             ]);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
@@ -95,19 +94,20 @@ class IPFilterController extends Controller
 
     public function delete(Request $request)
     {
-        try{
+        try {
             DB::beginTransaction();
             $IPFilter = IPFilter::class;
             $IPFilter::where('id', $request->post('id'))->delete();
             $this->cacheRefresh();
             DB::commit();
+
             return response()->json([
                 'status' => true,
                 'message' => __('ip_filter.success_delete'),
             ]);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage(),
