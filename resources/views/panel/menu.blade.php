@@ -244,8 +244,7 @@
                 </p>
             </a>
         </li>
-        <li class="nav-item
-        @if(request()->is(config('settings.admin_panel_path').'/settings*')) menu-open @endif ">
+        <li class="nav-item">
             <a href="{{route('admin.settings')}}"
                class="nav-link @if(request()->is(config('settings.admin_panel_path').'/settings*')) active @endif ">
                 <i class="fa-duotone fa-gear nav-icon"></i>
@@ -258,7 +257,8 @@
             @lang('settings.monitoring')
         </li>
         <li class="nav-item">
-            <a href="{{route('admin.monitoring.pulse')}}" class="nav-link">
+            <a href="{{route('admin.monitoring.pulse')}}"
+               class="nav-link @if(request()->is(config('settings.admin_panel_path').'/monitoring/pulse')) active @endif ">
                 <i class="fa-duotone fa-wave-pulse nav-icon"></i>
                 <p>
                     Pulse
@@ -266,7 +266,8 @@
             </a>
         </li>
         <li class="nav-item">
-            <a href="{{route('admin.monitoring.telescope')}}" class="nav-link">
+            <a href="{{route('admin.monitoring.telescope')}}"
+               class="nav-link @if(request()->is(config('settings.admin_panel_path').'/monitoring/telescope')) active @endif ">
                 <i class="fa-duotone fa-telescope nav-icon"></i>
                 <p>
                     Telescope
@@ -274,7 +275,8 @@
             </a>
         </li>
         <li class="nav-item">
-            <a href="{{route('admin.monitoring.horizon')}}" class="nav-link">
+            <a href="{{route('admin.monitoring.horizon')}}"
+               class="nav-link @if(request()->is(config('settings.admin_panel_path').'/monitoring/horizon')) active @endif ">
                 <i class="fa-brands fa-laravel nav-icon"></i>
                 <p>
                     Horizon
@@ -282,7 +284,8 @@
             </a>
         </li>
         <li class="nav-item">
-            <a href="{{route('admin.monitoring.logs')}}" class="nav-link">
+            <a href="{{route('admin.monitoring.logs')}}"
+               class="nav-link @if(request()->is(config('settings.admin_panel_path').'/monitoring/logs')) active @endif ">
                 <i class="fa-duotone fa-clipboard-list nav-icon"></i>
                 <p>
                     Log Viewer
