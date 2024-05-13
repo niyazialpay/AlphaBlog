@@ -38,10 +38,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Comments::class, CommentPolicy::class);
         Gate::policy(Categories::class, PostPolicy::class);
 
-        if ($this->app->environment('local')) {
-            $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
-            $this->app->register(\Laravel\Horizon\HorizonServiceProvider::class);
-        }
+        $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
+        $this->app->register(\Laravel\Horizon\HorizonServiceProvider::class);
     }
 
     /**
