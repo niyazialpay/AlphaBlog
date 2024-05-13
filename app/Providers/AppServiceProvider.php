@@ -38,8 +38,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Comments::class, CommentPolicy::class);
         Gate::policy(Categories::class, PostPolicy::class);
 
-        $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
-        $this->app->register(\Laravel\Horizon\HorizonServiceProvider::class);
+        if ($this->app->environment('local')) {
+            $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
+            $this->app->register(\Laravel\Horizon\HorizonServiceProvider::class);
+            $this->app->register(HorizonServiceProvider::class);
+        }
     }
 
     /**
@@ -72,10 +75,6 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::define('deleteLogFolder', function (?User $user, LogFolder $folder) {
-            return $user->role === 'owner' || $user->role === 'admin';
-        });
-
-        Gate::define('viewPulse', function (User $user) {
             return $user->role === 'owner' || $user->role === 'admin';
         });
 
