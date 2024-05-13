@@ -31,7 +31,7 @@ class MonitoringController extends Controller
 
     public function showTelescope(): Application|View|Factory|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\View
     {
-        abort_unless(auth()->user()?->can('viewTelescope'), 403);
+        abort_unless(auth()->user()?->can('viewPulse'), 403);
 
         return view('panel.monitoring', [
             'iframe_url' => route('telescope'),
@@ -41,7 +41,7 @@ class MonitoringController extends Controller
 
     public function showHorizon(): Application|View|Factory|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\View
     {
-        abort_unless(auth()->user()?->can('viewHorizon'), 403);
+        abort_unless(auth()->user()?->can('viewPulse'), 403);
 
         return view('panel.monitoring', [
             'iframe_url' => config('app.url').'/'.config('horizon.path'),
