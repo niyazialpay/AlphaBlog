@@ -27,10 +27,10 @@ Route::get('/monitoring/pulse', [App\Http\Controllers\Admin\MonitoringController
     ->name('admin.monitoring.pulse')->can('viewPulse');
 
 Route::get('/monitoring/telescope', [App\Http\Controllers\Admin\MonitoringController::class, 'showTelescope'])
-    ->name('admin.monitoring.telescope')->can('viewTelescope');
+    ->name('admin.monitoring.telescope')->can('viewPulse');
 
 Route::get('/monitoring/horizon', [App\Http\Controllers\Admin\MonitoringController::class, 'showHorizon'])
-    ->name('admin.monitoring.horizon')->can('viewHorizon');
+    ->name('admin.monitoring.horizon')->can('viewPulse');
 
 Route::get('/monitoring/logs', [App\Http\Controllers\Admin\MonitoringController::class, 'showLogs'])
     ->name('admin.monitoring.logs')->can('viewPulse');

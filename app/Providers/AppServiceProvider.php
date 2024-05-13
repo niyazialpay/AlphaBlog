@@ -72,11 +72,11 @@ class AppServiceProvider extends ServiceProvider
             return $user->role === 'owner' || $user->role === 'admin';
         });
 
-        Gate::define('viewTelescope', function (User $user) {
+        Gate::define('viewPulse', function (User $user) {
             return $user->role === 'owner' || $user->role === 'admin';
         });
 
-        Gate::define('viewHorizon', function (User $user) {
+        Gate::define('viewPulse', function (User $user) {
             return $user->role === 'owner' || $user->role === 'admin';
         });
 
