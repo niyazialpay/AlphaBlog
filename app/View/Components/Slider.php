@@ -28,7 +28,7 @@ class Slider extends Component
             'media.file_name',
             'media.id as media_id',
             'users.nickname',
-            'users.email'
+            'users.email',
         ])
             ->join('media', 'media.model_id', '=', 'posts.id')
             ->join('users', 'users.id', '=', 'posts.user_id')

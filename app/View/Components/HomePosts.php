@@ -32,7 +32,7 @@ class HomePosts extends Component
                 'users.nickname',
                 'users.email',
                 'media.file_name',
-                'media.id as media_id'
+                'media.id as media_id',
             ])
             ->where('posts.post_type', 'post')
             ->where('posts.language', session('language'))

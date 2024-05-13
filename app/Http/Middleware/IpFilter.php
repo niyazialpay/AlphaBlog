@@ -39,12 +39,11 @@ class IpFilter
         $whitelisted_route_list = [];
 
         foreach ($filter as $filter_item) {
-            if($request->is($filter_item->routeList->pluck('route')->toArray())){
-                if($filter_item->list_type == 'blacklist'){
+            if ($request->is($filter_item->routeList->pluck('route')->toArray())) {
+                if ($filter_item->list_type == 'blacklist') {
                     $blacklisted_ips = array_merge($blacklisted_ips, $filter_item->ipList->pluck('ip')->toArray());
                     $blacklisted_route_list = array_merge($blacklisted_route_list, $filter_item->routeList->pluck('route')->toArray());
-                }
-                else{
+                } else {
                     $whitelisted_ips = array_merge($whitelisted_ips, $filter_item->ipList->pluck('ip')->toArray());
                     $whitelisted_route_list = array_merge($whitelisted_route_list, $filter_item->routeList->pluck('route')->toArray());
                 }
@@ -52,20 +51,20 @@ class IpFilter
             }
         }
 
-        if(count($blacklisted_ips) > 0){
+        if (count($blacklisted_ips) > 0) {
             if (IpUtils::checkIp($request->getClientIp(), $blacklisted_ips) && $request->is($blacklisted_route_list)) {
                 abort(404);
             }
         }
 
-        if(count($whitelisted_ips) > 0){
+        if (count($whitelisted_ips) > 0) {
             if (IpUtils::checkIp($request->getClientIp(), $whitelisted_ips) && $request->is($whitelisted_route_list)) {
                 return $next($request);
-            }
-            else{
+            } else {
                 abort(404);
             }
         }
+
         return $next($request);
     }
 }

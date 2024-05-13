@@ -31,7 +31,7 @@ class ArchiveController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10)->withQueryString();
 
-        try{
+        try {
             return view('themes.'.app('theme')->name.'.archive', [
                 'posts' => $posts,
                 'date' => $date,
@@ -39,8 +39,7 @@ class ArchiveController extends Controller
                 'month' => $month,
                 'year' => $year,
             ]);
-        }
-        catch (Exception $e){
+        } catch (Exception $e) {
             return view('Default.archive', [
                 'posts' => $posts,
                 'date' => $date,

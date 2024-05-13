@@ -266,6 +266,22 @@
             </a>
         </li>
         <li class="nav-item">
+            <a href="{{route('admin.monitoring.telescope')}}" class="nav-link">
+                <i class="fa-duotone fa-telescope nav-icon"></i>
+                <p>
+                    Telescope
+                </p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{route('admin.monitoring.horizon')}}" class="nav-link">
+                <i class="fa-brands fa-laravel nav-icon"></i>
+                <p>
+                    Horizon
+                </p>
+            </a>
+        </li>
+        <li class="nav-item">
             <a href="{{route('admin.monitoring.logs')}}" class="nav-link">
                 <i class="fa-duotone fa-clipboard-list nav-icon"></i>
                 <p>

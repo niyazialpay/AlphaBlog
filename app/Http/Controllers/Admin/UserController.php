@@ -174,5 +174,4 @@ class UserController extends Controller
     {
         return (new \App\Action\WebAuthnAction())->rename($request, $webauthn, $user_id);
     }
-
 }

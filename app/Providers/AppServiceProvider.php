@@ -49,34 +49,41 @@ class AppServiceProvider extends ServiceProvider
         Posts::observe(PostsObserver::class);
 
         Gate::define('viewPulse', function (User $user) {
-            return $user->role === 'owner' || $user-> role === 'admin';
+            return $user->role === 'owner' || $user->role === 'admin';
         });
 
         LogViewer::auth(function ($request) {
-            return $request->user()?->role === 'owner' || $request->user()?-> role === 'admin';
+            return $request->user()?->role === 'owner' || $request->user()?->role === 'admin';
         });
 
         Gate::define('downloadLogFile', function (?User $user, LogFile $file) {
-            return $user->role === 'owner' || $user-> role === 'admin';
+            return $user->role === 'owner' || $user->role === 'admin';
         });
 
         Gate::define('downloadLogFolder', function (?User $user, LogFolder $folder) {
-            return $user->role === 'owner' || $user-> role === 'admin';
+            return $user->role === 'owner' || $user->role === 'admin';
         });
 
         Gate::define('deleteLogFile', function (?User $user, LogFile $file) {
-            return $user->role === 'owner' || $user-> role === 'admin';
+            return $user->role === 'owner' || $user->role === 'admin';
         });
 
         Gate::define('deleteLogFolder', function (?User $user, LogFolder $folder) {
-            return $user->role === 'owner' || $user-> role === 'admin';
+            return $user->role === 'owner' || $user->role === 'admin';
+        });
+
+        Gate::define('viewTelescope', function (User $user) {
+            return $user->role === 'owner' || $user->role === 'admin';
+        });
+
+        Gate::define('viewHorizon', function (User $user) {
+            return $user->role === 'owner' || $user->role === 'admin';
         });
 
         Pulse::user(fn ($user) => [
             'name' => $user->name.' '.$user->surname,
             'extra' => $user->email,
-            'avatar' => 'https://gravatar.com/avatar/'.md5($user->email).'?d=mp'
+            'avatar' => 'https://gravatar.com/avatar/'.md5($user->email).'?d=mp',
         ]);
     }
-
 }

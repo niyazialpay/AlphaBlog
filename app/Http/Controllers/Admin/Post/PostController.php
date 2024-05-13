@@ -20,7 +20,6 @@ use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\MediaCannotBeDeleted;
 
-
 class PostController extends Controller
 {
     public function index(
@@ -89,14 +88,12 @@ class PostController extends Controller
         ]);
     }
 
-    /**
-     */
     public function save(
         $type,
         PostRequest $request,
         Posts $post
     ): JsonResponse {
-        try{
+        try {
             DB::beginTransaction();
             if ($post->id) {
                 $message = __('post.success_update');
@@ -135,20 +132,21 @@ class PostController extends Controller
                     $post->categories()->sync($request->post('category_id'));
                 }
                 DB::commit();
+
                 return response()->json(['status' => 'success', 'message' => $message, 'id' => $post->id]);
             } else {
                 return response()->json(['status' => 'error', 'message' => __('post.error')])->setStatusCode(500);
             }
-        }
-        catch (Exception $exception){
+        } catch (Exception $exception) {
             DB::rollBack();
+
             return response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
         }
     }
 
     public function delete($type, Posts $post)
     {
-        try{
+        try {
             DB::beginTransaction();
             if (! ($type == 'pages' || $type == 'blogs')) {
                 abort(404);
@@ -156,20 +154,21 @@ class PostController extends Controller
             if ($post->delete()) {
                 Comments::where('post_id', $post->id)->delete();
                 DB::commit();
+
                 return response()->json(['status' => 'success', 'message' => __('post.success_delete')]);
             } else {
                 return response()->json(['status' => 'error', 'message' => __('post.post.error_delete')]);
             }
-        }
-        catch (Exception $exception){
+        } catch (Exception $exception) {
             DB::rollBack();
+
             return response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
         }
     }
 
     public function forceDelete($type, Posts $post)
     {
-        try{
+        try {
             DB::beginTransaction();
             if (! ($type == 'pages' || $type == 'blogs')) {
                 abort(404);
@@ -181,20 +180,21 @@ class PostController extends Controller
             Comments::where('post_id', $post->id)->forceDelete();
             if ($post->forceDelete()) {
                 DB::commit();
+
                 return response()->json(['status' => 'success', 'message' => __('post.post.success_force_delete')]);
             } else {
                 return response()->json(['status' => 'error', 'message' => __('post.post.error_force_delete')]);
             }
-        }
-        catch (Exception $exception){
+        } catch (Exception $exception) {
             DB::rollBack();
+
             return response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
         }
     }
 
     public function restore($type, Posts $post)
     {
-        try{
+        try {
             DB::beginTransaction();
             if (! ($type == 'pages' || $type == 'blogs')) {
                 abort(404);
@@ -202,13 +202,14 @@ class PostController extends Controller
             if ($post->restore()) {
                 Comments::onlyTrashed()->where('post_id', $post->id)->restore();
                 DB::commit();
+
                 return response()->json(['status' => 'success', 'message' => __('post.post.success_restore')]);
             } else {
                 return response()->json(['status' => 'error', 'message' => __('post.post.error_restore')]);
             }
-        }
-        catch (Exception $exception){
+        } catch (Exception $exception) {
             DB::rollBack();
+
             return response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
         }
     }
@@ -219,6 +220,7 @@ class PostController extends Controller
     public function imageDelete($type, Posts $post)
     {
         $post->deleteMedia($post->getFirstMedia('posts'));
+
         return response()->json(['status' => true, 'message' => __('post.success_image_delete')]);
     }
 

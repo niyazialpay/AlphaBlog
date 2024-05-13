@@ -153,6 +153,9 @@ return [
         '/opt/homebrew/var/log/supervisor*log',
 
         // '/absolute/paths/supported',
+        env('LOG_PATH'),
+        '~/logs/*',
+        '~/logs/*/*',
     ],
 
     /*

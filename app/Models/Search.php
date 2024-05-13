@@ -2,9 +2,6 @@
 
 namespace App\Models;
 
-
-
-
 use Illuminate\Database\Eloquent\Model;
 
 class Search extends Model
@@ -17,13 +14,11 @@ class Search extends Model
         'ip',
         'user_agent',
         'checked',
-        'think'
+        'think',
     ];
 
     protected $attributes = [
         'checked' => false,
-        'think' => false
+        'think' => false,
     ];
-
-
 }

@@ -13,12 +13,11 @@ class ContactController extends Controller
     public function index($language, $contact)
     {
         $contact = ContactPage::where('language', $language)->first();
-        try{
+        try {
             return view('themes.'.app('theme')->name.'.contact', [
-                'contact' => $contact
+                'contact' => $contact,
             ]);
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             return view('Default.contact', [
                 'contact' => $contact,
             ]);
