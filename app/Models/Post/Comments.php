@@ -28,10 +28,10 @@ class Comments extends Model
         'is_approved' => false,
     ];
 
-    protected $appends = [
+    /*protected $appends = [
         'nickname',
         'user_email',
-    ];
+    ];*/
 
     public function user(): BelongsTo
     {
