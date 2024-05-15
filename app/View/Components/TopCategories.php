@@ -6,6 +6,7 @@ use App\Models\Post\Categories;
 use Closure;
 use Exception;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\Component;
 
 class TopCategories extends Component
@@ -24,11 +25,19 @@ class TopCategories extends Component
     public function render(): View|Closure|string
     {
         $language = session('language');
-        $topCategories = Categories::withCount('posts')
-            ->where('language', $language)
-            ->orderBy('posts_count', 'desc')
-            ->limit(6)
-            ->get();
+
+        if(Cache::has(config('cache.prefix').'top_categories_'.$language)){
+            $topCategories = Cache::get(config('cache.prefix').'top_categories_'.$language);
+        }
+        else{
+            $topCategories = Categories::withCount('posts')
+                ->where('language', $language)
+                ->orderBy('posts_count', 'desc')
+                ->limit(6)
+                ->get();;
+
+            Cache::put(config('cache.prefix').'top_categories_'.$language, $topCategories, now()->addDay());
+        }
 
         try {
             return view('themes.'.app('theme')->name.'.components.top-categories', [
