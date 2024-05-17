@@ -33,8 +33,8 @@ class HomePosts extends Component
         } catch (NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             $page = 1;
         }
-        if(Cache::has(config('cache.prefix').'home_posts_'.session('language').'_page_'.$page)){
-            $post = Cache::get(config('cache.prefix').'home_posts_'.session('language'));
+        if(Cache::has(config('cache.prefix').'home_posts_'.session('language').'_page_'.$page.$this->paginate)){
+            $post = Cache::get(config('cache.prefix').'home_posts_'.session('language').'_page_'.$page.$this->paginate);
         }
         else{
             $post = Posts::with('categories')->join('users', 'posts.user_id', '=', 'users.id')
@@ -53,7 +53,7 @@ class HomePosts extends Component
                 ->orderBy('posts.created_at', 'desc')
                 ->paginate($this->paginate)->withQueryString();
 
-            Cache::put(config('cache.prefix').'home_posts_'.session('language').'_page_'.$page, $post, now()->addDay());
+            Cache::put(config('cache.prefix').'home_posts_'.session('language').'_page_'.$page.$this->paginate, $post, now()->addDay());
         }
         try {
             return view('themes.'.app('theme')->name.'.components.posts.home-posts', [
