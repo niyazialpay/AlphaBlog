@@ -34,7 +34,7 @@ class TopCategories extends Component
                 ->where('language', $language)
                 ->orderBy('posts_count', 'desc')
                 ->limit(6)
-                ->get();;
+                ->get();
 
             Cache::put(config('cache.prefix').'top_categories_'.$language, $topCategories, now()->addDay());
         }

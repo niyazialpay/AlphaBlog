@@ -6,7 +6,10 @@ use App\Models\Post\Posts;
 use Closure;
 use Exception;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\Component;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class HomePosts extends Component
 {
@@ -25,21 +28,33 @@ class HomePosts extends Component
      */
     public function render(): View|Closure|string
     {
-        $post = Posts::with('categories')->join('users', 'posts.user_id', '=', 'users.id')
-            ->join('media', 'posts.id', '=', 'media.model_id')
-            ->select([
-                'posts.*',
-                'users.nickname',
-                'users.email',
-                'media.file_name',
-                'media.id as media_id',
-            ])
-            ->where('posts.post_type', 'post')
-            ->where('posts.language', session('language'))
-            ->where('posts.is_published', true)
-            ->where('media.collection_name', 'posts')
-            ->orderBy('posts.created_at', 'desc')
-            ->paginate($this->paginate)->withQueryString();
+        try {
+            $page = request()->get('page') ?? 1;
+        } catch (NotFoundExceptionInterface|ContainerExceptionInterface $e) {
+            $page = 1;
+        }
+        if(Cache::has(config('cache.prefix').'home_posts_'.session('language').'_page_'.$page)){
+            $post = Cache::get(config('cache.prefix').'home_posts_'.session('language'));
+        }
+        else{
+            $post = Posts::with('categories')->join('users', 'posts.user_id', '=', 'users.id')
+                ->join('media', 'posts.id', '=', 'media.model_id')
+                ->select([
+                    'posts.*',
+                    'users.nickname',
+                    'users.email',
+                    'media.file_name',
+                    'media.id as media_id',
+                ])
+                ->where('posts.post_type', 'post')
+                ->where('posts.language', session('language'))
+                ->where('posts.is_published', true)
+                ->where('media.collection_name', 'posts')
+                ->orderBy('posts.created_at', 'desc')
+                ->paginate($this->paginate)->withQueryString();
+
+            Cache::put(config('cache.prefix').'home_posts_'.session('language').'_page_'.$page, $post, now()->addDay());
+        }
         try {
             return view('themes.'.app('theme')->name.'.components.posts.home-posts', [
                 'posts' => $post,
