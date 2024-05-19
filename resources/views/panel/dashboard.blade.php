@@ -195,9 +195,9 @@
             let TotalVisitorsAndPageViews_date = [];
 
             @foreach($TotalVisitorsAndPageViews as $TotalVisitorsAndPageView)
-            TotalVisitorsAndPageViews.push({{$TotalVisitorsAndPageView['activeUsers']}})
-            TotalVisitorsAndPageViews_view.push({{$TotalVisitorsAndPageView['screenPageViews']}})
-            TotalVisitorsAndPageViews_date.push('{{$TotalVisitorsAndPageView['date']}}')
+            TotalVisitorsAndPageViews.push({{$TotalVisitorsAndPageView['activeUsers']}});
+            TotalVisitorsAndPageViews_view.push({{$TotalVisitorsAndPageView['screenPageViews']}});
+            TotalVisitorsAndPageViews_date.push('{{$TotalVisitorsAndPageView['date']}}');
             @endforeach
 
             let totalVisitors_options = {

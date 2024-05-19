@@ -5,7 +5,7 @@
 @section('site_description', $contact->description)
 
 @section('canonical_url', url()->current())
-@section('og_image', $general_settings->logo)
+@section('og_image', $general_settings->getFirstMediaUrl('site_favicon'))
 
 @section('tags')
     @foreach(explode(',', $contact->keywords) as $item)

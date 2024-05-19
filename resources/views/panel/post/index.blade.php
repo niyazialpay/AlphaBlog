@@ -278,8 +278,8 @@
                                 '@lang('general.deleted')',
                                 '@lang('post.post.success_delete')',
                                 'success'
-                            )
-                            window.location.reload()
+                            );
+                            window.location.reload();
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
                             Swal.fire({
@@ -316,8 +316,8 @@
                                 '@lang('general.restored')',
                                 '@lang('')',
                                 'success'
-                            )
-                            window.location.reload()
+                            );
+                            window.location.reload();
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
                             Swal.fire({

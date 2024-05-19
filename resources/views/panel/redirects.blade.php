@@ -180,7 +180,7 @@
                     type: 'post',
                     data: $('#delete_route').serialize(),
                     success: function(){
-                        location.reload()
+                        location.reload();
                     }
                 });
             });

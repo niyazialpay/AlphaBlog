@@ -88,7 +88,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link profile-link @if(request()->get('tab')=='security') active @endif"
                                        href="javascript:ChangeTab('security')" id="security-menu">
-                                        @lang('user.security')
+                                        @lang('profile.security')
                                     </a>
                                 </li>
                             </ul>
@@ -545,7 +545,7 @@
         }
 
         function listWebauthn() {
-            let url
+            let url;
             @if(request()->route()->parameter('user_id'))
                 url = '{{route('admin.user.webauthn', $user)}}';
             @else
@@ -638,7 +638,7 @@
                 password_change_url = '{{route('admin.user.password', $user)}}';
             @else
                 profile_update_url = '{{route('admin.profile.save')}}';
-                social_network_update_url = '{{route('admin.profile.social.save')}}'
+                social_network_update_url = '{{route('admin.profile.social.save')}}';
                 password_change_url = '{{route('admin.profile.password')}}';
             @endif
 

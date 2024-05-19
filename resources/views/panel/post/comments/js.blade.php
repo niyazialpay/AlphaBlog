@@ -48,8 +48,8 @@
                     title,
                     message,
                     'success'
-                )
-                window.location.reload()
+                );
+                window.location.reload();
             },
             error: function (xhr) {
                 Swal.fire({
@@ -83,8 +83,8 @@
                                 '{{__('general.deleted')}}',
                                 '{{__('comments.comment_deleted')}}',
                                 'success'
-                            )
-                            window.location.reload()
+                            );
+                            window.location.reload();
                         },
                         error: function (xhr) {
                             Swal.fire({
@@ -121,8 +121,8 @@
                                 '{{__('general.restored')}}',
                                 '{{__('comments.comment_restored')}}',
                                 'success'
-                            )
-                            window.location.reload()
+                            );
+                            window.location.reload();
                         },
                         error: function (xhr) {
                             Swal.fire({
@@ -175,7 +175,7 @@
         });
     }
     function NewComment(blog_id, post_title){
-        $('#commentEditForm').trigger('reset')
+        $('#commentEditForm').trigger('reset');
         $('#post_id').val(blog_id);
         $('#post_title').text(post_title);
         $('#user').val('{{auth()->user()->id}}');
