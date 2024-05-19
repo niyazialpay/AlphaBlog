@@ -16,6 +16,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::middleware([
+    \App\Http\Middleware\DisableCookiesForCdn::class,
+    'api'
+])
+    ->withoutMiddleware([
+        \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+        \Illuminate\Session\Middleware\StartSession::class
+    ])
+    ->group(base_path('routes/cdn.php'));
+
+
 Route::group([
     'middleware' => [
         \App\Http\Middleware\NewCommentsCount::class,
@@ -138,8 +149,9 @@ Route::post('/webauthn/login',
     ->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class)
     ->name('webauthn.login');
 
-Route::get('/image/{path}/{width}/{height}/{type}/{image}',
+/*Route::get('/image/{path}/{width}/{height}/{type}/{image}',
     [\App\Http\Controllers\ImageProcessController::class, 'index'])
+    ->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class)
     ->name('image')
     ->where([
         'path' => '[a-zA-Z0-9\/]+',
@@ -147,7 +159,7 @@ Route::get('/image/{path}/{width}/{height}/{type}/{image}',
         'width' => '[0-9]+',
         'height' => '[0-9]+',
         'type' => '[a-zA-Z0-9\/]+',
-    ]);
+    ]);*/
 
 Route::get('/sitemap.xml', [\App\Http\Controllers\SiteMap\SitemapController::class, 'index']);
 
