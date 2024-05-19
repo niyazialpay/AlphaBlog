@@ -95,7 +95,7 @@ class ManifestController extends Controller
             ],
         ];
 
-        return response()->json($manifest_body, options: JSON_PRETTY_PRINT)
+        return response()->json($manifest_body)
             ->header('Content-Type', 'application/json');
     }
 
