@@ -20,7 +20,7 @@ class SeoSettingsController extends Controller
                 $seo->site_name = $request->post('site_name_'.$language->code);
                 $seo->title = $request->post('site_title_'.$language->code);
                 $seo->description = $request->post('site_description_'.$language->code);
-                $seo->keywords = explode(',', $request->post('site_keywords_'.$language->code));
+                $seo->keywords = $request->post('site_keywords_'.$language->code);
                 $seo->author = $request->post('site_author_'.$language->code);
                 $seo->robots = $request->post('robots_'.$language->code);
                 Cache::forget(config('cache.prefix').'seo_settings_'.$language->code);
