@@ -48,14 +48,27 @@ class ImageProcessController extends Controller
 
             $im->setImageFormat($im->getImageFormat());
 
+            if(config('app.cdn_url') != null && config('app.cdn_url') != config('app.url')){
+                $domain = config('app.cdn_url');
+            }
+            else{
+                $domain = config('app.url');
+            }
+
             return Response::make($im, 200)
                 ->header('Content-type', 'image/'.$im->getImageFormat())
-                ->header('Pragma', 'public')
+                /*->header('Pragma', 'public')
                 ->header('Cache-Control', ' max-age='.(86400 * 365))
                 ->header('Expires', gmdate('D, d M Y H:i:s \G\M\T', time() + 86400 * 365))
+                ->header('Etag', $etag)*/
+                ->header('access-control-allow-origin', $domain)
+                //->setContent('image/'.$im->getImageFormat())
+                ->setPublic()
+                ->setMaxAge(86400 * 365)
+                ->setExpires(now()->addYear())
                 ->header('Last-Modified', gmdate('D, d M Y H:i:s', $last_modified).' GMT')
-                ->header('Etag', $etag)
-                ->header('access-control-allow-origin', config('app.url'));
+                //->setLastModified(now()->addYear())
+                ->setEtag($etag)->withoutCookie(config('session.cookie'));
         }
     }
 }
