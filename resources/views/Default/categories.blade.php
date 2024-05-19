@@ -16,7 +16,7 @@
     @endsection
 @endif
 
-@section('og_image', $general_settings->logo)
+@section('og_image', $general_settings->getFirstMediaUrl('site_favicon'))
 
 @section('tags')
     @foreach(explode(",", $category->meta_keywords) as $item)

@@ -135,6 +135,12 @@
                     @endforeach
                 </div>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{route('admin.clear_cache')}}">
+                    <i class="fa-duotone fa-trash-can nav-icon"></i>
+                    @lang('cache.clear_cache')
+                </a>
+            </li>
         </ul>
 
 
@@ -331,12 +337,21 @@
 
     $(document).ready(function(){
         checkDarkMode();
-        let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
+            return new bootstrap.Tooltip(tooltipTriggerEl);
         });
 
         $('#top-comment-button').tooltip();
+
+        @if(session()->has('success'))
+            toastr.success("{{session('success')}}");
+        @endif
+
+        @if(session()->has('error'))
+            toastr.success("{{session('error')}}");
+        @endif
+
     });
 </script>
 

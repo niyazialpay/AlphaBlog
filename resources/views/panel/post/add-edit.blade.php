@@ -323,10 +323,10 @@
         let image_post_url;
         @if($post->id)
             post_url = '{{route('admin.post.update', [$type, $post])}}';
-            image_post_url = '{{route('admin.post.editor.image.upload', [$type, $post])}}'
+            image_post_url = '{{route('admin.post.editor.image.upload', [$type, $post])}}';
         @else
             post_url = '{{route('admin.post.save', [$type])}}';
-            image_post_url = '{{route('admin.post.editor.image.upload', [$type])}}'
+            image_post_url = '{{route('admin.post.editor.image.upload', [$type])}}';
         @endif
 
         let tinymce_skin;
@@ -371,7 +371,7 @@
                                     showCancelButton: false,
                                     showConfirmButton: false,
                                     timer: 1500
-                                })
+                                });
                                 $('image').remove();
                                 $('#image_input').html('<input type="file" class="form-control" name="image" id="image">');
                             } else {
@@ -382,7 +382,7 @@
                                     showCancelButton: false,
                                     showConfirmButton: false,
                                     timer: 1500
-                                })
+                                });
                             }
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
@@ -393,7 +393,7 @@
                                 showCancelButton: false,
                                 showConfirmButton: false,
                                 timer: 1500
-                            })
+                            });
                         }
                     });
                 }

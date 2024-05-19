@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware([
     \App\Http\Middleware\DisableCookiesForCdn::class,
-    'api'
 ])
     ->withoutMiddleware([
         \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
@@ -149,101 +148,99 @@ Route::post('/webauthn/login',
     ->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class)
     ->name('webauthn.login');
 
-/*Route::get('/image/{path}/{width}/{height}/{type}/{image}',
-    [\App\Http\Controllers\ImageProcessController::class, 'index'])
-    ->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class)
-    ->name('image')
-    ->where([
-        'path' => '[a-zA-Z0-9\/]+',
-        'image' => '[a-zA-Z0-9\/\.\-_]+',
-        'width' => '[0-9]+',
-        'height' => '[0-9]+',
-        'type' => '[a-zA-Z0-9\/]+',
-    ]);*/
-
-Route::get('/sitemap.xml', [\App\Http\Controllers\SiteMap\SitemapController::class, 'index']);
-
-Route::get('/sitemap', [\App\Http\Controllers\SiteMap\SitemapController::class, 'index'])
-    ->name('sitemap');
-
-Route::any('/manifest.json', [\App\Http\Controllers\ManifestController::class, 'manifest'])
-    ->name('manifest');
-
-try {
-    $languages = Languages::all();
-} catch (\Exception $e) {
-    $languages = collect();
-}
-
-Route::group(['prefix' => '/{language}'], function () use ($languages) {
-    App::setLocale(session('language'));
-
-    foreach ($languages as $language) {
-        foreach (Lang::get('routes', locale: $language->code) as $k => $v) {
-            Route::pattern($k, $v);
-        }
+Route::group([
+    'middleware' => [
+        \Fahlisaputra\Minify\Middleware\MinifyHtml::class,
+        \Fahlisaputra\Minify\Middleware\MinifyCss::class,
+        \Fahlisaputra\Minify\Middleware\MinifyJavascript::class,
+    ],
+], function(){
+    try {
+        $languages = Languages::all();
+    } catch (\Exception $e) {
+        $languages = collect();
     }
 
-    Route::get('/rss', [\App\Http\Controllers\SiteMap\RssController::class, 'show'])
-        ->name('rss');
+    Route::get('/sitemap.xml', [\App\Http\Controllers\SiteMap\SitemapController::class, 'index']);
 
-    Route::get('/sitemap-categories', [\App\Http\Controllers\SiteMap\SitemapController::class, 'categories'])
-        ->name('sitemap.categories');
+    Route::get('/sitemap', [\App\Http\Controllers\SiteMap\SitemapController::class, 'index'])
+        ->name('sitemap');
 
-    Route::get('/sitemap-posts', [\App\Http\Controllers\SiteMap\SitemapController::class, 'posts'])
-        ->name('sitemap.posts');
+    Route::any('/manifest.json', [\App\Http\Controllers\ManifestController::class, 'manifest'])
+        ->name('manifest');
 
-    Route::get('/sitemap-users', [\App\Http\Controllers\SiteMap\SitemapController::class, 'users'])
-        ->name('sitemap.users');
+    Route::group(['prefix' => '/{language}'], function () use ($languages) {
+        App::setLocale(session('language'));
 
-    Route::post('/comment-save', [\App\Http\Controllers\CommentController::class, 'store'])
-        ->middleware([
-            \App\Http\Middleware\CloudflareTurnstile::class,
-            \Spatie\Honeypot\ProtectAgainstSpam::class,
-        ])
-        ->name('comment.save');
+        foreach ($languages as $language) {
+            foreach (Lang::get('routes', locale: $language->code) as $k => $v) {
+                Route::pattern($k, $v);
+            }
+        }
 
-    Route::get('/{tags}/{showTag:tag}', [\App\Http\Controllers\TagController::class, 'show'])
-        ->name('post.tags')
-        ->whereIn('tags', Lang::get('route_tags'));
+        Route::get('/rss', [\App\Http\Controllers\SiteMap\RssController::class, 'show'])
+            ->name('rss');
 
-    Route::get('/{categories}/{showCategory:slug}', [\App\Http\Controllers\CategoryController::class, 'show'])
-        ->name('post.categories')
-        ->whereIn('categories', Lang::get('route_categories'));
+        Route::get('/sitemap-categories', [\App\Http\Controllers\SiteMap\SitemapController::class, 'categories'])
+            ->name('sitemap.categories');
 
-    Route::get('/{user}/{users:nickname}', [\App\Http\Controllers\UserController::class, 'posts'])
-        ->name('user.posts')
-        ->whereIn('user', Lang::get('route_user'));
+        Route::get('/sitemap-posts', [\App\Http\Controllers\SiteMap\SitemapController::class, 'posts'])
+            ->name('sitemap.posts');
 
-    Route::get('/{archives}/{year}/{month?}/{day?}', [\App\Http\Controllers\ArchiveController::class, 'show'])
-        ->name('post.archives')
-        ->whereIn('archives', Lang::get('route_archives'));
+        Route::get('/sitemap-users', [\App\Http\Controllers\SiteMap\SitemapController::class, 'users'])
+            ->name('sitemap.users');
 
-    Route::get('/{search_result}/{search_term?}', [\App\Http\Controllers\SearchController::class, 'index'])
-        ->name('search.result')
-        ->whereIn('search_result', Lang::get('route_search'));
+        Route::post('/comment-save', [\App\Http\Controllers\CommentController::class, 'store'])
+            ->middleware([
+                \App\Http\Middleware\CloudflareTurnstile::class,
+                \Spatie\Honeypot\ProtectAgainstSpam::class,
+            ])
+            ->name('comment.save');
 
-    Route::get('/{contact}', [\App\Http\Controllers\ContactController::class, 'index'])
-        ->name('contact.front')
-        ->whereIn('contact', Lang::get('route_contact'));
+        Route::get('/{tags}/{showTag:tag}', [\App\Http\Controllers\TagController::class, 'show'])
+            ->name('post.tags')
+            ->whereIn('tags', Lang::get('route_tags'));
 
-    Route::post('/{contact}', [\App\Http\Controllers\ContactController::class, 'send'])
-        ->name('contact.send')
-        ->whereIn('contact', Lang::get('route_contact'))
-        ->middleware([
-            \App\Http\Middleware\CloudflareTurnstile::class,
-            \Spatie\Honeypot\ProtectAgainstSpam::class,
-        ]);
+        Route::get('/{categories}/{showCategory:slug}', [\App\Http\Controllers\CategoryController::class, 'show'])
+            ->name('post.categories')
+            ->whereIn('categories', Lang::get('route_categories'));
 
-    Route::post('/{contact}/ajax', [\App\Http\Controllers\ContactController::class, 'send_ajax'])
-        ->name('contact.send-ajax')
-        ->whereIn('contact', Lang::get('route_contact'))
-        ->middleware([
-            \App\Http\Middleware\CloudflareTurnstile::class,
-            \Spatie\Honeypot\ProtectAgainstSpam::class,
-        ]);
+        Route::get('/{user}/{users:nickname}', [\App\Http\Controllers\UserController::class, 'posts'])
+            ->name('user.posts')
+            ->whereIn('user', Lang::get('route_user'));
 
-    Route::get('/{showPost:slug}', [\App\Http\Controllers\PostController::class, 'show'])->name('page');
-})->whereIn('language', $languages->pluck('code')->toArray());
+        Route::get('/{archives}/{year}/{month?}/{day?}', [\App\Http\Controllers\ArchiveController::class, 'show'])
+            ->name('post.archives')
+            ->whereIn('archives', Lang::get('route_archives'));
 
-Route::get('/{language?}', [\App\Http\Controllers\HomeController::class, 'index'])->name('home');
+        Route::get('/{search_result}/{search_term?}', [\App\Http\Controllers\SearchController::class, 'index'])
+            ->name('search.result')
+            ->whereIn('search_result', Lang::get('route_search'));
+
+        Route::get('/{contact}', [\App\Http\Controllers\ContactController::class, 'index'])
+            ->name('contact.front')
+            ->whereIn('contact', Lang::get('route_contact'));
+
+        Route::post('/{contact}', [\App\Http\Controllers\ContactController::class, 'send'])
+            ->name('contact.send')
+            ->whereIn('contact', Lang::get('route_contact'))
+            ->middleware([
+                \App\Http\Middleware\CloudflareTurnstile::class,
+                \Spatie\Honeypot\ProtectAgainstSpam::class,
+            ]);
+
+        Route::post('/{contact}/ajax', [\App\Http\Controllers\ContactController::class, 'send_ajax'])
+            ->name('contact.send-ajax')
+            ->whereIn('contact', Lang::get('route_contact'))
+            ->middleware([
+                \App\Http\Middleware\CloudflareTurnstile::class,
+                \Spatie\Honeypot\ProtectAgainstSpam::class,
+            ]);
+
+        Route::get('/{showPost:slug}', [\App\Http\Controllers\PostController::class, 'show'])->name('page');
+    })->whereIn('language', $languages->pluck('code')->toArray());
+
+    Route::get('/{language?}', [\App\Http\Controllers\HomeController::class, 'index'])->name('home');
+});
+
+

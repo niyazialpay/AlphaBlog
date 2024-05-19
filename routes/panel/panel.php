@@ -20,6 +20,9 @@ Route::post('/contact', [App\Http\Controllers\Admin\ContactController::class, 's
 Route::get('/change-language/{language}', [App\Http\Controllers\Admin\DashboardController::class, 'changeLanguage'])
     ->name('admin.change_language');
 
+Route::get('/clear-cache', [App\Http\Controllers\Admin\CacheController::class, 'clearCache'])
+    ->name('admin.clear_cache');
+
 Route::get('/alphabot', [App\Http\Controllers\StreamingChatController::class, 'index'])->name('alphabot');
 Route::get('/alphabot/streaming', [App\Http\Controllers\StreamingChatController::class, 'chat'])->name('alphabot.streaming');
 

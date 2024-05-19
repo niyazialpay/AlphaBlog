@@ -24,7 +24,7 @@
     'image' => $media->file_name
 ]))
 @else
-    @section('og_image', $general_settings->logo)
+    @section('og_image', $general_settings->getFirstMediaUrl('site_favicon'))
 @endif
 @if($post->href_lang)
     @section('href_lang')
