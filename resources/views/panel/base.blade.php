@@ -345,26 +345,37 @@
         $('#top-comment-button').tooltip();
 
         $('#clear-cache').click(function(){
-            $.ajax({
-                url: '{{route('admin.clear_cache')}}',
-                type: 'GET',
-                success: function(response){
-                    if(response.status === 'success'){
-                        Swal.fire({
-                            icon: 'success',
-                            title: response.message,
-                            showConfirmButton: false,
-                            timer: 1500
-                        });
-                    }
-                    else{
-                        Swal.fire({
-                            icon: 'error',
-                            title: response.message,
-                            showConfirmButton: false,
-                            timer: 1500
-                        })
-                    }
+            Swal.fire({
+                title: '@lang('cache.clear_cache')',
+                text: '@lang('cache.are_you_sure')',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '@lang('general.yes')',
+                cancelButtonText: '@lang('general.no')'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '{{route('admin.clear_cache')}}',
+                        type: 'GET',
+                        success: function(response){
+                            if(response.status === 'success'){
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: response.message,
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
+                            }
+                            else{
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: response.message,
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                })
+                            }
+                        }
+                    });
                 }
             });
         });
