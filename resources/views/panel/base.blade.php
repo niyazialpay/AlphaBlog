@@ -136,7 +136,7 @@
                 </div>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{route('admin.clear_cache')}}">
+                <a class="nav-link" href="javascript:void(0);" id="clear-cache">
                     <i class="fa-duotone fa-trash-can nav-icon"></i>
                     @lang('cache.clear_cache')
                 </a>
@@ -344,13 +344,30 @@
 
         $('#top-comment-button').tooltip();
 
-        @if(session()->has('success'))
-            toastr.success("{{session('success')}}");
-        @endif
-
-        @if(session()->has('error'))
-            toastr.success("{{session('error')}}");
-        @endif
+        $('#clear-cache').click(function(){
+            $.ajax({
+                url: '{{route('admin.clear_cache')}}',
+                type: 'GET',
+                success: function(response){
+                    if(response.status === 'success'){
+                        Swal.fire({
+                            icon: 'success',
+                            title: response.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }
+                    else{
+                        Swal.fire({
+                            icon: 'error',
+                            title: response.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    }
+                }
+            });
+        });
 
     });
 </script>

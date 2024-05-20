@@ -11,10 +11,16 @@ class CacheController extends Controller
     public function clearCache()
     {
         if(Cache::flush()){
-            return redirect()->back()->with('success', __('cache.cache_cleared'));
+            return response()->json([
+                'status' => 'success',
+                'message' => __('cache.cache_cleared')
+            ]);
         }
         else{
-            return redirect()->back()->with('error', __('cache.cache_not_cleared'));
+            return response()->json([
+                'status' => 'error',
+                'message' =>  __('cache.cache_not_cleared')
+            ]);
         }
     }
 }
