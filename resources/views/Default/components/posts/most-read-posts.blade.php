@@ -24,7 +24,7 @@
                     <a href="{{route('user.posts', [
                             'language' => session('language'), __('routes.user'), $item->nickname
                             ])}}" class="author">
-                        <img class="lazy" src="{{config('app.url')}}/themes/Default/images/loading.svg" data-src="https://www.gravatar.com/avatar/{{md5(strtolower(trim($item->email)))}}" alt="{{$item->nickname}}" />
+                        <img class="lazy" src="{{config('app.url')}}/themes/Default/images/loading.svg" data-src="https://www.gravatar.com/avatar/{{hash('sha256', strtolower(trim($item->email)))}}" alt="{{$item->nickname}}" />
                     </a>
                 </header>
                 @if($item->media_id)

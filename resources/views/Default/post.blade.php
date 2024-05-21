@@ -71,7 +71,7 @@
                         <span class="name">{{$post->user->nickname}}</span>
                         <img class="lazy"
                              src="{{config('app.url')}}/themes/Default/images/loading.svg"
-                             data-src="https://www.gravatar.com/avatar/{{md5(strtolower(trim($post->user->email)))}}"
+                             data-src="https://www.gravatar.com/avatar/{{hash('sha256', strtolower(trim($post->user->email)))}}"
                              alt="{{$post->user->nickname}}"/>
                     </a>
                 </div>
@@ -142,7 +142,7 @@
                         <a class="comment-avtar">
                             <img class="lazy"
                                  src="{{config('app.url')}}/themes/Default/images/loading.svg"
-                                 data-src="https://www.gravatar.com/avatar/{{md5(strtolower(trim($item->user?->email ?? $item->email)))}}"
+                                 data-src="https://www.gravatar.com/avatar/{{hash('sha256', strtolower(trim($item->user?->email ?? $item->email)))}}"
                                  alt="{{$item->user?->nickname ?? $item->name}}"/>
                         </a>
                         <div class="comment-text">
@@ -251,7 +251,7 @@
                 "@type" : "Organization",
                 "name" : "{{$post->user->nickname}}",
                 "logo": {
-                    "url": "https://www.gravatar.com/avatar/{{md5(strtolower(trim($post->user->email)))}}",
+                    "url": "https://www.gravatar.com/avatar/{{hash('sha256', strtolower(trim($post->user->email)))}}",
                     "type": "ImageObject",
                     "width": "48",
                     "height": "48"
