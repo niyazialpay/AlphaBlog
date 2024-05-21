@@ -461,7 +461,7 @@
                 language: '{{app('default_language')->code}}',
                 branding: false,
                 license_key: 'gpl',
-                height: 700,
+                height: 750,
                 plugins: [
                     'advlist',
                     'autolink',
