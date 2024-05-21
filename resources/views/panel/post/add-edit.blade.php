@@ -461,12 +461,7 @@
                 language: '{{app('default_language')->code}}',
                 branding: false,
                 license_key: 'gpl',
-                height: 600,
-                mobile: {
-                    theme: 'silver',
-                    toolbar: 'undo | bold italic | link | image | font size select forecolor',
-                    menubar: false
-                },
+                height: 700,
                 plugins: [
                     'advlist',
                     'autolink',
@@ -514,7 +509,14 @@
                 convert_urls: true,
                 skin: tinymce_skin,
                 content_css: tinymce_content_css,
-                images_upload_handler: post_image_upload_handler
+                images_upload_handler: post_image_upload_handler,
+                mobile: {
+                    theme: 'mobile',
+                    toolbar: 'undo | bold italic | link | image | font size select forecolor',
+                    menubar: false,
+                    height: 400,
+                    plugins: [ 'autosave', 'lists', 'autolink', 'code', 'fullscreen' ]
+                }
             }
 
             tinymce.init(tinymce_settings);
