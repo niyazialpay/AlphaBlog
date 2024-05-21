@@ -189,7 +189,7 @@
     $(document).ready(function(){
         let tinymce_comment_settings = {
             selector: 'textarea#comment',
-            height: 300,
+            height: 400,
             promotion: false,
             language: '{{app('default_language')->code}}',
             branding: false,
@@ -209,7 +209,7 @@
                 theme: 'silver',
                 toolbar: 'undo | bold italic | link | image | font size select forecolor',
                 menubar: false,
-                height: 400,
+                height: 300,
                 plugins: [ 'autosave', 'lists', 'autolink', 'code', 'fullscreen' ]
             }
         }
