@@ -511,7 +511,7 @@
                 content_css: tinymce_content_css,
                 images_upload_handler: post_image_upload_handler,
                 mobile: {
-                    theme: 'mobile',
+                    theme: 'silver',
                     toolbar: 'undo | bold italic | link | image | font size select forecolor',
                     menubar: false,
                     height: 400,
