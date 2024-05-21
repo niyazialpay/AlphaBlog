@@ -153,7 +153,7 @@
             <li class="nav-item dropdown">
                 <a class="nav-link" data-bs-toggle="dropdown" href="#">
                     <img
-                        src="https://www.gravatar.com/avatar/{{md5(strtolower(trim(auth()->user()->email)))}}?s=20"
+                        src="https://www.gravatar.com/avatar/{{hash('sha256', strtolower(trim(auth()->user()->email)))}}?s=20"
                         class="img-circle elevation-2" alt="{{auth()->user()->nickname}}">
                 </a>
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
@@ -197,7 +197,7 @@
             <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                 <div class="image">
                     <img
-                        src="https://www.gravatar.com/avatar/{{md5(strtolower(trim(auth()->user()->email)))}}?s=34"
+                        src="https://www.gravatar.com/avatar/{{hash('sha256', strtolower(trim(auth()->user()->email)))}}?s=34"
                         class="img-circle elevation-2" alt="{{auth()->user()->nickname}}">
                 </div>
                 <div class="info">
