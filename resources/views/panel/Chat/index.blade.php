@@ -10,7 +10,7 @@
 <div class="row">
     <div class="col-sm-11 col-md-11 col-lg-11 container px-4">
         <div class="card">
-            <div id="chat-list" class="card-body" style="height: calc(100dvh - 325px); overflow-y: auto;"></div>
+            <div id="chat-list" class="card-body" style="height: calc(100dvh - 315px); overflow-y: auto;"></div>
         </div>
     </div>
 </div>

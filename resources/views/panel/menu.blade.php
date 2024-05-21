@@ -11,8 +11,8 @@
         </a>
     </li>
     <li class="nav-item">
-        <a href="{{route('alphabot')}}" class="nav-link"
-           @if(request()->is(config('settings.admin_panel_path').'/alphabot*')) active @endif ">
+        <a href="{{route('alphabot')}}" class="nav-link
+        @if(request()->is(config('settings.admin_panel_path').'/alphabot*')) active @endif ">
             <i class="fa-duotone fa-robot nav-icon"></i>
             <p>
                 @lang('chatbot.chatbot')

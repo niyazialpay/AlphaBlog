@@ -80,7 +80,7 @@
         {!! $admin_notification?->onesignal !!}
     @endif
 </head>
-<body class="hold-transition sidebar-mini">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
 <div class="wrapper">
 
     <div class="preloader flex-column justify-content-center align-items-center">
@@ -135,7 +135,7 @@
                     @endforeach
                 </div>
             </li>
-            <li class="nav-item d-sm-none d-md-block">
+            <li class="nav-item d-none d-md-block">
                 <a class="nav-link clear-cache" href="javascript:void(0);">
                     <i class="fa-duotone fa-trash-can nav-icon"></i>
                     @lang('cache.clear_cache')
