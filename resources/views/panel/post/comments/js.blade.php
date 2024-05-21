@@ -205,6 +205,13 @@
             ],
             skin: tinymce_skin,
             content_css: tinymce_content_css,
+            mobile: {
+                theme: 'silver',
+                toolbar: 'undo | bold italic | link | image | font size select forecolor',
+                menubar: false,
+                height: 400,
+                plugins: [ 'autosave', 'lists', 'autolink', 'code', 'fullscreen' ]
+            }
         }
 
         tinymce.init(tinymce_comment_settings);
