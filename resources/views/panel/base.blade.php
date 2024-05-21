@@ -135,8 +135,8 @@
                     @endforeach
                 </div>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="javascript:void(0);" id="clear-cache">
+            <li class="nav-item d-sm-none d-md-block">
+                <a class="nav-link clear-cache" href="javascript:void(0);">
                     <i class="fa-duotone fa-trash-can nav-icon"></i>
                     @lang('cache.clear_cache')
                 </a>
@@ -344,7 +344,7 @@
 
         $('#top-comment-button').tooltip();
 
-        $('#clear-cache').click(function(){
+        $('.clear-cache').click(function(){
             Swal.fire({
                 title: '@lang('cache.clear_cache')',
                 text: '@lang('cache.are_you_sure')',
