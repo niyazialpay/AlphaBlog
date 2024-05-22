@@ -31,7 +31,7 @@ class WebAuthnLoginController
      */
     public function login(AssertedRequest $request): Response
     {
-        $status = $request->login() ? 204 : 422;
+        $status = $request->login(remember:true) ? 204 : 422;
         if ($status === 204) {
             session()->put('otp', true);
         }

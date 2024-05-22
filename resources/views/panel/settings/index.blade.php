@@ -993,7 +993,7 @@
                         $('#flag').val(response.flag);
                         $('#is_active').val(response.is_active ? 1 : 0);
                         $('#is_default').val(response.is_default ? 1 : 0);
-                        $('#language_id').val(response._id).attr('disabled', false);
+                        $('#language_id').val(response.id).attr('disabled', false);
                         $('#languageModal').modal('show');
                     } else {
                         Swal.fire(

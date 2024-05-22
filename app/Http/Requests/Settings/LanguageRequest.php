@@ -26,11 +26,11 @@ class LanguageRequest extends FormRequest
         if ($this->id) {
             $code_unique = Rule::unique('languages', 'code')
                 ->where('code', $this->input('code'))
-                ->whereNot('_id', $this->input('id'));
+                ->whereNot('id', $this->input('id'));
 
             $name_unique = Rule::unique('languages', 'name')
                 ->where('name', $this->input('name'))
-                ->whereNot('_id', $this->input('id'));
+                ->whereNot('id', $this->input('id'));
         } else {
             $code_unique = Rule::unique('languages', 'code')
                 ->where('code', $this->input('code'));

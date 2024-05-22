@@ -2,6 +2,7 @@
 
 namespace App\Models\Post;
 
+use App\Models\Languages;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -58,6 +59,11 @@ class Categories extends Model implements HasMedia
     public function categoryMedia(): HasOne
     {
         return $this->hasOne(Media::class, 'model_id')->where('collection_name', 'categories');
+    }
+
+    public function language(): BelongsTo
+    {
+        return $this->belongsTo(Languages::class, 'language', 'code');
     }
 
     public function searchableAs(): string

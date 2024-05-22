@@ -10,6 +10,10 @@ Route::post('/delete-image', [App\Http\Controllers\Admin\Post\CategoryController
     ->can('category', 'App\Models\Post\Categories')
     ->name('admin.categories.image.delete');
 
+Route::post('/list', [App\Http\Controllers\Admin\Post\CategoryController::class, 'categoryList'])
+    ->can('category', 'App\Models\Post\Categories')
+    ->name('admin.categories.list');
+
 Route::get('/{category?}', [App\Http\Controllers\Admin\Post\CategoryController::class, 'index'])
     ->can('category', 'App\Models\Post\Categories')
     ->name('admin.categories');

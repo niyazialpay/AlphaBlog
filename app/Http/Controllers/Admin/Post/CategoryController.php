@@ -100,4 +100,9 @@ class CategoryController extends Controller
             return response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
         }
     }
+
+    public function categoryList(Request $request): JsonResponse
+    {
+        return response()->json(Categories::where('language', $request->language)->get());
+    }
 }

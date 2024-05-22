@@ -20,7 +20,7 @@ class LanguagesController extends Controller
 {
     public function show(Request $request)
     {
-        return response()->json(Languages::where('_id', GetPost($request->post('id')))->first());
+        return response()->json(Languages::where('id', GetPost($request->post('id')))->first());
     }
 
     public function save(LanguageRequest $request, Languages $language)
@@ -61,6 +61,12 @@ class LanguagesController extends Controller
             Cache::forget(config('cache.prefix').'languages');
             $language->save();
 
+            $default_language = Languages::where('is_default', true)->first();
+            if (! $default_language) {
+                $language->is_default = true;
+                $language->save();
+            }
+
             LanguageAction::setLanguage($request);
 
             DB::commit();
@@ -85,7 +91,7 @@ class LanguagesController extends Controller
     {
         try {
             DB::beginTransaction();
-            $language = $languages::where('_id', GetPost($request->post('id')))->first();
+            $language = $languages::where('id', GetPost($request->post('id')))->first();
             if (Posts::where('language', $language->code)->count() > 0) {
                 $error_message = __('language.has_posts');
             }
