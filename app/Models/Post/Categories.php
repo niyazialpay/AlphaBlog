@@ -61,11 +61,6 @@ class Categories extends Model implements HasMedia
         return $this->hasOne(Media::class, 'model_id')->where('collection_name', 'categories');
     }
 
-    public function language(): BelongsTo
-    {
-        return $this->belongsTo(Languages::class, 'language', 'code');
-    }
-
     public function searchableAs(): string
     {
         return config('scout.prefix').'categories';
