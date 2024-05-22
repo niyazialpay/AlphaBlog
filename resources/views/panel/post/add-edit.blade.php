@@ -41,6 +41,15 @@
                     <input type="text" class="form-control" name="slug" id="slug" placeholder="@lang('post.slug')"
                            value="{{stripslashesNull($post->slug)}}">
                 </div>
+                <div class="col-12 mb-3">
+                    <label for="language">@lang('general.language')</label>
+                    <select name="language" id="language" class="form-control">
+                        @foreach(app('languages') as $language)
+                            <option value="{{$language->code}}"
+                                    @if($post->language == $language->code) selected @endif>{{$language->name}}</option>
+                        @endforeach
+                    </select>
+                </div>
                 @if($type=='blogs')
                     <div class="col-12 mb-3">
                         <div class="form-group">
@@ -113,15 +122,6 @@
                             >
                                 {{$user->name}} {{$user->surname}} ({{$user->nickname}})
                             </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-12 mb-3">
-                    <label for="language">@lang('general.language')</label>
-                    <select name="language" id="language" class="form-control">
-                        @foreach(app('languages') as $language)
-                            <option value="{{$language->code}}"
-                                    @if($post->language == $language->code) selected @endif>{{$language->name}}</option>
                         @endforeach
                     </select>
                 </div>
@@ -405,6 +405,25 @@
                 let name = $(this).val();
                 $("#slug").val(ToSeoUrl(name));
             });
+
+            @if($post->post_type=='post')
+            $('#language').change(function(){
+                $.ajax({
+                    url: '{{route('admin.categories.list')}}',
+                    type: 'POST',
+                    data: {
+                        _token: '{{csrf_token()}}',
+                        language: $(this).val()
+                    },
+                    success: function(data){
+                        $('#category_id').html('');
+                        $.each(data, function (index, value) {
+                            $('#category_id').append('<option value="'+value.id+'">'+value.name+' (' + value.language + ')</option>');
+                        });
+                    }
+                });
+            });
+            @endif
 
             const post_image_upload_handler = (blobInfo, progress) => new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();

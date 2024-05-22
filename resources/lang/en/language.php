@@ -28,4 +28,9 @@ return [
     'has_categories' => 'This language has categories. You cannot delete it!',
     'has_menus' => 'This language has menus. You cannot delete it!',
     'has_menu_items' => 'This language has menu items. You cannot delete it!',
+
+    'default_integer' => 'The default field must be an integer.',
+    'default_in' => 'The default field must be 0 or 1.',
+    'status_integer' => 'The status field must be an integer.',
+    'status_in' => 'The status field must be 0 or 1.',
 ];

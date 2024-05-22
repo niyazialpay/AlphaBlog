@@ -28,4 +28,8 @@ return [
     'has_categories' => 'Bu dilde kategoriler var. Silemezsiniz!',
     'has_menus' => 'Bu dilde menüler var. Silemezsiniz!',
     'has_menu_items' => 'Bu dilde menü öğeleri var. Silemezsiniz!',
+    'default_integer' => 'Varsayılan alanı tamsayı olmalıdır.',
+    'default_in' => 'Varsayılan alanı 0 veya 1 olmalıdır.',
+    'status_integer' => 'Durum alanı tamsayı olmalıdır.',
+    'status_in' => 'Durum alanı 0 veya 1 olmalıdır.',
 ];

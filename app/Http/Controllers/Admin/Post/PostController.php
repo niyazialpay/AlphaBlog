@@ -78,11 +78,15 @@ class PostController extends Controller
                 'comments.user',
                 'history',
             ]);
+            $categories = Categories::where('language', $post?->language)->get();
+        }
+        else{
+            $categories = Categories::where('language', session('language'))->get();
         }
 
         return view('panel.post.add-edit', [
             'post' => $post,
-            'categories' => Categories::all(),
+            'categories' => $categories,
             'users' => User::all(),
             'type' => $type,
         ]);
