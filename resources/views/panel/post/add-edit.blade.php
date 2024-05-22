@@ -46,7 +46,9 @@
                     <select name="language" id="language" class="form-control">
                         @foreach(app('languages') as $language)
                             <option value="{{$language->code}}"
-                                    @if($post->language == $language->code) selected @endif>{{$language->name}}</option>
+                                    @if($post->language == $language->code) selected @else
+                                        @if(!$post->id && $language->code == session('language')) selected  @endif
+                                @endif>{{$language->name}}</option>
                         @endforeach
                     </select>
                 </div>
@@ -408,6 +410,7 @@
 
             @if($post->post_type=='post')
             $('#language').change(function(){
+                $('#category_id').html('');
                 $.ajax({
                     url: '{{route('admin.categories.list')}}',
                     type: 'POST',
@@ -416,7 +419,6 @@
                         language: $(this).val()
                     },
                     success: function(data){
-                        $('#category_id').html('');
                         $.each(data, function (index, value) {
                             $('#category_id').append('<option value="'+value.id+'">'+value.name+' (' + value.language + ')</option>');
                         });
