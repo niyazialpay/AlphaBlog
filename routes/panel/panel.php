@@ -23,8 +23,9 @@ Route::get('/change-language/{language}', [App\Http\Controllers\Admin\DashboardC
 Route::get('/clear-cache', [App\Http\Controllers\Admin\CacheController::class, 'clearCache'])
     ->name('admin.clear_cache');
 
-Route::get('/alphabot', [App\Http\Controllers\StreamingChatController::class, 'index'])->name('alphabot');
-Route::get('/alphabot/streaming', [App\Http\Controllers\StreamingChatController::class, 'chat'])->name('alphabot.streaming');
+Route::get('/ai-chatbot', [App\Http\Controllers\StreamingChatController::class, 'index'])->name('chatbot');
+Route::get('/ai-chatbot/Gemini', [App\Http\Controllers\StreamingChatController::class, 'Gemini'])->name('chatbot.Gemini');
+Route::get('/ai-chatbot/ChatGPT', [App\Http\Controllers\StreamingChatController::class, 'ChatGPT'])->name('chatbot.ChatGPT');
 
 Route::get('/monitoring/pulse', [App\Http\Controllers\Admin\MonitoringController::class, 'showPulse'])
     ->name('admin.monitoring.pulse')->can('viewPulse');

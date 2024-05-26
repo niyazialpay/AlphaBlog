@@ -10,15 +10,17 @@
             </p>
         </a>
     </li>
-    <li class="nav-item">
-        <a href="{{route('alphabot')}}" class="nav-link
-        @if(request()->is(config('settings.admin_panel_path').'/alphabot*')) active @endif ">
-            <i class="fa-duotone fa-robot nav-icon"></i>
-            <p>
-                @lang('chatbot.chatbot')
-            </p>
-        </a>
-    </li>
+    @if(config('services.openai.key') || config('gemini.api_key'))
+        <li class="nav-item">
+            <a href="{{route('chatbot')}}" class="nav-link
+        @if(request()->is(config('settings.admin_panel_path').'/ai-chatbot*')) active @endif ">
+                <i class="fa-duotone fa-robot nav-icon"></i>
+                <p>
+                    @lang('chatbot.chatbot')
+                </p>
+            </a>
+        </li>
+    @endif
     <li class="nav-header">@lang('post.blog')</li>
     <li class="nav-item has-treeview
         @if(request()->is(config('settings.admin_panel_path').'/blogs*', config('settings.admin_panel_path').'/search*')) menu-open @endif ">

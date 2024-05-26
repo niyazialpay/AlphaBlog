@@ -1,16 +1,27 @@
 @extends('panel.base')
-@section('title','AlphaBot - '.__('chatbot.title'))
+@section('title','AI ChatBot - '.__('chatbot.title'))
 @section('breadcrumb_link')
     <ol class="breadcrumb float-sm-right">
         <li class="breadcrumb-item"><a href="{{route('admin.index')}}">@lang('dashboard.dashboard')</a></li>
-        <li class="breadcrumb-item active">AlphaBot</li>
+        <li class="breadcrumb-item active">AI ChatBot</li>
     </ol>
 @endsection
 @section('content')
 <div class="row">
     <div class="col-sm-11 col-md-11 col-lg-11 container px-4">
         <div class="card">
-            <div id="chat-list" class="card-body" style="height: calc(100dvh - 315px); overflow-y: auto;"></div>
+            <div class="card-header">
+                <label for="chatbot">Chat Bot</label>
+                <select class="form-control" name="chatbot" id="chatbot">
+                    @if(config('services.openai.key'))
+                        <option>ChatGPT</option>
+                    @endif
+                    @if(config('gemini.api_key'))
+                        <option selected>Gemini</option>
+                    @endif
+                </select>
+            </div>
+            <div id="chat-list" class="card-body" style="height: calc(100dvh - 415px); overflow-y: auto;"></div>
         </div>
     </div>
 </div>
@@ -46,6 +57,8 @@
     const chatListEl = document.getElementById("chat-list");
     const inputMessage = document.getElementById("input-message");
 
+    let chatbot = document.getElementById("chatbot").value;
+
     let chat_messages_div = $('.chat-messages');
     let chat_message_class;
     if(localStorage.getItem("dark-mode") === "true"){
@@ -75,7 +88,7 @@
                     alt="ChatBot">
                 </div>
                 <div class="px-3">
-                    <div class="text-muted">AlpaBot</div>
+                    <div class="text-muted">` + chatbot + `</div>
                     <div id="message-content">
                         <div id="chatbot-typing">
                             @lang('chatbot.typing')<span>.</span><span>.</span><span>.</span>
@@ -143,7 +156,13 @@
         messageItemUser.innerText = question;
 
         const queryQuestion = encodeURIComponent(question);
-        let url = `{{route('alphabot.streaming')}}?question=${queryQuestion}`;
+        let url;
+        if(chatbot === "ChatGPT") {
+            url = "{{route('chatbot.ChatGPT')}}?question=" + queryQuestion;
+        }
+        else{
+            url = "{{route('chatbot.Gemini')}}?question=" + queryQuestion;
+        }
         const source = new EventSource(url);
         let sseText = "";
 
@@ -212,6 +231,13 @@
 
 
     $(document).ready(function(){
+        let chatbot = $('#chatbot');
+        if(localStorage.getItem('chatbot')){
+            chatbot.val(localStorage.getItem('chatbot'));
+        }
+        chatbot.on('change', function(){
+            localStorage.setItem('chatbot', $(this).val());
+        });
         $('#dark-mode-switcher-button').on('click', function(){
 
             let div = $('#chat-list div div');
