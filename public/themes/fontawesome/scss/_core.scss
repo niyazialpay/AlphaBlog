@@ -13,6 +13,17 @@
 .#{$fa-css-prefix}-solid,
 .far,
 .#{$fa-css-prefix}-regular,
+.fasr,
+.fal,
+.#{$fa-css-prefix}-light,
+.fasl,
+.fat,
+.#{$fa-css-prefix}-thin,
+.fast,
+.fad,
+.#{$fa-css-prefix}-duotone,
+.fass,
+.#{$fa-css-prefix}-sharp-solid,
 .fab,
 .#{$fa-css-prefix}-brands {
   -moz-osx-font-smoothing: grayscale;
@@ -28,8 +39,12 @@
 .#{$fa-css-prefix}-classic,
 .#{$fa-css-prefix}-solid,
 .far,
-.#{$fa-css-prefix}-regular {
-  font-family: 'Font Awesome 6 Free';
+.#{$fa-css-prefix}-regular,
+.fal,
+.#{$fa-css-prefix}-light,
+.fat,
+.#{$fa-css-prefix}-thin {
+  font-family: 'Font Awesome 6 Pro';
 }
 
 .fab,
@@ -37,6 +52,23 @@
   font-family: 'Font Awesome 6 Brands';
 }
 
+.fad,
+.#{$fa-css-prefix}-classic.#{$fa-css-prefix}-duotone,
+.#{$fa-css-prefix}-duotone {
+  font-family: 'Font Awesome 6 Duotone';
+}
+
+.fass,
+.fasr,
+.fasl,
+.fast,
+.#{$fa-css-prefix}-sharp {
+  font-family: 'Font Awesome 6 Sharp';
+}
+.fass,
+.#{$fa-css-prefix}-sharp {
+  font-weight: 900;
+}
 
 %fa-icon {
   @include fa-icon;

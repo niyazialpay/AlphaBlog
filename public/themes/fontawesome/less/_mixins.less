@@ -43,7 +43,11 @@
 
 // sets a specific icon family to use alongside style + icon mixins
 .fa-family-classic() {
-  font-family: 'Font Awesome 6 Free';
+  font-family: 'Font Awesome 6 Pro';
+}
+
+.fa-family-sharp() {
+  font-family: 'Font Awesome 6 Sharp';
 }
 
 // convenience mixins for declaring pseudo-elements by CSS variable,
@@ -61,6 +65,72 @@
 .fa-icon-regular(@fa-var) {
   .fa-icon;
   .fa-regular;
+
+  &::before {
+    content: @fa-var;
+  }
+}
+
+.fa-icon-light(@fa-var) {
+  .fa-icon;
+  .fa-light;
+
+  &::before {
+    content: @fa-var;
+  }
+}
+
+.fa-icon-thin(@fa-var) {
+  .fa-icon;
+  .fa-thin;
+
+  &::before {
+    content: @fa-var;
+  }
+}
+
+.fa-icon-duotone(@fa-var) {
+  .fa-icon;
+  &:extend(.fa-duotone all); // extends all pseudo-element selectors/rules inside of .fa-duotone
+
+  &::before {
+    content: @fa-var;
+  }
+  &::after {
+    content: %("%s%s", @fa-var, @fa-var);
+  }
+}
+
+.fa-icon-sharp-solid(@fa-var) {
+  .fa-icon;
+  .fa-sharp-solid;
+
+  &::before {
+    content: @fa-var;
+  }
+}
+
+.fa-icon-sharp-regular(@fa-var) {
+  .fa-icon;
+  .fa-sharp-regular;
+
+  &::before {
+    content: @fa-var;
+  }
+}
+
+.fa-icon-sharp-light(@fa-var) {
+  .fa-icon;
+  .fa-sharp-light;
+
+  &::before {
+    content: @fa-var;
+  }
+}
+
+.fa-icon-sharp-thin(@fa-var) {
+  .fa-icon;
+  .fa-sharp-thin;
 
   &::before {
     content: @fa-var;

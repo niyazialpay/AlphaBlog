@@ -1,12 +1,12 @@
 /*!
- * Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com
- * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
- * Copyright 2024 Fonticons, Inc.
+ * Font Awesome Pro 6.5.1 by @fontawesome - https://fontawesome.com
+ * License - https://fontawesome.com/license (Commercial License)
+ * Copyright 2023 Fonticons, Inc.
  */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
-  (global['fontawesome-free-shims'] = factory());
+  (global['fontawesome-pro-shims'] = factory());
 }(this, (function () { 'use strict';
 
   var _WINDOW = {};

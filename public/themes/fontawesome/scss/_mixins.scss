@@ -42,6 +42,13 @@
 }
 
 // sets a specific icon family to use alongside style + icon mixins
+@mixin fa-family-classic() {
+  font-family: 'Font Awesome 6 Pro';
+}
+
+@mixin fa-family-sharp() {
+  font-family: 'Font Awesome 6 Sharp';
+}
 
 // convenience mixins for declaring pseudo-elements by CSS variable,
 // including all style-specific font properties, and both the ::before
@@ -54,6 +61,7 @@
     content: unquote("\"#{ $fa-var }\"");
   }
 }
+
 @mixin fa-icon-regular($fa-var) {
   @extend %fa-icon;
   @extend .fa-regular;
@@ -62,6 +70,73 @@
     content: unquote("\"#{ $fa-var }\"");
   }
 }
+
+@mixin fa-icon-light($fa-var) {
+  @extend %fa-icon;
+  @extend .fa-light;
+
+  &::before {
+    content: unquote("\"#{ $fa-var }\"");
+  }
+}
+
+@mixin fa-icon-thin($fa-var) {
+  @extend %fa-icon;
+  @extend .fa-thin;
+
+  &::before {
+    content: unquote("\"#{ $fa-var }\"");
+  }
+}
+
+@mixin fa-icon-duotone($fa-var) {
+  @extend %fa-icon;
+  @extend .fa-duotone;
+
+  &::before {
+    content: unquote("\"#{ $fa-var }\"");
+  }
+  &::after {
+    content: unquote("\"#{ $fa-var }#{ $fa-var }\"");
+  }
+}
+
+@mixin fa-icon-sharp-solid($fa-var) {
+  @extend %fa-icon;
+  @extend .fa-sharp-solid;
+
+  &::before {
+    content: unquote("\"#{ $fa-var }\"");
+  }
+}
+
+@mixin fa-icon-sharp-regular($fa-var) {
+  @extend %fa-icon;
+  @extend .fa-sharp-regular;
+
+  &::before {
+    content: unquote("\"#{ $fa-var }\"");
+  }
+}
+
+@mixin fa-icon-sharp-light($fa-var) {
+  @extend %fa-icon;
+  @extend .fa-sharp-light;
+
+  &::before {
+    content: unquote("\"#{ $fa-var }\"");
+  }
+}
+
+@mixin fa-icon-sharp-thin($fa-var) {
+  @extend %fa-icon;
+  @extend .fa-sharp-thin;
+
+  &::before {
+    content: unquote("\"#{ $fa-var }\"");
+  }
+}
+
 @mixin fa-icon-brands($fa-var) {
   @extend %fa-icon;
   @extend .fa-brands;
@@ -70,3 +145,4 @@
     content: unquote("\"#{ $fa-var }\"");
   }
 }
+
