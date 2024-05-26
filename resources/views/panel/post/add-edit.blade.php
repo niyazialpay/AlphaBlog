@@ -1,8 +1,13 @@
 @extends('panel.base')
-@if($type == 'blogs')
-    @section('title',__('post.blogs'))
+@if($post->id)
+    @php($title = ' - '.$post->title)
 @else
-    @section('title',__('post.pages'))
+    @php($title = '')
+@endif
+@if($type == 'blogs')
+    @section('title',__('post.blogs').$title)
+@else
+    @section('title',__('post.pages').$title)
 @endif
 
 @section('breadcrumb_link')
