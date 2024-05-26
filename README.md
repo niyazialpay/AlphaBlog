@@ -108,5 +108,5 @@ OPENAI_MODEL=
 - Laravel 11
 - PHP 8.3
 - Bootstrap 5
-- Font Awesome 6.5.2 (Pro)
+- Font Awesome 6.5.1 (Pro)
 
