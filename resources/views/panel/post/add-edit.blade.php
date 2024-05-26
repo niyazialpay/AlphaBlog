@@ -1,6 +1,6 @@
 @extends('panel.base')
 @if($post->id)
-    @php($title = ' - '.$post->title)
+    @php($title = ' - '.stripslashes($post->title))
 @else
     @php($title = '')
 @endif
