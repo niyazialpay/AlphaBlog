@@ -72,6 +72,19 @@ If you want to activate Gemini Chatbot you have to get an API key from https://m
 GEMINI_API_KEY=
 ```
 
+### For activate ChatGPT Chatbot
+If you want to activate ChatGPT Chatbot you have to get an API key from https://platform.openai.com/api-keys and add it to the .env file
+
+```bash
+OPENAI_API_KEY=
+```
+
+Also you can change ChatGPT model from the .env file
+
+```bash
+OPENAI_MODEL=
+```
+
 ## Features
 - Blogs with Categories
 - Page
@@ -85,7 +98,7 @@ GEMINI_API_KEY=
 - Admin panel
 - Webauthn Login
 - 2-Factor Authentication
-- AI Chatbot - Based by Gemini
+- AI Chatbot - Based by Gemini or ChatGPT
 - IP Filter (Blacklist and Whitelist)
 - User management
 - Cloudflare Turnstile (similar to Google Recaptcha)
