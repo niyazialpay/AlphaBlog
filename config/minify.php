@@ -130,6 +130,8 @@ return [
 
     'directives' => [
         '@' => 'x-on:',
+        '<pre' => '<pre ignore--minify',
+        '<code' => '<code ignore--minify',
     ],
 
     /*

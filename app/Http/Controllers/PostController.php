@@ -17,10 +17,12 @@ class PostController extends Controller
         try {
             return response()->view('themes.'.app('theme')->name.'.post', [
                 'post' => $showPost,
+                'ignore_minify' => true
             ]);
         } catch (Exception $e) {
             return response()->view('Default.post', [
                 'post' => $showPost,
+                'ignore_minify' => true
             ]);
         }
     }
