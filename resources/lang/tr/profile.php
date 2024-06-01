@@ -82,4 +82,11 @@ return [
 
     'save_error' => 'Kaydetme sırasında bir hata oluştu',
     'security' => 'Profil Güvenliği',
+
+    'active_2fa' => '2 Adımlı Doğrulamayı Etkinleştir',
+    'deactivate_2fa' => '2 Adım Doğrulamayı Devre Dışı Bırak',
+    'validate_2fa' => 'Doğrula',
+
+    'switch_to_password' => 'Şifre ile giriş yap',
+    'switch_to_webauthn' => 'WebAuthn ile giriş yap',
 ];

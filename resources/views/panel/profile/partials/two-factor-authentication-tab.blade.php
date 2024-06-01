@@ -19,7 +19,7 @@
         <form action="{{route('two-factor.disable')}}" class="mt-2" method="post">
             @csrf
             @method('delete')
-            <button type="submit" class="btn btn-danger">Disable 2FA</button>
+            <button type="submit" class="btn btn-danger">@lang('profile.deactivate_2fa')</button>
         </form>
         <!-- 2FA enabled but not yet confirmed, we show the QRcode and ask for confirmation : -->
     @elseif(auth()->user()->two_factor_secret)
@@ -35,7 +35,7 @@
                     <label class="form-label" for="code">{{__('OTP Code')}}</label>
                     <input type="text" id="code" class="form-control" placeholder="{{__('OTP Code')}}" name="code" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Validate 2FA</button>
+                <button type="submit" class="btn btn-primary">@lang('profile.validate_2fa')</button>
             </div>
 
         </form>
@@ -43,7 +43,7 @@
     @else
         <form action="{{route('two-factor.enable')}}" method="post">
             @csrf
-            <button type="submit" class="btn btn-primary">Activate 2FA</button>
+            <button type="submit" class="btn btn-primary">@lang('profile.deactivate_2fa')</button>
         </form>
     @endif
 </div>
