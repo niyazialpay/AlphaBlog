@@ -137,6 +137,19 @@
                             $('#login_panel').show();
                             $('.hidden-item').show();
                         }
+                        turnstile.reset();
+                    },
+                    error: function(xhr){
+                        console.log(xhr);
+                        $('#first_step').trigger("reset");
+                        $("#username").focus();
+                        Swal.fire({
+                            icon: 'warning',
+                            title: '@lang('user.login_request.error_title')',
+                            text: xhr.responseJSON.message,
+                            showConfirmButton: false,
+                            //timer: 1500
+                        });
                     }
                 });
             });
@@ -168,6 +181,7 @@
                                 //timer: 1500
                             });
                         }
+                        turnstile.reset();
                     },
                     error: function (xhr) {
                         console.log(xhr);
@@ -180,6 +194,7 @@
                             showConfirmButton: false,
                             //timer: 1500
                         });
+                        turnstile.reset();
                     }
                 });
             })

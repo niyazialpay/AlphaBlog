@@ -73,6 +73,10 @@ class LoginController extends Controller
         ]);
 
         if (Auth::attempt([$fieldType => $request->login, 'password' => $request->password], true)) {
+            if (Hash::needsRehash(auth()->user()->password)) {
+                auth()->user()->password = Hash::make($request->password);
+                auth()->user()->save();
+            }
             return response()->json([
                 'status' => true,
                 'message' => __('user.login_request.success'),
