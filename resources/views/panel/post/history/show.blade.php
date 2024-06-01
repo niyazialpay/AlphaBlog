@@ -47,7 +47,7 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-12">
-                                    {!! $content !!}
+                                    {!! stripslashesNull($content) !!}
                                 </div>
                             </div>
                         </div>
@@ -115,6 +115,11 @@
         }
         table.diff .diff-addedline ins {
             background-color: #afa;
+        }
+
+        .dark-mode table.diff .diff-deletedline,
+        .dark-mode table.diff .diff-addedline{
+            color: #000;
         }
 
     </style>
