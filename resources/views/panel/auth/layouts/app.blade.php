@@ -25,11 +25,16 @@
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>
     <link rel="manifest" href="{{route('manifest.panel')}}">
+
+    <link rel="shortcut icon" href="{{$general_settings->getFirstMediaUrl('site_favicon')}}" type="image/x-icon">
+    <link rel="icon" href="{{$general_settings->getFirstMediaUrl('site_favicon')}}" type="image/x-icon">
 </head>
 <body class="hold-transition login-page">
 <div class="login-box">
     <div class="login-logo">
-
+        <img class="animation__shake"
+             src="{{app('general_settings')->getFirstMediaUrl('site_favicon')}}"
+             alt="{{app('seo_settings')->site_name}}" height="60" width="60">
     </div>
     <!-- /.login-logo -->
     <div class="card">
