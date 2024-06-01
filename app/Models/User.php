@@ -95,6 +95,7 @@ class User extends Authenticatable implements WebAuthnAuthenticatable
 
         if ($codeIsValid) {
             $this->otp = true;
+            $this->two_factor_confirmed_at = now();
             $this->save();
 
             return true;

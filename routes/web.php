@@ -98,13 +98,13 @@ Route::get('/login',
 Route::post('/login/first',
     [\App\Http\Controllers\Auth\LoginController::class, 'loginFirst'])->name('login.first_step')->middleware([
         \Spatie\Honeypot\ProtectAgainstSpam::class,
-        'throttle:3,1',
+        //'throttle:3,1',
     ]);
 
 Route::post('/login',
     [\App\Http\Controllers\Auth\LoginController::class, 'login'])->middleware([
         \Spatie\Honeypot\ProtectAgainstSpam::class,
-        'throttle:3,1',
+        //'throttle:3,1',
         \App\Http\Middleware\CloudflareTurnstile::class,
     ]);
 

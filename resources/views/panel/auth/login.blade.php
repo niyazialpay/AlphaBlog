@@ -16,7 +16,12 @@
         <div class="row">
             @honeypot
             @csrf
-            <div class="col-8">
+            <div class="col-6">
+            </div>
+            <div class="col-2">
+                <button type="button" class="btn btn-outline-primary" id="switch_password">
+                    <i class="fa-duotone fa-arrows-rotate" title="@lang('profile.switch_to_password')" data-bs-toggle="tooltip" data-bs-placement="top"></i>
+                </button>
             </div>
             <!-- /.col -->
             <div class="col-4">
@@ -49,7 +54,7 @@
         </div>
         <div class="row">
             <x-turnstile />
-            <div class="col-8">
+            <div class="col-6">
                 <div class="icheck-primary">
                     <input type="checkbox" id="remember" name="remember">
                     <label for="remember">
@@ -59,6 +64,11 @@
             </div>
             @honeypot
             @csrf
+            <div class="col-2">
+                <button type="button" class="btn btn-outline-primary" id="switch_webauthn">
+                    <i class="fa-duotone fa-arrows-rotate" title="@lang('profile.switch_to_webauthn')" data-bs-toggle="tooltip" data-bs-placement="top"></i>
+                </button>
+            </div>
             <!-- /.col -->
             <div class="col-4">
                 <button type="submit" class="btn btn-primary btn-block">@lang('user.login')</button>
@@ -111,6 +121,22 @@
         }
 
         $(document).ready(function(){
+            $('#switch_password').click(function(){
+                $('#first_step').hide();
+                $('#login_username').val($('#username').val());
+                $('#login_panel').show();
+                $('.hidden-item').show();
+                turnstile.reset();
+            });
+
+            $('#switch_webauthn').click(function(){
+                $('#first_step').show();
+                $('#login_username').val('');
+                $('#login_panel').hide();
+                $('.hidden-item').hide();
+                turnstile.reset();
+            });
+
             $('#first_step').submit(function(){
                 $.ajax({
                     url: "{{route('login.first_step')}}",

@@ -82,4 +82,11 @@ return [
 
     'save_error' => 'An error occurred while saving',
     'security' => 'Profile Security',
+
+    'active_2fa' => 'Active 2FA',
+    'deactivate_2fa' => 'Deactivate 2FA',
+    'validate_2fa' => 'Validate 2FA',
+
+    'switch_to_password' => 'Switch to password',
+    'switch_to_webauthn' => 'Switch to WebAuthn',
 ];
