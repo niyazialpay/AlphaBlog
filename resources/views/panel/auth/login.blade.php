@@ -19,8 +19,8 @@
             <div class="col-6">
             </div>
             <div class="col-2">
-                <button type="button" class="btn btn-outline-primary" id="switch_password">
-                    <i class="fa-duotone fa-arrows-rotate" title="@lang('profile.switch_to_password')" data-bs-toggle="tooltip" data-bs-placement="top"></i>
+                <button type="button" class="btn btn-outline-primary" id="switch_password" title="@lang('profile.switch_to_password')" data-bs-toggle="tooltip" data-bs-placement="top">
+                    <i class="fa-duotone fa-arrows-rotate"></i>
                 </button>
             </div>
             <!-- /.col -->
@@ -65,8 +65,8 @@
             @honeypot
             @csrf
             <div class="col-2">
-                <button type="button" class="btn btn-outline-primary" id="switch_webauthn">
-                    <i class="fa-duotone fa-arrows-rotate" title="@lang('profile.switch_to_webauthn')" data-bs-toggle="tooltip" data-bs-placement="top"></i>
+                <button type="button" class="btn btn-outline-primary" id="switch_webauthn" title="@lang('profile.switch_to_webauthn')" data-bs-toggle="tooltip" data-bs-placement="top">
+                    <i class="fa-duotone fa-arrows-rotate"></i>
                 </button>
             </div>
             <!-- /.col -->
@@ -121,6 +121,11 @@
         }
 
         $(document).ready(function(){
+            let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
             $('#switch_password').click(function(){
                 $('#first_step').hide();
                 $('#login_username').val($('#username').val());
