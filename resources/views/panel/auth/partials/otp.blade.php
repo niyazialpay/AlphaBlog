@@ -1,4 +1,4 @@
-<form class="lockscreen-credentials" id="otp-login" method="post" action="javascript:void(0)">
+<form class="lockscreen-credentials" id="otp-login" method="post" action="javascript:otpSubmit()">
     <div class="input-group">
         @csrf
         @honeypot

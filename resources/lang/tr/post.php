@@ -104,4 +104,7 @@ return [
     'no_result_found' => 'Sonuç bulunamadı. Lütfen farklı bir kelime ile tekrar deneyin.',
 
     'another_language' => 'Bu yazının farklı bir dilde versiyonu bulunmaktadır.',
+
+    'copy_full_url' => 'URL\'yi Kopyala',
+    'copy_url_path' => 'URL\'nin yolu kopyala',
 ];

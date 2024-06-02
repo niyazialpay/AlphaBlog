@@ -116,27 +116,40 @@
     }
     document.getElementById('webauthn-login').addEventListener('submit', webauthnLogin);
 
+    function otpSubmit(){
+        $.ajax({
+            type: 'POST',
+            url: '{{route('two-factor.verify')}}',
+            data: $('#otp-login').serialize(),
+            success: function (response) {
+                if (response.status === 'success') {
+                    toastr.success(response.message, 'Success!', {
+                        closeButton: true,
+                        tapToDismiss: false
+                    });
+                    window.location.href = '{{ route('admin.index') }}';
+                }
+                else{
+                    toastr.error(response.message, 'Error!', {
+                        closeButton: true,
+                        tapToDismiss: false
+                    });
+                }
+            },
+            error: function(response){
+                console.log(response)
+                toastr.error('@lang('Something went wrong, try again!')', 'Error!', {
+                    closeButton: true,
+                    tapToDismiss: false
+                });
+            }
+        });
+    }
+
     $(document).ready(function () {
 
         $('#otp-login').submit(function () {
-            $.ajax({
-                type: 'POST',
-                url: '{{route('two-factor.verify')}}',
-                data: $('#otp-login').serialize(),
-                success: function (response) {
-                    if (response.status === 'success') {
-                        notify_alert(response.message, 'success');
-                        window.location.href = '{{ route('admin.index') }}';
-                    }
-                    else{
-                        notify_alert(response.message, 'error');
-                    }
-                },
-                error: function(response){
-                    console.log(response)
-                    notify_alert('@lang('Something went wrong, try again!')', 'error');
-                }
-            });
+            otpSubmit();
         });
     });
 </script>
