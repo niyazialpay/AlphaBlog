@@ -20,10 +20,7 @@ class WebAuthnLoginController
      */
     public function options(AssertionRequest $request): Responsable
     {
-        $login = request()->input('login');
-        $fieldType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
-
-        return $request->toVerify($request->validate([$fieldType => 'sometimes|string']));
+        return $request->toVerify($request->validate(['username' => 'sometimes|string']));
     }
 
     /**
