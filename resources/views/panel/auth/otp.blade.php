@@ -108,12 +108,11 @@
         const webpass = Webpass.assert({
             path: "{{route('webauthn.login.options')}}",
             body: {
-                email: '{{Auth::user()->email}}',
                 username: '{{Auth::user()->username}}'
             }
         }, "{{route('webauthn.login')}}")
-            .then(response => notify_alert('{{__('Verification completed successfully!')}}', 'success', response))
-            .catch(error => notify_alert('{{__('Something went wrong, try again!')}}', 'error', error))
+            .then(response => notify_alert('{{__('webauthn.verification_success')}}', 'success', response))
+            .catch(error => notify_alert('{{__('webauthn.verification_failed')}}', 'error', error))
     }
     document.getElementById('webauthn-login').addEventListener('submit', webauthnLogin);
 
@@ -135,7 +134,7 @@
                 },
                 error: function(response){
                     console.log(response)
-                    notify_alert('Something went wrong, try again!', 'error');
+                    notify_alert('@lang('Something went wrong, try again!')', 'error');
                 }
             });
         });
