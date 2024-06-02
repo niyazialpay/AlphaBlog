@@ -2,30 +2,26 @@
 @section('content')
     <form method="post" action="javascript:void(0)" id="first_step">
         <div class="input-group mb-3">
-            <input type="text" name="login" class="form-control"
+            <input type="text" name="username" class="form-control"
                    required
-                   placeholder="@lang('user.username_or_email')"
+                   placeholder="@lang('user.username')"
                    id="username"
                    aria-label="username">
             <div class="input-group-append">
                 <div class="input-group-text">
-                    <span class="fas fa-envelope"></span>
+                    <i class="fa-duotone fa-user"></i>
                 </div>
             </div>
         </div>
         <div class="row">
             @honeypot
             @csrf
-            <div class="col-6">
-            </div>
-            <div class="col-2">
-                <button type="button" class="btn btn-outline-primary" id="switch_password" title="@lang('profile.switch_to_password')" data-bs-toggle="tooltip" data-bs-placement="top">
-                    <i class="fa-duotone fa-arrows-rotate"></i>
-                </button>
-            </div>
             <!-- /.col -->
-            <div class="col-4">
-                <button type="submit" class="btn btn-primary btn-block">@lang('user.login')</button>
+            <div class="col-12 justify-content-end d-flex">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-duotone fa-right-to-bracket"></i>
+                    @lang('user.login')
+                </button>
             </div>
             <!-- /.col -->
         </div>
@@ -33,13 +29,13 @@
 
     <form action="javascript:void(0)" id="login_panel" method="post" style="display: none">
         <div class="input-group mb-3">
-            <input type="text" name="login" class="form-control"
+            <input type="text" name="username" class="form-control"
                    id="login_username"
-                   placeholder="@lang('user.username_or_email')"
-                   aria-label="login">
+                   placeholder="@lang('user.username')"
+                   aria-label="username">
             <div class="input-group-append">
                 <div class="input-group-text">
-                    <span class="fas fa-envelope"></span>
+                    <i class="fa-duotone fa-user"></i>
                 </div>
             </div>
         </div>
@@ -48,13 +44,15 @@
                    placeholder="@lang('user.password')" aria-label="password">
             <div class="input-group-append">
                 <div class="input-group-text">
-                    <span class="fas fa-lock"></span>
+                    <i class="fa-duotone fa-lock"></i>
                 </div>
             </div>
         </div>
         <div class="row">
-            <x-turnstile />
-            <div class="col-6">
+            <div class="col-12 d-flex justify-content-center">
+                <x-turnstile />
+            </div>
+            <div class="col-8">
                 <div class="icheck-primary">
                     <input type="checkbox" id="remember" name="remember">
                     <label for="remember">
@@ -64,14 +62,12 @@
             </div>
             @honeypot
             @csrf
-            <div class="col-2">
-                <button type="button" class="btn btn-outline-primary" id="switch_webauthn" title="@lang('profile.switch_to_webauthn')" data-bs-toggle="tooltip" data-bs-placement="top">
-                    <i class="fa-duotone fa-arrows-rotate"></i>
-                </button>
-            </div>
             <!-- /.col -->
-            <div class="col-4">
-                <button type="submit" class="btn btn-primary btn-block">@lang('user.login')</button>
+            <div class="col-4 d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-duotone fa-right-to-bracket"></i>
+                    @lang('user.login')
+                </button>
             </div>
             <!-- /.col -->
         </div>
@@ -153,12 +149,11 @@
                                 const webpass = Webpass.assert({
                                     path: "{{route('webauthn.login.options')}}",
                                     body: {
-                                        username: result.username,
-                                        email: result.email
+                                        username: result.username
                                     }
                                 }, "{{route('webauthn.login')}}")
-                                    .then(response => notify_alert('{{__('Verification completed successfully!')}}', 'success', response))
-                                    .catch(error => notify_alert('{{__('Something went wrong, try again!')}}', 'error', error))
+                                    .then(response => notify_alert('{{__('webauthn.verification_success')}}', 'success', response))
+                                    .catch(error => notify_alert('{{__('webauthn.verification_failed')}}', 'error', error))
                             }
                             webauthnLogin();
                         }
@@ -192,16 +187,31 @@
                     data: $(this).serialize(),
                     success: function (result) {
                         if(result.status){
-                            Swal.fire({
-                                icon: 'success',
-                                title: '@lang('user.login_request.success_title')',
-                                text: '@lang('user.login_request.success')',
-                                showConfirmButton: false,
-                                timer: 1500
-                            });
-                            setTimeout(function(){
-                                window.location.href = '{{route('admin.index')}}';
-                            }, 1000);
+                            if(result.webauthn){
+                                const webauthnLogin = async event => {
+                                    const webpass = Webpass.assert({
+                                        path: "{{route('webauthn.login.options')}}",
+                                        body: {
+                                            username: result.username
+                                        }
+                                    }, "{{route('webauthn.login')}}")
+                                        .then(response => notify_alert('{{__('webauthn.verification_success')}}', 'success', response))
+                                        .catch(error => notify_alert('{{__('webauthn.verification_failed')}}', 'error', error))
+                                }
+                                webauthnLogin();
+                            }
+                            else{
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '@lang('user.login_request.success_title')',
+                                    text: '@lang('user.login_request.success')',
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
+                                setTimeout(function(){
+                                    window.location.href = '{{route('admin.index')}}';
+                                }, 1000);
+                            }
                         }
                         else{
                             Swal.fire({
