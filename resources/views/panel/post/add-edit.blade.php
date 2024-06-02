@@ -46,6 +46,23 @@
                     <input type="text" class="form-control" name="slug" id="slug" placeholder="@lang('post.slug')"
                            value="{{stripslashesNull($post->slug)}}">
                 </div>
+                @if($post->id)
+                    <div class="col-12 mb-3">
+                        <a href="{{route('page', [$post->language, $post->slug])}}" target="_blank">
+                            {{route('page', [$post->language, $post->slug])}}
+                        </a>
+
+                        <button type="button" class="btn btn-default ms-1" style="font-size:12px"
+                                onclick="navigator.clipboard.writeText('{{route('page', [$post->language, $post->slug])}}')">
+                            @lang('post.copy_full_url')
+                        </button>
+
+                        <button type="button" class="btn btn-default ms-1" style="font-size:12px"
+                                onclick="navigator.clipboard.writeText('/{{$post->language}}/{{$post->slug}}')">
+                            @lang('post.copy_url_path')
+                        </button>
+                    </div>
+                @endif
                 <div class="col-12 mb-3">
                     <label for="language">@lang('general.language')</label>
                     <select name="language" id="language" class="form-control">

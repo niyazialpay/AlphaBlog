@@ -104,4 +104,7 @@ return [
     'no_result_found' => 'No results found for your search term. Please try again with different keywords.',
 
     'another_language' => 'This post has a version in a different language.',
+
+    'copy_full_url' => 'Copy URL',
+    'copy_url_path' => 'Copy URL Path',
 ];
