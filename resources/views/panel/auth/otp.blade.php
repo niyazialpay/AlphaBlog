@@ -41,11 +41,10 @@
         <!-- /.lockscreen-image -->
 
         <!-- lockscreen credentials (contains the form) -->
-        @if(auth()->user()->otp && !auth()->user()->webauthn)
-            @include('panel.auth.partials.otp')
-        @elseif(!auth()->user()->otp && auth()->user()->webauthn)
+
+        @if(auth()->user()->webauthn)
             @include('panel.auth.partials.webauthn')
-        @elseif(auth()->user()->otp && auth()->user()->webauthn)
+        @elseif(auth()->user()->otp)
             @include('panel.auth.partials.otp')
         @endif
 
@@ -53,11 +52,6 @@
 
     </div>
 
-    @if(auth()->user()->otp && auth()->user()->webauthn)
-        <div class="mt-1 ms-3">
-            @include('panel.auth.partials.webauthn')
-        </div>
-    @endif
 
     <div class="lockscreen-footer text-center">
         <strong>

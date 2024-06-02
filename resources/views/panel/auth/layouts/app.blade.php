@@ -33,13 +33,13 @@
 <div class="login-box">
     <div class="login-logo">
         <img class="animation__shake"
-             src="{{app('general_settings')->getFirstMediaUrl('site_favicon')}}"
-             alt="{{app('seo_settings')->site_name}}" height="60" width="60">
+             src="{{app('general_settings')->getFirstMediaUrl('site_logo_light')}}"
+             alt="{{app('seo_settings')->site_name}}" height="60">
     </div>
     <!-- /.login-logo -->
     <div class="card">
         <div class="card-body login-card-body">
-            <p class="login-box-msg">{{config('app.name')}}</p>
+            <p class="login-box-msg">{{app('seo_settings')->site_name}}</p>
 
             @yield('content')
 

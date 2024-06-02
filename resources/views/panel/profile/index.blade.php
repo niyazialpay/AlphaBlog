@@ -526,9 +526,17 @@
         }
 
         @if(auth()->id() == $user->id)
-            const attest = async () => await Webpass.attest("{{route('webauthn.register.options')}}", "{{route('webauthn.register')}}")
-                .then(response => notify_alert('{{__('Verification completed successfully!')}}', 'success', response))
-                .catch(error => notify_alert('{{__('Something went wrong, try again!')}}', 'error', error));
+            const attest = async () => await Webpass.attest(
+                {
+                    path: "{{route('webauthn.register.options')}}",
+                    body: {
+                        username: '{{auth()->user()->username}}',
+                    }
+                }, "{{route('webauthn.register')}}"
+            )
+            .then(response => notify_alert('{{__('webauthn.verification_success')}}', 'success', response))
+            .catch(error => notify_alert('{{__('webauthn.verification_failed')}}', 'error', error));
+
             document.getElementById('register-form').addEventListener('submit', attest);
         @endif
 
