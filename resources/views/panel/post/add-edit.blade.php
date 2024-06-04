@@ -501,7 +501,7 @@
 
             let tinymce_settings = {
                 selector: 'textarea#content',  // change this value according to your HTML
-                language: '{{app('default_language')->code}}',
+                language: '{{session('language')}}',
                 branding: false,
                 license_key: 'gpl',
                 height: 750,
