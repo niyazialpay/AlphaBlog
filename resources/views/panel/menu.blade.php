@@ -258,7 +258,9 @@
         <li class="nav-item">
             <a class="nav-link clear-cache" href="javascript:void(0);">
                 <i class="fa-duotone fa-trash-can nav-icon"></i>
-                @lang('cache.clear_cache')
+                <p>
+                    @lang('cache.clear_cache')
+                </p>
             </a>
         </li>
         <li class="nav-header">
