@@ -253,8 +253,7 @@
                     categories: TotalVisitorsAndPageViews_date,
                 },
                 legend: {
-                    position: 'right',
-                    offsetY: 40
+                    position: 'bottom',
                 },
                 fill: {
                     opacity: 1
@@ -337,7 +336,7 @@
                         show: false,
                     },
                     labels: {
-                        show: false,
+                        show: true,
                         formatter: function (val) {
                             return val;
                         }
