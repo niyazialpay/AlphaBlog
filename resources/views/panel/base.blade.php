@@ -95,7 +95,7 @@
         <!-- Left navbar links -->
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                <a class="nav-link" id="pushmenu" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{config('app.url')}}">
@@ -337,11 +337,26 @@
         }
     }
 
+
+    function checkCollapse(){
+        if(localStorage.getItem("sidebar-collapse") === "true"){
+            $('body').addClass("sidebar-collapse");
+        }
+        else{
+            $('body').removeClass("sidebar-collapse");
+        }
+    }
+
     $(document).ready(function(){
         checkDarkMode();
         let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        checkCollapse();
+        $('#pushmenu').on('click', function(){
+            localStorage.setItem("sidebar-collapse", !$('body').hasClass("sidebar-collapse"));
         });
 
         $('#top-comment-button').tooltip();
