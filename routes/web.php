@@ -25,6 +25,9 @@ Route::middleware([
     ])
     ->group(base_path('routes/cdn.php'));
 
+Route::any('/'.config('settings.admin_panel_path').'/manifest.json',
+    [\App\Http\Controllers\ManifestController::class, 'manifestPanel'])
+    ->name('manifest.panel');
 
 Route::group([
     'middleware' => [
@@ -34,9 +37,7 @@ Route::group([
         \App\Http\Middleware\VerifyOTP::class,
     ],
 ], function () {
-    Route::any('/'.config('settings.admin_panel_path').'/manifest.json',
-        [\App\Http\Controllers\ManifestController::class, 'manifestPanel'])
-        ->name('manifest.panel');
+
 
     Route::middleware(['web', 'auth'])
         ->prefix(config('settings.admin_panel_path'))
