@@ -88,7 +88,6 @@ class Posts extends Model implements HasMedia
 
     public function toSearchableArray(): array
     {
-        //$array = $this->toArray();
         $array = [];
         $array['id'] = $this->id;
         $array['user'] = $this->user?->name.' '.$this->user?->surname;
