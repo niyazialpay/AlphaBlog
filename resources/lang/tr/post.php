@@ -106,7 +106,7 @@ return [
     'another_language' => 'Bu yazının farklı bir dilde versiyonu bulunmaktadır.',
 
     'copy_full_url' => 'URL\'yi Kopyala',
-    'copy_url_path' => 'URL\'nin yolu kopyala',
+    'copy_url_path' => 'URL\'nin yolunu kopyala',
 
     'comments_count' => 'Yorumlar',
     'views_count' => 'Görüntülenme',
