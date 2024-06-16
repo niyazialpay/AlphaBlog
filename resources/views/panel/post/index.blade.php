@@ -54,26 +54,13 @@
                     </ul>
                     <div class="tab_container">
                         <div class="tab_content table-responsive" id="contents">
-                            <div class="my-3">
-                                <form method="post" id="searchForm" action="javascript:void(0)">
-                                    <div class="input-group mb-3">
-                                        <input class="form-control form-control-navbar" type="search" name="search"
-                                               placeholder="@lang('general.search')" aria-label="@lang('general.search')"
-                                               value="{{GetPost(request()->search)}}">
-                                        <div class="input-group-append">
-                                            <button class="btn btn-navbar search-button" type="submit">
-                                                <i class="fa-duotone fa-magnifying-glass"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <table class="table table-striped" aria-describedby="contents">
+                            <table id="posts-table" class="table table-striped" aria-describedby="contents">
                                 <thead>
                                 <tr>
                                     <th scope="col">@lang('post.title')</th>
                                     @if($type == 'blogs')
                                     <th scope="col">@lang('post.category')</th>
+                                    <th scope="col">@lang('post.views')</th>
                                     @endif
                                     <th scope="col" class="text-center">@lang('post.media')</th>
                                     <th scope="col" class="text-center">@lang('user.username')</th>
@@ -83,75 +70,13 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                @forelse($posts as $post)
-                                    <tr>
-                                        <td>
-                                            <a href="{{route('admin.post.edit', [$type, $post])}}">
-                                                {{stripslashes($post->title)}} @if(!$post->is_published)
-                                                    <em>(@lang('post.draft'))</em> @endif
-                                            </a>
-                                        </td>
-                                        @if($type == 'blogs')
-                                        <td>
-                                            @foreach($post->categories as $category)
-                                                <span class="badge badge-primary">
-                                                    <a href="{{route('admin.post.category', [
-                                                            $type,
-                                                            $category->id,
-                                                            'language' => request()->get('language')
-                                                        ])}}"
-                                                       class="text-white">
-                                                        {{stripslashes($category->name)}}
-                                                    </a>
-                                                </span>
-                                            @endforeach
-                                        </td>
-                                        @endif
-                                        <td class="text-center">
-                                            <a href="{{route('admin.post.media', [$type, $post])}}"
-                                               data-bs-toggle="tooltip" data-bs-placement="right"
-                                               data-bs-title="@lang('post.media')"
-                                               class="h1">
-                                                <i class="fa-duotone fa-images"></i>
-                                            </a>
-                                        </td>
-                                        <td class="text-center">
-                                            {{$post->user->nickname}}
-                                        </td>
-                                        <td class="text-center">
-                                            {{dateformat($post->created_at, format: 'd M. Y D. H:i:s', timezone: config('app.timezone'), locale: session('language'))}}
-                                        </td>
-                                        <td class="text-center">
-                                            {{dateformat($post->updated_at, format: 'd M. Y D. H:i:s', timezone: config('app.timezone'), locale: session('language'))}}
-                                        </td>
-                                        <td>
-                                            <a href="{{route('admin.post.edit', [$type, $post])}}"
-                                               class="btn btn-sm btn-primary mx-1 my-2"
-                                               data-bs-toggle="tooltip" data-bs-placement="top"
-                                               title="@lang('general.edit')">
-                                                <i class="fa fa-edit"></i>
-                                            </a>
-                                            <a href="javascript:DeleteBlog('{{$post->id}}')"
-                                               class="btn btn-sm btn-danger mx-1 my-2"
-                                               data-bs-toggle="tooltip" data-bs-placement="top"
-                                               title="@lang('general.delete')">
-                                                <i class="fa fa-trash"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td @if($type == 'blogs') colspan="7" @else colspan="6" @endif style="text-align: center">
-                                            @lang('post.no_posts_found')
-                                        </td>
-                                    </tr>
-                                @endforelse
                                 </tbody>
                                 <tfoot>
                                 <tr>
                                     <th scope="col">@lang('post.title')</th>
                                     @if($type == 'blogs')
-                                    <th scope="col">@lang('post.category')</th>
+                                        <th scope="col">@lang('post.category')</th>
+                                        <th scope="col">@lang('post.views')</th>
                                     @endif
                                     <th scope="col" class="text-center">@lang('post.media')</th>
                                     <th scope="col" class="text-center">@lang('user.username')</th>
@@ -162,7 +87,6 @@
                                 </tfoot>
 
                             </table>
-                            {{$posts->withQueryString()->links()}}
                         </div>
                         <div class="tab_content table-responsive" id="trashed">
                             <table class="table table-striped" aria-describedby="trashed">
@@ -254,6 +178,9 @@
         .active-tab a {
         }
     </style>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css">
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
     <script>
         function DeleteBlog(id, force = false){
             Swal.fire({
@@ -343,9 +270,29 @@
                 $("#contents").show();
             @endif
 
-            $('#searchForm').submit(function(){
-                let search = $(this).find('input[name="search"]').val();
-                window.location.href = '{{route('admin.posts', $type)}}?tab={{request()->get('tab')}}&language={{request()->get('language')}}&search='+search;
+
+            $('#posts-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: '{!! $datatable_url !!}',
+                columns: [
+                    { data: 'title', name: 'title' },
+
+                    { data: 'categories', name: 'categories' },
+                    { data: 'views', name: 'views' },
+
+                    { data: 'media', name: 'media' },
+                    { data: 'user', name: 'user' },
+                    { data: 'created_at', name: 'created_at' },
+                    { data: 'updated_at', name: 'updated_at' },
+                    { data: 'action', name: 'action', orderable: false, searchable: false }
+                ],
+                order: [[5, 'desc']],
+                pageLength: 10,
+                lengthMenu: [10, 25, 50, 75, 100],
+                language: {
+                    url: '{{config('app.url')}}/themes/panel/js/datatable/lang/{{session('language')}}.json'
+                }
             });
         });
     </script>

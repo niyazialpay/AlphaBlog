@@ -10,4 +10,5 @@ return [
     App\Providers\RouteServiceProvider::class,
     App\Providers\TelescopeServiceProvider::class,
     Illuminate\Session\SessionServiceProvider::class,
+    Yajra\DataTables\DataTablesServiceProvider::class,
 ];

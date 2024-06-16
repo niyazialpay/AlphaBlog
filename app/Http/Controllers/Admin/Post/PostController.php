@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Post;
 
+use App\DataTables\PostsDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Post\PostRequest;
 use App\Models\Post\Categories;
@@ -19,15 +20,19 @@ use Illuminate\Support\Str;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\MediaCannotBeDeleted;
+use Yajra\DataTables\Facades\DataTables;
 
 class PostController extends Controller
 {
+    /**
+     * @throws Exception
+     */
     public function index(
         $type,
         Request $request,
         Posts $post,
         $category = null
-    ): View|Application|Factory|\Illuminate\Contracts\Foundation\Application {
+    ) {
         if ($type == 'pages') {
             $type = 'pages';
             $post_type = 'page';
@@ -39,26 +44,63 @@ class PostController extends Controller
         }
         $with = ['user', 'categories', 'comments'];
         if ($category && $post_type == 'post') {
-            $posts = $post::search(GetPost($request->search))->query(function ($query) use ($with) {
-                $query->with($with);
-            })->where('category_id', $category)->where('post_type', $post_type);
-        } else {
-            $posts = $post::search(GetPost($request->search))->query(function ($query) use ($with) {
-                $query->with($with);
+            $posts = $post::with($with)->whereHas('categories', function($query) use($category){
+                return $query->where('category_id', $category);
             })->where('post_type', $post_type);
+        } else {
+            $posts = $post::with($with)->where('post_type', $post_type);
         }
         if (! (auth()->user()->role == 'owner' || auth()->user()->role == 'admin' || auth()->user()->role == 'editor')) {
             $posts = $posts->where('user_id', auth()->user()->id);
         }
 
+        if ($request->ajax()) {
+            $order = $request->input('order.0.name');
+            $dir = $request->input('order.0.dir');
+
+            $posts = $posts->where('language', GetPost($request->get('language')))
+                ->orderBy($order, $dir);
+
+            return DataTables::eloquent($posts)
+                ->enableScoutSearch(Posts::class)
+                ->addColumn('user', function ($post) {
+                    return $post->user ? $post->user->nickname : '';
+                })
+                ->addColumn('title', function ($post) use($type) {
+                    return view('panel.post.partials.title', compact('post', 'type'));
+                })
+                ->addColumn('categories', function ($post) use($type) {
+                    return view('panel.post.partials.categories', compact('post', 'type'));
+                })
+                ->addColumn('action', function ($post) use($type) {
+                    return view('panel.post.partials.actions', compact('post', 'type'));
+                })
+                ->addColumn('media', function ($post) use($type) {
+                    return view('panel.post.partials.media', compact('post', 'type'));
+                })
+                ->addColumn('created_at', function ($post) {
+                    return dateformat($post->created_at, 'Y-m-d H:i:s', config('app.timezone'));
+                })
+                ->addColumn('updated_at', function ($post) {
+                    return dateformat($post->updated_at, 'd.m.Y H:i:s', config('app.timezone'));
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        if($category){
+            $datatable_url = route('admin.post.category', ['type' => $type, 'category' => $category]).'?tab='.request()->get('tab').'&language='.request()->get('language');
+        }
+        else{
+            $datatable_url = route('admin.posts', ['type' => $type]).'?tab='.request()->get('tab').'&language='.request()->get('language');
+        }
+
         return view('panel.post.index', [
-            'posts' => $posts->where('language', GetPost($request->get('language')))
-                ->orderBy('created_at', 'desc')
-                ->paginate(10),
             'trashed' => $post::onlyTrashed()->where('language', GetPost($request->get('language')))
                 ->orderBy('created_at', 'desc')
                 ->paginate(10),
             'type' => $type,
+            'datatable_url' => $datatable_url
         ]);
     }
 
