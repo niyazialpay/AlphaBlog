@@ -19,6 +19,9 @@ Route::domain($domain)->group(function () {
         ]);
 
     if(config('app.cdn_url') != null && config('app.cdn_url') != config('app.url')){
+        Route::get('/', function(){
+            return redirect(config('app.url'));
+        });
         Route::get('/{any}', function ($any) {
             $path = public_path($any);
             if (file_exists($path)) {
