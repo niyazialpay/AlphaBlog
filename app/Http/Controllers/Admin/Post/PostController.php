@@ -17,6 +17,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\MediaCannotBeDeleted;
@@ -25,7 +27,13 @@ use Yajra\DataTables\Facades\DataTables;
 class PostController extends Controller
 {
     /**
-     * @throws Exception
+     * @param $type
+     * @param Request $request
+     * @param Posts $post
+     * @param null $category
+     * @return \Illuminate\Contracts\Foundation\Application|Factory|View|Application|JsonResponse|\Illuminate\View\View
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function index(
         $type,
@@ -44,21 +52,20 @@ class PostController extends Controller
         }
         $with = ['user', 'categories', 'comments'];
         if ($category && $post_type == 'post') {
-            $posts = $post::with($with)->whereHas('categories', function($query) use($category){
+            $post::with($with)->whereHas('categories', function($query) use($category){
                 return $query->where('category_id', $category);
-            })->where('post_type', $post_type);
-        } else {
-            $posts = $post::with($with)->where('post_type', $post_type);
+            });
         }
+        $post->where('post_type', $post_type);
         if (! (auth()->user()->role == 'owner' || auth()->user()->role == 'admin' || auth()->user()->role == 'editor')) {
-            $posts = $posts->where('user_id', auth()->user()->id);
+            $post->where('user_id', auth()->user()->id);
         }
 
         if ($request->ajax()) {
             $order = $request->input('order.0.name');
             $dir = $request->input('order.0.dir');
 
-            $posts = $posts->where('language', GetPost($request->get('language')))
+            $posts = $post->where('language', GetPost($request->get('language')))
                 ->orderBy($order, $dir);
 
             return DataTables::eloquent($posts)
