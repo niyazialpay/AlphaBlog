@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class WebAuthnController extends Controller
 {
-    public function list()
+    public function WebAuthnList()
     {
         return response()->json(auth()->user()->WebAuthn);
     }
