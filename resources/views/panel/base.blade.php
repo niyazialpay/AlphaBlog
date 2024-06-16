@@ -99,13 +99,13 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{config('app.url')}}">
-                    <i class="fa-duotone fa-house top-icon"></i>
+                    <i class="fa-duotone fa-house"></i>
                 </a>
             </li>
             @if(config('services.openai.key') || config('gemini.api_key'))
                 <li class="nav-item">
                     <a class="nav-link" href="{{route('chatbot')}}">
-                        <i class="fa-duotone fa-robot top-icon"></i>
+                        <i class="fa-duotone fa-robot"></i>
                     </a>
                 </li>
             @endif
@@ -125,7 +125,7 @@
                        data-bs-placement="right"
                        title="@lang('post.new_post')"
                        class="nav-link">
-                        <i class="fa-duotone fa-file top-icon"></i>
+                        <i class="fa-duotone fa-file"></i>
                     </a>
                 </li>
             @endcan
