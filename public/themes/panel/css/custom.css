@@ -104,3 +104,16 @@
     height: calc(100dvh - 255px);
     border: none;
 }
+
+.navbar-dark #top-menu-navbar li{
+    border-left: 1px solid #6b6b6b !important;
+}
+
+.navbar-light #top-menu-navbar li{
+    border-left: 1px solid #c3c3c3 !important;
+}
+
+
+#top-menu-navbar li:first-child{
+    border-left: none !important;
+}

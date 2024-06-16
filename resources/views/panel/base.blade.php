@@ -93,7 +93,7 @@
     <!-- Navbar -->
     <nav class="main-header navbar navbar-expand navbar-light" id="top-navbar" aria-label="top-menu">
         <!-- Left navbar links -->
-        <ul class="navbar-nav">
+        <ul class="navbar-nav" id="top-menu-navbar">
             <li class="nav-item">
                 <a class="nav-link" id="pushmenu" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
             </li>
@@ -114,7 +114,9 @@
                     <a href="{{route('admin.post.create', ['type' => 'blogs'])}}"
                        class="nav-link">
                         <i class="fa-duotone fa-file top-icon"></i>
-                        @lang('post.new_post')
+                        <small>
+                            @lang('post.new_post')
+                        </small>
                     </a>
                 </li>
                 <li class="nav-item d-block d-md-none">
@@ -130,7 +132,9 @@
             <li class="nav-item d-none d-md-block">
                 <a class="nav-link clear-cache" href="javascript:void(0);">
                     <i class="fa-duotone fa-trash-can top-icon"></i>
-                    @lang('cache.clear_cache')
+                    <small>
+                        @lang('cache.clear_cache')
+                    </small>
                 </a>
             </li>
         </ul>
