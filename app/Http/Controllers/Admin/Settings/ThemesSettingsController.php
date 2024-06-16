@@ -56,7 +56,7 @@ class ThemesSettingsController extends Controller
     public function delete(Request $request, Themes $themes, File $file)
     {
         try {
-            $theme = $themes::where('_id', $request->post('id'))->first();
+            $theme = $themes::where('id', $request->post('id'))->first();
             if ($theme->is_default) {
                 return response()->json([
                     'status' => 'error',
