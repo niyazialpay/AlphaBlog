@@ -289,7 +289,7 @@
                     { data: 'action', name: 'action', orderable: false, searchable: false }
                 ],
                 order: [[@if($type == 'blogs') 5 @else 3 @endif, 'desc']],
-                pageLength: 10,
+                pageLength: @if(session()->has('post_datatable_length')) {{session('post_datatable_length')}} @else 10 @endif,
                 lengthMenu: [10, 25, 50, 75, 100],
                 language: {
                     url: '{{config('app.url')}}/themes/panel/js/datatable/lang/{{session('language')}}.json'
