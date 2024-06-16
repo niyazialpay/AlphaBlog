@@ -275,19 +275,20 @@
                 processing: true,
                 serverSide: true,
                 ajax: '{!! $datatable_url !!}',
+                responsive: true,
                 columns: [
                     { data: 'title', name: 'title' },
-
+                    @if($type == 'blogs')
                     { data: 'categories', name: 'categories' },
-                    { data: 'views', name: 'views' },
-
-                    { data: 'media', name: 'media' },
-                    { data: 'user', name: 'user' },
-                    { data: 'created_at', name: 'created_at' },
-                    { data: 'updated_at', name: 'updated_at' },
+                    { data: 'views', name: 'views', className: "text-center"},
+                    @endif
+                    { data: 'media', name: 'media', className: "text-center", orderable: false, searchable: false },
+                    { data: 'user', name: 'user', className: "text-center" },
+                    { data: 'created_at', name: 'created_at', className: "text-center" },
+                    { data: 'updated_at', name: 'updated_at', className: "text-center" },
                     { data: 'action', name: 'action', orderable: false, searchable: false }
                 ],
-                order: [[5, 'desc']],
+                order: [[@if($type == 'blogs') 5 @else 3 @endif, 'desc']],
                 pageLength: 10,
                 lengthMenu: [10, 25, 50, 75, 100],
                 language: {

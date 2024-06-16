@@ -34,6 +34,7 @@ class PostController extends Controller
      * @return \Illuminate\Contracts\Foundation\Application|Factory|View|Application|JsonResponse|\Illuminate\View\View
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
+     * @throws Exception
      */
     public function index(
         $type,
@@ -52,20 +53,23 @@ class PostController extends Controller
         }
         $with = ['user', 'categories', 'comments'];
         if ($category && $post_type == 'post') {
-            $post::with($with)->whereHas('categories', function($query) use($category){
+            $posts = $post::with($with)->whereHas('categories', function($query) use($category){
                 return $query->where('category_id', $category);
             });
         }
-        $post->where('post_type', $post_type);
+        else{
+            $posts = $post::with($with);
+        }
+        $posts = $posts->where('post_type', $post_type);
         if (! (auth()->user()->role == 'owner' || auth()->user()->role == 'admin' || auth()->user()->role == 'editor')) {
-            $post->where('user_id', auth()->user()->id);
+            $posts = $posts->where('user_id', auth()->user()->id);
         }
 
         if ($request->ajax()) {
             $order = $request->input('order.0.name');
             $dir = $request->input('order.0.dir');
 
-            $posts = $post->where('language', GetPost($request->get('language')))
+            $posts = $posts->where('language', GetPost($request->get('language')))
                 ->orderBy($order, $dir);
 
             return DataTables::eloquent($posts)
