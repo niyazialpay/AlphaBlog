@@ -143,7 +143,9 @@
                    href="javascript:void(0);"
                    data-bs-placement="left"
                    title="{{session('language_name')}}">
-                    <strong class="me-1">@lang('general.language') :</strong>
+                    <small>
+                        <strong class="me-1">@lang('general.language') :</strong>
+                    </small>
                     <img src="{{config('app.url')}}/themes/flags/{{session('language_flag')}}.webp"
                          class="elevation-2" alt="{{session('language_name')}}" height="12">
                 </a>
