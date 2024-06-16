@@ -122,22 +122,6 @@
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
 
-            $('#switch_password').click(function(){
-                $('#first_step').hide();
-                $('#login_username').val($('#username').val());
-                $('#login_panel').show();
-                $('.hidden-item').show();
-                turnstile.reset();
-            });
-
-            $('#switch_webauthn').click(function(){
-                $('#first_step').show();
-                $('#login_username').val('');
-                $('#login_panel').hide();
-                $('.hidden-item').hide();
-                turnstile.reset();
-            });
-
             $('#first_step').submit(function(){
                 $.ajax({
                     url: "{{route('login.first_step')}}",
