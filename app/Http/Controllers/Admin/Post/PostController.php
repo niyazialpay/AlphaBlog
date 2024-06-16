@@ -66,6 +66,8 @@ class PostController extends Controller
         }
 
         if ($request->ajax()) {
+            session()->remove('post_datatable_length');
+            session()->put('post_datatable_length', $request->input('length'));
             $order = $request->input('order.0.name');
             $dir = $request->input('order.0.dir');
 
