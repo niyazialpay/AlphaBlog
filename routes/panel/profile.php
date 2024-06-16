@@ -11,7 +11,7 @@ Route::post('/save', [App\Http\Controllers\Admin\UserController::class, 'save'])
     ->can('own', 'App\Models\WebAuthnCredential')
     ->name('admin.profile.save');
 
-Route::post('/webauthn', [App\Http\Controllers\WebAuthn\WebAuthnController::class, 'list'])
+Route::post('/webauthn', [App\Http\Controllers\WebAuthn\WebAuthnController::class, 'WebAuthnList'])
     ->can('own', 'App\Models\WebAuthnCredential')
     ->name('user.security.webauthn');
 
