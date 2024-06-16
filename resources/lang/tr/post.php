@@ -107,4 +107,7 @@ return [
 
     'copy_full_url' => 'URL\'yi Kopyala',
     'copy_url_path' => 'URL\'nin yolu kopyala',
+
+    'comments_count' => 'Yorumlar',
+    'views_count' => 'Görüntülenme',
 ];

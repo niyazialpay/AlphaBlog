@@ -107,4 +107,7 @@ return [
 
     'copy_full_url' => 'Copy URL',
     'copy_url_path' => 'Copy URL Path',
+
+    'comments_count' => 'Comments',
+    'views' => 'Views',
 ];
