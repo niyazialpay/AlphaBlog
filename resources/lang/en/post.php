@@ -110,4 +110,6 @@ return [
 
     'comments_count' => 'Comments',
     'views' => 'Views',
+
+    'new_post' => 'New Post',
 ];

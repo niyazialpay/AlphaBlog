@@ -1,6 +1,6 @@
-<a class="nav-link" data-bs-toggle="dropdown"
-   href="javascript:void(0);" id="top-comment-button"
-   data-bs-placement="left"
+<a class="nav-link tooltip-button" data-bs-toggle="dropdown"
+   href="javascript:void(0);"
+   data-bs-placement="bottom"
    title="@lang('comments.new_comments')">
 
     <i class="fa-duotone fa-comments"></i>

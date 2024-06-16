@@ -103,16 +103,53 @@
                 </a>
             </li>
             @if(config('services.openai.key') || config('gemini.api_key'))
-                <li class="nab-item">
+                <li class="nav-item">
                     <a class="nav-link" href="{{route('chatbot')}}">
-                        <i class="fa-duotone fa-robot nav-icon"></i>
+                        <i class="fa-duotone fa-robot top-icon"></i>
                     </a>
                 </li>
             @endif
+            @can('createPost', 'App\Models\Post\Posts')
+                <li class="nav-item d-none d-md-block">
+                    <a href="{{route('admin.post.create', ['type' => 'blogs'])}}"
+                       class="nav-link">
+                        <i class="fa-duotone fa-file top-icon"></i>
+                        @lang('post.new_post')
+                    </a>
+                </li>
+                <li class="nav-item d-block d-md-none">
+                    <a href="{{route('admin.post.create', ['type' => 'blogs'])}}"
+                       data-bs-toggle="tooltip"
+                       data-bs-placement="right"
+                       title="@lang('post.new_post')"
+                       class="nav-link">
+                        <i class="fa-duotone fa-file top-icon"></i>
+                    </a>
+                </li>
+            @endcan
+            <li class="nav-item d-none d-md-block">
+                <a class="nav-link clear-cache" href="javascript:void(0);">
+                    <i class="fa-duotone fa-trash-can top-icon"></i>
+                    @lang('cache.clear_cache')
+                </a>
+            </li>
+        </ul>
+
+
+        <!-- Right navbar links -->
+        <ul class="navbar-nav ml-auto">
             <li class="nav-item dropdown">
-                <a class="nav-link" data-bs-toggle="dropdown"
-                   href="javascript:void(0);" id="top-comment-button"
-                   data-bs-placement="right"
+                <a class="nav-link tooltip-button d-none d-md-block" data-bs-toggle="dropdown"
+                   href="javascript:void(0);"
+                   data-bs-placement="left"
+                   title="{{session('language_name')}}">
+                    <strong class="me-1">@lang('general.language') :</strong>
+                    <img src="{{config('app.url')}}/themes/flags/{{session('language_flag')}}.webp"
+                         class="elevation-2" alt="{{session('language_name')}}" height="12">
+                </a>
+                <a class="nav-link tooltip-button d-block d-md-none" data-bs-toggle="dropdown"
+                   href="javascript:void(0);"
+                   data-bs-placement="left"
                    title="{{session('language_name')}}">
                     <img src="{{config('app.url')}}/themes/flags/{{session('language_flag')}}.webp"
                          class="elevation-2" alt="{{session('language_name')}}" height="12">
@@ -127,7 +164,7 @@
                                     <div class="media-body">
                                         <span class="dropdown-item-title">
                                             <img src="{{config('app.url')}}/themes/flags/{{$language->flag}}.webp"
-                                                 alt="{{$language->name}}" height="12" class="elevation-2">
+                                                 alt="{{$language->name}}" height="12" class="elevation-2 me-1">
                                                     {{$language->name}}
                                         </span>
                                     </div>
@@ -137,17 +174,6 @@
                     @endforeach
                 </div>
             </li>
-            <li class="nav-item d-none d-md-block">
-                <a class="nav-link clear-cache" href="javascript:void(0);">
-                    <i class="fa-duotone fa-trash-can nav-icon"></i>
-                    @lang('cache.clear_cache')
-                </a>
-            </li>
-        </ul>
-
-
-        <!-- Right navbar links -->
-        <ul class="navbar-nav ml-auto">
             <!-- Messages Dropdown Menu -->
             <li class="nav-item dropdown">
                 <x-new-comments />
@@ -359,7 +385,7 @@
             localStorage.setItem("sidebar-collapse", !$('body').hasClass("sidebar-collapse"));
         });
 
-        $('#top-comment-button').tooltip();
+        $('.tooltip-button').tooltip();
 
         $('.clear-cache').click(function(){
             Swal.fire({

@@ -110,4 +110,6 @@ return [
 
     'comments_count' => 'Yorumlar',
     'views_count' => 'Görüntülenme',
+
+    'new_post' => 'Yeni Yazı',
 ];
