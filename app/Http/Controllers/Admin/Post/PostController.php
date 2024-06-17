@@ -52,13 +52,11 @@ class PostController extends Controller
             abort(404);
         }
         $with = ['user', 'categories', 'comments'];
+        $posts = $post::with($with);
         if ($category && $post_type == 'post') {
-            $posts = $post::with($with)->whereHas('categories', function($query) use($category){
+            $posts = $post->whereHas('categories', function($query) use($category){
                 return $query->where('category_id', $category);
             });
-        }
-        else{
-            $posts = $post::with($with);
         }
         $posts = $posts->where('post_type', $post_type);
         if (! (auth()->user()->role == 'owner' || auth()->user()->role == 'admin' || auth()->user()->role == 'editor')) {
@@ -68,8 +66,20 @@ class PostController extends Controller
         if ($request->ajax()) {
             session()->remove('post_datatable_length');
             session()->put('post_datatable_length', $request->input('length'));
-            $order = $request->input('order.0.name');
-            $dir = $request->input('order.0.dir');
+
+            if($request->has('order.0.name')){
+                $order = $request->input('order.0.name');
+            }
+            else{
+                $order = 'created_at';
+            }
+
+            if($request->has('order.0.dir')){
+                $dir = $request->input('order.0.dir');
+            }
+            else{
+                $dir = 'desc';
+            }
 
             $posts = $posts->where('language', GetPost($request->get('language')))
                 ->orderBy($order, $dir);
@@ -82,7 +92,7 @@ class PostController extends Controller
                 ->addColumn('title', function ($post) use($type) {
                     return view('panel.post.partials.title', compact('post', 'type'));
                 })
-                ->addColumn('categories', function ($post) use($type) {
+                ->addColumn('category_id', function ($post) use($type) {
                     return view('panel.post.partials.categories', compact('post', 'type'));
                 })
                 ->addColumn('action', function ($post) use($type) {
