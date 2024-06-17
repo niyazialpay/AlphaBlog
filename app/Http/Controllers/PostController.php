@@ -12,7 +12,7 @@ class PostController extends Controller
         if (! Cookie::has($showPost->slug)) {
             $showPost->increment('views');
             $showPost->save();
-            Cookie::queue(Cookie::make($showPost->slug, true, 7200));
+            Cookie::queue(Cookie::make($showPost->slug, true, 7200, null, null, true, true));
         }
         try {
             return response()->view('themes.'.app('theme')->name.'.post', [

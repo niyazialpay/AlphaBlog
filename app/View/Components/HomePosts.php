@@ -37,7 +37,8 @@ class HomePosts extends Component
             $post = Cache::get(config('cache.prefix').'home_posts_'.session('language').'_page_'.$page.$this->paginate);
         }
         else{
-            $post = Posts::with('categories')->join('users', 'posts.user_id', '=', 'users.id')
+            $post = Posts::with('categories')
+                ->join('users', 'posts.user_id', '=', 'users.id')
                 ->join('media', 'posts.id', '=', 'media.model_id')
                 ->select([
                     'posts.*',
@@ -50,6 +51,7 @@ class HomePosts extends Component
                 ->where('posts.language', session('language'))
                 ->where('posts.is_published', true)
                 ->where('media.collection_name', 'posts')
+                ->where('posts.created_at', '<=', now()->format('Y-m-d H:i:s'))
                 ->orderBy('posts.created_at', 'desc')
                 ->paginate($this->paginate)->withQueryString();
 
