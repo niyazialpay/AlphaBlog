@@ -274,7 +274,13 @@
             $('#posts-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: '{!! $datatable_url !!}',
+                ajax: {
+                    url: '{!! $datatable_url !!}',
+                    method: 'POST',
+                    data: {
+                        _token: '{{csrf_token()}}'
+                    }
+                },
                 responsive: true,
                 columns: [
                     { data: 'title', name: 'title' },
@@ -293,6 +299,10 @@
                 lengthMenu: [10, 25, 50, 75, 100],
                 language: {
                     url: '{{config('app.url')}}/themes/panel/js/datatable/lang/{{session('language')}}.json'
+                },
+                headers: {
+                    'X-CSRF-TOKEN': '{{csrf_token()}}',
+                    'X-XSRF-TOKEN': '{{csrf_token()}}',
                 }
             });
         });

@@ -4,7 +4,7 @@ use App\Http\Middleware\CheckPostType;
 use App\Http\Middleware\MergePostTypeToRequest;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [App\Http\Controllers\Admin\Post\PostController::class, 'index'])
+Route::any('/', [App\Http\Controllers\Admin\Post\PostController::class, 'index'])
     ->name('admin.posts');
 
 Route::get('/create', [App\Http\Controllers\Admin\Post\PostController::class, 'create'])

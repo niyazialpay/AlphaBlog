@@ -50,8 +50,9 @@ class SimilarPosts extends Component
                         ->where('is_published', 1)
                         ->where('slug', '!=', $post->slug)
                         ->whereIn('id', $post_ids)
+                        ->whereDate('posts.created_at', '<=', now()->format('Y-m-d H:i:s'))
                         ->orderBy('created_at', 'desc')
-                        ->take($limit)
+                        ->limit($limit)
                         ->get();
                 });
         }

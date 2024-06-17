@@ -21,13 +21,15 @@ class MostReadPosts extends Component
             $posts = Cache::get(config('cache.prefix').'most_read_posts_'.session('language'));
         }
         else{
-            $posts = Posts::with('categories')->join('media', 'posts.id', '=', 'media.model_id')
+            $posts = Posts::with('categories')
+                ->join('media', 'posts.id', '=', 'media.model_id')
                 ->join('users', 'posts.user_id', '=', 'users.id')
                 ->select(['posts.*', 'media.file_name', 'media.id as media_id', 'users.nickname', 'users.email'])
                 ->where('media.model_type', 'App\Models\Post\Posts')
                 ->where('posts.is_published', 1)
                 ->where('posts.post_type', 'post')
                 ->where('posts.language', session('language'))
+                ->where('posts.created_at', '<=', now()->format('Y-m-d H:i:s'))
                 ->orderBy('posts.views', 'desc')
                 ->limit(10)
                 ->get();

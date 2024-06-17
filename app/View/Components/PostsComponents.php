@@ -55,10 +55,12 @@ class PostsComponents extends Component
                 $posts = Posts::search($search)
                     ->query(function ($query) {
                         $query->with(['user', 'categories']);
+                        $query->whereDate('posts.created_at', '<=', now()->format('Y-m-d H:i:s'));
                     })
                     ->where('post_type', 'post')
                     ->where('language', session('language'))
                     ->where('is_published', 1)
+                    ->where('posts.created_at', '<=', now()->format('Y-m-d H:i:s'))
                     ->orderBy('created_at', 'desc')
                     ->paginate($this->paginate)->withQueryString();
                 Cache::put(config('cache.prefix').'search_'.$str::slug($search).session('language').'_page_'.$page.$this->paginate, $posts, now()->addDay());
@@ -100,6 +102,7 @@ class PostsComponents extends Component
                         })
                     ->where('language', session('language'))
                     ->where('is_published', 1)
+                    ->where('posts.created_at', '<=', now()->format('Y-m-d H:i:s'))
                     ->orderBy('created_at', 'desc')
                     ->paginate($this->paginate)->withQueryString();
                 Cache::put(config('cache.prefix').'posts_'.session('language').'_page_'.$page.$this->category.$this->user.$this->paginate, $posts, now()->addDay());
