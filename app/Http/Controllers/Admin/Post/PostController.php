@@ -81,8 +81,27 @@ class PostController extends Controller
                 $dir = 'desc';
             }
 
-            $posts = $posts->where('language', GetPost($request->get('language')))
-                ->orderBy($order, $dir);
+            $posts = $posts->where('language', GetPost($request->get('language')));
+
+            if($order=='categories'){
+                $posts = $posts->orderBy(function($query) use($dir) {
+                    return $query->select('category_id')
+                        ->from('post_categories')
+                        ->whereColumn('post_categories.post_id', 'posts.id')
+                        ->orderBy('post_categories.category_id', $dir)->limit(1);
+                });
+            }
+            elseif($order=='user'){
+                $posts = $posts->orderBy(function($query) use($dir) {
+                    return $query->select('nickname')
+                        ->from('users')
+                        ->whereColumn('users.id', 'posts.user_id')
+                        ->orderBy('users.nickname', $dir)->limit(1);
+                });
+            }
+            else{
+                $posts = $posts->orderBy($order, $dir);
+            }
 
             return DataTables::eloquent($posts)
                 ->enableScoutSearch(Posts::class)
@@ -92,7 +111,7 @@ class PostController extends Controller
                 ->addColumn('title', function ($post) use($type) {
                     return view('panel.post.partials.title', compact('post', 'type'));
                 })
-                ->addColumn('category_id', function ($post) use($type) {
+                ->addColumn('categories', function ($post) use($type) {
                     return view('panel.post.partials.categories', compact('post', 'type'));
                 })
                 ->addColumn('action', function ($post) use($type) {

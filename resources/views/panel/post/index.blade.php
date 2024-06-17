@@ -279,7 +279,7 @@
                 columns: [
                     { data: 'title', name: 'title' },
                     @if($type == 'blogs')
-                    { data: 'category_id', name: 'category_id' },
+                    { data: 'categories', name: 'categories' },
                     { data: 'views', name: 'views', className: "text-center"},
                     @endif
                     { data: 'media', name: 'media', className: "text-center", orderable: false, searchable: false },
