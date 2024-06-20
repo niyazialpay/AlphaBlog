@@ -54,7 +54,7 @@ class PostsComponents extends Component
                 $posts = Posts::search($search)
                     ->query(function ($query) {
                         $query->with(['user', 'categories']);
-                        $query->whereDate('posts.created_at', '<=', now()->format('Y-m-d H:i:s'));
+                        $query->where('posts.created_at', '<=', now()->format('Y-m-d H:i:s'));
                     })
                     ->where('post_type', 'post')
                     ->where('language', session('language'))
@@ -75,11 +75,7 @@ class PostsComponents extends Component
                         'user_agent' => request()->userAgent(),
                     ]);
 
-                    OneSignal::sendPush([
-                        'en' => $search,
-                    ], [
-                        'en' => __('search.notification', ['search' => $search]),
-                    ]);
+                    OneSignal::sendPush($search, __('search.notification', ['search' => $search]));
                 }
             }
         } else {

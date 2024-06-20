@@ -145,6 +145,7 @@ return [
                     'language',
                     'post_type',
                     'created_at',
+                    'posts.created_at'
                 ],
                 'searchableAttributes' => [
                     'title',
@@ -155,6 +156,7 @@ return [
                     'tags',
                     'meta_description',
                     'meta_keywords',
+                    'created_at'
                 ],
                 'sortableAttributes' => [
                     'created_at',
