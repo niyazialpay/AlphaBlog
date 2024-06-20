@@ -1,10 +1,10 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 
-if(config('app.cdn_url') != null && config('app.cdn_url') != config('app.url')){
+if (config('app.cdn_url') != null && config('app.cdn_url') != config('app.url')) {
     $domain = config('app.cdn_url');
-}
-else{
+} else {
     $domain = config('app.url');
 }
 Route::domain($domain)->group(function () {
@@ -18,8 +18,8 @@ Route::domain($domain)->group(function () {
             'type' => '[a-zA-Z0-9\/]+',
         ]);
 
-    if(config('app.cdn_url') != null && config('app.cdn_url') != config('app.url')){
-        Route::get('/', function(){
+    if (config('app.cdn_url') != null && config('app.cdn_url') != config('app.url')) {
+        Route::get('/', function () {
             return redirect(config('app.url'));
         });
         Route::get('/{any}', function ($any) {

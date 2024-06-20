@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin\Post;
 
-use App\DataTables\PostsDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Post\PostRequest;
 use App\Models\Post\Categories;
@@ -27,11 +26,9 @@ use Yajra\DataTables\Facades\DataTables;
 class PostController extends Controller
 {
     /**
-     * @param $type
-     * @param Request $request
-     * @param Posts $post
-     * @param null $category
+     * @param  null  $category
      * @return \Illuminate\Contracts\Foundation\Application|Factory|View|Application|JsonResponse|\Illuminate\View\View
+     *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws Exception
@@ -54,7 +51,7 @@ class PostController extends Controller
         $with = ['user', 'categories', 'comments'];
         $posts = $post::with($with);
         if ($category && $post_type == 'post') {
-            $posts = $post->whereHas('categories', function($query) use($category){
+            $posts = $post->whereHas('categories', function ($query) use ($category) {
                 return $query->where('category_id', $category);
             });
         }
@@ -67,39 +64,35 @@ class PostController extends Controller
             session()->remove('post_datatable_length');
             session()->put('post_datatable_length', $request->input('length'));
 
-            if($request->has('order.0.name')){
+            if ($request->has('order.0.name')) {
                 $order = $request->input('order.0.name');
-            }
-            else{
+            } else {
                 $order = 'created_at';
             }
 
-            if($request->has('order.0.dir')){
+            if ($request->has('order.0.dir')) {
                 $dir = $request->input('order.0.dir');
-            }
-            else{
+            } else {
                 $dir = 'desc';
             }
 
             $posts = $posts->where('language', GetPost($request->get('language')));
 
-            if($order=='categories'){
-                $posts = $posts->orderBy(function($query) use($dir) {
+            if ($order == 'categories') {
+                $posts = $posts->orderBy(function ($query) use ($dir) {
                     return $query->select('category_id')
                         ->from('post_categories')
                         ->whereColumn('post_categories.post_id', 'posts.id')
                         ->orderBy('post_categories.category_id', $dir)->limit(1);
                 });
-            }
-            elseif($order=='user'){
-                $posts = $posts->orderBy(function($query) use($dir) {
+            } elseif ($order == 'user') {
+                $posts = $posts->orderBy(function ($query) use ($dir) {
                     return $query->select('nickname')
                         ->from('users')
                         ->whereColumn('users.id', 'posts.user_id')
                         ->orderBy('users.nickname', $dir)->limit(1);
                 });
-            }
-            else{
+            } else {
                 $posts = $posts->orderBy($order, $dir);
             }
 
@@ -108,16 +101,16 @@ class PostController extends Controller
                 ->addColumn('user', function ($post) {
                     return $post->user ? $post->user->nickname : '';
                 })
-                ->addColumn('title', function ($post) use($type) {
+                ->addColumn('title', function ($post) use ($type) {
                     return view('panel.post.partials.title', compact('post', 'type'));
                 })
-                ->addColumn('categories', function ($post) use($type) {
+                ->addColumn('categories', function ($post) use ($type) {
                     return view('panel.post.partials.categories', compact('post', 'type'));
                 })
-                ->addColumn('action', function ($post) use($type) {
+                ->addColumn('action', function ($post) use ($type) {
                     return view('panel.post.partials.actions', compact('post', 'type'));
                 })
-                ->addColumn('media', function ($post) use($type) {
+                ->addColumn('media', function ($post) use ($type) {
                     return view('panel.post.partials.media', compact('post', 'type'));
                 })
                 ->addColumn('created_at', function ($post) {
@@ -130,10 +123,9 @@ class PostController extends Controller
                 ->make(true);
         }
 
-        if($category){
+        if ($category) {
             $datatable_url = route('admin.post.category', ['type' => $type, 'category' => $category]).'?tab='.request()->get('tab').'&language='.request()->get('language');
-        }
-        else{
+        } else {
             $datatable_url = route('admin.posts', ['type' => $type]).'?tab='.request()->get('tab').'&language='.request()->get('language');
         }
 
@@ -142,7 +134,7 @@ class PostController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->paginate(10),
             'type' => $type,
-            'datatable_url' => $datatable_url
+            'datatable_url' => $datatable_url,
         ]);
     }
 
@@ -163,8 +155,7 @@ class PostController extends Controller
                 'history',
             ]);
             $categories = Categories::where('language', $post?->language)->get();
-        }
-        else{
+        } else {
             $categories = Categories::where('language', session('language'))->get();
         }
 

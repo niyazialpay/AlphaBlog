@@ -48,10 +48,9 @@ class ImageProcessController extends Controller
 
             $im->setImageFormat($im->getImageFormat());
 
-            if(config('app.cdn_url') != null && config('app.cdn_url') != config('app.url')){
+            if (config('app.cdn_url') != null && config('app.cdn_url') != config('app.url')) {
                 $domain = config('app.cdn_url');
-            }
-            else{
+            } else {
                 $domain = config('app.url');
             }
 

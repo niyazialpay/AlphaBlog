@@ -12,11 +12,11 @@ class DisableCookiesForCdn
     /**
      * Handle an incoming request.
      *
-     * @param Closure(Request): (Response) $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next)
     {
-        if ($request->getHost() === config('app.cdn_url') && $request->getHost()!== config('app.url')) {
+        if ($request->getHost() === config('app.cdn_url') && $request->getHost() !== config('app.url')) {
             config(['session.driver' => 'array']);
             config(['session.cookie' => '']);
             Cookie::flushQueuedCookies();

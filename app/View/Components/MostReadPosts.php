@@ -17,10 +17,9 @@ class MostReadPosts extends Component
      */
     public function __construct()
     {
-        if(Cache::has(config('cache.prefix').'most_read_posts_'.session('language'))){
+        if (Cache::has(config('cache.prefix').'most_read_posts_'.session('language'))) {
             $posts = Cache::get(config('cache.prefix').'most_read_posts_'.session('language'));
-        }
-        else{
+        } else {
             $posts = Posts::with('categories')
                 ->join('media', 'posts.id', '=', 'media.model_id')
                 ->join('users', 'posts.user_id', '=', 'users.id')

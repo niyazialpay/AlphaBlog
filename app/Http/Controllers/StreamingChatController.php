@@ -51,7 +51,8 @@ class StreamingChatController extends Controller
         return view('panel.Chat.index');
     }
 
-    public function ChatGPT(Request $request){
+    public function ChatGPT(Request $request)
+    {
         $question = $request->query('question');
 
         return response()->stream(

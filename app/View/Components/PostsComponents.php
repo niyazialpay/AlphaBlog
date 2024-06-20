@@ -48,10 +48,9 @@ class PostsComponents extends Component
         }
         if ($search) {
             $str = new Str();
-            if(Cache::has(config('cache.prefix').'search_'.$str::slug($search).session('language').'_page_'.$page.$this->paginate)){
+            if (Cache::has(config('cache.prefix').'search_'.$str::slug($search).session('language').'_page_'.$page.$this->paginate)) {
                 $posts = Cache::get(config('cache.prefix').'search_'.$str::slug($search).session('language').'_page_'.$page.$this->paginate);
-            }
-            else{
+            } else {
                 $posts = Posts::search($search)
                     ->query(function ($query) {
                         $query->with(['user', 'categories']);
@@ -84,10 +83,9 @@ class PostsComponents extends Component
                 }
             }
         } else {
-            if(Cache::has(config('cache.prefix').'posts_'.session('language').'_page_'.$page.$this->category.$this->user.$this->paginate)){
+            if (Cache::has(config('cache.prefix').'posts_'.session('language').'_page_'.$page.$this->category.$this->user.$this->paginate)) {
                 $posts = Cache::get(config('cache.prefix').'posts_'.session('language').'_page_'.$page.$this->category.$this->user.$this->paginate);
-            }
-            else{
+            } else {
                 $posts = Posts::with(['user', 'categories'])
                     ->where('post_type', 'post')
                     ->when($this->category,

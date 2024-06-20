@@ -26,10 +26,9 @@ class TopCategories extends Component
     {
         $language = session('language');
 
-        if(Cache::has(config('cache.prefix').'top_categories_'.$language)){
+        if (Cache::has(config('cache.prefix').'top_categories_'.$language)) {
             $topCategories = Cache::get(config('cache.prefix').'top_categories_'.$language);
-        }
-        else{
+        } else {
             $topCategories = Categories::withCount('posts')
                 ->where('language', $language)
                 ->orderBy('posts_count', 'desc')
