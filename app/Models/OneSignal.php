@@ -30,7 +30,7 @@ class OneSignal extends Model
     /**
      * @throws GuzzleException
      */
-    public static function sendPush($content, $title, $priority = 10): StreamInterface
+    public static function sendPush($content, $title, $url=null, $priority = 10): StreamInterface
     {
         $onesignal = self::first();
 
@@ -42,10 +42,15 @@ class OneSignal extends Model
                 'included_segments' => [
                     $onesignal->user_segmentation,
                 ],
-                'contents' => $content,
-                'name' => 'INTERNAL_CAMPAIGN_NAME',
-                'headings' => $title,
+                'contents' => [
+                    'en' => $content,
+                ],
+                'name' => $title,
+                'headings' => [
+                    'en' => $title,
+                ],
                 'priority' => $priority,
+                'web_url' => $url
             ]),
             'headers' => [
                 'Authorization' => 'Basic '.$onesignal->auth_key,
