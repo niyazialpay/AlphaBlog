@@ -15,14 +15,18 @@ class SendNotificationToAdmin implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private int $post_id;
+    private string $title;
+    private string $message;
+    private string $url;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($post_id)
+    public function __construct($title, $message, $url = null)
     {
-        $this->post_id = $post_id;
+        $this->title = $title;
+        $this->message = $message;
+        $this->url = $url;
     }
 
     /**
@@ -34,9 +38,9 @@ class SendNotificationToAdmin implements ShouldQueue
         $onesignal = OneSignal::first();
         if ($onesignal) {
             OneSignal::sendPush(
-                Posts::find($this->post_id)->title,
-                __('comments.new_comment_notification'),
-                route('admin.post.edit', ['blogs', $this->post_id]),
+                $this->title,
+                $this->message,
+                $this->url,
                 5
             );
         }
