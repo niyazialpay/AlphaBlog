@@ -30,6 +30,7 @@ class NotificationsController extends Controller
             $onesignal->app_id = $request->post('app_id');
             $onesignal->auth_key = $request->post('auth_key');
             $onesignal->safari_web_id = $request->post('safari_web_id');
+            $onesignal->user_segmentation = $request->post('user_segmentation');
             $onesignal->save();
             Cache::forget(config('cache.prefix').'onesignal_settings');
             Cache::forget(config('cache.prefix').'admin_notification_settings');

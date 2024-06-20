@@ -785,6 +785,11 @@
                                            value="{{$onesignal?->auth_key}}">
                                 </div>
                                 <div class="col-12 mb-3">
+                                    <label for="user_segmentation">Segments</label>
+                                    <input type="text" class="form-control" id="user_segmentation" name="user_segmentation"
+                                           value="{{$onesignal?->user_segmentation}}">
+                                </div>
+                                <div class="col-12 mb-3">
                                     <label for="safari_web_id">Safari Web ID</label>
                                     <input type="text" class="form-control" id="safari_web_id" name="safari_web_id"
                                            value="{{$onesignal?->safari_web_id}}">

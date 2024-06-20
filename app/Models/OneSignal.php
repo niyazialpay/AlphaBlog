@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Database\Eloquent\Model;
 use Psr\Http\Message\StreamInterface;
 
@@ -13,6 +14,7 @@ class OneSignal extends Model
         'app_id',
         'auth_key',
         'safari_web_id',
+        'user_segmentation'
     ];
 
     public $timestamps = false;
@@ -25,6 +27,9 @@ class OneSignal extends Model
         ];
     }
 
+    /**
+     * @throws GuzzleException
+     */
     public static function sendPush($content, $title, $priority = 10): StreamInterface
     {
         $onesignal = self::first();
@@ -35,7 +40,7 @@ class OneSignal extends Model
             'body' => json_encode([
                 'app_id' => $onesignal->app_id,
                 'included_segments' => [
-                    'Subscribed Users',
+                    $onesignal->user_segmentation,
                 ],
                 'contents' => $content,
                 'name' => 'INTERNAL_CAMPAIGN_NAME',
