@@ -45,6 +45,10 @@ MEILISEARCH_HOST=
 MEILISEARCH_KEY=
 ```
 
+```bash
+php artisan scout:sync-index-settings
+```
+
 #### After all this, if you want, you can change the admin panel path from the ADMIN_PANEL_PATH variable in the .env file
 
 ```bash
