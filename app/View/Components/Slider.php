@@ -24,10 +24,9 @@ class Slider extends Component
      */
     public function render(): View|Closure|string
     {
-        if(Cache::has(config('cache.prefix').'slider_'.session('language'))){
+        if (Cache::has(config('cache.prefix').'slider_'.session('language'))) {
             $post = Cache::get(config('cache.prefix').'slider_'.session('language'));
-        }
-        else{
+        } else {
             $post = Posts::select([
                 'posts.*',
                 'media.file_name',

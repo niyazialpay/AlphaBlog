@@ -21,7 +21,7 @@ Route::middleware([
 ])
     ->withoutMiddleware([
         \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
-        \Illuminate\Session\Middleware\StartSession::class
+        \Illuminate\Session\Middleware\StartSession::class,
     ])
     ->group(base_path('routes/cdn.php'));
 
@@ -37,7 +37,6 @@ Route::group([
         \App\Http\Middleware\VerifyOTP::class,
     ],
 ], function () {
-
 
     Route::middleware(['web', 'auth'])
         ->prefix(config('settings.admin_panel_path'))
@@ -155,7 +154,7 @@ Route::group([
         \Fahlisaputra\Minify\Middleware\MinifyCss::class,
         \Fahlisaputra\Minify\Middleware\MinifyJavascript::class,
     ],
-], function(){
+], function () {
     try {
         $languages = Languages::all();
     } catch (\Exception $e) {
@@ -243,5 +242,3 @@ Route::group([
 
     Route::get('/{language?}', [\App\Http\Controllers\HomeController::class, 'index'])->name('home');
 });
-
-

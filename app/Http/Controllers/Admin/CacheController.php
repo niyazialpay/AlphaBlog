@@ -3,23 +3,21 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class CacheController extends Controller
 {
     public function clearCache()
     {
-        if(Cache::flush()){
+        if (Cache::flush()) {
             return response()->json([
                 'status' => 'success',
-                'message' => __('cache.cache_cleared')
+                'message' => __('cache.cache_cleared'),
             ]);
-        }
-        else{
+        } else {
             return response()->json([
                 'status' => 'error',
-                'message' =>  __('cache.cache_not_cleared')
+                'message' => __('cache.cache_not_cleared'),
             ]);
         }
     }

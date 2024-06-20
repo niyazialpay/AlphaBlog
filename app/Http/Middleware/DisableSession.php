@@ -16,6 +16,7 @@ class DisableSession
     public function handle(Request $request, Closure $next): Response
     {
         config(['session.driver' => 'array']);
+
         return $next($request);
     }
 }

@@ -33,10 +33,9 @@ class HomePosts extends Component
         } catch (NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             $page = 1;
         }
-        if(Cache::has(config('cache.prefix').'home_posts_'.session('language').'_page_'.$page.$this->paginate)){
+        if (Cache::has(config('cache.prefix').'home_posts_'.session('language').'_page_'.$page.$this->paginate)) {
             $post = Cache::get(config('cache.prefix').'home_posts_'.session('language').'_page_'.$page.$this->paginate);
-        }
-        else{
+        } else {
             $post = Posts::with('categories')
                 ->join('users', 'posts.user_id', '=', 'users.id')
                 ->join('media', 'posts.id', '=', 'media.model_id')

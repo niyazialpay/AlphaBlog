@@ -57,6 +57,7 @@ class LoginController extends Controller
     public function loginFirst(Request $request)
     {
         $login = request()->input('username');
+
         return response()->json($this->checkWebAuthn($login));
     }
 
@@ -65,10 +66,9 @@ class LoginController extends Controller
         $login = request()->input('login');
 
         $check_webauthn = $this->checkWebAuthn($login);
-        if($check_webauthn['status'] && $check_webauthn['webauthn']){
+        if ($check_webauthn['status'] && $check_webauthn['webauthn']) {
             return response()->json($this->checkWebAuthn($login));
         }
-
 
         $request->validate([
             'username' => 'required|string',
@@ -80,6 +80,7 @@ class LoginController extends Controller
                 auth()->user()->password = Hash::make($request->password);
                 auth()->user()->save();
             }
+
             return response()->json([
                 'status' => true,
                 'webauthn' => false,

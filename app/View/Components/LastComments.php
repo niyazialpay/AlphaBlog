@@ -18,10 +18,9 @@ class LastComments extends Component
      */
     public function __construct()
     {
-        if(Cache::has(config('cache.prefix').'last_comments_'.session('language'))){
+        if (Cache::has(config('cache.prefix').'last_comments_'.session('language'))) {
             $lastComments = Cache::get(config('cache.prefix').'last_comments_'.session('language'));
-        }
-        else{
+        } else {
             $lastComments = Comments::with([
                 'post.categories',
             ])->join('posts', 'comments.post_id', '=', 'posts.id')
