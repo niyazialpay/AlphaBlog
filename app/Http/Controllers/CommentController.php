@@ -31,7 +31,7 @@ class CommentController extends Controller
                     OneSignal::sendPush(
                         Posts::find($request->validated('post_id'))->title,
                         __('comments.new_comment_notification'),
-                        route('admin.post.edit', $request->validated('post_id')),
+                        route('admin.post.edit', ['blogs', $request->validated('post_id')]),
                         5
                     );
                 }
