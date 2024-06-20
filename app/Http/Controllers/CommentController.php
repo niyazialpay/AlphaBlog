@@ -37,7 +37,11 @@ class CommentController extends Controller
                 }
             }
             else{
-                SendNotificationToAdmin::dispatch($request->validated('post_id'));
+                SendNotificationToAdmin::dispatch(
+                    Posts::find($request->validated('post_id'))->title,
+                    __('comments.new_comment_notification'),
+                    route('admin.post.edit', ['blogs', $request->validated('post_id')])
+                );
             }
 
             return response()->json([

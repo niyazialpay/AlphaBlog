@@ -2,11 +2,13 @@
 
 namespace App\View\Components;
 
+use App\Jobs\SendNotificationToAdmin;
 use App\Models\OneSignal;
 use App\Models\Post\Posts;
 use App\Models\Search;
 use Closure;
 use Exception;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -37,6 +39,7 @@ class PostsComponents extends Component
 
     /**
      * Get the view / contents that represent the component.
+     * @throws GuzzleException
      */
     public function render(): View|Closure|string
     {
@@ -74,8 +77,23 @@ class PostsComponents extends Component
                         'ip' => request()->ip(),
                         'user_agent' => request()->userAgent(),
                     ]);
-
-                    OneSignal::sendPush($search, __('search.notification', ['search' => $search]));
+                    if(config('settings.notification_send_method') == 'directly'){
+                        $onesignal = OneSignal::first();
+                        if ($onesignal) {
+                            OneSignal::sendPush(
+                                $search,
+                                __('search.notification', ['search' => $search]),
+                                route('admin.search.index')
+                            );
+                        }
+                    }
+                    else{
+                        SendNotificationToAdmin::dispatch(
+                            $search,
+                            __('search.notification', ['search' => $search]),
+                            route('admin.search.index')
+                        );
+                    }
                 }
             }
         } else {
