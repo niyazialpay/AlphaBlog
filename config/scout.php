@@ -144,6 +144,7 @@ return [
                     'is_published',
                     'language',
                     'post_type',
+                    'created_at',
                 ],
                 'searchableAttributes' => [
                     'title',
