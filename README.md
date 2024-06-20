@@ -36,6 +36,15 @@ php artisan storage:link
 php artisan migrate
 ```
 
+## MeiliSearch Integration
+You need to use Meilisearch for the in-site search engine. After registering at https://www.meilisearch.com/, you can get the master key and add it to your .env file with the address given to you. If you do not want to create an account on the Meilisearch website, you can use it by installing it on your own server. You can get information about this from this [link](https://niyazi.net/en/meilisearch-and-laravel-integration).
+
+
+```bash
+MEILISEARCH_HOST=
+MEILISEARCH_KEY=
+```
+
 #### After all this, if you want, you can change the admin panel path from the ADMIN_PANEL_PATH variable in the .env file
 
 ```bash
@@ -85,6 +94,24 @@ Also you can change ChatGPT model from the .env file
 OPENAI_MODEL=
 ```
 
+## Cloudflare Turnstile Integration
+By creating an account on Cloudflare, you can get your site key and secret key for Turnstile and add it to your .env file.
+
+```bash
+CF_TURNSTILE_SITE_KEY=
+CF_TURNSTILE_SECRET_KEY=
+```
+
+### Note
+By default, notification and contact emails are sent directly. If you change this to queue in the .env file, these sends will be queued and happen in the background
+
+```bash
+MAIL_SEND_METHOD=queue
+NOTIFICATION_SEND_METHOD=queue
+```
+
+
+
 ## Features
 - Blogs with Categories
 - Page
@@ -96,6 +123,9 @@ OPENAI_MODEL=
   - The words searched in the search engine are kept in the database
     - It saves the words that are not found among the words in the on-site searches to generate ideas for content on that topic later.
 - Admin panel
+- OneSignal Push Notification for Admin
+  - New Comment Notification
+  - Searched Word Notification
 - Webauthn Login
 - 2-Factor Authentication
 - AI Chatbot - Based by Gemini or ChatGPT
