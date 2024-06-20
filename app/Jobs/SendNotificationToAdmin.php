@@ -36,7 +36,7 @@ class SendNotificationToAdmin implements ShouldQueue
             OneSignal::sendPush(
                 Posts::find($this->post_id)->title,
                 __('comments.new_comment_notification'),
-                route('admin.post.edit', $this->post_id),
+                route('admin.post.edit', ['blogs', $this->post_id]),
                 5
             );
         }
