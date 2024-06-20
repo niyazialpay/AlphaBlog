@@ -45,7 +45,7 @@ class OneSignal extends Model
                 'contents' => [
                     'en' => $content,
                 ],
-                'name' => $title,
+                'name' => $content,
                 'headings' => [
                     'en' => $title,
                 ],
