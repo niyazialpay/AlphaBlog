@@ -53,7 +53,7 @@
             <i class="fas fa-search"></i>
         </a>
         <div class="navbar-search-block">
-            <form class="form-inline" method="post" action="javascript:void(0)">
+            <form class="form-inline" id="navbar-header-search" method="post" action="javascript:void(0)">
                 <div class="input-group input-group-sm">
                     <input class="form-control form-control-navbar" id="searchInput" type="search" name="search" placeholder="@lang('post.search_placeholder')" aria-label="Search" autocomplete="off">
                     <div class="input-group-append">
