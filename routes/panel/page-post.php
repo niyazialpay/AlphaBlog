@@ -20,7 +20,7 @@ Route::post('/save', [App\Http\Controllers\Admin\Post\PostController::class, 'sa
 Route::get('/{post}/media', [App\Http\Controllers\Admin\Post\PostController::class, 'media'])
     ->name('admin.post.media');
 
-Route::get('/{post}/edit', [App\Http\Controllers\Admin\Post\PostController::class, 'create'])
+Route::get('/{post?}/edit', [App\Http\Controllers\Admin\Post\PostController::class, 'create'])
     ->name('admin.post.edit')
     ->middleware(CheckPostType::class)
     ->can('edit', 'post');

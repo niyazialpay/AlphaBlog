@@ -25,3 +25,5 @@ Route::get('/', [App\Http\Controllers\Admin\SearchController::class, 'index'])
 Route::post('/', [App\Http\Controllers\Admin\SearchController::class, 'check'])
     ->can('admin', 'App\Models\User')
     ->name('admin.search.check');
+
+Route::post('/general', [App\Http\Controllers\Admin\SearchController::class, 'search'])->name('general.search');
