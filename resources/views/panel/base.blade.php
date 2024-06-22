@@ -319,6 +319,12 @@
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
 
+        $('#navbar-header-search').submit(function(e){
+            e.preventDefault();
+            let query = $('#searchInput').val();
+            fetchResults(query);
+        });
+
         checkCollapse();
         $('#pushmenu').on('click', function(){
             localStorage.setItem("sidebar-collapse", !$('body').hasClass("sidebar-collapse"));
