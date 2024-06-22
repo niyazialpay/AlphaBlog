@@ -163,6 +163,7 @@ return [
                     'updated_at',
                     'user_id',
                     'categories',
+                    'title'
                 ],
             ],
             'categories' => [
@@ -175,6 +176,11 @@ return [
                     'description',
                     'meta_description',
                     'meta_keywords',
+                ],
+                'sortableAttributes' => [
+                    'created_at',
+                    'updated_at',
+                    'name'
                 ],
             ],
             'personal_notes' => [
@@ -192,8 +198,35 @@ return [
                     'updated_at',
                     'user_id',
                     'category_id',
+                    'title'
                 ],
             ],
+            'users' => [
+                'filterableAttributes' => [
+                    'name',
+                    'surname',
+                    'username',
+                    'nickname',
+                    'email',
+                ],
+                'searchableAttributes' => [
+                    'name',
+                    'surname',
+                    'username',
+                    'nickname',
+                    'email',
+                ],
+                'sortableAttributes' => [
+                    'created_at',
+                    'updated_at',
+                    'id',
+                    'name',
+                    'surname',
+                    'username',
+                    'nickname',
+                    'email',
+                ],
+            ]
         ],
     ],
 

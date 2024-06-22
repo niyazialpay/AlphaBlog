@@ -92,126 +92,7 @@
 
     <!-- Navbar -->
     <nav class="main-header navbar navbar-expand navbar-light" id="top-navbar" aria-label="top-menu">
-        <!-- Left navbar links -->
-        <ul class="navbar-nav" id="top-menu-navbar">
-            <li class="nav-item">
-                <a class="nav-link" id="pushmenu" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{config('app.url')}}">
-                    <i class="fa-duotone fa-house"></i>
-                </a>
-            </li>
-            @if(config('services.openai.key') || config('gemini.api_key'))
-                <li class="nav-item">
-                    <a class="nav-link" href="{{route('chatbot')}}">
-                        <i class="fa-duotone fa-robot"></i>
-                    </a>
-                </li>
-            @endif
-            @can('createPost', 'App\Models\Post\Posts')
-                <li class="nav-item d-none d-md-block">
-                    <a href="{{route('admin.post.create', ['type' => 'blogs'])}}"
-                       class="nav-link">
-                        <i class="fa-duotone fa-file top-icon"></i>
-                        <small>
-                            @lang('post.new_post')
-                        </small>
-                    </a>
-                </li>
-                <li class="nav-item d-block d-md-none">
-                    <a href="{{route('admin.post.create', ['type' => 'blogs'])}}"
-                       data-bs-toggle="tooltip"
-                       data-bs-placement="right"
-                       title="@lang('post.new_post')"
-                       class="nav-link">
-                        <i class="fa-duotone fa-file"></i>
-                    </a>
-                </li>
-            @endcan
-            <li class="nav-item d-none d-md-block">
-                <a class="nav-link clear-cache" href="javascript:void(0);">
-                    <i class="fa-duotone fa-trash-can top-icon"></i>
-                    <small>
-                        @lang('cache.clear_cache')
-                    </small>
-                </a>
-            </li>
-        </ul>
-
-
-        <!-- Right navbar links -->
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item dropdown">
-                <a class="nav-link tooltip-button d-none d-md-block" data-bs-toggle="dropdown"
-                   href="javascript:void(0);"
-                   data-bs-placement="left"
-                   title="{{session('language_name')}}">
-                    <small>
-                        <strong class="me-1">@lang('general.language') :</strong>
-                    </small>
-                    <img src="{{config('app.url')}}/themes/flags/{{session('language_flag')}}.webp"
-                         class="elevation-2" alt="{{session('language_name')}}" height="12">
-                </a>
-                <a class="nav-link tooltip-button d-block d-md-none" data-bs-toggle="dropdown"
-                   href="javascript:void(0);"
-                   data-bs-placement="left"
-                   title="{{session('language_name')}}">
-                    <img src="{{config('app.url')}}/themes/flags/{{session('language_flag')}}.webp"
-                         class="elevation-2" alt="{{session('language_name')}}" height="12">
-                </a>
-                <div class="dropdown-menu">
-                    @foreach($languages as $language)
-                        @if(session('language') != $language->code)
-                            <a href="{{route('admin.change_language', ['language' => $language->code])}}"
-                               class="dropdown-item">
-
-                                <div class="media">
-                                    <div class="media-body">
-                                        <span class="dropdown-item-title">
-                                            <img src="{{config('app.url')}}/themes/flags/{{$language->flag}}.webp"
-                                                 alt="{{$language->name}}" height="12" class="elevation-2 me-1">
-                                                    {{$language->name}}
-                                        </span>
-                                    </div>
-                                </div>
-                            </a>
-                        @endif
-                    @endforeach
-                </div>
-            </li>
-            <!-- Messages Dropdown Menu -->
-            <li class="nav-item dropdown">
-                <x-new-comments />
-            </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link" data-bs-toggle="dropdown" href="#">
-                    <img
-                        src="https://www.gravatar.com/avatar/{{hash('sha256', strtolower(trim(auth()->user()->email)))}}?s=20"
-                        class="img-circle elevation-2" alt="{{auth()->user()->nickname}}">
-                </a>
-                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
-                    <a href="{{route('admin.profile.index')}}" class="dropdown-item">
-                        <i class="fa-duotone fa-user top-icon"></i> @lang('user.profile')
-                    </a>
-                    <a>
-                        <a href="{{route('admin.profile.index')}}?tab=security" class="dropdown-item">
-                            <i class="fa-duotone fa-shield-halved top-icon"></i> @lang('profile.security')
-                        </a>
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    @if(auth()->user()->webauthn || auth()->user()->otp)
-                        <a href="{{route('lockscreen')}}" class="dropdown-item">
-                            <i class="fa-duotone fa-lock top-icon"></i> @lang('user.lockscreen')
-                        </a>
-                    @endif
-                    <a href="javascript:void(0)" class="dropdown-item"
-                       data-bs-toggle="modal" data-bs-target="#logoutModal">
-                        <i class="fa-duotone fa-right-from-bracket top-icon"></i> @lang('user.logout')
-                    </a>
-                </div>
-            </li>
-        </ul>
+        @include('panel.partials.header-navbar')
     </nav>
     <!-- /.navbar -->
 
@@ -379,6 +260,58 @@
         }
     }
 
+    function fetchResults(query, page = 1) {
+        $.ajax({
+            url: '{{route('general.search')}}',
+            type: 'POST',
+            data: { search: query, page: page, _token: '{{csrf_token()}}' },
+            success: function(data) {
+                let results = $('#searchResults');
+                results.empty();
+
+                let result_items = '<ul id="result-items">';
+                if(data.posts.length > 0){
+                    result_items += '<li><strong>@lang('post.blogs')</strong><ul class="sub-results">';
+                    $.each(data.posts, function(index, item) {
+                        result_items += '<li class="result-item"><a href="{{config('app.url')}}/{{config('settings.admin_panel_path')}}/blogs/' + item.id + '/edit">' + item.title.replace('\\', '') + ' (' + item.language + ')</a></li>';
+                    });
+                    result_items += '</ul></li>';
+                }
+                if(data.page.length > 0){
+                    result_items += '<li><strong>@lang('post.pages')</strong><ul class="sub-results">';
+                    $.each(data.page, function(index, item) {
+                        result_items += '<li class="result-item"><a href="{{config('app.url')}}/{{config('settings.admin_panel_path')}}/blogs/' + item.id + '/edit">' + item.title.replace('\\', '') + ' (' + item.language + ')</a></li>';
+                    });
+                    result_items += '</ul></li>';
+                }
+                if(data.categories.length > 0){
+                    result_items += '<li><strong>@lang('categories.categories')</strong><ul class="sub-results">';
+                    $.each(data.categories, function(index, item) {
+                        result_items += '<li class="result-item"><a href="{{config('app.url')}}/{{config('settings.admin_panel_path')}}/blogs/categories/' + item.id + '/edit">' + item.name.replace('\\', '') + ' (' + item.language + ')</a></li>';
+                    });
+                    result_items += '</ul></li>';
+                }
+                if(data.personal_notes.length > 0){
+                    result_items += '<li><strong>@lang('notes.notes')</strong><ul class="sub-results">';
+                    $.each(data.personal_notes, function(index, item) {
+                        result_items += '<li class="result-item"><a href="{{config('app.url')}}/{{config('settings.admin_panel_path')}}/notes/show/' + item.id + '">' + item.title.replace('\\', '') + '</a></li>';
+                    });
+                    result_items += '</ul></li>';
+                }
+                if(data.users.length > 0){
+                    result_items += '<li><strong>@lang('user.users')</strong><ul class="sub-results">';
+                    $.each(data.users, function(index, item) {
+                        result_items += '<li class="result-item"><a href="{{config('app.url')}}/{{config('settings.admin_panel_path')}}/users/' + item.id + '/edit">' + item.name.replace('\\', '') + ' ' + item.surname.replace('\\', '') + ' - ' + item.nickname.replace('\\', '') + '</a></li>';
+                    });
+                    result_items += '</ul></li>';
+                }
+                result_items += '</ul>';
+                results.append(result_items);
+                results.show();
+            }
+        });
+    }
+
     $(document).ready(function(){
         checkDarkMode();
         let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -429,6 +362,17 @@
             });
         });
 
+
+        $('#searchInput').on('keyup keydown keypress', function() {
+            let query = $(this).val();
+            fetchResults(query);
+        });
+
+        $(document).click(function(e) {
+            if (!$(e.target).closest('#searchResults, #searchInput').length) {
+                $('#searchResults').hide();
+            }
+        });
     });
 </script>
 

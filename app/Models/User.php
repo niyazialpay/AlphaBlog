@@ -14,10 +14,11 @@ use Laragear\WebAuthn\WebAuthnAuthentication;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticationProvider;
 use Laravel\Sanctum\HasApiTokens;
+use Laravel\Scout\Searchable;
 
 class User extends Authenticatable implements WebAuthnAuthenticatable
 {
-    use HasApiTokens, Notifiable, TwoFactorAuthenticatable, WebAuthnAuthentication;
+    use HasApiTokens, Notifiable, TwoFactorAuthenticatable, WebAuthnAuthentication, Searchable;
 
     protected $table = 'users';
 
@@ -51,6 +52,8 @@ class User extends Authenticatable implements WebAuthnAuthenticatable
         'password',
         'remember_token',
         'username',
+        'two_factor_recovery_codes',
+        'two_factor_secret',
     ];
 
     protected $attributes = [
@@ -107,5 +110,23 @@ class User extends Authenticatable implements WebAuthnAuthenticatable
     public function WebAuthn(): HasMany
     {
         return $this->hasMany(\App\Models\WebAuthnCredential::class, 'authenticatable_id')->select(['id', 'device_name']);
+    }
+
+    public function searchableAs(): string
+    {
+        return config('scout.prefix').'users';
+    }
+
+    public function toSearchableArray(): array
+    {
+        $array = [];
+        $array['id'] = $this->id;
+        $array['name'] = $this->name;
+        $array['surname'] = $this->surname;
+        $array['username'] = $this->username;
+        $array['email'] = $this->email;
+        $array['nickname'] = $this->nickname;
+
+        return $array;
     }
 }
