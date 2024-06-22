@@ -122,7 +122,7 @@
 
             <!-- Sidebar Menu -->
             <nav class="mt-2" aria-label="main-menu">
-                @include('panel.menu')
+                @include('panel.partials.menu')
             </nav>
             <!-- /.sidebar-menu -->
         </div>
