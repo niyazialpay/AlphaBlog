@@ -149,7 +149,7 @@ class SearchController extends Controller
         $results['page'] = Posts::search($query)->take($paginate)->where('post_type', 'page')->orderBy('created_at', 'desc')->get();
         $results['categories'] = Categories::search($query)->orderBy('created_at', 'desc')->take($paginate)->get();
         $results['users'] = User::search($query)->orderBy('created_at', 'desc')->take($paginate)->get();
-        if (! request()->cookie('encryption_key')) {
+        if (request()->cookie('encryption_key')) {
             $personal_notes = new PersonalNotes();
             $personal_notes::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
             $results['personal_notes'] = $personal_notes->search($query)->orderBy('created_at', 'desc')->take($paginate)->get();
