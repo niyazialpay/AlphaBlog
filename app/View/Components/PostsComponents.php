@@ -62,7 +62,6 @@ class PostsComponents extends Component
                     ->where('post_type', 'post')
                     ->where('language', session('language'))
                     ->where('is_published', 1)
-                    ->where('posts.created_at', '<=', now()->format('Y-m-d H:i:s'))
                     ->orderBy('created_at', 'desc')
                     ->paginate($this->paginate)->withQueryString();
                 Cache::put(config('cache.prefix').'search_'.$str::slug($search).session('language').'_page_'.$page.$this->paginate, $posts, now()->addDay());
