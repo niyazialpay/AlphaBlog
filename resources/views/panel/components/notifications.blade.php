@@ -1,6 +1,8 @@
 <a class="nav-link" data-bs-toggle="dropdown" href="#" aria-expanded="false">
     <i class="fa-duotone fa-bell"></i>
+    @if($total_unread_notifications>0)
     <span class="badge badge-danger navbar-badge">{{$total_unread_notifications}}</span>
+    @endif
 </a>
 <div class="dropdown-menu dropdown-menu-xl dropdown-menu-right" style="left: inherit; right: 0px;">
     <span class="dropdown-item dropdown-header">{{trans_choice('notifications.unread_notifications', $total_unread_notifications)}}</span>
