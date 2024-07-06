@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Action\LanguageAction;
+use App\Actions\LanguageAction;
 use App\Models\Post\Categories;
 use App\Models\Post\Posts;
 use App\Models\User;

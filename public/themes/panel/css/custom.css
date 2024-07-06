@@ -184,3 +184,10 @@
     margin-top: 10px;
     margin-bottom: 10px;
 }
+.notification-message {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 230px; /* İhtiyacınıza göre ayarlayın */
+    display: inline-block;
+}

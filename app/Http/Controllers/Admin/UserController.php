@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Action\SocialNetworkSaveAction;
-use App\Action\UserAction;
+use App\Actions\SocialNetworkSaveAction;
+use App\Actions\UserAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PasswordRequest;
 use App\Http\Requests\UserCreateRequest;
@@ -167,11 +167,11 @@ class UserController extends Controller
 
     public function webauthnDelete(Request $request, WebAuthnCredential $webauthn, User $user_id): JsonResponse
     {
-        return (new \App\Action\WebAuthnAction())->delete($request, $webauthn, $user_id);
+        return (new \App\Actions\WebAuthnAction())->delete($request, $webauthn, $user_id);
     }
 
     public function webauthnRename(Request $request, WebAuthnCredential $webauthn, User $user_id): JsonResponse
     {
-        return (new \App\Action\WebAuthnAction())->rename($request, $webauthn, $user_id);
+        return (new \App\Actions\WebAuthnAction())->rename($request, $webauthn, $user_id);
     }
 }

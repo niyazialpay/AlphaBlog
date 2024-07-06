@@ -1,6 +1,6 @@
 <?php
 
-use App\Action\RouteRedirectAction;
+use App\Actions\RouteRedirectAction;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;

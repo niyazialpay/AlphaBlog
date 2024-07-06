@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Settings;
 
-use App\Action\SocialNetworkSaveAction;
+use App\Actions\SocialNetworkSaveAction;
 use App\Http\Controllers\Controller;
 use App\Models\Settings\SocialSettings;
 use Exception;

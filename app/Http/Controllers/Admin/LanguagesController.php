@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Action\LanguageAction;
+use App\Actions\LanguageAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\LanguageRequest;
 use App\Models\Languages;
