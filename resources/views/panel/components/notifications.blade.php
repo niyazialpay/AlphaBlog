@@ -1,4 +1,7 @@
-<a class="nav-link" data-bs-toggle="dropdown" href="#" aria-expanded="false">
+<a class="nav-link tooltip-button" data-bs-toggle="dropdown" href="javascript:void(0);"
+   data-bs-placement="bottom"
+   title="@lang('notifications.notifications')"
+   aria-expanded="false">
     <i class="fa-duotone fa-bell"></i>
     @if($total_unread_notifications>0)
     <span class="badge badge-danger navbar-badge">{{$total_unread_notifications}}</span>
