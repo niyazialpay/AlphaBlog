@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Action;
+namespace App\Actions;
 
 use App\Models\User;
 use App\Models\WebAuthnCredential;

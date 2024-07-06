@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Action\RouteRedirectAction;
+use App\Actions\RouteRedirectAction;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;

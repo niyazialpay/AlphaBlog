@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Action\LanguageAction;
+use App\Actions\LanguageAction;
 use App\Models\ContactPage;
 use App\Models\Settings\SeoSettings;
 use Closure;

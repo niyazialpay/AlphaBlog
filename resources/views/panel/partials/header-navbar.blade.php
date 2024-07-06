@@ -112,6 +112,9 @@
         <x-new-comments />
     </li>
     <li class="nav-item dropdown">
+        <x-notifications />
+    </li>
+    <li class="nav-item dropdown">
         <a class="nav-link" data-bs-toggle="dropdown" href="#">
             <img
                 src="https://www.gravatar.com/avatar/{{hash('sha256', strtolower(trim(auth()->user()->email)))}}?s=20"

@@ -43,6 +43,10 @@ Route::group([
         ->group(base_path('routes/panel/panel.php'));
 
     Route::middleware(['web', 'auth'])
+        ->prefix(config('settings.admin_panel_path').'/notifications')
+        ->group(base_path('routes/panel/notifications.php'));
+
+    Route::middleware(['web', 'auth'])
         ->prefix(config('settings.admin_panel_path').'/search')
         ->group(base_path('routes/panel/search.php'));
 

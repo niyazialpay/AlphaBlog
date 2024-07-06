@@ -4,6 +4,8 @@ namespace App\Jobs;
 
 use App\Models\OneSignal;
 use App\Models\Post\Posts;
+use App\Models\User;
+use App\Notifications\SendCommentNotificationToAdmin;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -31,18 +33,15 @@ class SendNotificationToAdmin implements ShouldQueue
 
     /**
      * Execute the job.
-     * @throws GuzzleException
      */
     public function handle(): void
     {
-        $onesignal = OneSignal::first();
-        if ($onesignal) {
-            OneSignal::sendPush(
+        foreach (User::whereIn('role', ['admin', 'owner'])->get() as $admin) {
+            $admin->notify(new SendCommentNotificationToAdmin(
                 $this->title,
                 $this->message,
-                $this->url,
-                5
-            );
+                $this->url
+            ));
         }
     }
 }
