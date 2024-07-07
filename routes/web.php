@@ -35,6 +35,7 @@ Route::group([
         \App\Http\Middleware\AdminOneSignal::class,
         \App\Http\Middleware\SearchedWords::class,
         \App\Http\Middleware\VerifyOTP::class,
+        \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class
     ],
 ], function () {
 
@@ -119,11 +120,11 @@ Route::post('/login/2fa-verify', [\App\Http\Controllers\Admin\TwoFactorAuthContr
     ->name('two-factor.verify');
 
 Route::get('/forgot-password',
-    [\App\Http\Controllers\Auth\LoginController::class, 'forgotPassword'])
+    [\App\Http\Controllers\Auth\ResetPasswordController::class, 'forgotPassword'])
     ->name('forgot-password')->middleware('guest');
 
 Route::post('/forgot-password',
-    [\App\Http\Controllers\Auth\LoginController::class, 'resetPassword'])
+    [\App\Http\Controllers\Auth\ResetPasswordController::class, 'resetPassword'])
     ->middleware([
         'guest',
         \Spatie\Honeypot\ProtectAgainstSpam::class,

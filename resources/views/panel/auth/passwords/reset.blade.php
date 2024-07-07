@@ -11,13 +11,13 @@
 
             <div class="input-group-append">
                 <div class="input-group-text">
-                    <span class="fas fa-envelope"></span>
+                    <i class="fa-duotone fa-user"></i>
                 </div>
             </div>
         </div>
         <div class="row justify-content-center">
-            <div class="col-12 mb-3">
-                <x-turnstile/>
+            <div class="col-12 d-flex justify-content-center">
+                <x-turnstile />
             </div>
         </div>
         <div class="row">

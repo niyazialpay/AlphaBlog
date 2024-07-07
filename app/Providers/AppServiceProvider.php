@@ -8,6 +8,9 @@ use App\Models\Post\Categories;
 use App\Models\Post\Comments;
 use App\Models\Post\Posts;
 use App\Models\User;
+use App\Observers\UserObserver;
+use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Auth\Notifications\ResetPassword;
 use App\Observers\PostsObserver;
 use App\Policies\CommentPolicy;
 use App\Policies\PersonalNoteCategoryPolicy;
@@ -16,6 +19,7 @@ use App\Policies\PostPolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Pulse\Facades\Pulse;
 use Opcodes\LogViewer\Facades\LogViewer;
@@ -53,6 +57,7 @@ class AppServiceProvider extends ServiceProvider
         Paginator::useBootstrap();
 
         Posts::observe(PostsObserver::class);
+        User::observe(UserObserver::class);
 
         Gate::define('viewPulse', function (User $user) {
             return $user->role === 'owner' || $user->role === 'admin';
