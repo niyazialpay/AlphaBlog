@@ -43,3 +43,7 @@ Route::post('/{user_id}/webauthn/delete', [App\Http\Controllers\Admin\UserContro
 Route::post('/{user_id}/webauthn/rename', [App\Http\Controllers\Admin\UserController::class, 'webauthnRename'])
     ->can('admin', 'App\Models\WebAuthnCredential')
     ->name('admin.user.webauthn.rename');
+
+Route::post('/{user_id}/email-change', [App\Http\Controllers\Admin\UserController::class, 'userEmailChange'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.user.email');

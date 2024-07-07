@@ -89,4 +89,5 @@ return [
 
     'switch_to_password' => 'Switch to password',
     'switch_to_webauthn' => 'Switch to WebAuthn',
+    'email_change' => 'Change email',
 ];

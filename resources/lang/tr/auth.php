@@ -27,4 +27,5 @@ return [
         'you_didnt_receive' => 'E-postayı almadıysanız, başka bir doğrulama e-postası talep edebilirsiniz',
         'resend' => 'başka bir tane talep etmek için buraya tıklayın.',
     ],
+    'verification_sent' => 'Doğrulama bağlantısı mailinize gönderildi.',
 ];

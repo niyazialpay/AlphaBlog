@@ -174,4 +174,35 @@ class UserController extends Controller
     {
         return (new \App\Actions\WebAuthnAction())->rename($request, $webauthn, $user_id);
     }
+
+    public function userEmailChange(Request $request, User $user_id)
+    {
+        if(UserAction::changeEmail($request, $user_id)){
+            return response()->json([
+                'status' => 'success',
+                'message' => __('profile.save_success'),
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => __('profile.save_error'),
+            ], 422);
+
+        }
+    }
+
+    public function changeEmail(Request $request)
+    {
+        if(UserAction::changeEmail($request, auth()->user())){
+            return response()->json([
+                'status' => 'success',
+                'message' => __('profile.save_success'),
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => __('profile.save_error'),
+            ], 422);
+        }
+    }
 }

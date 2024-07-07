@@ -46,4 +46,11 @@ class UserAction
 
         return $user->save();
     }
+
+    public static function changeEmail($request, $user): bool
+    {
+        $user->email = $request->email;
+
+        return $user->save();
+    }
 }
