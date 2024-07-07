@@ -10,7 +10,7 @@ return [
     'username' => 'email',
     'email' => 'email',
     'views' => true,
-    'home' => '/home',
+    'home' => env('ADMIN_PANEL_PATH', '/admin'),
     'prefix' => '',
     'domain' => null,
     'lowercase_usernames' => false,
