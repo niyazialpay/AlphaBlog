@@ -405,6 +405,11 @@
                                                     </a>
                                                 </li>
                                                 <li class="nav-item">
+                                                    <a class="nav-link" href="#email-change-tab" data-bs-toggle="tab">
+                                                        @lang('profile.email_change')
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
                                                     <a class="nav-link" href="#two-fa-tab" data-bs-toggle="tab">
                                                         OTP
                                                     </a>
@@ -419,6 +424,7 @@
                                         <div class="card-body">
                                             <div class="tab-content">
                                                 @include('panel.profile.partials.password-change-tab')
+                                                @include('panel.profile.partials.email-change-tab')
                                                 @include('panel.profile.partials.two-factor-authentication-tab')
                                                 @include('panel.profile.partials.webauthn-tab')
                                             </div>
@@ -640,14 +646,17 @@
             let profile_update_url;
             let social_network_update_url;
             let password_change_url;
+            let email_change_url;
             @if(request()->route()->parameter('user_id'))
                 profile_update_url = '{{route('admin.user.edit', $user)}}';
                 social_network_update_url = '{{route('admin.user.social.save', $user)}}';
                 password_change_url = '{{route('admin.user.password', $user)}}';
+                email_change_url = '{{route('admin.user.email', $user)}}';
             @else
                 profile_update_url = '{{route('admin.profile.save')}}';
                 social_network_update_url = '{{route('admin.profile.social.save')}}';
                 password_change_url = '{{route('admin.profile.password')}}';
+                email_change_url = '{{route('admin.profile.email')}}';
             @endif
 
             $('#passwordChangeForm').submit(function (e) {
@@ -696,6 +705,46 @@
 
                 $.ajax({
                     url: profile_update_url,
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            Swal.fire({
+                                title: "@lang('general.success')",
+                                text: response.message,
+                                icon: "success",
+                                showCancelButton: false,
+                                confirmButtonText: "@lang('general.ok')",
+                                reverseButtons: true
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "@lang('general.error')",
+                                text: response.message,
+                                icon: "error",
+                                showCancelButton: false,
+                                confirmButtonText: "@lang('general.ok')",
+                                reverseButtons: true
+                            });
+                        }
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        Swal.fire({
+                            title: "Error",
+                            text: xhr.responseJSON.message,
+                            icon: "error",
+                            showCancelButton: false,
+                            confirmButtonText: "@lang('general.ok')",
+                            reverseButtons: true
+                        });
+                    }
+                });
+            });
+
+            $('#emailChangeForm').submit(function(){
+
+                $.ajax({
+                    url: email_change_url,
                     type: 'POST',
                     data: $(this).serialize(),
                     success: function (response) {

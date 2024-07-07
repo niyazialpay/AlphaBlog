@@ -27,4 +27,5 @@ return [
         'you_didnt_receive' => 'If you did not receive the email you can request another verification email',
         'resend' => 'click here to request another.',
     ],
+    'verification_sent' => 'A fresh verification link has been sent to your email.',
 ];
