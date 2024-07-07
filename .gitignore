@@ -25,3 +25,4 @@ yarn-error.log
 /storage/framework/*
 composer.lock
 config/debugbar.php
+/resources/views/themes
