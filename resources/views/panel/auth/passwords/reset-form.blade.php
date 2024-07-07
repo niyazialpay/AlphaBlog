@@ -9,7 +9,7 @@
 
             <div class="input-group-append">
                 <div class="input-group-text">
-                    <span class="fas fa-envelope"></span>
+                    <i class="fa-duotone fa-lock"></i>
                 </div>
             </div>
         </div>
@@ -19,20 +19,20 @@
                    name="password_confirmation" required autocomplete="current-password" placeholder="@lang('user.password_confirmation')">
             <div class="input-group-append">
                 <div class="input-group-text">
-                    <span class="fas fa-lock"></span>
+                    <i class="fa-duotone fa-lock"></i>
                 </div>
             </div>
         </div>
         <div class="row justify-content-center">
-            <div class="col-12 mb-3">
-                <x-turnstile/>
+            <div class="col-12 d-flex justify-content-center">
+                <x-turnstile />
             </div>
         </div>
         <div class="row">
             @csrf
             @honeypot
             <input type="hidden" name="token" value="{{request()->route()->parameter('token')}}">
-            <input type="hidden" name="email" value="{{request()->get('email')}}">
+            <input type="hidden" name="user" value="{{request()->get('user')}}">
             <!-- /.col -->
             <div class="col-12">
                 <button type="submit" class="btn btn-primary btn-block">@lang('user.change_password')</button>

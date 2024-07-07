@@ -21,14 +21,17 @@ class SendNotificationToAdmin implements ShouldQueue
     private string $message;
     private string $url;
 
+    private string $mailSubject;
+
     /**
      * Create a new job instance.
      */
-    public function __construct($title, $message, $url = null)
+    public function __construct($title, $message, $url = null, $mailSubject = null)
     {
         $this->title = $title;
         $this->message = $message;
         $this->url = $url;
+        $this->mailSubject = $mailSubject;
     }
 
     /**
@@ -37,11 +40,13 @@ class SendNotificationToAdmin implements ShouldQueue
     public function handle(): void
     {
         foreach (User::whereIn('role', ['admin', 'owner'])->get() as $admin) {
-            $admin->notify(new SendCommentNotificationToAdmin(
+            $notification = new SendCommentNotificationToAdmin(
                 $this->title,
                 $this->message,
-                $this->url
-            ));
+                $this->url,
+                $this->mailSubject
+            );
+            $admin->notify($notification->locale($admin->preferredLocale()));
         }
     }
 }

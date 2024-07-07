@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\PersonalNotes\PersonalNoteCategories;
 use App\Models\PersonalNotes\PersonalNotes;
 use App\Models\Post\Posts;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -16,11 +17,16 @@ use Laravel\Fortify\TwoFactorAuthenticationProvider;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Scout\Searchable;
 
-class User extends Authenticatable implements WebAuthnAuthenticatable
+class User extends Authenticatable implements WebAuthnAuthenticatable, MustVerifyEmail
 {
     use HasApiTokens, Notifiable, TwoFactorAuthenticatable, WebAuthnAuthentication, Searchable;
 
     protected $table = 'users';
+
+    public function preferredLocale()
+    {
+        return $this->locale;
+    }
 
     /**
      * The attributes that are mass assignable.

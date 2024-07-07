@@ -52,7 +52,7 @@
             <div class="col-12 d-flex justify-content-center">
                 <x-turnstile />
             </div>
-            <div class="col-8">
+            <div class="col-7">
                 <div class="icheck-primary">
                     <input type="checkbox" id="remember" name="remember">
                     <label for="remember">
@@ -63,7 +63,7 @@
             @honeypot
             @csrf
             <!-- /.col -->
-            <div class="col-4 d-flex justify-content-end">
+            <div class="col-5 d-flex justify-content-end">
                 <button type="submit" class="btn btn-primary">
                     <i class="fa-duotone fa-right-to-bracket"></i>
                     @lang('user.login')

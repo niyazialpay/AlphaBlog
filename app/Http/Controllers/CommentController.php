@@ -26,21 +26,23 @@ class CommentController extends Controller
 
         if ($comments->save()) {
             $post = Posts::find($request->validated('post_id'));
-            $notification = new SendCommentNotificationToAdmin(
-                $post->title,
-                __('comments.new_comment_notification'),
-                route('admin.post.edit', ['blogs', $request->validated('post_id')])
-            );
             if(config('settings.notification_send_method') == 'directly'){
+                $notification = new SendCommentNotificationToAdmin(
+                    $post->title,
+                    __('comments.new_comment_notification'),
+                    route('admin.post.edit', ['blogs', $request->validated('post_id')]),
+                    __('messages.comment_subject')
+                );
                 foreach (User::whereIn('role', ['admin', 'owner'])->get() as $admin) {
-                    $admin->notify($notification);
+                    $admin->notify($notification->locale($admin->preferredLocale()));
                 }
             }
             else{
                 SendNotificationToAdmin::dispatch(
                     Posts::find($request->validated('post_id'))->title,
                     __('comments.new_comment_notification'),
-                    route('admin.post.edit', ['blogs', $request->validated('post_id')])
+                    route('admin.post.edit', ['blogs', $request->validated('post_id')]),
+                    __('messages.comment_subject')
                 );
             }
 

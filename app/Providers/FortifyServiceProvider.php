@@ -20,7 +20,10 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(
+            \Laravel\Fortify\Contracts\VerifyEmailViewResponse::class,
+            \App\Http\Responses\VerifyEmailViewResponse::class
+        );
     }
 
     /**
@@ -42,6 +45,10 @@ class FortifyServiceProvider extends ServiceProvider
 
         RateLimiter::for('two-factor', function (Request $request) {
             return Limit::perMinute(5)->by($request->session()->get('login.id'));
+        });
+
+        Fortify::verifyEmailView(function () {
+            return view('panel.auth.verify');
         });
     }
 }

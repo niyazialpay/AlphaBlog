@@ -26,6 +26,8 @@ class LanguageAction
             'webauthn',
             'pulse',
             'livewire',
+            'email',
+            'email/verify'
         ];
         $languages = new Languages();
         if (! in_array($request->segment(1), $except)) {

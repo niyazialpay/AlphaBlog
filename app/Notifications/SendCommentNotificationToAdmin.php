@@ -16,14 +16,18 @@ class SendCommentNotificationToAdmin extends Notification
     private $notificationMessage;
     private $notificationUrl;
 
+    private $mailSubject;
+
     /**
      * Create a new notification instance.
      */
-    public function __construct($postTitle, $notificationMessage, $notificationUrl)
+    public function __construct($postTitle, $notificationMessage, $notificationUrl, $mailSubject = null)
     {
         $this->postTitle = $postTitle;
         $this->notificationMessage = $notificationMessage;
         $this->notificationUrl = $notificationUrl;
+        $this->mailSubject = $mailSubject;
+
     }
 
     /**
@@ -45,9 +49,9 @@ class SendCommentNotificationToAdmin extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->subject($this->mailSubject)
+            ->line($this->notificationMessage)
+            ->action($this->postTitle, $this->notificationUrl);
     }
 
     public function toDatabase($notifiable): array
