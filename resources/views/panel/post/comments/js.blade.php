@@ -63,7 +63,7 @@
     function DeleteComment(id, force = false){
         Swal.fire({
             title: '{{__('general.are_you_sure')}}',
-            text: "{{__('general.you_wont_be_able_to_revert_this')}}",
+            text: "{!! __('general.you_wont_be_able_to_revert_this') !!}",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
