@@ -8,7 +8,6 @@ class SearchController extends Controller
 {
     public function index($language, $search_result, $search_term = null)
     {
-
         try {
             return response()->view('themes.'.app('theme')->name.'.search', [
                 'search' => $search_term,
@@ -18,6 +17,5 @@ class SearchController extends Controller
                 'search' => $search_term,
             ]);
         }
-
     }
 }

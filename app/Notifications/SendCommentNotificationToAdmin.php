@@ -21,7 +21,7 @@ class SendCommentNotificationToAdmin extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct($postTitle, $notificationMessage, $notificationUrl, $mailSubject = null)
+    public function __construct($postTitle, $notificationMessage, $notificationUrl, $mailSubject = "New Comment")
     {
         $this->postTitle = $postTitle;
         $this->notificationMessage = $notificationMessage;

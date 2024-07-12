@@ -26,7 +26,7 @@ class SendNotificationToAdmin implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct($title, $message, $url = null, $mailSubject = null)
+    public function __construct($title, $message, $url = null, $mailSubject = "New Comment")
     {
         $this->title = $title;
         $this->message = $message;
