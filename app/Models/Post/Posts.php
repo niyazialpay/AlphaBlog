@@ -71,6 +71,11 @@ class Posts extends Model implements HasMedia
         return $this->hasManyThrough(Comments::class, Posts::class, 'post_id', 'post_id', 'id', 'id');
     }
 
+    public function postMedia(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Media::class, 'model_id')->where('collection_name', 'posts');
+    }
+
     public function searchableAs(): string
     {
         return config('scout.prefix').'posts';
