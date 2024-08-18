@@ -9,7 +9,7 @@
         </a>
     </li>
     @if(config('services.openai.key') || config('gemini.api_key'))
-        <li class="nav-item">
+        <li class="nav-item d-none d-md-block">
             <a class="nav-link" href="{{route('chatbot')}}">
                 <i class="fa-duotone fa-robot"></i>
             </a>

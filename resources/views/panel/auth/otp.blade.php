@@ -83,20 +83,20 @@
     function notify_alert(message, type, log) {
         if(log.success){
             if (type === 'success') {
-                toastr.success(message, 'Success!', {
+                toastr.success(message, '@lang('general.success')', {
                     closeButton: true,
                     tapToDismiss: false
                 });
                 window.location.reload();
             } else {
-                toastr.error(message, 'Error!', {
+                toastr.error(message, '@lang('general.error')!', {
                     closeButton: true,
                     tapToDismiss: false
                 });
             }
         }
         else{
-            toastr.error(log.error.message, 'Error!', {
+            toastr.error(log.error.message, '@lang('general.error')!', {
                 closeButton: true,
                 tapToDismiss: false
             });
@@ -123,14 +123,14 @@
             data: $('#otp-login').serialize(),
             success: function (response) {
                 if (response.status === 'success') {
-                    toastr.success(response.message, 'Success!', {
+                    toastr.success(response.message, '@lang('general.success')', {
                         closeButton: true,
                         tapToDismiss: false
                     });
                     window.location.href = '{{ route('admin.index') }}';
                 }
                 else{
-                    toastr.error(response.message, 'Error!', {
+                    toastr.error(response.message, '@lang('general.error')!', {
                         closeButton: true,
                         tapToDismiss: false
                     });
@@ -138,7 +138,7 @@
             },
             error: function(response){
                 console.log(response)
-                toastr.error('@lang('Something went wrong, try again!')', 'Error!', {
+                toastr.error('@lang('Something went wrong, try again!')', '@lang('general.error')!', {
                     closeButton: true,
                     tapToDismiss: false
                 });
