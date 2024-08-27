@@ -36,7 +36,7 @@ Route::get('/email/verify', [EmailVerificationPromptController::class, '__invoke
     ->name('verification.notice');
 
 Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, '__invoke'])
-    ->middleware(['auth', 'signed'])
+    ->middleware(['signed'])
     ->name('verification.verify');
 
 Route::post('/email/resend', function (Illuminate\Http\Request $request) {
