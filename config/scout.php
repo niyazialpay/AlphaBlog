@@ -145,7 +145,9 @@ return [
                     'language',
                     'post_type',
                     'created_at',
-                    'posts.created_at'
+                    'posts.created_at',
+                    'meta_description',
+                    'meta_keywords'
                 ],
                 'searchableAttributes' => [
                     'title',

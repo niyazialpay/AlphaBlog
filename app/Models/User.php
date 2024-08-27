@@ -67,15 +67,19 @@ class User extends Authenticatable implements WebAuthnAuthenticatable, MustVerif
         'role' => 'user',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
+    protected $appends = [
+        'profile_image',
+        'full_name'
     ];
+
+
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
 
     public function notes(): HasMany
     {
@@ -134,5 +138,15 @@ class User extends Authenticatable implements WebAuthnAuthenticatable, MustVerif
         $array['nickname'] = $this->nickname;
 
         return $array;
+    }
+
+    public function getProfileImageAttribute(): string
+    {
+        return "https://www.gravatar.com/avatar/".hash('sha256', strtolower(trim($this->email)));
+    }
+
+    public function getFullNameAttribute(): string
+    {
+        return $this->name.' '.$this->surname;
     }
 }
