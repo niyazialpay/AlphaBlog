@@ -17,9 +17,9 @@ use Laravel\Fortify\TwoFactorAuthenticationProvider;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Scout\Searchable;
 
-class User extends Authenticatable implements WebAuthnAuthenticatable, MustVerifyEmail
+class User extends Authenticatable implements MustVerifyEmail, WebAuthnAuthenticatable
 {
-    use HasApiTokens, Notifiable, TwoFactorAuthenticatable, WebAuthnAuthentication, Searchable;
+    use HasApiTokens, Notifiable, Searchable, TwoFactorAuthenticatable, WebAuthnAuthentication;
 
     protected $table = 'users';
 
@@ -69,9 +69,8 @@ class User extends Authenticatable implements WebAuthnAuthenticatable, MustVerif
 
     protected $appends = [
         'profile_image',
-        'full_name'
+        'full_name',
     ];
-
 
     protected function casts(): array
     {
@@ -143,7 +142,7 @@ class User extends Authenticatable implements WebAuthnAuthenticatable, MustVerif
 
     public function getProfileImageAttribute(): string
     {
-        return "https://www.gravatar.com/avatar/".hash('sha256', strtolower(trim($this->email)));
+        return 'https://www.gravatar.com/avatar/'.hash('sha256', strtolower(trim($this->email)));
     }
 
     public function getFullNameAttribute(): string

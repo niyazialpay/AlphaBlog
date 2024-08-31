@@ -41,7 +41,7 @@ class CreateUser extends Command
             return;
         }
 
-        $user = new User();
+        $user = new User;
         $user->name = $name;
         $user->surname = $surname;
         $user->username = $username;

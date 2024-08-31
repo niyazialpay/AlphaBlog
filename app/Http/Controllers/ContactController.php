@@ -26,10 +26,9 @@ class ContactController extends Controller
 
     private function emailSend($request)
     {
-        if(config('settings.mail_send_method') == 'directly'){
+        if (config('settings.mail_send_method') == 'directly') {
             $function = 'send';
-        }
-        else{
+        } else {
             $function = 'queue';
         }
         $send = Mail::$function(new Contact([

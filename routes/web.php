@@ -51,7 +51,7 @@ Route::group([
         \App\Http\Middleware\AdminOneSignal::class,
         \App\Http\Middleware\SearchedWords::class,
         \App\Http\Middleware\VerifyOTP::class,
-        \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class
+        \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
     ],
 ], function () {
 

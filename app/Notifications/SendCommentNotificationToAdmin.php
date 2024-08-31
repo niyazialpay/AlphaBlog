@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use App\Models\OneSignal;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -13,7 +12,9 @@ class SendCommentNotificationToAdmin extends Notification
     use Queueable;
 
     private $postTitle;
+
     private $notificationMessage;
+
     private $notificationUrl;
 
     private $mailSubject;
@@ -21,7 +22,7 @@ class SendCommentNotificationToAdmin extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct($postTitle, $notificationMessage, $notificationUrl, $mailSubject = "New Comment")
+    public function __construct($postTitle, $notificationMessage, $notificationUrl, $mailSubject = 'New Comment')
     {
         $this->postTitle = $postTitle;
         $this->notificationMessage = $notificationMessage;
@@ -65,6 +66,7 @@ class SendCommentNotificationToAdmin extends Notification
                 5
             );
         }
+
         return [
             'title' => $this->postTitle,
             'message' => $this->notificationMessage,

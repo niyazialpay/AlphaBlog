@@ -39,6 +39,7 @@ class ResetPasswordController extends Controller
         $fieldType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
         $user = User::where($fieldType, $login)->first();
         $user?->notify(new \App\Notifications\ResetPassword($this->broker()->createToken($user).'?user='.urlencode($login)));
+
         return response()->json(['status' => true, 'message' => __('auth.reset_password.reset_password_send')]);
     }
 

@@ -27,9 +27,9 @@ class LanguageAction
             'pulse',
             'livewire',
             'email',
-            'email/verify'
+            'email/verify',
         ];
-        $languages = new Languages();
+        $languages = new Languages;
         if (! in_array($request->segment(1), $except)) {
             if (session()->has('language')) {
                 if ($request->segment(1) == session('language')) {

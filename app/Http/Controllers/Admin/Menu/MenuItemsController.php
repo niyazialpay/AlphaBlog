@@ -67,7 +67,7 @@ class MenuItemsController extends Controller
     {
         if (! empty($menu)) {
             foreach ($menu as $value) {
-                $menu_item = new MenuItems();
+                $menu_item = new MenuItems;
                 $menu_item->title = $value['title'];
                 $menu_item->url = (empty($value['url'])) ? 'javascript:void(0)' : $value['url'];
                 $menu_item->parent_id = $parent;

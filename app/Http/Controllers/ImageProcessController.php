@@ -18,7 +18,7 @@ class ImageProcessController extends Controller
         if (! file_exists($image_path)) {
             abort(404);
         } else {
-            $im = new Imagick();
+            $im = new Imagick;
             try {
                 $im->readImage($image_path);
             } catch (ImagickException $e) {

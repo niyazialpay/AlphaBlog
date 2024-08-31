@@ -29,7 +29,7 @@ class HistoryController extends Controller
     public function show($type, Posts $posts, PostHistory $history)
     {
         $posts->load('history');
-        $textDiff = new TextDiff();
+        $textDiff = new TextDiff;
 
         return view('panel.post.history.show', [
             'posts' => $posts,

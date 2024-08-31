@@ -19,7 +19,7 @@ class UserObserver
      */
     public function updated(User $user): void
     {
-        if($user->email !== $user->getOriginal('email')){
+        if ($user->email !== $user->getOriginal('email')) {
             $user->email_verified_at = null;
             $user->save();
             $user->notify(new \App\Notifications\VerifyEmail);

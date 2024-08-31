@@ -13,7 +13,7 @@ class SettingsController extends Controller
     public function index()
     {
         return view('panel.settings.index', [
-            'seo_settings' => new SeoSettings(),
+            'seo_settings' => new SeoSettings,
             'general_settings' => app('general_settings'),
             'advertise_settings' => app('ad_settings'),
             'analytics_settings' => app('analytic_settings'),

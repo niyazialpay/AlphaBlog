@@ -12,7 +12,7 @@ class DashboardController extends Controller
     public function index()
     {
         if (file_exists(storage_path().'/app/analytics/service-account-credentials.json')) {
-            $analytics = new Analytics();
+            $analytics = new Analytics;
             $period = Period::days(7);
             $dashboard = [
                 'viewData' => $analytics::fetchMostVisitedPages($period, maxResults: 10),
@@ -54,7 +54,7 @@ class DashboardController extends Controller
 
     public function changeLanguage($language)
     {
-        $languages = new Languages();
+        $languages = new Languages;
         $language = $languages->getLanguage($language);
 
         session()->put('language', $language?->code);

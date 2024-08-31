@@ -20,7 +20,7 @@ class CategoryController extends Controller
     public function index(Categories $category): View|Application|Factory|\Illuminate\Contracts\Foundation\Application
     {
         return view('panel.post.category.index', [
-            'categories' => new Categories(),
+            'categories' => new Categories,
             'category' => $category->load('media', 'media.model'),
         ]);
     }
