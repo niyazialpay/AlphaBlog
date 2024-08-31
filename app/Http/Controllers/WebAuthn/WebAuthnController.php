@@ -16,11 +16,11 @@ class WebAuthnController extends Controller
 
     public function delete(Request $request, WebAuthnCredential $webauthn): JsonResponse
     {
-        return (new \App\Actions\WebAuthnAction())->delete($request, $webauthn, auth()->user());
+        return (new \App\Actions\WebAuthnAction)->delete($request, $webauthn, auth()->user());
     }
 
     public function rename(Request $request, WebAuthnCredential $webauthn): JsonResponse
     {
-        return (new \App\Actions\WebAuthnAction())->rename($request, $webauthn, auth()->user());
+        return (new \App\Actions\WebAuthnAction)->rename($request, $webauthn, auth()->user());
     }
 }

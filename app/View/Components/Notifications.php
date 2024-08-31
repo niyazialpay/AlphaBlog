@@ -9,7 +9,9 @@ use Illuminate\View\Component;
 class Notifications extends Component
 {
     public $notifications;
+
     public $total_unread_notifications;
+
     public function __construct()
     {
         $this->notifications = request()->user()->unreadNotifications;

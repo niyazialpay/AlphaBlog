@@ -14,7 +14,7 @@ class OneSignal extends Model
         'app_id',
         'auth_key',
         'safari_web_id',
-        'user_segmentation'
+        'user_segmentation',
     ];
 
     public $timestamps = false;
@@ -30,11 +30,11 @@ class OneSignal extends Model
     /**
      * @throws GuzzleException
      */
-    public static function sendPush($content, $title, $url=null, $priority = 10): StreamInterface
+    public static function sendPush($content, $title, $url = null, $priority = 10): StreamInterface
     {
         $onesignal = self::first();
 
-        $client = new \GuzzleHttp\Client();
+        $client = new \GuzzleHttp\Client;
 
         $response = $client->request('POST', 'https://onesignal.com/api/v1/notifications', [
             'body' => json_encode([
@@ -50,7 +50,7 @@ class OneSignal extends Model
                     'en' => $title,
                 ],
                 'priority' => $priority,
-                'web_url' => $url
+                'web_url' => $url,
             ]),
             'headers' => [
                 'Authorization' => 'Basic '.$onesignal->auth_key,

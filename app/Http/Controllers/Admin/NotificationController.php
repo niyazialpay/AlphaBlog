@@ -22,6 +22,7 @@ class NotificationController extends Controller
 
         if ($notification) {
             $notification->markAsRead();
+
             return redirect($notification->data['url']);
         }
 
@@ -47,6 +48,7 @@ class NotificationController extends Controller
 
         if ($notification) {
             $notification->delete();
+
             return response()->json([
                 'result' => 'success',
                 'message' => __('notifications.notification_deleted'),

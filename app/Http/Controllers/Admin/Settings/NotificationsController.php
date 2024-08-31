@@ -18,14 +18,14 @@ class NotificationsController extends Controller
             DB::beginTransaction();
             $admin_onesignal = AdminOneSignal::first();
             if (! $admin_onesignal) {
-                $admin_onesignal = new AdminOneSignal();
+                $admin_onesignal = new AdminOneSignal;
             }
             $admin_onesignal->onesignal = $request->post('onesignal');
 
             $admin_onesignal->save();
             $onesignal = OneSignal::first();
             if (! $onesignal) {
-                $onesignal = new OneSignal();
+                $onesignal = new OneSignal;
             }
             $onesignal->app_id = $request->post('app_id');
             $onesignal->auth_key = $request->post('auth_key');

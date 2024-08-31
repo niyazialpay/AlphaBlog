@@ -147,7 +147,7 @@ return [
                     'created_at',
                     'posts.created_at',
                     'meta_description',
-                    'meta_keywords'
+                    'meta_keywords',
                 ],
                 'searchableAttributes' => [
                     'title',
@@ -158,18 +158,18 @@ return [
                     'tags',
                     'meta_description',
                     'meta_keywords',
-                    'created_at'
+                    'created_at',
                 ],
                 'sortableAttributes' => [
                     'created_at',
                     'updated_at',
                     'user_id',
                     'categories',
-                    'title'
+                    'title',
                 ],
                 'displayedAttributes' => [
-                    '*'
-                ]
+                    '*',
+                ],
             ],
             'categories' => [
                 'filterableAttributes' => [
@@ -185,11 +185,11 @@ return [
                 'sortableAttributes' => [
                     'created_at',
                     'updated_at',
-                    'name'
+                    'name',
                 ],
                 'displayedAttributes' => [
-                    '*'
-                ]
+                    '*',
+                ],
             ],
             'personal_notes' => [
                 'filterableAttributes' => [
@@ -206,7 +206,7 @@ return [
                     'updated_at',
                     'user_id',
                     'category_id',
-                    'title'
+                    'title',
                 ],
             ],
             'users' => [
@@ -235,9 +235,9 @@ return [
                     'email',
                 ],
                 'displayedAttributes' => [
-                    '*'
-                ]
-            ]
+                    '*',
+                ],
+            ],
         ],
     ],
 

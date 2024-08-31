@@ -15,13 +15,13 @@ class SocialNetworkSaveAction
             if ($type == 'user') {
                 $social = SocialNetworks::where('user_id', $user_id)->first();
                 if ($social == null) {
-                    $social = new SocialNetworks();
+                    $social = new SocialNetworks;
                 }
                 $social->user_id = $user_id;
             } else {
                 $social = SocialNetworks::where('type', 'website')->first();
                 if ($social == null) {
-                    $social = new SocialNetworks();
+                    $social = new SocialNetworks;
                 }
             }
             $social->facebook = $request->facebook;

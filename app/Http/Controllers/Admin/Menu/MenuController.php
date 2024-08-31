@@ -15,7 +15,7 @@ class MenuController extends Controller
     public function index(Menu $menu)
     {
         return view('panel.menu.index', [
-            'all_menus' => new Menu(),
+            'all_menus' => new Menu,
             'menu' => $menu,
         ]);
     }

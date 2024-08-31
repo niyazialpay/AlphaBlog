@@ -18,7 +18,7 @@ class ThemesSettingsController extends Controller
     {
         try {
             DB::beginTransaction();
-            $zip = new ZipArchive();
+            $zip = new ZipArchive;
             $status = $zip->open($request->file('theme')->getRealPath());
             if ($status !== true) {
                 return response()->json([
@@ -31,7 +31,7 @@ class ThemesSettingsController extends Controller
                 $zip->close();
             }
             $json = file_get_contents(base_path('theme.json'));
-            $theme = new Themes();
+            $theme = new Themes;
             $theme->name = json_decode($json)->name;
             $theme->is_default = false;
             $theme->save();

@@ -2,10 +2,8 @@
 
 namespace App\Notifications;
 
-use Closure;
-use Illuminate\Contracts\Mail\Mailable;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Auth\Notifications\ResetPassword as ResetPasswordNotification;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Lang;
 
 class ResetPassword extends ResetPasswordNotification
@@ -19,8 +17,8 @@ class ResetPassword extends ResetPasswordNotification
             ->subject(Lang::get('auth.reset_password.subject'))
             ->greeting(Lang::get('auth.reset_password.greeting'))
             ->line(Lang::get('auth.reset_password.line_1'))
-            ->action(Lang::get('auth.reset_password.action'), url(config('app.url') . route('password.reset', $this->token, false)))
-            ->line(Lang::get('auth.reset_password.line_2', ['count' => config('auth.passwords.' . config('auth.defaults.passwords') . '.expire')]))
+            ->action(Lang::get('auth.reset_password.action'), url(config('app.url').route('password.reset', $this->token, false)))
+            ->line(Lang::get('auth.reset_password.line_2', ['count' => config('auth.passwords.'.config('auth.defaults.passwords').'.expire')]))
             ->line(Lang::get('auth.reset_password.line_3'))
             ->salutation(Lang::get('auth.reset_password.salutation'));
     }

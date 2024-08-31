@@ -24,7 +24,7 @@ class SearchController extends Controller
                 ->orderBy('think', 'desc')
                 ->orderBy('created_at', 'desc')
                 ->paginate(20),
-            'browser' => new Browser(),
+            'browser' => new Browser,
         ]);
     }
 
@@ -150,11 +150,10 @@ class SearchController extends Controller
         $results['categories'] = Categories::search($query)->orderBy('created_at', 'desc')->take($paginate)->get();
         $results['users'] = User::search($query)->orderBy('created_at', 'desc')->take($paginate)->get();
         if (request()->cookie('encryption_key')) {
-            $personal_notes = new PersonalNotes();
+            $personal_notes = new PersonalNotes;
             $personal_notes::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
             $results['personal_notes'] = $personal_notes->search($query)->orderBy('created_at', 'desc')->take($paginate)->get();
-        }
-        else{
+        } else {
             $results['personal_notes'] = [];
         }
 

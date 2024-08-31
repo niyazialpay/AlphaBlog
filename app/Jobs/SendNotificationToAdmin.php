@@ -2,11 +2,8 @@
 
 namespace App\Jobs;
 
-use App\Models\OneSignal;
-use App\Models\Post\Posts;
 use App\Models\User;
 use App\Notifications\SendCommentNotificationToAdmin;
-use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -18,7 +15,9 @@ class SendNotificationToAdmin implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private string $title;
+
     private string $message;
+
     private string $url;
 
     private string $mailSubject;
@@ -26,7 +25,7 @@ class SendNotificationToAdmin implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct($title, $message, $url = null, $mailSubject = "New Comment")
+    public function __construct($title, $message, $url = null, $mailSubject = 'New Comment')
     {
         $this->title = $title;
         $this->message = $message;

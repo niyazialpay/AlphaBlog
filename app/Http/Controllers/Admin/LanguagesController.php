@@ -27,9 +27,9 @@ class LanguagesController extends Controller
     {
         try {
             DB::beginTransaction();
-            $seo_settings = new SeoSettings();
+            $seo_settings = new SeoSettings;
             if (! $language->id) {
-                $language = new Languages();
+                $language = new Languages;
                 $default_lang = $language::where('is_default', true)->first();
                 $seo_setting = $seo_settings::where('language', $default_lang->code)->first();
                 $seo_settings::create([

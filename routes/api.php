@@ -9,7 +9,6 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-
 Route::get('/{language}/categories', [\App\Http\Controllers\Api\Frontend\CategoryController::class, 'index']);
 Route::get('/{language}/top-categories', [\App\Http\Controllers\Api\Frontend\CategoryController::class, 'topCategories']);
 

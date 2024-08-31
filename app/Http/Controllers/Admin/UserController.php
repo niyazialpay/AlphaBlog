@@ -167,17 +167,17 @@ class UserController extends Controller
 
     public function webauthnDelete(Request $request, WebAuthnCredential $webauthn, User $user_id): JsonResponse
     {
-        return (new \App\Actions\WebAuthnAction())->delete($request, $webauthn, $user_id);
+        return (new \App\Actions\WebAuthnAction)->delete($request, $webauthn, $user_id);
     }
 
     public function webauthnRename(Request $request, WebAuthnCredential $webauthn, User $user_id): JsonResponse
     {
-        return (new \App\Actions\WebAuthnAction())->rename($request, $webauthn, $user_id);
+        return (new \App\Actions\WebAuthnAction)->rename($request, $webauthn, $user_id);
     }
 
     public function userEmailChange(Request $request, User $user_id)
     {
-        if(UserAction::changeEmail($request, $user_id)){
+        if (UserAction::changeEmail($request, $user_id)) {
             return response()->json([
                 'status' => 'success',
                 'message' => __('profile.save_success'),
@@ -193,7 +193,7 @@ class UserController extends Controller
 
     public function changeEmail(Request $request)
     {
-        if(UserAction::changeEmail($request, auth()->user())){
+        if (UserAction::changeEmail($request, auth()->user())) {
             return response()->json([
                 'status' => 'success',
                 'message' => __('profile.save_success'),

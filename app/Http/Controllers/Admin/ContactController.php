@@ -14,7 +14,7 @@ class ContactController extends Controller
     public function index()
     {
         return view('panel.contact', [
-            'contactPage' => new ContactPage(),
+            'contactPage' => new ContactPage,
         ]);
     }
 
@@ -25,7 +25,7 @@ class ContactController extends Controller
             foreach (app('languages') as $language) {
                 $contact = ContactPage::where('language', $language->code)->first();
                 if (! $contact) {
-                    $contact = new ContactPage();
+                    $contact = new ContactPage;
                     $contact->language = $language->code;
                 }
                 $contact->description = $request->input('description_'.$language->code);

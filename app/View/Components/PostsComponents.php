@@ -39,6 +39,7 @@ class PostsComponents extends Component
 
     /**
      * Get the view / contents that represent the component.
+     *
      * @throws GuzzleException
      */
     public function render(): View|Closure|string
@@ -50,7 +51,7 @@ class PostsComponents extends Component
             $page = 1;
         }
         if ($search) {
-            $str = new Str();
+            $str = new Str;
             if (Cache::has(config('cache.prefix').'search_'.$str::slug($search).session('language').'_page_'.$page.$this->paginate)) {
                 $posts = Cache::get(config('cache.prefix').'search_'.$str::slug($search).session('language').'_page_'.$page.$this->paginate);
             } else {
@@ -67,7 +68,7 @@ class PostsComponents extends Component
                 Cache::put(config('cache.prefix').'search_'.$str::slug($search).session('language').'_page_'.$page.$this->paginate, $posts, now()->addDay());
             }
             if ($posts->count() == 0) {
-                $search_model = new Search();
+                $search_model = new Search;
                 $searched_word = $search_model::where('search', $search)->count();
                 if ($searched_word == 0) {
                     $search_model::create([
@@ -76,7 +77,7 @@ class PostsComponents extends Component
                         'ip' => request()->ip(),
                         'user_agent' => request()->userAgent(),
                     ]);
-                    if(config('settings.notification_send_method') == 'directly'){
+                    if (config('settings.notification_send_method') == 'directly') {
                         $onesignal = OneSignal::first();
                         if ($onesignal) {
                             OneSignal::sendPush(
@@ -85,8 +86,7 @@ class PostsComponents extends Component
                                 route('admin.search.index')
                             );
                         }
-                    }
-                    else{
+                    } else {
                         SendNotificationToAdmin::dispatch(
                             $search,
                             __('search.notification', ['search' => $search]),

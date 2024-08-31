@@ -10,13 +10,15 @@ class CategoryController extends Controller
 {
     public function index($language)
     {
-        $categories = Categories::with(['categoryMedia'=>function($query){
+        $categories = Categories::with(['categoryMedia' => function ($query) {
             //$query->select('original_url');
         }])->where('language', $language)->get();
+
         return response()->json($categories);
     }
 
-    public function topCategories($language){
+    public function topCategories($language)
+    {
         return response()->json(Categories::with('categoryMedia')->withCount('posts')
             ->where('language', $language)
             ->orderBy('posts_count', 'desc')
@@ -34,8 +36,10 @@ class CategoryController extends Controller
         $posts->getCollection()->transform(function ($post) {
             $post->title = stripslashes($post->title);
             $post->content = stripslashes($post->content);
+
             return $post;
         });
+
         return response()->json([
             'category' => $category,
             'posts' => $posts,

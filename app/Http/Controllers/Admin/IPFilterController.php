@@ -64,14 +64,14 @@ class IPFilterController extends Controller
             $ip_filter->save();
             $ip_filter->ipList()->delete();
             foreach ($ip_range as $item) {
-                $ip_list = new IPList();
+                $ip_list = new IPList;
                 $ip_list->ip = $item;
                 $ip_filter->ipList()->save($ip_list);
             }
 
             $ip_filter->routeList()->delete();
             foreach ($routes as $item) {
-                $route_list = new RouteList();
+                $route_list = new RouteList;
                 $route_list->route = $item;
                 $ip_filter->routeList()->save($route_list);
             }

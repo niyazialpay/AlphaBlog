@@ -2,7 +2,4 @@
 
 namespace App\Http\Responses;
 
-class VerifyEmailViewResponse
-{
-
-}
+class VerifyEmailViewResponse {}
