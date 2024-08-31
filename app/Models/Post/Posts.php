@@ -99,8 +99,8 @@ class Posts extends Model implements HasMedia
         $array['user'] = $this->user?->name.' '.$this->user?->surname;
         $array['username'] = $this->user?->nickname;
         $array['categories'] = $this->categories->pluck('name')->toArray();
-        $array['title'] = $this->title;
-        $array['content'] = $this->content;
+        $array['title'] = stripslashesNull($this->title);
+        $array['content'] = stripslashesNull($this->content);
         $array['created_at'] = $this->created_at;
         $array['language'] = $this->language;
         $array['post_type'] = $this->post_type;
@@ -108,6 +108,7 @@ class Posts extends Model implements HasMedia
         $array['is_published'] = $this->is_published;
         $array['meta_keywords'] = explode($this->meta_keywords, ',');
         $array['meta_description'] = $this->meta_description;
+        $array['post_image'] = $this->postMedia?->getUrl('cover');
 
         return $array;
     }

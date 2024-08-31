@@ -72,6 +72,7 @@ class Categories extends Model implements HasMedia
             'slug' => $this->slug,
             'meta_description' => $this->meta_description,
             'meta_keywords' => $this->meta_keywords,
+            'category_image' => $this->categoryMedia?->getUrl('cover'),
         ];
     }
 

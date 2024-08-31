@@ -136,6 +136,7 @@ class User extends Authenticatable implements WebAuthnAuthenticatable, MustVerif
         $array['username'] = $this->username;
         $array['email'] = $this->email;
         $array['nickname'] = $this->nickname;
+        $array['profile_image'] = $this->profile_image.'?s=750';
 
         return $array;
     }
