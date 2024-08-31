@@ -8,16 +8,45 @@ use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
-    public function index(Request $request)
+    public function index($language, Request $request)
     {
-        $posts = Posts::with([
-            'categories' => function($query){
-                $query->select(['name', 'slug']);
-            },
-            'user' => function($query){
-                $query->select(['nickname', 'id']);
+        if($request->has('search')){
+            $posts = Posts::search($request->search)
+                ->query(function ($query) {
+                    $query->with([
+                        'categories' => function($query){
+                            $query->select(['name', 'slug']);
+                        },
+                        'user' => function($query){
+                            $query->select(['nickname', 'id']);
+                        },
+                        'postMedia'
+                    ]);
+                    $query->where('posts.created_at', '<=', now()->format('Y-m-d H:i:s'));
+                })
+                ->where('language', $language)->where('is_published', true)->where('post_type', 'post')->orderBy('created_at', 'desc');
+        }
+        else{
+            $posts = Posts::with([
+                'categories' => function($query){
+                    $query->select(['name', 'slug']);
+                },
+                'user' => function($query){
+                    $query->select(['nickname', 'id', 'name', 'surname', 'email']);
+                },
+                'postMedia'
+            ])->select(['title', 'slug', 'posts.id', 'user_id', 'created_at'])
+                ->where('posts.created_at', '<=', now()->format('Y-m-d H:i:s'))
+                ->where('language', $language)->where('is_published', true)->where('post_type', 'post')->orderBy('created_at', 'desc');
+
+            if($request->has('category')){
+                $posts = $posts->whereHas('categories', function($query) use ($request){
+                    $query->where('category_id', $request->category);
+                });
             }
-        ])->select(['title', 'slug', 'id', 'user_id'])->where('language', 'tr')->where('is_published', true)->where('post_type', 'post')->orderBy('created_at', 'desc')->paginate(30);
+        }
+
+        $posts = $posts->paginate(30);
 
         $posts->getCollection()->transform(function ($post) {
             $post->title = stripslashes($post->title);
@@ -25,33 +54,57 @@ class PostController extends Controller
             return $post;
         });
 
+        // Manually append the profile_image attribute to the user models
+        foreach ($posts as $post) {
+            if ($post->user) {
+                $post->user->makeHidden('email'); // email alanını gizli tutuyoruz
+            }
+        }
+
+
         return response()->json($posts);
     }
 
-    public function show(Request $request, $slug)
+    public function show($language, $id)
     {
         $post = Posts::with([
             'categories' => function($query){
                 $query->select(['name', 'slug']);
             },
             'user' => function($query){
-                //$query->select(['nickname', 'id']);
+                $query->select(['nickname', 'id', 'name', 'surname', 'email']);
+            },
+            'postMedia',
+            'comments' => function($query){
+                $query->where('is_approved', 1);
             }
-        ])->where('slug', $slug)->where('language', 'tr')->first();
+        ])->where('id', $id)->where('language', $language)->where('is_published', 1)->firstOrFail();
         if ($post) {
             $post->title = stripslashes($post->title);
             $post->content = stripslashes($post->content);
+            $post->user->makeHidden('email');
         }
         return response()->json($post);
     }
 
     public function sliderPosts($language){
-        return response()->json(Posts::with([
+        $posts = Posts::with([
             'user' => function($query){
-                $query->select(['nickname', 'id']);
+                $query->select(['nickname', 'id', 'name', 'surname', 'email']);
             },
             'postMedia',
             'categories'
-        ])->where('language', $language)->where('is_published', 1)->where('post_type', 'post')->orderBy('created_at', 'desc')->paginate(5));
+        ])->select('title', 'id','user_id','slug', 'created_at')
+            ->where('language', $language)->where('is_published', 1)
+            ->where('post_type', 'post')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+        foreach ($posts as $post) {
+            if ($post->user) {
+                $post->user->makeHidden('email'); // email alanını gizli tutuyoruz
+            }
+        }
+        return response()->json($posts);
     }
 }

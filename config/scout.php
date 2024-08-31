@@ -167,6 +167,9 @@ return [
                     'categories',
                     'title'
                 ],
+                'displayedAttributes' => [
+                    '*'
+                ]
             ],
             'categories' => [
                 'filterableAttributes' => [
@@ -184,6 +187,9 @@ return [
                     'updated_at',
                     'name'
                 ],
+                'displayedAttributes' => [
+                    '*'
+                ]
             ],
             'personal_notes' => [
                 'filterableAttributes' => [
@@ -228,6 +234,9 @@ return [
                     'nickname',
                     'email',
                 ],
+                'displayedAttributes' => [
+                    '*'
+                ]
             ]
         ],
     ],

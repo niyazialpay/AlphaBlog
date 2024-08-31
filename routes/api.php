@@ -17,7 +17,7 @@ Route::get('/{language}/slider-posts', [\App\Http\Controllers\Api\Frontend\PostC
 
 Route::get('/{language}/categories/{id}', [\App\Http\Controllers\Api\Frontend\CategoryController::class, 'show']);
 
-Route::get('/{language}/posts', [\App\Http\Controllers\Api\Frontend\PostController::class, 'index']);
+Route::post('/{language}/posts', [\App\Http\Controllers\Api\Frontend\PostController::class, 'index']);
 
 Route::get('/{language}/posts/{id}', [\App\Http\Controllers\Api\Frontend\PostController::class, 'show']);
 
