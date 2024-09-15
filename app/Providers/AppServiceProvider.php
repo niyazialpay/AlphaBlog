@@ -39,11 +39,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Comments::class, CommentPolicy::class);
         Gate::policy(Categories::class, PostPolicy::class);
 
-        if ($this->app->environment('local')) {
-            $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
-            $this->app->register(\Laravel\Horizon\HorizonServiceProvider::class);
-            $this->app->register(HorizonServiceProvider::class);
-        }
+        $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
+        $this->app->register(\Laravel\Horizon\HorizonServiceProvider::class);
+        $this->app->register(HorizonServiceProvider::class);
     }
 
     /**
@@ -87,7 +85,7 @@ class AppServiceProvider extends ServiceProvider
         Pulse::user(fn ($user) => [
             'name' => $user->name.' '.$user->surname,
             'extra' => $user->email,
-            'avatar' => 'https://gravatar.com/avatar/'.md5($user->email).'?d=mp',
+            'avatar' => 'https://gravatar.com/avatar/'.hash("sha256",$user->email).'?d=mp',
         ]);
     }
 }
