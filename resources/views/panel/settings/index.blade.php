@@ -99,7 +99,7 @@
                             <form class="row" id="generalSave" enctype="multipart/form-data" method="post"
                                   action="{{route('admin.settings.general.save')}}">
                                 @csrf
-                                <div class="col-12 mb-3">
+                                <div class="col-sm-12 col-md-6 mb-3">
                                     <label for="site_logo">@lang('settings.site_logo_light')</label>
                                     @if(app('general_settings')->getFirstMediaUrl('site_logo_light'))
                                         <img src="{{app('general_settings')->getFirstMediaUrl('site_logo_light')}}"
@@ -115,7 +115,7 @@
                                                name="site_logo_light">
                                     @endif
                                 </div>
-                                <div class="col-12 mb-3">
+                                <div class="col-sm-12 col-md-6 mb-3">
                                     <label for="site_logo">@lang('settings.site_logo_dark')</label>
                                     @if(app('general_settings')->getFirstMediaUrl('site_logo_dark'))
                                         <img src="{{app('general_settings')->getFirstMediaUrl('site_logo_dark')}}"
@@ -131,7 +131,10 @@
                                                name="site_logo_dark">
                                     @endif
                                 </div>
-                                <div class="col-12 mb-3">
+                                <div class="col-12 d-none d-md-block mb-3">
+                                    <hr>
+                                </div>
+                                <div class="col-sm-12 col-md-6 mb-3">
                                     <label for="site_favicon">@lang('settings.site_favicon')</label>
                                     @if(app('general_settings')->getFirstMediaUrl('site_favicon'))
                                         <img src="{{app('general_settings')->getFirstMediaUrl('site_favicon')}}"
@@ -146,7 +149,7 @@
                                         <input type="file" class="form-control" id="site_favicon" name="site_favicon">
                                     @endif
                                 </div>
-                                <div class="col-12 mb-3">
+                                <div class="col-sm-12 col-md-6 mb-3">
                                     <label for="app_icon">@lang('settings.app_icon')</label>
                                     @if(app('general_settings')->getFirstMediaUrl('app_icon'))
                                         <img src="{{app('general_settings')->getFirstMediaUrl('app_icon')}}"
