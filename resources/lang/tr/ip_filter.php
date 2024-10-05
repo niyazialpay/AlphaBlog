@@ -32,6 +32,7 @@ return [
     'status_required' => 'Durum zorunludur',
     'route_type_required' => 'Adres türü zorunludur',
     'list_type_in' => 'Liste türü sadece :values olabilir',
+    'route_type_in' => 'Adres türü sadece :values olabilir',
     'status_in' => 'Durum sadece :values olabilir',
     'id_required' => 'ID zorunludur',
     'id_integer' => 'ID bir tamsayı olmalıdır',
@@ -40,4 +41,8 @@ return [
     'ip_filter' => 'IP Kısıtlaması',
     'no_ip_filter' => 'IP kısıtlaması bulunamadı',
     'code' => 'Yönlendirme Kodu',
+
+    'code_required' => 'Yönlendirme kodu zorunludur',
+    'code_integer' => 'Yönlendirme kodu bir tamsayı olmalıdır',
+    'code_in' => 'Yönlendirme kodu sadece :values olabilir',
 ];

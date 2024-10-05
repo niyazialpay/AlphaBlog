@@ -31,6 +31,7 @@ return [
     'list_type_required' => 'List type is required',
     'status_required' => 'Status is required',
     'route_type_required' => 'Route type is required',
+    'route_type_in' => 'Route type can only be :values',
     'list_type_in' => 'List type can only be :values',
     'status_in' => 'Status can only be :values',
     'id_required' => 'ID is required',
@@ -40,4 +41,8 @@ return [
     'ip_filter' => 'IP Filtering',
     'no_ip_filter' => 'No IP filtering found',
     'code' => 'Redirect Code',
+
+    'code_required' => 'Redirect code is required',
+    'code_integer' => 'Redirect code must be an integer',
+    'code_in' => 'Redirect code can only be :values',
 ];
