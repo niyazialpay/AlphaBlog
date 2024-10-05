@@ -29,6 +29,7 @@ class IPFilterRequest extends FormRequest
             'list_type' => 'required|in:blacklist,whitelist',
             'is_active' => 'required|in:0,1',
             'route_type' => 'required|in:select,manuel',
+            'code' => 'required|integer|in:403,404',
         ];
     }
 
@@ -49,6 +50,9 @@ class IPFilterRequest extends FormRequest
             'is_active.in' => __('ip_filter.status_in'),
             'route_type.required' => __('ip_filter.route_type_required'),
             'route_type.in' => __('ip_filter.route_type_in'),
+            'code.required' => __('ip_filter.code_required'),
+            'code.integer' => __('ip_filter.code_integer'),
+            'code.in' => __('ip_filter.code_in'),
         ];
     }
 }

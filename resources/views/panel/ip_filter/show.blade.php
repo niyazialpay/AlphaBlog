@@ -61,8 +61,8 @@
                 </div>
                 <div class="col-12 mb-3">
                     <label for="code">@lang('ip_filter.code')</label>
-                    <select class="form-control" id="code" name="code">
-                        <option>---</option>
+                    <select class="form-control" id="code" name="code" required>
+                        <option value="">---</option>
                         <option value="403" @if($ip_filter->code=="403") selected @endif>
                             403
                         </option>
