@@ -60,6 +60,18 @@
                     </select>
                 </div>
                 <div class="col-12 mb-3">
+                    <label for="code">@lang('ip_filter.code')</label>
+                    <select class="form-control" id="code" name="code">
+                        <option>---</option>
+                        <option value="403" @if($ip_filter->code=="403") selected @endif>
+                            403
+                        </option>
+                        <option value="404" @if($ip_filter->code=="404") selected @endif>
+                            404
+                        </option>
+                    </select>
+                </div>
+                <div class="col-12 mb-3">
                     <label for="is_active">@lang('ip_filter.status')</label>
                     <select class="form-control" id="is_active" name="is_active">
                         <option value="1" @if($ip_filter->is_active) selected @endif >

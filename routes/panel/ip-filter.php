@@ -26,3 +26,7 @@ Route::post('/save/{ip_filter?}',
     [App\Http\Controllers\Admin\IPFilterController::class, 'save'])
     ->can('admin', 'App\Models\User')
     ->name('admin.ip-filter.save');
+Route::post('/toggle/status',
+    [App\Http\Controllers\Admin\IPFilterController::class, 'toggleStatus'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.ip-filter.toggle-status');

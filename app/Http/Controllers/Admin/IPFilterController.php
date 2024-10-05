@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\IPFilter\IPFilterRequest;
+use App\Http\Requests\IPFilter\ToogleRequest;
 use App\Models\IPFilter\IPFilter;
 use App\Models\IPFilter\IPList;
 use App\Models\IPFilter\RouteList;
@@ -61,6 +62,7 @@ class IPFilterController extends Controller
             $ip_filter->list_type = $request->post('list_type');
             $ip_filter->is_active = $request->post('is_active') == 1;
             $ip_filter->route_type = $request->post('route_type');
+            $ip_filter->code = $request->post('code');
             $ip_filter->save();
             $ip_filter->ipList()->delete();
             foreach ($ip_range as $item) {
@@ -104,6 +106,31 @@ class IPFilterController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => __('ip_filter.success_delete'),
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function toggleStatus(ToogleRequest $request)
+    {
+        try {
+            DB::beginTransaction();
+            $ip = IPFilter::where('id', $request->post('id'))->first();
+            $ip->is_active = !$ip->is_active;
+            $ip->save();
+            $this->cacheRefresh();
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'rule' => $ip->is_active,
+                'message' => __('ip_filter.success_update'),
             ]);
         } catch (Exception $e) {
             DB::rollBack();

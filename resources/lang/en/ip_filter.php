@@ -33,7 +33,11 @@ return [
     'route_type_required' => 'Route type is required',
     'list_type_in' => 'List type can only be :values',
     'status_in' => 'Status can only be :values',
+    'id_required' => 'ID is required',
+    'id_integer' => 'ID must be an integer',
+    'id_exists' => 'Rule does not exist',
 
     'ip_filter' => 'IP Filtering',
     'no_ip_filter' => 'No IP filtering found',
+    'code' => 'Redirect Code',
 ];
