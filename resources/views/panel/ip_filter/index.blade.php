@@ -25,14 +25,27 @@
                 <div class="col-12 table-responsive">
                     <table class="table table-striped" aria-describedby="@lang('ip_filter.ip_filter')">
                         <tr>
+                            <th scope="col">@lang('ip_filter.status')</th>
                             <th scope="col">@lang('ip_filter.name')</th>
                             <th scope="col">@lang('ip_filter.ip_range')</th>
                             <th scope="col">@lang('ip_filter.routes')</th>
                             <th scope="col">@lang('ip_filter.list_type')</th>
+                            <th scope="col">@lang('ip_filter.code')</th>
                             <th scope="col">@lang('general.actions')</th>
                         </tr>
                         @forelse($IPFilter as $item)
                             <tr id="rule_{{$item->id}}">
+                                <td id="rule_status_{{$item->id}}">
+                                    @if($item->is_active)
+                                        <a href="javascript:ruleToggle({{$item->id}})" class="px-2 py-1 rounded bg-success h4">
+                                            <i class="fa-duotone fa-solid fa-toggle-on"></i>
+                                        </a>
+                                    @else
+                                        <a href="javascript:ruleToggle({{$item->id}})" class="px-2 py-1 rounded bg-danger h4">
+                                            <i class="fa-duotone fa-solid fa-toggle-off"></i>
+                                        </a>
+                                    @endif
+                                </td>
                                 <td>{{$item->name}}</td>
                                 <td>
                                     @foreach($item->ipList as $ip)
@@ -45,6 +58,7 @@
                                     @endforeach
                                 </td>
                                 <td>{{__('ip_filter.'.$item->list_type)}}</td>
+                                <td>{{$item->code}}</td>
                                 <td>
                                     <a href="{{route('admin.ip-filter.show',$item->id)}}"
                                        class="btn btn-sm btn-primary"
@@ -62,14 +76,16 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5">@lang('ip_filter.no_ip_filter')</td>
+                                <td colspan="7">@lang('ip_filter.no_ip_filter')</td>
                             </tr>
                         @endforelse
                         <tr>
+                            <th scope="col">@lang('ip_filter.status')</th>
                             <th scope="col">@lang('ip_filter.name')</th>
                             <th scope="col">@lang('ip_filter.ip_range')</th>
                             <th scope="col">@lang('ip_filter.routes')</th>
                             <th scope="col">@lang('ip_filter.list_type')</th>
+                            <th scope="col">@lang('ip_filter.code')</th>
                             <th scope="col">@lang('general.actions')</th>
                         </tr>
                     </table>
@@ -133,6 +149,38 @@
                             })
                         }
                     });
+                }
+            });
+        }
+
+        function ruleToggle(id){
+            $.ajax({
+                url: "{{route('admin.ip-filter.toggle-status')}}",
+                type: "POST",
+                data: {
+                    id: id,
+                    _token: "{{csrf_token()}}"
+                },
+                success: function(data){
+                    if(data.rule){
+                        $("#rule_status_"+id).html(`<a href="javascript:ruleToggle(${id})" class="px-2 py-1 rounded bg-success h4">
+                                <i class="fa-duotone fa-solid fa-toggle-on"></i>
+                            </a>`);
+                    } else{
+                        $("#rule_status_"+id).html(`<a href="javascript:ruleToggle(${id})" class="px-2 py-1 rounded bg-danger h4">
+                                <i class="fa-duotone fa-solid fa-toggle-off"></i>
+                            </a>`);
+                    }
+                },
+                error: function(xhr, ajaxOptions, thrownError){
+                    swal.fire({
+                        title: "Error",
+                        text: xhr.responseJSON.message,
+                        icon: "error",
+                        showCancelButton: false,
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
                 }
             });
         }

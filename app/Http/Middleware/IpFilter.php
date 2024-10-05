@@ -27,16 +27,16 @@ class IpFilter
             });
         }
 
-        $status = false;
-
         if ($filter->count() == 0) {
-            $status = true;
+            return $next($request);
         }
 
         $blacklisted_ips = [];
         $whitelisted_ips = [];
         $blacklisted_route_list = [];
         $whitelisted_route_list = [];
+
+        $block_code = 403;
 
         foreach ($filter as $filter_item) {
             if ($request->is($filter_item->routeList->pluck('route')->toArray())) {
@@ -46,14 +46,15 @@ class IpFilter
                 } else {
                     $whitelisted_ips = array_merge($whitelisted_ips, $filter_item->ipList->pluck('ip')->toArray());
                     $whitelisted_route_list = array_merge($whitelisted_route_list, $filter_item->routeList->pluck('route')->toArray());
-                }
 
+                }
+                $block_code = $filter_item->code;
             }
         }
 
         if (count($blacklisted_ips) > 0) {
             if (IpUtils::checkIp($request->getClientIp(), $blacklisted_ips) && $request->is($blacklisted_route_list)) {
-                abort(404);
+                abort($block_code);
             }
         }
 
@@ -61,7 +62,7 @@ class IpFilter
             if (IpUtils::checkIp($request->getClientIp(), $whitelisted_ips) && $request->is($whitelisted_route_list)) {
                 return $next($request);
             } else {
-                abort(404);
+                abort($block_code);
             }
         }
 

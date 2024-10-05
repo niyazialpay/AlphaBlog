@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -25,7 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->render(function (NotFoundHttpException $e, Request $request) {
+        $exceptions->render(function (Request $request) {
             $route = RouteRedirectAction::RouteRedirect($request);
             if ($route) {
                 if ($route->redirect_code == 404) {
@@ -34,14 +35,6 @@ return Application::configure(basePath: dirname(__DIR__))
                     return redirect($route->new_url, (int) $route->redirect_code);
                 }
             }
-            if ($e->getStatusCode() == 404) {
-                try {
-                    return response()->view('themes.'.app('theme')->name.'.404', [], 404);
-                } catch (Exception $e) {
-                    return response()->view('Default.404', [], 404);
-                }
-            }
-
             return $request;
         });
     })->create();
