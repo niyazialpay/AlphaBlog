@@ -8,8 +8,8 @@
     </ol>
 @endsection
 @section('content')
-    <div class="row">
-        <div class="col-12">
+    <div class="row justify-content-center">
+        <div class="col-11">
             <div class="card">
                 <div class="card-header d-flex">
                     <h3 class="card-title">{{__('DNS')}}</h3>
@@ -158,16 +158,16 @@
     <script>
         function DNSCreateModal() {
             $('#dnsAddEditForm').trigger("reset");
-            $('#modal_title').text('{{__('DNS Add')}}');
-            $('button[type="submit"]').text('{{__('Add')}}');
+            $('#modal_title').text('{{__('cloudflare.add_record')}}');
+            $('button[type="submit"]').text('{{__('general.save')}}');
             $('#type').val('add');
             $('#dnsAddEditModal').modal('show');
         }
         $(document).ready(function () {
-            let proxied_html = '<label for="status">{{__('Proxied')}}</label>' +
+            let proxied_html = '<label for="status">{{__('cloudflare.proxied')}}</label>' +
                 '<select class="form-select" name="status" id="status">' +
-                '<option value="1">{{__('Active')}}</option>' +
-                '<option value="0">{{__('Passive')}}</option>' +
+                '<option value="1">{{__('general.active')}}</option>' +
+                '<option value="0">{{__('general.passive')}}</option>' +
                 '</select>';
             let dns_type = $('#record_type');
             let proxied = $('#proxied');
@@ -312,11 +312,11 @@
                 },
                 columns: [
                     { data: "status", width: '55px' },
-                    { data: "type", width: '30px' },
+                    { data: "type", width: '75px' },
                     { data: "name", width: '25%' },
                     { data: "content", width: '35%' },
                     { data: "ttl", width: '15%' },
-                    { data: "action", width: '55px' }
+                    { data: "action", width: '75px' }
                 ],
                 autoWidth: false,
                 select: true,
@@ -324,14 +324,11 @@
                     breakpoints: [
                         { name: 'desktop', width: Infinity },
                         { name: 'tablet',  width: 1024 },
-                        { name: 'fablet',  width: 768 },
                         { name: 'phone',   width: 480 }
                     ],
                 },
                 fixedHeader: {
-                    header: false, /*{
-                        headerOffset: $('.navbar').outerHeight()
-                    },*/
+                    header: false,
                     footer: false
                 },
                 columnDefs: [
@@ -359,7 +356,7 @@
                 let data = table.row($(this).parents(row)).data();
                 $('#dns_record').text(data.name + '  ' + data.type + '  ' + data.content);
                 $('#dns_id_delete').val(data.id);
-                $('button[type="submit"]').text('{{__('Delete')}}');
+                $('button[type="submit"]').text('{{__('general.delete')}}');
                 $('#dnsDeleteModal').modal('show');
             });
 
@@ -436,8 +433,8 @@
                 $('#dns_id').val(data.id);
                 $('#type').val('edit');
 
-                $('#modal_title').text('{{__('DNS Edit')}}');
-                $('button[type="submit"]').text('{{__('Save')}}');
+                $('#modal_title').text('{{__('cloudflare.edit_record')}}');
+                $('button[type="submit"]').text('{{__('general.save')}}');
                 $('#dnsAddEditModal').modal('show');
             });
 
