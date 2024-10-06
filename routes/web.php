@@ -72,6 +72,10 @@ Route::group([
         ->group(base_path('routes/panel/settings/settings.php'));
 
     Route::middleware(['web', 'auth'])
+        ->prefix(config('settings.admin_panel_path').'/cloudflare')
+        ->group(base_path('routes/panel/cloudflare.php'));
+
+    Route::middleware(['web', 'auth'])
         ->prefix(config('settings.admin_panel_path').'/routes')
         ->group(base_path('routes/panel/routes.php'));
 

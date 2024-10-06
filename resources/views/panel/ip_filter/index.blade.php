@@ -10,7 +10,7 @@
     <div class="card">
         <div class="card-header d-flex">
             <h3 class="card-title">@lang('ip_filter.ip_filter')</h3>
-            <div class="ml-auto">
+            <div class="ms-auto">
                 <a href="{{route('admin.ip-filter.create')}}"
                    class="btn btn-default"
                    data-bs-toggle="tooltip" data-bs-placement="top"

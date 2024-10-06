@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Admin\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CloudflareApiSettingsRequest;
+use App\Models\Cloudflare;
 use App\Models\Languages;
 use App\Models\OneSignal;
 use App\Models\Settings\SeoSettings;
 use App\Models\Themes;
+use Illuminate\Http\JsonResponse;
 
 class SettingsController extends Controller
 {
@@ -24,6 +27,23 @@ class SettingsController extends Controller
             'themes' => Themes::all(),
             'social_settings' => app('social_settings'),
             'onesignal' => Onesignal::first(),
+            'cloudflare' => Cloudflare::first()
+        ]);
+    }
+
+    public function updateApiSettings(CloudflareApiSettingsRequest $request): JsonResponse
+    {
+        $cf = Cloudflare::first();
+        if(!$cf){
+            $cf = new Cloudflare();
+        }
+        $cf->cf_email = $request->post('cf_email');
+        $cf->cf_key = $request->post('cf_key');
+        $cf->domain = $request->post('cf_domain');
+        $cf->save();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'API settings updated successfully'
         ]);
     }
 }
