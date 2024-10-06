@@ -40,6 +40,11 @@ class CloudflareController extends Controller
 
     public function index()
     {
+        $cf = Cloudflare::first();
+        if(!$cf){
+            return redirect()->route('admin.settings', ['tab' => 'cloudflare']);
+        }
+
         $cloudflare = self::$zones->getBody();
 
         return view('panel.cloudflare.index', [
