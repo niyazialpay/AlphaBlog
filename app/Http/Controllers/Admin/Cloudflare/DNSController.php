@@ -37,6 +37,10 @@ class DNSController extends Controller
 
     public function index()
     {
+        $cf = Cloudflare::first();
+        if(!$cf){
+            return redirect()->route('admin.settings', ['tab' => 'cloudflare']);
+        }
         return view('panel.cloudflare.dns');
     }
 
