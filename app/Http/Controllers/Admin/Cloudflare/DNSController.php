@@ -11,11 +11,13 @@ use Cloudflare\API\Endpoints\EndpointException;
 use Cloudflare\API\Endpoints\Zones;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Exception;
 
 class DNSController extends Controller
 {
     public static string $zoneID;
     public static DNS $dns;
+    private bool $invalidCredentials = false;
 
     /**
      * @throws EndpointException
@@ -27,16 +29,26 @@ class DNSController extends Controller
         if($cf){
             $key = new APIKey($cf->cf_email, $cf->cf_key);
             $adapter = new Guzzle($key);
-
             $zones = new Zones($adapter);
-
             self::$dns = new DNS($adapter);
-            self::$zoneID = $zones->getZoneID($cf->domain);
+            try{
+                self::$zoneID = $zones->getZoneID($cf->domain);
+            }
+            catch (Exception $e) {
+                $this->invalidCredentials = true;
+            }
+        }
+        else{
+            $this->invalidCredentials = true;
         }
     }
 
     public function index()
     {
+        if($this->invalidCredentials){
+            return redirect()->route('admin.settings', ['tab' => 'cloudflare']);
+        }
+
         $cf = Cloudflare::first();
         if(!$cf){
             return redirect()->route('admin.settings', ['tab' => 'cloudflare']);
