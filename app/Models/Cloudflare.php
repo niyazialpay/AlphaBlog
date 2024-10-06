@@ -27,6 +27,4 @@ class Cloudflare extends Model
             'domain' => 'string'
         ];
     }
-
-
 }

@@ -6,23 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Cloudflare;
 use Cloudflare\API\Adapter\Guzzle;
 use Cloudflare\API\Auth\APIKey;
-use Cloudflare\API\Endpoints\EndpointException;
-use Cloudflare\API\Endpoints\FirewallSettings;
-use Cloudflare\API\Endpoints\SSL;
-use Cloudflare\API\Endpoints\TLS;
 use Cloudflare\API\Endpoints\Zones;
-use Illuminate\Http\Request;
+use Exception;
 
 class CloudflareController extends Controller
 {
-    public static string $zoneID;
-    public static Zones $zones;
-    public static string $domain;
-    public static Guzzle $adapter;
+    private static string $zoneID;
+    private static Zones $zones;
+    private static Guzzle $adapter;
 
-    /**
-     * @throws EndpointException
-     */
+    private bool $invalidCredentials = false;
+
     public function __construct()
     {
         $cf = Cloudflare::first();
@@ -31,17 +25,23 @@ class CloudflareController extends Controller
             $key = new APIKey($cf->cf_email, $cf->cf_key);
             self::$adapter = new Guzzle($key);
             $zones = new Zones(self::$adapter);
-
-            self::$domain = $cf->domain;
             self::$zones = $zones;
-            self::$zoneID = $zones->getZoneID($cf->domain);
+            try{
+                $zones->getZoneID($cf->domain);
+                self::$zoneID = $zones->getZoneID($cf->domain);
+            }
+            catch (Exception $e) {
+                $this->invalidCredentials = true;
+            }
+        }
+        else{
+            $this->invalidCredentials = true;
         }
     }
 
     public function index()
     {
-        $cf = Cloudflare::first();
-        if(!$cf){
+        if($this->invalidCredentials){
             return redirect()->route('admin.settings', ['tab' => 'cloudflare']);
         }
 
