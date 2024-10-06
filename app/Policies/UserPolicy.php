@@ -23,4 +23,14 @@ class UserPolicy
     {
         return $user->id === auth()->id();
     }
+
+    public function owner(User $user): bool
+    {
+        return $user->role === 'owner';
+    }
+
+    public function cloudflare(User $user): bool
+    {
+        return $user->role === 'owner' && ($user->webauthn === 1 || $user->otp === 1);
+    }
 }

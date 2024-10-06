@@ -80,6 +80,14 @@
                                 @lang('settings.notifications')
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link cloudflare-links @if(request()->get('tab')=='cloudflare') active @endif"
+                               href="javascript:ChangeTab('cloudflare')"
+                               id="cloudflare-menu">
+                                <i class="fa-brands fa-cloudflare"></i>
+                                Cloudflare
+                            </a>
+                        </li>
                     </ul>
                 </div>
                 <div class="card-body">
@@ -803,6 +811,32 @@
                                 @csrf
                             </form>
                         </div>
+
+                        <div class="tab-pane cloudflare-tabs @if(request()->get('tab')=='cloudflare') active @endif" id="cloudflare">
+                            <form class="row" id="cloudflareForm" method="post" action="javascript:void(0);">
+                                <div class="col-12 mb-3">
+                                    <label for="cf_email">Cloudflare Email</label>
+                                    <input type="text" class="form-control" id="cf_email" name="cf_email"
+                                           value="{{$cloudflare?->cf_email}}">
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="cf_key">Cloudflare API Key</label>
+                                    <input type="password" class="form-control" id="cf_key" name="cf_key"
+                                           value="{{$cloudflare?->cf_key}}">
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label for="cf_domain">
+                                        Cloudflare Domain
+                                    </label>
+                                    <input type="text" class="form-control" id="cf_domain" name="cf_domain"
+                                           value="{{$cloudflare?->cf_domain}}">
+                                </div>
+                                @csrf
+                                <div class="col-12 mb-3">
+                                    <button type="submit" class="btn btn-primary">@lang('general.save')</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1167,6 +1201,11 @@
             $('#languageForm').submit(function () {
                 saveSettings(languageSaveUrl, 'languageForm');
                 window.location.reload();
+            });
+
+            $('#cloudflareForm').submit(function () {
+                saveSettings('{{route('cf.update.api.settings')}}', 'cloudflareForm');
+                //window.location.reload();
             });
 
             $('#themeUploadForm').submit(function () {

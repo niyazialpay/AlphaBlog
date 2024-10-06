@@ -1,6 +1,4 @@
 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-    <!-- Add icons to the links using the .nav-icon class
-         with font-awesome or any other icon font library -->
     <li class="nav-item">
         <a href="{{route('admin.index')}}" class="nav-link
         @if(request()->is(config('settings.admin_panel_path'))) active @endif ">
@@ -255,6 +253,37 @@
                 </p>
             </a>
         </li>
+        @can('cloudflare', 'App\Models\User')
+            <li class="nav-item has-treeview @if(request()->is(config('settings.admin_panel_path').'/cloudflare*')) menu-open @endif">
+                <a href="javascript:void(0);"
+                   class="nav-link @if(request()->is(config('settings.admin_panel_path').'/cloudflare*')) active @endif ">
+                    <i class="fa-brands fa-cloudflare"></i>
+                    <p>
+                        Cloudflare
+                        <i class="right fas fa-angle-left"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview shadow rounded py-2">
+                    <li class="nav-item">
+                        <a href="{{route('cf.dashboard')}}" class="nav-link
+                    @if(request()->is(config('settings.admin_panel_path').'/cloudflare')) active @endif ">
+                            <i class="nav-icon fas fa-tachometer-alt"></i>
+                            <p>
+                                @lang('dashboard.dashboard')
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{route('cf.dns')}}"
+                           class="nav-link
+                   @if(request()->is(config('settings.admin_panel_path').'/cloudflare/dns')) active @endif ">
+                            <i class="fa-duotone fa-solid fa-globe nav-icon"></i>
+                            <p>DNS</p>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        @endcan
         <li class="nav-item">
             <a class="nav-link clear-cache" href="javascript:void(0);">
                 <i class="fa-duotone fa-trash-can nav-icon"></i>
