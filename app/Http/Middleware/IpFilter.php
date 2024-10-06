@@ -19,53 +19,74 @@ class IpFilter
         Request $request,
         Closure $next,
     ): Response {
-        if (Cache::has(config('cache.prefix').'ip_filter')) {
-            $filter = Cache::get(config('cache.prefix').'ip_filter');
-        } else {
-            $filter = Cache::rememberForever(config('cache.prefix').'ip_filter', function () {
-                return \App\Models\IPFilter\IPFilter::with('ipList', 'routeList')->where('is_active', true)->get();
-            });
-        }
+        // Retrieve filters from cache or database
+        $filters = Cache::rememberForever(config('cache.prefix') . 'ip_filter', function () {
+            return \App\Models\IPFilter\IPFilter::with('ipList', 'routeList')
+                ->where('is_active', true)
+                ->get();
+        });
 
-        if ($filter->count() == 0) {
+        if ($filters->isEmpty()) {
             return $next($request);
         }
 
-        $blacklisted_ips = [];
-        $whitelisted_ips = [];
-        $blacklisted_route_list = [];
-        $whitelisted_route_list = [];
+        // Separate filters into those with route '*' and others
+        $starFilters = $filters->filter(function ($filter) {
+            return $filter->routeList->pluck('route')->contains('*');
+        });
 
-        $block_code = 403;
+        $otherFilters = $filters->diff($starFilters);
 
-        foreach ($filter as $filter_item) {
-            if ($request->is($filter_item->routeList->pluck('route')->toArray())) {
-                if ($filter_item->list_type == 'blacklist') {
-                    $blacklisted_ips = array_merge($blacklisted_ips, $filter_item->ipList->pluck('ip')->toArray());
-                    $blacklisted_route_list = array_merge($blacklisted_route_list, $filter_item->routeList->pluck('route')->toArray());
-                } else {
-                    $whitelisted_ips = array_merge($whitelisted_ips, $filter_item->ipList->pluck('ip')->toArray());
-                    $whitelisted_route_list = array_merge($whitelisted_route_list, $filter_item->routeList->pluck('route')->toArray());
+        // Process filters with route '*'
+        foreach ($starFilters as $filter) {
+            $ips = $filter->ipList->pluck('ip')->toArray();
+            $blockCode = $filter->code ?? 403;
 
+            if (IpUtils::checkIp($request->getClientIp(), $ips)) {
+                if ($filter->list_type === 'blacklist') {
+                    // Block the request for blacklisted IPs
+                    abort($blockCode);
+                } elseif ($filter->list_type === 'whitelist') {
+                    // Allow the request for whitelisted IPs
+                    return $next($request);
                 }
-                $block_code = $filter_item->code;
-            }
-        }
-
-        if (count($blacklisted_ips) > 0) {
-            if (IpUtils::checkIp($request->getClientIp(), $blacklisted_ips) && $request->is($blacklisted_route_list)) {
-                abort($block_code);
-            }
-        }
-
-        if (count($whitelisted_ips) > 0) {
-            if (IpUtils::checkIp($request->getClientIp(), $whitelisted_ips) && $request->is($whitelisted_route_list)) {
-                return $next($request);
             } else {
-                abort($block_code);
+                if ($filter->list_type === 'whitelist') {
+                    // Block the request if the IP is not in the whitelist
+                    abort($blockCode);
+                }
+                // For blacklists, do nothing if IP doesn't match
             }
         }
 
+        // Process other filters
+        foreach ($otherFilters as $filter) {
+            $routes = $filter->routeList->pluck('route')->toArray();
+            $ips = $filter->ipList->pluck('ip')->toArray();
+            $blockCode = $filter->code ?? 403;
+
+            // Check if the request matches any of the routes in the filter
+            if ($request->is($routes)) {
+                if (IpUtils::checkIp($request->getClientIp(), $ips)) {
+                    if ($filter->list_type === 'blacklist') {
+                        // Block the request for blacklisted IPs
+                        abort($blockCode);
+                    } elseif ($filter->list_type === 'whitelist') {
+                        // Allow the request for whitelisted IPs
+                        return $next($request);
+                    }
+                } else {
+                    if ($filter->list_type === 'whitelist') {
+                        // Block the request if the IP is not in the whitelist
+                        abort($blockCode);
+                    }
+                    // For blacklists, do nothing if IP doesn't match
+                }
+            }
+            // Continue to the next filter if the route doesn't match
+        }
+
+        // Allow the request if no filters apply
         return $next($request);
     }
 }
