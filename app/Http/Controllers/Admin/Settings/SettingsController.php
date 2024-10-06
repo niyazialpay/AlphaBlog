@@ -43,7 +43,7 @@ class SettingsController extends Controller
         $cf->save();
         return response()->json([
             'status' => 'success',
-            'message' => 'API settings updated successfully'
+            'message' => __('settings.api_settings_updated')
         ]);
     }
 }

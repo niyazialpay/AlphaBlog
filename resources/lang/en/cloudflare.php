@@ -48,4 +48,6 @@ return [
     'weight' => 'Weight',
 
     'delete_warning' => 'Are you sure you want to delete this record?',
+
+    'api_settings_updated' => 'API settings updated successfully',
 ];
