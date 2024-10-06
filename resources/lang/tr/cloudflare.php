@@ -48,4 +48,6 @@ return [
     'weight' => 'Ağırlık',
 
     'delete_warning' => 'Bu kaydı silmek istediğinizden emin misiniz?',
+
+    'api_settings_updated' => 'API ayarları başarıyla güncellendi',
 ];
