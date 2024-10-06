@@ -12,7 +12,7 @@ class CloudflareApiSettingsRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return auth()->check() && (auth()->user()->role == 'cloudflare');
+        return auth()->check() && auth()->user()->role == 'owner' && (auth()->user()->otp ===1 || auth()->user()->webauthn === 1);
     }
 
     /**

@@ -829,7 +829,7 @@
                                         Cloudflare Domain
                                     </label>
                                     <input type="text" class="form-control" id="cf_domain" name="cf_domain"
-                                           value="{{$cloudflare?->cf_domain}}">
+                                           value="{{$cloudflare?->domain}}">
                                 </div>
                                 @csrf
                                 <div class="col-12 mb-3">
