@@ -18,11 +18,9 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-
+                    <div class="row table-responsive">
                         <div class="col-9" id="datatable-error-message"></div>
-                        <hr class="mt-1">
-                        <table class="table table-striped table-hover" id="datatable" style="width: 100%">
+                        <table class="table table-striped table-hover display" id="datatable" style="width: 100%">
                             <thead>
                             <tr>
                                 <th>@lang('cloudflare.proxied')</th>
@@ -139,21 +137,20 @@
             word-break: break-all;
         }
     </style>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.2.0/css/fixedHeader.dataTables.min.css" />
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.4.0/css/responsive.dataTables.min.css"/>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedheader/3.3.1/css/fixedHeader.dataTables.min.css"/>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/rowreorder/1.3.1/css/rowReorder.dataTables.min.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.dataTables.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/rowreorder/1.5.0/css/rowReorder.dataTables.css"/>
 
 
 
 
-    <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.js"></script>
     <script src="https://cdn.datatables.net/fixedheader/3.2.0/js/dataTables.fixedHeader.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.4.0/js/dataTables.responsive.min.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/fixedheader/3.3.1/js/dataTables.fixedHeader.min.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/rowreorder/1.3.1/js/dataTables.rowReorder.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/3.0.3/js/responsive.dataTables.js"></script>
+    <script src="https://cdn.datatables.net/responsive/3.0.3/js/dataTables.responsive.js"></script>
+    <script src="https://cdn.datatables.net/rowreorder/1.5.0/js/dataTables.rowReorder.js"></script>
 
     <script>
         function DNSCreateModal() {
@@ -316,19 +313,13 @@
                     { data: "name", width: '25%' },
                     { data: "content", width: '35%' },
                     { data: "ttl", width: '15%' },
-                    { data: "action", width: '75px' }
+                    { data: "action", width: '150px' }
                 ],
                 autoWidth: false,
-                select: true,
-                responsive: {
-                    breakpoints: [
-                        { name: 'desktop', width: Infinity },
-                        { name: 'tablet',  width: 1024 },
-                        { name: 'phone',   width: 480 }
-                    ],
-                },
+                //select: true,
+                responsive: true,
                 fixedHeader: {
-                    header: false,
+                    header: true,
                     footer: false
                 },
                 columnDefs: [
