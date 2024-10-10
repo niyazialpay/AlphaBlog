@@ -19,9 +19,7 @@ class DNSController extends Controller
     public static DNS $dns;
     private bool $invalidCredentials = false;
 
-    /**
-     * @throws EndpointException
-     */
+
     public function __construct()
     {
         $cf = Cloudflare::first();
@@ -89,10 +87,10 @@ class DNSController extends Controller
             foreach (self::$dns->listRecords(self::$zoneID, name: $search, perPage: 5000, order: $order, direction: $dir, match:'any')->result as $record) {
                 //echo $record->name." ".$record->type." ".$record->content." | Record ID ".$record->id."<br>".PHP_EOL;
                 if($record->proxied==1){
-                    $status = '<span class="cloud" style="background: transparent url('.config('app.url').'/themes/panel/img/cficon.png) 0 -83px no-repeat;">';
+                    $status = '<span class="cloud" style="background: transparent url('.config('app.url').'/themes/panel/img/cficon.png) 0 -83px no-repeat;"></span>';
                 }
                 else{
-                    $status = '<span class="cloud" style="background: transparent url('.config('app.url').'/themes/panel/img/cficon.png) 0 -150px no-repeat;">';
+                    $status = '<span class="cloud" style="background: transparent url('.config('app.url').'/themes/panel/img/cficon.png) 0 -150px no-repeat;"></span>';
                 }
                 if($record->type=="MX"){
                     $content = $record->priority." ".$record->content;
@@ -137,7 +135,8 @@ class DNSController extends Controller
                 'name' => $request->post("name"),
                 'content' => $request->post("content"),
                 'ttl' => (int)$request->post("ttl", 1),
-                'proxied' => $proxied
+                'proxied' => $proxied,
+                'priority' => ''
             ];
         }
         elseif($type=='MX'){
