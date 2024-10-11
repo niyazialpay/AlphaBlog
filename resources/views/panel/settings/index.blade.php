@@ -812,7 +812,7 @@
                             </form>
                         </div>
 
-                        <div class="tab-pane cloudflare-tabs @if(request()->get('tab')=='cloudflare') active @endif" id="cloudflare">
+                        <div class="tab-pane settings-tabs @if(request()->get('tab')=='cloudflare') active @endif" id="cloudflare">
                             <form class="row" id="cloudflareForm" method="post" action="javascript:void(0);">
                                 <div class="col-12 mb-3">
                                     <label for="cf_email">Cloudflare Email</label>
