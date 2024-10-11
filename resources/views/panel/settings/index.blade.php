@@ -81,7 +81,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link cloudflare-links @if(request()->get('tab')=='cloudflare') active @endif"
+                            <a class="nav-link settings-links @if(request()->get('tab')=='cloudflare') active @endif"
                                href="javascript:ChangeTab('cloudflare')"
                                id="cloudflare-menu">
                                 <i class="fa-brands fa-cloudflare"></i>
