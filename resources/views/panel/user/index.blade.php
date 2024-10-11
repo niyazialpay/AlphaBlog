@@ -93,6 +93,9 @@
                 </div>
             </div>
         </div>
+        <div class="card-footer">
+            {{$users->links()}}
+        </div>
     </div>
 @endsection
 @section('script')
