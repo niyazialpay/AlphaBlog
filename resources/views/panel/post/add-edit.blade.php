@@ -135,7 +135,7 @@
                 </div>
                 <div class="col-12 mb-3">
                     <label for="user_id">@lang('post.author')</label>
-                    <select name="user_id" id="user_id" class="form-control">
+                    <select name="user_id" id="user_id" class="form-control select2">
                         @foreach($users as $user)
                             <option value="{{$user->id}}"
                                     @if($post->user_id)
