@@ -40,8 +40,8 @@
                                     @php
                                         $categoriesList = \App\Models\Post\Categories::with('children')->where('parent_id', null)->where('language', $language->code)->get();
                                     @endphp
-                                    @forelse($categoriesList as $category)
-                                        @include('panel.post.category.partials.category_row', ['category' => $category, 'level' => 0])
+                                    @forelse($categoriesList as $categories)
+                                        @include('panel.post.category.partials.category_row', ['categories' => $categories, 'level' => 0])
                                     @empty
                                         <tr>
                                             <td colspan="3" class="text-center">
@@ -152,11 +152,9 @@
                         @csrf
                         <input type="hidden" name="id" value="{{$category->id}}">
                         <div class="col-12">
-                            <button type="submit" class="btn btn-primary">@if($category->id)
-                                    @lang('general.update')
-                                @else
-                                    @lang('general.create')
-                                @endif </button>
+                            <button type="submit" class="btn btn-primary">
+                                @lang('general.save')
+                            </button>
                         </div>
                     </form>
                 </div>
