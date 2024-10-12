@@ -7,8 +7,10 @@ use App\Http\Requests\PersonalNotes\PersonalNotesRequest;
 use App\Models\PersonalNotes\PersonalNoteCategories;
 use App\Models\PersonalNotes\PersonalNotes;
 use Exception;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Http\Request;
+use Illuminate\Queue\InvalidPayloadException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 
@@ -31,9 +33,20 @@ class PersonalNotesController extends Controller
             $note->where('category_id', $request->get('category'));
         }
 
+        $notes = $note->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        try{
+            foreach ($notes as $item) {
+                $item->content;
+            }
+        }
+        catch (Exception $e) {
+            return view('panel.personal_notes.encryption-form');
+        }
+
         return view('panel.personal_notes.index', [
-            'notes' => $note->orderBy('created_at', 'desc')
-                ->paginate(10),
+            'notes' => $notes,
             'categories' => auth()->user()->noteCategories,
         ]);
     }
@@ -50,8 +63,17 @@ class PersonalNotesController extends Controller
             abort(403, __('notes.encryption_key_invalid'));
         }
 
+        $note = $note->load('category');
+
+        try{
+            $note->content;
+        }
+        catch (Exception $e) {
+            return view('panel.personal_notes.encryption-form');
+        }
+
         return view('panel.personal_notes.show', [
-            'note' => $note->load('category'),
+            'note' => $note,
         ]);
     }
 
