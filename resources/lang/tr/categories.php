@@ -8,6 +8,7 @@ return [
     'meta_description' => 'Meta Açıklama',
     'meta_keywords' => 'Meta Anahtar Kelimeler',
     'parent_id' => 'Üst Kategori',
+    'parent_category' => 'Üst Kategori',
     'parent_id_help' => 'Üst kategori seçmek istemiyorsanız boş bırakın',
     'parent_id_placeholder' => 'Üst kategori seçiniz',
     'name_placeholder' => 'Kategori adı giriniz',
