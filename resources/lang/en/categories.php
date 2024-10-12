@@ -8,6 +8,7 @@ return [
     'meta_description' => 'Meta Description',
     'meta_keywords' => 'Meta Keywords',
     'parent_id' => 'Parent Category',
+    'parent_category' => 'Parent Category',
     'parent_id_help' => 'Leave blank if you do not want to select a parent category',
     'parent_id_placeholder' => 'Select parent category',
     'name_placeholder' => 'Enter category name',

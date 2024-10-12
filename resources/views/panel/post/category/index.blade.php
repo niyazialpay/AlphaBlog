@@ -27,48 +27,21 @@
                 <div class="col-6  table-responsive border-end-1">
                     <div class="tab-content">
                         @foreach(app('languages') as $n => $language)
-                            <div class="tab-pane  @if($n==0)active @endif" id="{{$language->code}}">
+                            <div class="tab-pane @if($n==0) active @endif" id="{{ $language->code }}">
                                 <table class="table table-striped" aria-describedby="@lang('categories.categories')">
                                     <thead>
                                     <tr>
-                                        <th scope="@lang('categories.image')">
-                                            @lang('categories.image')
-                                        </th>
-                                        <th scope="@lang('categories.name')">
-                                            @lang('categories.name')
-                                        </th>
-                                        <th scope="@lang('general.actions')" style="width: 200px;">
-                                            @lang('general.actions')
-                                        </th>
+                                        <th scope="@lang('categories.image')">@lang('categories.image')</th>
+                                        <th scope="@lang('categories.name')">@lang('categories.name')</th>
+                                        <th scope="@lang('general.actions')" style="width: 200px;">@lang('general.actions')</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    @forelse($categories->with('media', 'media.model')->where('language', $language->code)->get() as $item)
-                                        <tr>
-                                            <td>
-                                                @if($item->getFirstMediaUrl('categories', 'thumb'))
-                                                    <img src="{{$item->getFirstMediaUrl('categories', 'thumb')}}" alt="{{$item->name}}"
-                                                         class="img-fluid" width="50">
-                                                @endif
-                                            </td>
-                                            <td>
-                                                {{$item->name}}
-                                            </td>
-                                            <td>
-                                                <a href="{{route('admin.categories', $item)}}"
-                                                   class="btn btn-sm btn-primary mx-1"
-                                                   data-bs-toggle="tooltip" data-bs-placement="top"
-                                                   title="@lang('general.edit')">
-                                                    <i class="fa fa-edit"></i>
-                                                </a>
-                                                <a href="javascript:Delete('{{$item->id}}')"
-                                                   class="btn btn-sm btn-danger mx-1"
-                                                   data-bs-toggle="tooltip" data-bs-placement="top"
-                                                   title="@lang('general.delete')">
-                                                    <i class="fa fa-trash"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
+                                    @php
+                                        $categoriesList = \App\Models\Post\Categories::with('children')->where('parent_id', null)->where('language', $language->code)->get();
+                                    @endphp
+                                    @forelse($categoriesList as $category)
+                                        @include('panel.post.category.partials.category_row', ['category' => $category, 'level' => 0])
                                     @empty
                                         <tr>
                                             <td colspan="3" class="text-center">
@@ -79,15 +52,9 @@
                                     </tbody>
                                     <tfoot>
                                     <tr>
-                                        <th scope="@lang('categories.image')">
-                                            @lang('categories.image')
-                                        </th>
-                                        <th scope="@lang('categories.name')">
-                                            @lang('categories.name')
-                                        </th>
-                                        <th scope="@lang('general.actions')">
-                                            @lang('general.actions')
-                                        </th>
+                                        <th scope="@lang('categories.image')">@lang('categories.image')</th>
+                                        <th scope="@lang('categories.name')">@lang('categories.name')</th>
+                                        <th scope="@lang('general.actions')">@lang('general.actions')</th>
                                     </tr>
                                     </tfoot>
                                 </table>
@@ -112,6 +79,25 @@
                             <label for="slug">@lang('categories.slug')</label>
                             <input type="text" class="form-control" name="slug" id="slug"
                                    placeholder="@lang('categories.slug_placeholder')" value="{{$category->slug}}">
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="language">@lang('general.language')</label>
+                            <select name="language" id="language" class="form-control">
+                                @foreach(app('languages') as $language)
+                                    <option value="{{$language->code}}"
+                                            @if($language->code == $lng) selected @endif>{{$language->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="parent_id">@lang('categories.parent_category')</label>
+                            <select name="parent_id" id="parent_id" class="form-control">
+                                <option value="">@lang('categories.parent_category')</option>
+                                @foreach($categories->where('language', $lng)->get() as $item)
+                                    <option value="{{$item->id}}"
+                                            @if($category->parent_id == $item->id) selected @endif>{{$item->name}} ({{$item->language}})</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-12 mb-3" id="image_input">
                             @if($category->getFirstMediaUrl('categories', 'thumb'))
@@ -141,15 +127,6 @@
                             <input type="text" class="form-control" name="meta_description" id="meta_description"
                                    placeholder="@lang('categories.meta_description_placeholder')"
                                    value="{{$category->meta_description}}">
-                        </div>
-                        <div class="col-12 mb-3">
-                            <label for="language">@lang('general.language')</label>
-                            <select name="language" id="language" class="form-control">
-                                @foreach(app('languages') as $language)
-                                    <option value="{{$language->code}}"
-                                            @if($category->language == $language->code) selected @endif>{{$language->name}}</option>
-                                @endforeach
-                            </select>
                         </div>
                         <div class="col-12 mb-3 border rounded p-3">
                             <ul class="nav nav-pills border-bottom">
@@ -307,6 +284,24 @@
                 let name = $(this).val();
                 $("#slug").val(ToSeoUrl(name));
             });
+
+            $('#language').change(function(){
+                $('#parent_id').html('<option value="">@lang('categories.parent_category')</option>');
+                $.ajax({
+                    url: '{{route('admin.categories.list')}}',
+                    type: 'POST',
+                    data: {
+                        _token: '{{csrf_token()}}',
+                        language: $(this).val()
+                    },
+                    success: function(data){
+                        $.each(data, function (index, value) {
+                            $('#parent_id').append('<option value="'+value.id+'">'+value.name+' (' + value.language + ')</option>');
+                        });
+                    }
+                });
+            });
+
             $("#category_create_form").submit(function () {
                 $.ajax({
                     url: "{{request()->url()}}",
