@@ -25,6 +25,9 @@ class SocialNetworks extends Model
         'xbox',
         'deviantart',
         'website',
+        'twitch',
+        'telegram',
+        'discord',
     ];
 
     public function user(): BelongsTo

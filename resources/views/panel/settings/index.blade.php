@@ -638,6 +638,57 @@
 
                                 <hr class="col-12 mb-3">
 
+                                <div class="col-12 mb-3">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <i class="fa-brands fa-twitch"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-placement="left"
+                                               data-bs-title="Twitch"></i>
+                                        </div>
+                                        <input type="text" class="form-control"
+                                               id="twitch" name="twitch"
+                                               placeholder="@ @lang('social.twitch_username')"
+                                               value="{{app('social_networks')?->twitch}}" aria-label="Twitch">
+                                    </div>
+                                </div>
+
+                                <hr class="col-12 mb-3">
+
+                                <div class="col-12 mb-3">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <i class="fa-brands fa-telegram"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-placement="left"
+                                               data-bs-title="Telegram"></i>
+                                        </div>
+                                        <input type="text" class="form-control"
+                                               id="telegram" name="telegram"
+                                               placeholder="@ @lang('social.telegram_username')"
+                                               value="{{app('social_networks')?->telegram}}" aria-label="Telegram">
+                                    </div>
+                                </div>
+
+                                <hr class="col-12 mb-3">
+
+                                <div class="col-12 mb-3">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <i class="fa-brands fa-discord"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-placement="left"
+                                               data-bs-title="Discord"></i>
+                                        </div>
+                                        <input type="text" class="form-control"
+                                               id="discord" name="discord"
+                                               placeholder="@ @lang('social.discord_username')"
+                                               value="{{app('social_networks')?->discord}}" aria-label="Discord">
+                                    </div>
+                                </div>
+
+                                <hr class="col-12 mb-3">
+
 
                                 @csrf
                                 <div class="col-12 mt-3">

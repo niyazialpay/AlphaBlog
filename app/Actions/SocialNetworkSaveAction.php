@@ -36,6 +36,9 @@ class SocialNetworkSaveAction
             $social->deviantart = $request->deviantart;
             $social->website = $request->website;
             $social->x = $request->x;
+            $social->twitch = $request->twitch;
+            $social->telegram = $request->telegram;
+            $social->discord = $request->discord;
             $social->type = $type;
             $status = $social->save();
             DB::commit();
