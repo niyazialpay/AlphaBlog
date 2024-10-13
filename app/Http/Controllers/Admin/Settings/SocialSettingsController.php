@@ -42,8 +42,8 @@ class SocialSettingsController extends Controller
             DB::beginTransaction();
             $socialSettings = SocialSettings::first();
             if ($socialSettings) {
-                $socialSettings->social_networks_header = $request->social_networks_header;
-                $socialSettings->social_networks_footer = $request->social_networks_footer;
+                $socialSettings->social_networks_header = $request->social_networks_header?->toArray();
+                $socialSettings->social_networks_footer = $request->social_networks_footer?->toArray();
                 $socialSettings->save();
             } else {
                 SocialSettings::create([
