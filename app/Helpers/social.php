@@ -14,5 +14,8 @@ function social_list()
         'medium' => 'Medium',
         'xbox' => 'Xbox',
         'deviantart' => 'DeviantArt',
+        'twitch' => 'Twitch',
+        'telegram' => 'Telegram',
+        'discord' => 'Discord',
     ];
 }
