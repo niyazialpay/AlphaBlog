@@ -191,3 +191,11 @@
     max-width: 230px; /* İhtiyacınıza göre ayarlayın */
     display: inline-block;
 }
+
+.dark-mode .list-group-item, .dark-mode .list-group-item a, .dark-mode .list-group-item-action {
+    color: #f8f9fa !important;
+}
+
+.dark-mode .list-group-item:hover, .dark-mode .list-group-item a:hover, .dark-mode .list-group-item-action:hover {
+    color: #515151 !important;
+}
