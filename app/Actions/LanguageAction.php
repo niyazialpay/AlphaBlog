@@ -6,7 +6,7 @@ use App\Models\Languages;
 
 class LanguageAction
 {
-    public static function setLanguage($request): void
+    public static function setLanguage($request)
     {
         if(config('app.key')){
             $except = [
@@ -40,7 +40,16 @@ class LanguageAction
                     } else {
                         $language = $languages->getLanguage($request->segment(1));
                         if ($language == null) {
-                            abort(404);
+                            $route = RouteRedirectAction::RouteRedirect($request);
+                            if ($route) {
+                                if ($route->redirect_code == 404) {
+                                    abort(404);
+                                } else {
+                                    return redirect($route->new_url, (int) $route->redirect_code);
+                                }
+                            } else {
+                                abort(404);
+                            }
                         }
                     }
                 } else {
@@ -49,7 +58,16 @@ class LanguageAction
                     } else {
                         $language = $languages->getLanguage($request->segment(1));
                         if ($language == null) {
-                            abort(404);
+                            $route = RouteRedirectAction::RouteRedirect($request);
+                            if ($route) {
+                                if ($route->redirect_code == 404) {
+                                    abort(404);
+                                } else {
+                                    return redirect($route->new_url, (int) $route->redirect_code);
+                                }
+                            } else {
+                                abort(404);
+                            }
                         }
                     }
                 }
