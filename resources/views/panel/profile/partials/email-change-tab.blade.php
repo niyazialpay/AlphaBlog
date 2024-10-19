@@ -5,10 +5,18 @@
             <label for="email" class="form-label">
                 @lang('profile.email.text')
             </label>
+            @php
+            if($user->id == auth()->id()){
+                $email = auth()->user()->email;
+            }
+            else{
+                $email = $user->email;
+            }
+            @endphp
             <input type="email" class="form-control"
                    id="email" name="email"
                    placeholder="@lang('profile.email.placeholder')"
-                   value="{{auth()->user()->email}}">
+                   value="{{$email}}">
         </div>
 
         <div class="col-12 mb-3">
