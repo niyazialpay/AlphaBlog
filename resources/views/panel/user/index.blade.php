@@ -26,6 +26,16 @@
         </div>
         <div class="card-body">
             <div class="row">
+                <div class="col-12">
+                    <form class="row">
+                        <div class="col-12">
+                            <div class="form-group mb-3">
+                                <label for="search" class="form-label"></label>
+                                <input type="text" class="form-control" id="search" name="search" value="{{request()->get('search')}}" placeholder="@lang('general.search')">
+                            </div>
+                        </div>
+                    </form>
+                </div>
                 <div class="col-12 table-responsive">
                     <table class="table table-striped" aria-describedby="users">
                         <thead>

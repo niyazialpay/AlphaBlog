@@ -88,10 +88,22 @@ class UserController extends Controller
         return $this->socialProfileSave($request, $user_id->id);
     }
 
-    public function userList()
+    public function userList(Request $request)
     {
+        $query = User::where('id', '!=', auth()->id());
+
+        if($request->has('search')){
+            $query->where(function($query) use($request){
+                $query->where('name', 'like', '%'.$request->search.'%')
+                    ->orWhere('surname', 'like', '%'.$request->search.'%')
+                    ->orWhere('nickname', 'like', '%'.$request->search.'%')
+                    ->orWhere('username', 'like', '%'.$request->search.'%')
+                    ->orWhere('email', 'like', '%'.$request->search.'%');
+            });
+        }
+
         return view('panel.user.index', [
-            'users' => User::where('id', '!=', auth()->id())->orderBy('created_at', 'DESC')->paginate(10),
+            'users' => $query->orderBy('created_at', 'DESC')->paginate(10),
         ]);
     }
 
@@ -124,6 +136,11 @@ class UserController extends Controller
             $user->role = $request->role;
             $user->password = Hash::make($request->password);
             $user->save();
+
+            ProfilePrivacy::create([
+                'user_id' => $user->id,
+            ]);
+
             DB::commit();
 
             return response()->json([
