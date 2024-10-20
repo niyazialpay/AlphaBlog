@@ -19,13 +19,14 @@ class CacheController extends Controller
     {
         if (Cache::flush()) {
             $cf = Cloudflare::first();
-            if($cf){
+            if ($cf) {
                 $key = new APIKey($cf->cf_email, $cf->cf_key);
                 $adapter = new Guzzle($key);
                 $zones = new Zones($adapter);
                 $zoneID = $zones->getZoneID($cf->domain);
                 $zones->cachePurgeEverything($zoneID);
             }
+
             return response()->json([
                 'status' => 'success',
                 'message' => __('cache.cache_cleared'),

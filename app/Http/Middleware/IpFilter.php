@@ -20,7 +20,7 @@ class IpFilter
         Closure $next,
     ): Response {
         // Retrieve filters from cache or database
-        $filters = Cache::rememberForever(config('cache.prefix') . 'ip_filter', function () {
+        $filters = Cache::rememberForever(config('cache.prefix').'ip_filter', function () {
             return \App\Models\IPFilter\IPFilter::with('ipList', 'routeList')
                 ->where('is_active', true)
                 ->get();

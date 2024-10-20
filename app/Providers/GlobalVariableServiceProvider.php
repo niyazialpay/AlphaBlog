@@ -29,7 +29,7 @@ class GlobalVariableServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if(config('app.key')){
+        if (config('app.key')) {
             if (Cache::has(config('cache.prefix').'general_settings')) {
                 $general_settings = Cache::get(config('cache.prefix').'general_settings');
             } else {

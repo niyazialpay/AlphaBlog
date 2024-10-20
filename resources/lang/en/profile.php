@@ -82,6 +82,7 @@ return [
 
     'save_error' => 'An error occurred while saving',
     'security' => 'Profile Security',
+    'privacy' => 'Privacy',
 
     'active_2fa' => 'Active 2FA',
     'deactivate_2fa' => 'Deactivate 2FA',

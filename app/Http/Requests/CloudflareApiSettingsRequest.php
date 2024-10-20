@@ -12,7 +12,7 @@ class CloudflareApiSettingsRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return auth()->check() && auth()->user()->role == 'owner' && (auth()->user()->otp ===1 || auth()->user()->webauthn === 1);
+        return auth()->check() && auth()->user()->role == 'owner' && (auth()->user()->otp === 1 || auth()->user()->webauthn === 1);
     }
 
     /**
@@ -34,7 +34,6 @@ class CloudflareApiSettingsRequest extends FormRequest
      *
      * @return array<string, string>
      */
-
     public function messages(): array
     {
         return [

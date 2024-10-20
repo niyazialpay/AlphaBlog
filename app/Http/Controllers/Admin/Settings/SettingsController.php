@@ -27,23 +27,24 @@ class SettingsController extends Controller
             'themes' => Themes::all(),
             'social_settings' => app('social_settings'),
             'onesignal' => Onesignal::first(),
-            'cloudflare' => Cloudflare::first()
+            'cloudflare' => Cloudflare::first(),
         ]);
     }
 
     public function updateApiSettings(CloudflareApiSettingsRequest $request): JsonResponse
     {
         $cf = Cloudflare::first();
-        if(!$cf){
-            $cf = new Cloudflare();
+        if (! $cf) {
+            $cf = new Cloudflare;
         }
         $cf->cf_email = $request->post('cf_email');
         $cf->cf_key = $request->post('cf_key');
         $cf->domain = $request->post('cf_domain');
         $cf->save();
+
         return response()->json([
             'status' => 'success',
-            'message' => __('cloudflare.api_settings_updated')
+            'message' => __('cloudflare.api_settings_updated'),
         ]);
     }
 }

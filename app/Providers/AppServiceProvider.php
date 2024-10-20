@@ -85,7 +85,7 @@ class AppServiceProvider extends ServiceProvider
         Pulse::user(fn ($user) => [
             'name' => $user->name.' '.$user->surname,
             'extra' => $user->email,
-            'avatar' => 'https://gravatar.com/avatar/'.hash("sha256",$user->email).'?d=mp',
+            'avatar' => 'https://gravatar.com/avatar/'.hash('sha256', $user->email).'?d=mp',
         ]);
     }
 }

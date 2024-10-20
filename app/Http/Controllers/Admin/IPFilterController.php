@@ -122,7 +122,7 @@ class IPFilterController extends Controller
         try {
             DB::beginTransaction();
             $ip = IPFilter::where('id', $request->post('id'))->first();
-            $ip->is_active = !$ip->is_active;
+            $ip->is_active = ! $ip->is_active;
             $ip->save();
             $this->cacheRefresh();
             DB::commit();

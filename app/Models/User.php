@@ -149,4 +149,92 @@ class User extends Authenticatable implements MustVerifyEmail, WebAuthnAuthentic
     {
         return $this->name.' '.$this->surname;
     }
+
+    public function privacy(): HasOne
+    {
+        return $this->hasOne(ProfilePrivacy::class);
+    }
+
+    // App\Models\User.php
+
+    public function getDisplayNameAttribute()
+    {
+        $nameParts = [];
+
+        if ($this->privacy && $this->privacy->show_name) {
+            $nameParts[] = $this->name;
+        }
+
+        if ($this->privacy && $this->privacy->show_surname) {
+            $nameParts[] = $this->surname;
+        }
+
+        return implode(' ', $nameParts);
+    }
+
+    public function getDisplayJobTitleAttribute()
+    {
+        return ($this->privacy && $this->privacy->show_job_title) ? $this->job_title : null;
+    }
+
+    public function getDisplayAboutAttribute()
+    {
+        return ($this->privacy && $this->privacy->show_about) ? $this->about : null;
+    }
+
+    public function getDisplaySkillsAttribute()
+    {
+        return ($this->privacy && $this->privacy->show_skills) ? explode(',', $this->skills) : [];
+    }
+
+    public function getVisibleSocialLinksAttribute()
+    {
+        $links = [];
+
+        if ($this->privacy && $this->privacy->show_social_links && $this->social) {
+            $socialPlatforms = [
+                'github' => 'https://github.com/',
+                'linkedin' => 'https://www.linkedin.com/in/',
+                'facebook' => 'https://facebook.com/',
+                'x' => 'https://twitter.com/',
+                'devto' => 'https://dev.to/',
+                'instagram' => 'https://instagram.com/',
+                'medium' => 'https://medium.com/@',
+                'deviantart' => 'https://deviantart.com/',
+                'youtube' => 'https://youtube.com/',
+                'reddit' => 'https://reddit.com/',
+                'xbox' => 'https://account.xbox.com/en-us/profile?gamertag=',
+                'website' => '',
+            ];
+
+            foreach ($socialPlatforms as $platform => $baseUrl) {
+                $username = $this->social->{$platform};
+
+                if ($username) {
+                    if($platform == 'x'){
+                        $icon = 'fa-brands fa-x-twitter';
+                    }
+                    elseif($platform == 'devto'){
+                        $icon = 'fa-brands fa-dev';
+                    }
+                    elseif($platform ==  'reddit'){
+                        $icon = 'fa-brands fa-reddit-alien';
+                    }
+                    elseif($platform == 'website'){
+                        $icon = 'fa-duotone fa-globe-pointer';
+                    }
+                    else{
+                        $icon = 'fa-brands fa-'.$platform;
+                    }
+                    $links[$platform] = [
+                        'url' => $baseUrl . $username,
+                        'icon' => $icon,
+                    ];
+                }
+            }
+        }
+
+        return $links;
+    }
+
 }

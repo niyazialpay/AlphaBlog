@@ -12,7 +12,9 @@ use Exception;
 class CloudflareController extends Controller
 {
     private static string $zoneID;
+
     private static Zones $zones;
+
     private static Guzzle $adapter;
 
     private bool $invalidCredentials = false;
@@ -21,61 +23,61 @@ class CloudflareController extends Controller
     {
         $cf = Cloudflare::first();
 
-        if($cf){
+        if ($cf) {
             $key = new APIKey($cf->cf_email, $cf->cf_key);
             self::$adapter = new Guzzle($key);
             $zones = new Zones(self::$adapter);
             self::$zones = $zones;
-            try{
+            try {
                 $zones->getZoneID($cf->domain);
                 self::$zoneID = $zones->getZoneID($cf->domain);
-            }
-            catch (Exception $e) {
+            } catch (Exception $e) {
                 $this->invalidCredentials = true;
             }
-        }
-        else{
+        } else {
             $this->invalidCredentials = true;
         }
     }
 
     public function index()
     {
-        if($this->invalidCredentials){
+        if ($this->invalidCredentials) {
             return redirect()->route('admin.settings', ['tab' => 'cloudflare']);
         }
 
         $cloudflare = self::$zones->getBody();
 
         return view('panel.cloudflare.index', [
-            'cloudflare' => $cloudflare
+            'cloudflare' => $cloudflare,
         ]);
     }
 
-    public function CacheClear(){
+    public function CacheClear()
+    {
         self::$zones->cachePurgeEverything(self::$zoneID);
+
         return response()->json([
             'status' => true,
-            'message' => __('cloudflare.cache_cleared')
+            'message' => __('cloudflare.cache_cleared'),
         ]);
     }
 
-    public function ToggleDevelopment(){
+    public function ToggleDevelopment()
+    {
         $develop_ment_mode_status = self::$zones->getBody()->result[0]->development_mode;
-        if($develop_ment_mode_status > 0){
+        if ($develop_ment_mode_status > 0) {
             $status = false;
             $message = __('cloudflare.development_mode_deactivated');
-        }else{
+        } else {
             $status = true;
             $message = __('cloudflare.development_mode_activated');
         }
         self::$zones->changeDevelopmentMode(self::$zoneID, $status);
+
         return response()->json([
             'status' => true,
             'message' => $message,
-            'mode' => $status
+            'mode' => $status,
         ]);
     }
-
-
 }

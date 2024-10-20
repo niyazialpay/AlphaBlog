@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PasswordRequest;
 use App\Http\Requests\UserCreateRequest;
 use App\Http\Requests\UserRequest;
+use App\Models\ProfilePrivacy;
 use App\Models\User;
 use App\Models\WebAuthnCredential;
 use Exception;
@@ -204,5 +205,93 @@ class UserController extends Controller
                 'message' => __('profile.save_error'),
             ], 422);
         }
+    }
+
+    public function privacy(Request $request){
+        if($request->has('show_name')){
+            $show_name = true;
+        }
+        else{
+            $show_name = false;
+        }
+
+        if($request->has('show_surname')){
+            $show_surname = true;
+        }
+        else{
+            $show_surname = false;
+        }
+
+        if($request->has('show_location')){
+            $show_location = true;
+        }
+        else{
+            $show_location = false;
+        }
+
+        if($request->has('show_education')){
+            $show_education = true;
+        }
+        else{
+            $show_education = false;
+        }
+
+        if($request->has('show_job_title')){
+            $show_job_title = true;
+        }
+        else{
+            $show_job_title = false;
+        }
+
+        if($request->has('show_skills')){
+            $show_skills = true;
+        }
+        else{
+            $show_skills = false;
+        }
+
+        if($request->has('show_about')){
+            $show_about = true;
+        }
+        else{
+            $show_about = false;
+        }
+
+        if($request->has('show_social_links')){
+            $show_social_links = true;
+        }
+        else{
+            $show_social_links = false;
+        }
+
+        if(auth()->user()->role == 'owner' || auth()->user()->role == 'admin'){
+            if($request->has('user_id')){
+                $user_id = $request->user_id;
+            }
+            else{
+                $user_id = auth()->id();
+            }
+        }
+        else{
+            $user_id = auth()->id();
+        }
+        ProfilePrivacy::updateOrCreate(
+            ['user_id' => $user_id],
+            [
+                'show_name' => $show_name,
+                'show_surname' => $show_surname,
+                'show_location' => $show_location,
+                'show_education' => $show_education,
+                'show_job_title' => $show_job_title,
+                'show_skills' => $show_skills,
+                'show_about' => $show_about,
+                'show_social_links' => $show_social_links,
+            ]
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => __('profile.save_success'),
+        ], 200);
     }
 }

@@ -2,9 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::group(["prefix" => '/'], function(){
-
-});
+Route::group(['prefix' => '/'], function () {});
 
 Route::get('/', [\App\Http\Controllers\Admin\Cloudflare\CloudflareController::class, 'index'])
     ->can('cloudflare', 'App\Models\User')
@@ -18,7 +16,7 @@ Route::post('/toggle-development', [\App\Http\Controllers\Admin\Cloudflare\Cloud
     ->name('admin.cloudflare.toggle.development')
     ->can('cloudflare', 'App\Models\User');
 
-Route::group(["prefix" => '/dns'], function (){
+Route::group(['prefix' => '/dns'], function () {
     Route::get('/', [\App\Http\Controllers\Admin\Cloudflare\DNSController::class, 'index'])
         ->can('cloudflare', 'App\Models\User')
         ->name('cf.dns');
@@ -31,8 +29,7 @@ Route::group(["prefix" => '/dns'], function (){
         ->name('cf.dns.delete');
 });
 
-
-Route::group(['prefix' => 'settings'], function(){
+Route::group(['prefix' => 'settings'], function () {
     Route::post('/cloudflare', [App\Http\Controllers\Admin\Settings\SettingsController::class, 'updateApiSettings'])
         ->can('cloudflare', 'App\Models\User')
         ->name('cf.update.api.settings');

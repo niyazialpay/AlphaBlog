@@ -14,7 +14,7 @@ class IPFilter extends Model
         'list_type',
         'is_active',
         'route_type',
-        'code'
+        'code',
     ];
 
     public function ipList(): HasMany

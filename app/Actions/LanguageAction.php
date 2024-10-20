@@ -8,7 +8,7 @@ class LanguageAction
 {
     public static function setLanguage($request)
     {
-        if(config('app.key')){
+        if (config('app.key')) {
             $except = [
                 '_debugbar',
                 'api',

@@ -12,11 +12,13 @@ class Cloudflare extends Model
     protected $fillable = [
         'cf_email',
         'cf_key',
-        'domain'
+        'domain',
     ];
 
     public static string $zoneID;
+
     public static Zones $zones;
+
     public static string $domain;
 
     protected function casts(): array
@@ -24,7 +26,7 @@ class Cloudflare extends Model
         return [
             'cf_email' => 'encrypted',
             'cf_key' => 'encrypted',
-            'domain' => 'string'
+            'domain' => 'string',
         ];
     }
 }

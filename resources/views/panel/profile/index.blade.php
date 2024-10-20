@@ -91,6 +91,12 @@
                                         @lang('profile.security')
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link profile-link @if(request()->get('tab')=='privacy') active @endif"
+                                       href="javascript:ChangeTab('privacy')" id="privacy-menu">
+                                        @lang('profile.privacy')
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                         <div class="card-body">
@@ -387,6 +393,10 @@
                                             </div>
                                         </div>
 
+                                        @if(request()->route()->parameter('user_id'))
+                                            <input type="hidden" name="user_id" value="{{$user->id}}">
+                                        @endif
+
                                         @csrf
                                         <div class="col-12 mt-3">
                                             <button type="submit" class="btn btn-primary">@lang('general.save')</button>
@@ -430,6 +440,64 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="tab-pane profile-tab @if(request()->get('tab')=='privacy') active @endif" id="privacy">
+                                    <form class="row" action="javascript:void(0)" id="privacyUpdate">
+                                        <div class="col-12 mb-3">
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input" name="show_name" id="show_name" onchange="privacyUpdate()" @if($user->privacy?->show_name) checked @endif >
+                                                <label class="custom-control-label" for="show_name">@lang('privacy.show_name')</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input" name="show_surname" id="show_surname" onchange="privacyUpdate()" @if($user->privacy?->show_surname) checked @endif >
+                                                <label class="custom-control-label" for="show_surname">@lang('privacy.show_surname')</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input" name="show_location" id="show_location" onchange="privacyUpdate()" @if($user->privacy?->show_location) checked @endif >
+                                                <label class="custom-control-label" for="show_location">@lang('privacy.show_location')</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input" name="show_education" id="show_education" onchange="privacyUpdate()" @if($user->privacy?->show_education) checked @endif >
+                                                <label class="custom-control-label" for="show_education">@lang('privacy.show_education')</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input" name="show_job_title" id="show_job_title" onchange="privacyUpdate()" @if($user->privacy?->show_job_title) checked @endif >
+                                                <label class="custom-control-label" for="show_job_title">@lang('privacy.show_job_title')</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input" name="show_skills" id="show_skills" onchange="privacyUpdate()" @if($user->privacy?->show_skills) checked @endif >
+                                                <label class="custom-control-label" for="show_skills">@lang('privacy.show_skills')</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input" name="show_about" id="show_about" onchange="privacyUpdate()" @if($user->privacy?->show_about) checked @endif >
+                                                <label class="custom-control-label" for="show_about">@lang('privacy.show_about')</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input" name="show_social_links" id="show_social_links" onchange="privacyUpdate()" @if($user->privacy?->show_social_links) checked @endif >
+                                                <label class="custom-control-label" for="show_social_links">@lang('privacy.show_social_links')</label>
+                                            </div>
+                                        </div>
+
+                                        @if(request()->route()->parameter('user_id'))
+                                            <input type="hidden" name="user_id" value="{{$user->id}}">
+                                        @endif
+
+                                        @csrf
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -589,6 +657,33 @@
                     });
                     devices += '</ul>';
                     $('#webauthn_list').html(devices);
+                }
+            });
+        }
+
+        function privacyUpdate(){
+            $.ajax({
+                url: '{{route('admin.profile.privacy')}}',
+                type: 'POST',
+                data: $('#privacyUpdate').serialize(),
+                success: function (response) {
+                    if (response.status === 'success') {
+                        toastr.success(response.message, '@lang('general.success')!', {
+                            closeButton: true,
+                            tapToDismiss: false
+                        });
+                    } else {
+                        toastr.error(response.message, '@lang('general.error')!', {
+                            closeButton: true,
+                            tapToDismiss: false
+                        });
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    toastr.error(xhr.responseJSON.message, '@lang('general.error')!', {
+                        closeButton: true,
+                        tapToDismiss: false
+                    });
                 }
             });
         }
@@ -859,6 +954,7 @@
                     }
                 });
             });
-        })
+
+        });
     </script>
 @endsection

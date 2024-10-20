@@ -19,12 +19,12 @@ class CategoryController extends Controller
 {
     public function index(Categories $category): View|Application|Factory|\Illuminate\Contracts\Foundation\Application
     {
-        if($category->id){
+        if ($category->id) {
             $language = $category->language;
-        }
-        else{
+        } else {
             $language = session('language');
         }
+
         return view('panel.post.category.index', [
             'categories' => new Categories,
             'category' => $category->load('media', 'media.model'),

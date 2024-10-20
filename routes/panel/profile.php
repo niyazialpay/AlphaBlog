@@ -56,3 +56,7 @@ Route::delete('/2fa-disable', [App\Http\Controllers\Admin\TwoFactorAuthControlle
 Route::post('/email-change', [App\Http\Controllers\Admin\UserController::class, 'changeEmail'])
     ->can('own', 'App\Models\User')
     ->name('admin.profile.email');
+
+Route::post('/privacy', [App\Http\Controllers\Admin\UserController::class, 'privacy'])
+    ->can('own', 'App\Models\User')
+    ->name('admin.profile.privacy');

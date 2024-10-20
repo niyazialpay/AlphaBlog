@@ -106,7 +106,7 @@ class Posts extends Model implements HasMedia
         $array['post_type'] = $this->post_type;
         $array['category_id'] = $this->categories->pluck('id')->toArray();
         $array['is_published'] = $this->is_published;
-        $array['meta_keywords'] = $this->meta_keywords?explode($this->meta_keywords, ','):null;
+        $array['meta_keywords'] = $this->meta_keywords ? explode($this->meta_keywords, ',') : null;
         $array['meta_description'] = $this->meta_description;
         $array['post_image'] = $this->postMedia?->getUrl('cover');
 
