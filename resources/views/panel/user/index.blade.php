@@ -82,16 +82,17 @@
                                 </td>
                                 <td>
                                     <a href="{{route('admin.user.edit', $user->id)}}"
-                                       class="btn btn-primary btn-sm">
+                                       class="btn btn-primary btn-sm mx-1">
                                         <i class="fa-duotone fa-edit"></i>
                                     </a>
                                     <a href="javascript:userDelete('{{$user->id}}');"
-                                       class="btn btn-danger btn-sm">
+                                       class="btn btn-danger btn-sm mx-1">
                                         <i class="fa-duotone fa-trash"></i>
                                     </a>
                                     <a href="{{route('admin.user.secret-login', $user->id)}}"
-                                       class="btn btn-primary btn-sm"
-                                       data-bs-popper="right" data-bs-title="@lang('user.login')" title="@lang('user.login')">
+                                       class="btn btn-primary btn-sm mx-1"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-placement="right" data-bs-title="@lang('user.login')" data-bs-original-title="@lang('user.login')" title="@lang('user.login')">
                                         <i class="fa-duotone fa-solid fa-right-to-bracket"></i>
                                     </a>
                                 </td>
