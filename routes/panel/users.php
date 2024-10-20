@@ -17,6 +17,14 @@ Route::post('/delete', [App\Http\Controllers\Admin\UserController::class, 'userD
     ->can('admin', 'App\Models\User')
     ->name('admin.user.delete');
 
+Route::get('/secret-logout', [App\Http\Controllers\Admin\UserController::class, 'secretLogout'])
+    //->can('admin', 'App\Models\User')
+    ->name('admin.user.secret-logout');
+
+Route::get('/{user_id}/secret-login', [App\Http\Controllers\Admin\UserController::class, 'userSecretLogin'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.user.secret-login');
+
 Route::get('/{user_id}/edit', [App\Http\Controllers\Admin\UserController::class, 'userEdit'])
     ->can('admin', 'App\Models\User')
     ->name('admin.user.edit');

@@ -89,6 +89,11 @@
                                        class="btn btn-danger btn-sm">
                                         <i class="fa-duotone fa-trash"></i>
                                     </a>
+                                    <a href="{{route('admin.user.secret-login', $user->id)}}"
+                                       class="btn btn-primary btn-sm"
+                                       data-bs-popper="right" data-bs-title="@lang('user.login')" title="@lang('user.login')">
+                                        <i class="fa-duotone fa-solid fa-right-to-bracket"></i>
+                                    </a>
                                 </td>
                             </tr>
                         @empty

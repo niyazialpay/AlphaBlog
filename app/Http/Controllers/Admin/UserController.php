@@ -14,8 +14,10 @@ use App\Models\WebAuthnCredential;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
 
 class UserController extends Controller
 {
@@ -310,5 +312,26 @@ class UserController extends Controller
             'status' => 'success',
             'message' => __('profile.save_success'),
         ], 200);
+    }
+
+    public function userSecretLogin($user_id)
+    {
+        $originalUserId = Auth::id();
+        session()->put(['impersonated' => $user_id]);
+        session()->put(['impersonated_original' => $originalUserId]);
+        Auth::loginUsingId($user_id);
+        return redirect()->route('admin.index');
+    }
+
+    public function secretLogout(Request $request){
+        if (Session::has('impersonated')) {
+            $originalUserId = Session::get('impersonated_original');
+            Session::forget('impersonated');
+            Session::forget('impersonated_original');
+            if ($originalUserId) {
+                Auth::loginUsingId($originalUserId);
+            }
+        }
+        return redirect()->route('admin.index');
     }
 }

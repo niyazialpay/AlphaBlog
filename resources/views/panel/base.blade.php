@@ -148,6 +148,16 @@
 
         <!-- Main content -->
         <div class="content">
+            @if(session()->has('impersonated'))
+            <div class="row" id="impersonated">
+                <div class="col-12">
+                    <div class="alert alert-warning text-center">
+                        <p><i class="fa-duotone fa-solid fa-user"></i> {{auth()->user()->email}}
+                            <a href="{{route('admin.user.secret-logout')}}" class="btn btn-sm btn-outline-primary">@lang('user.logout')</a></p>
+                    </div>
+                </div>
+            </div>
+            @endif
             @yield('content')
         </div>
         <!-- /.content -->
