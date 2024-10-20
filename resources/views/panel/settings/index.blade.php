@@ -80,6 +80,7 @@
                                 @lang('settings.notifications')
                             </a>
                         </li>
+                        @can('cloudflare', 'App\Models\User')
                         <li class="nav-item">
                             <a class="nav-link settings-links @if(request()->get('tab')=='cloudflare') active @endif"
                                href="javascript:ChangeTab('cloudflare')"
@@ -88,6 +89,7 @@
                                 Cloudflare
                             </a>
                         </li>
+                        @endcan
                     </ul>
                 </div>
                 <div class="card-body">
@@ -863,6 +865,7 @@
                             </form>
                         </div>
 
+                        @can('cloudflare', 'App\Models\User')
                         <div class="tab-pane settings-tabs @if(request()->get('tab')=='cloudflare') active @endif" id="cloudflare">
                             <form class="row" id="cloudflareForm" method="post" action="javascript:void(0);">
                                 <div class="col-12 mb-3">
@@ -888,6 +891,7 @@
                                 </div>
                             </form>
                         </div>
+                        @endcan
                     </div>
                 </div>
             </div>
