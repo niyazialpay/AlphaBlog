@@ -19,6 +19,7 @@ return [
     'restore_it' => 'Yes, restore!',
     'restored' => 'Restored!',
     'cancel' => 'Cancel',
+    'apply' => 'Apply',
     'trashed' => 'Trashed',
     'created_at' => 'Created At',
     'updated_at' => 'Updated At',

@@ -20,4 +20,6 @@ return [
         'others' => 'Others',
     ],
     'back_to_dashboard' => 'Back to Dashboard',
+    'analytics' => 'Google Analytics Data',
+    'filter' => 'Filter',
 ];

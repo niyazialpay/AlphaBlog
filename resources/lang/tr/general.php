@@ -19,6 +19,7 @@ return [
     'restore_it' => 'Evet, geri yükle!',
     'restored' => 'Geri yüklendi!',
     'cancel' => 'İptal',
+    'apply' => 'Uygula',
     'trashed' => 'Silinenler',
     'created_at' => 'Oluşturulma Tarihi',
     'updated_at' => 'Güncellenme Tarihi',

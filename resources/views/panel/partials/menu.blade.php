@@ -8,6 +8,17 @@
             </p>
         </a>
     </li>
+    @can('admin', 'App\Models\User')
+        <li class="nav-item">
+            <a href="{{route('admin.analytics')}}" class="nav-link
+        @if(request()->is(config('settings.admin_panel_path').'/analytics')) active @endif ">
+                <i class="fa-duotone fa-solid fa-chart-mixed nav-icon"></i>
+                <p>
+                    @lang('dashboard.analytics')
+                </p>
+            </a>
+        </li>
+    @endcan
     @if(config('services.openai.key') || config('gemini.api_key'))
         <li class="nav-item">
             <a href="{{route('chatbot')}}" class="nav-link
@@ -257,7 +268,7 @@
             <li class="nav-item has-treeview @if(request()->is(config('settings.admin_panel_path').'/cloudflare*')) menu-open @endif">
                 <a href="javascript:void(0);"
                    class="nav-link @if(request()->is(config('settings.admin_panel_path').'/cloudflare*')) active @endif ">
-                    <i class="fa-brands fa-cloudflare"></i>
+                    <i class="fa-brands fa-cloudflare nav-icon"></i>
                     <p>
                         Cloudflare
                         <i class="right fas fa-angle-left"></i>

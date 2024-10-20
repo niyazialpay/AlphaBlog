@@ -38,3 +38,9 @@ Route::get('/monitoring/horizon', [App\Http\Controllers\Admin\MonitoringControll
 
 Route::get('/monitoring/logs', [App\Http\Controllers\Admin\MonitoringController::class, 'showLogs'])
     ->name('admin.monitoring.logs')->can('viewPulse');
+
+Route::get('/analytics', [App\Http\Controllers\Admin\AnalyticsController::class, 'index'])
+    ->name('admin.analytics')->can('admin', 'App\Models\User');
+
+Route::post('/analytics', [App\Http\Controllers\Admin\AnalyticsController::class, 'fetchAnalytics'])
+    ->name('admin.analytics.fetch')->can('admin', 'App\Models\User');
