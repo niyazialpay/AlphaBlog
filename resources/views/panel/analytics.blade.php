@@ -2,6 +2,7 @@
 @section('title', __('dashboard.analytics'))
 @section('breadcrumb_link')
     <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{{route('admin.index')}}">@lang('dashboard.dashboard')</a></li>
         <li class="breadcrumb-item active">@lang('dashboard.analytics')</li>
     </ol>
 @endsection
@@ -130,8 +131,37 @@
                 locale: {
                     cancelLabel: '@lang('general.cancel')',
                     applyLabel: '@lang('general.apply')',
+                    weekLabel: "@lang('calendar.W')",
+                    daysOfWeek: [
+                        "@lang('calendar.daysOfWeek.Mo')",
+                        "@lang('calendar.daysOfWeek.Tu')",
+                        "@lang('calendar.daysOfWeek.We')",
+                        "@lang('calendar.daysOfWeek.Th')",
+                        "@lang('calendar.daysOfWeek.Fr')",
+                        "@lang('calendar.daysOfWeek.Sa')",
+                        "@lang('calendar.daysOfWeek.Su')"
+                    ],
+                    monthNames: [
+                        "@lang('calendar.monthNames.full_name.January')",
+                        "@lang('calendar.monthNames.full_name.February')",
+                        "@lang('calendar.monthNames.full_name.March')",
+                        "@lang('calendar.monthNames.full_name.April')",
+                        "@lang('calendar.monthNames.full_name.May')",
+                        "@lang('calendar.monthNames.full_name.June')",
+                        "@lang('calendar.monthNames.full_name.July')",
+                        "@lang('calendar.monthNames.full_name.August')",
+                        "@lang('calendar.monthNames.full_name.September')",
+                        "@lang('calendar.monthNames.full_name.October')",
+                        "@lang('calendar.monthNames.full_name.November')",
+                        "@lang('calendar.monthNames.full_name.December')"
+                    ],
+                    firstDay: 0
                 },
+                autoApply: true,
+                showWeekNumbers: true,
+                alwaysShowCalendars: true,
                 maxDate: new Date(),
+
             }, function(start, end, label) {
                 fetchDataAndUpdateCharts();
             });
