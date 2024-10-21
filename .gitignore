@@ -26,3 +26,4 @@ yarn-error.log
 composer.lock
 config/debugbar.php
 /resources/views/themes
+/public/themes/fontawesome
