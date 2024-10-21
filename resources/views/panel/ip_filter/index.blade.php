@@ -15,7 +15,7 @@
                    class="btn btn-default"
                    data-bs-toggle="tooltip" data-bs-placement="top"
                    title="@lang('general.new')">
-                    <i class="fa-duotone fa-comment-plus"></i>
+                    <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-comment-plus"></i>
                     @lang('general.new')
                 </a>
             </div>
@@ -38,11 +38,11 @@
                                 <td id="rule_status_{{$item->id}}">
                                     @if($item->is_active)
                                         <a href="javascript:ruleToggle({{$item->id}})" class="px-2 py-1 rounded bg-success h4">
-                                            <i class="fa-duotone fa-solid fa-toggle-on"></i>
+                                            <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-solid fa-toggle-on"></i>
                                         </a>
                                     @else
                                         <a href="javascript:ruleToggle({{$item->id}})" class="px-2 py-1 rounded bg-danger h4">
-                                            <i class="fa-duotone fa-solid fa-toggle-off"></i>
+                                            <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-solid fa-toggle-off"></i>
                                         </a>
                                     @endif
                                 </td>
@@ -164,11 +164,11 @@
                 success: function(data){
                     if(data.rule){
                         $("#rule_status_"+id).html(`<a href="javascript:ruleToggle(${id})" class="px-2 py-1 rounded bg-success h4">
-                                <i class="fa-duotone fa-solid fa-toggle-on"></i>
+                                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-solid fa-toggle-on"></i>
                             </a>`);
                     } else{
                         $("#rule_status_"+id).html(`<a href="javascript:ruleToggle(${id})" class="px-2 py-1 rounded bg-danger h4">
-                                <i class="fa-duotone fa-solid fa-toggle-off"></i>
+                                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-solid fa-toggle-off"></i>
                             </a>`);
                     }
                 },

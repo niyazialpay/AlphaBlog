@@ -10,8 +10,12 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="{{config('app.url')}}/themes/fontawesome/css/all.min.css">
+    @if(config('settings.fontawesome_pro'))
+        <!-- Font Awesome Icons -->
+        <link rel="stylesheet" href="{{config('app.url')}}/themes/fontawesome/css/all.min.css">
+    @else
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    @endif
 
     <!-- Theme style -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
@@ -152,7 +156,7 @@
             <div class="row" id="impersonated">
                 <div class="col-12">
                     <div class="alert alert-warning text-center">
-                        <p><i class="fa-duotone fa-solid fa-user"></i> {{auth()->user()->email}}
+                        <p><i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-solid fa-user"></i> {{auth()->user()->email}}
                             <a href="{{route('admin.user.secret-logout')}}" class="btn btn-sm btn-outline-primary">@lang('user.logout')</a></p>
                     </div>
                 </div>
@@ -202,7 +206,7 @@
 
 <div id="dark-mode-switcher">
     <button onclick="toggleDark()" id="dark-mode-switcher-button" class="btn btn-dark">
-        <i class="fa-duotone fa-moon"></i>
+        <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-moon"></i>
     </button>
 </div>
 
@@ -243,7 +247,7 @@
 
     function checkDarkMode(){
         if(localStorage.getItem("dark-mode") === "true"){
-            document.getElementById("dark-mode-switcher-button").innerHTML = '<i class="fa-duotone fa-sun"></i>';
+            document.getElementById("dark-mode-switcher-button").innerHTML = '<i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-sun"></i>';
             $('body').addClass("dark-mode");
             $('#top-navbar').addClass("navbar-dark").removeClass("navbar-light");
             $('.table').addClass("table-dark");
@@ -251,7 +255,7 @@
             $('#dark-mode-switcher-button').removeClass('btn-dark').addClass('btn-light');
 
         }else{
-            document.getElementById("dark-mode-switcher-button").innerHTML = '<i class="fa-duotone fa-moon"></i>';
+            document.getElementById("dark-mode-switcher-button").innerHTML = '<i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-moon"></i>';
             $('body').removeClass("dark-mode");
             $('#top-navbar').addClass("navbar-light").removeClass("navbar-dark");
             $('.table').removeClass("table-dark");

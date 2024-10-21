@@ -9,7 +9,7 @@
 
             <div class="input-group-append">
                 <div class="input-group-text">
-                    <i class="fa-duotone fa-lock"></i>
+                    <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-lock"></i>
                 </div>
             </div>
         </div>
@@ -19,7 +19,7 @@
                    name="password_confirmation" required autocomplete="current-password" placeholder="@lang('user.password_confirmation')">
             <div class="input-group-append">
                 <div class="input-group-text">
-                    <i class="fa-duotone fa-lock"></i>
+                    <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-lock"></i>
                 </div>
             </div>
         </div>

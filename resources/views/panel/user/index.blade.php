@@ -19,7 +19,7 @@
                    class="btn btn-default"
                    data-bs-toggle="tooltip" data-bs-placement="top"
                    title="@lang('general.new')">
-                    <i class="fa-duotone fa-comment-plus"></i>
+                    <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-comment-plus"></i>
                     @lang('general.new')
                 </a>
             </div>
@@ -83,17 +83,17 @@
                                 <td>
                                     <a href="{{route('admin.user.edit', $user->id)}}"
                                        class="btn btn-primary btn-sm mx-1">
-                                        <i class="fa-duotone fa-edit"></i>
+                                        <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-edit"></i>
                                     </a>
                                     <a href="javascript:userDelete('{{$user->id}}');"
                                        class="btn btn-danger btn-sm mx-1">
-                                        <i class="fa-duotone fa-trash"></i>
+                                        <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-trash"></i>
                                     </a>
                                     <a href="{{route('admin.user.secret-login', $user->id)}}"
                                        class="btn btn-primary btn-sm mx-1"
                                        data-bs-toggle="tooltip"
                                        data-bs-placement="right" data-bs-title="@lang('user.login')" data-bs-original-title="@lang('user.login')" title="@lang('user.login')">
-                                        <i class="fa-duotone fa-solid fa-right-to-bracket"></i>
+                                        <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-solid fa-right-to-bracket"></i>
                                     </a>
                                 </td>
                             </tr>

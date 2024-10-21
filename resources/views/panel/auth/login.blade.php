@@ -9,7 +9,7 @@
                    aria-label="username">
             <div class="input-group-append">
                 <div class="input-group-text">
-                    <i class="fa-duotone fa-user"></i>
+                    <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-user"></i>
                 </div>
             </div>
         </div>
@@ -19,7 +19,7 @@
             <!-- /.col -->
             <div class="col-12 justify-content-end d-flex">
                 <button type="submit" class="btn btn-primary">
-                    <i class="fa-duotone fa-right-to-bracket"></i>
+                    <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-right-to-bracket"></i>
                     @lang('user.login')
                 </button>
             </div>
@@ -35,7 +35,7 @@
                    aria-label="username">
             <div class="input-group-append">
                 <div class="input-group-text">
-                    <i class="fa-duotone fa-user"></i>
+                    <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-user"></i>
                 </div>
             </div>
         </div>
@@ -44,7 +44,7 @@
                    placeholder="@lang('user.password')" aria-label="password">
             <div class="input-group-append">
                 <div class="input-group-text">
-                    <i class="fa-duotone fa-lock"></i>
+                    <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-lock"></i>
                 </div>
             </div>
         </div>
@@ -65,7 +65,7 @@
             <!-- /.col -->
             <div class="col-5 d-flex justify-content-end">
                 <button type="submit" class="btn btn-primary">
-                    <i class="fa-duotone fa-right-to-bracket"></i>
+                    <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-right-to-bracket"></i>
                     @lang('user.login')
                 </button>
             </div>

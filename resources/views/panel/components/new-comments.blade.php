@@ -3,7 +3,7 @@
    data-bs-placement="bottom"
    title="@lang('comments.new_comments')">
 
-    <i class="fa-duotone fa-comments"></i>
+    <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-comments"></i>
     @if($newComments->count()>0)
         <span class="badge badge-danger navbar-badge">{{$newComments->count()}}</span>
     @endif
@@ -33,7 +33,7 @@
                             {{$comment->name}}
                         @endif
                             <span class="float-right text-sm text-danger">
-                                <i class="fa-duotone fa-book-open"
+                                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-book-open"
                                    title="@lang('post.read_more')"
                                    data-bs-toggle="tooltip" data-bs-placement="left"></i>
                             </span>

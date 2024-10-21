@@ -19,7 +19,7 @@
                             <a class="nav-link settings-links @if(request()->get('tab')=='general') active @endif"
                                href="javascript:ChangeTab('general')"
                                id="general-menu">
-                                <i class="fa-duotone fa-gear"></i>
+                                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-gear"></i>
                                 @lang('settings.general_settings')
                             </a>
                         </li>
@@ -27,7 +27,7 @@
                             <a class="nav-link settings-links @if(request()->get('tab')=='seo') active @endif"
                                href="javascript:ChangeTab('seo')"
                                id="seo-menu">
-                                <i class="fa-duotone fa-magnifying-glass"></i>
+                                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-magnifying-glass"></i>
                                 SEO
                             </a>
                         </li>
@@ -35,7 +35,7 @@
                             <a class="nav-link settings-links @if(request()->get('tab')=='analytics') active @endif"
                                href="javascript:ChangeTab('analytics')"
                                id="analytics-menu">
-                                <i class="fa-duotone fa-magnifying-glass-chart"></i>
+                                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-magnifying-glass-chart"></i>
                                 @lang('settings.analytics')
                             </a>
                         </li>
@@ -43,7 +43,7 @@
                             <a class="nav-link settings-links @if(request()->get('tab')=='advertisement') active @endif"
                                href="javascript:ChangeTab('advertisement')"
                                id="advertisement-menu">
-                                <i class="fad fa-rectangle-ad"></i>
+                                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-rectangle-ad"></i>
                                 @lang('settings.advertisement')
                             </a>
                         </li>
@@ -52,7 +52,7 @@
                             @if(request()->get('tab')=='social-networks') active @endif"
                                href="javascript:ChangeTab('social-networks')"
                                id="social-networks-menu">
-                                <i class="fa-duotone fa-share-nodes"></i>
+                                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-share-nodes"></i>
                                 @lang('social.social_networks')
                             </a>
                         </li>
@@ -60,7 +60,7 @@
                             <a class="nav-link settings-links @if(request()->get('tab')=='themes') active @endif"
                                href="javascript:ChangeTab('themes')"
                                id="themes-menu">
-                                <i class="fa-duotone fa-brush"></i>
+                                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-brush"></i>
                                 @lang('settings.themes')
                             </a>
                         </li>
@@ -68,7 +68,7 @@
                             <a class="nav-link settings-links @if(request()->get('tab')=='languages') active @endif"
                                href="javascript:ChangeTab('languages')"
                                id="languages-menu">
-                                <i class="fa-duotone fa-language"></i>
+                                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-language"></i>
                                 @lang('settings.languages')
                             </a>
                         </li>
@@ -76,7 +76,7 @@
                             <a class="nav-link settings-links @if(request()->get('tab')=='notifications') active @endif"
                                href="javascript:ChangeTab('notifications')"
                                id="notifications-menu">
-                                <i class="fa-duotone fa-bell"></i>
+                                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-bell"></i>
                                 @lang('settings.notifications')
                             </a>
                         </li>
@@ -736,7 +736,7 @@
                                                    data-bs-placement="top"
                                                    title="@lang('themes.make_default')"
                                                    class="btn btn-sm btn-primary">
-                                                    <i class="fa-duotone fa-check"></i>
+                                                    <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-check"></i>
                                                 </a>
                                                 <a href="javascript:deleteTheme('{{$theme->id}}')"
                                                    data-bs-toggle="tooltip"

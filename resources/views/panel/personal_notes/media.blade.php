@@ -30,17 +30,17 @@
                                     <a href="javascript:CopyToClipboard('{{$media->getUrl()}}');"
                                        data-bs-toggle="tooltip" data-bs-placement="top"
                                        data-bs-title="{{__('media.copy_to_clipboard')}}">
-                                        <i class="fa-duotone fa-clipboard clipboard"></i>
+                                        <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-clipboard clipboard"></i>
                                     </a>
                                     <a data-fancybox="galeri" href="{{$media->getUrl()}}"
                                        title="{{$note->title}}" data-bs-toggle="tooltip" data-bs-placement="top"
                                        data-bs-title="@lang('media.show')">
-                                        <i class="fa-duotone fa-magnifying-glass open"></i>
+                                        <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-magnifying-glass open"></i>
                                     </a>
                                     <a href="javascript:imageDelete('{{$media->id}}');"
                                        title="{{$note->title}}" data-bs-toggle="tooltip" data-bs-placement="top"
                                        data-bs-title="@lang('general.delete')">
-                                        <i class="fa-duotone fa-trash delete"></i>
+                                        <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-trash delete"></i>
                                     </a>
                                 </figure>
                             </li>

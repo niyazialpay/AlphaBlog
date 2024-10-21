@@ -82,7 +82,7 @@
                                            class="list-group-item-action d-flex">
                                             {{$page->title}}
                                             <div class="ml-auto">
-                                                <i class="fa-duotone fa-plus"></i>
+                                                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-plus"></i>
                                             </div>
                                         </a>
                                     </li>
@@ -100,7 +100,7 @@
                                            class="list-group-item-action d-flex">
                                             {{$post->title}}
                                             <div class="ml-auto">
-                                                <i class="fa-duotone fa-plus"></i>
+                                                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-plus"></i>
                                             </div>
                                         </a>
                                     </li>
@@ -120,7 +120,7 @@
                                            class="list-group-item-action d-flex">
                                             {{$category->name}}
                                             <div class="ml-auto">
-                                                <i class="fa-duotone fa-plus"></i>
+                                                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-plus"></i>
                                             </div>
                                         </a>
                                     </li>
@@ -179,7 +179,7 @@
                     '<li class="dd-item dd3-item" data-id="' + id + '" data-title="' + label.val() + '" data-url="' + url.val() + '"  data-language="{{$menu->language}}" data-nav_target="' + target.val() + '" data-icon="' + icon.val() + '" data-menu_id="{{$menu->id}}">' +
                     '<div class="dd-handle dd3-handle" > Drag</div>' +
                     '<div class="dd3-content"><span>' + label.val() + '</span>' +
-                    '<div class="item-edit"><i class="fa-duotone fa-pen-to-square"></i></div>' +
+                    '<div class="item-edit"><i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-pen-to-square"></i></div>' +
                     '</div>' +
                     '<div class="item-settings d-none">' +
                     '<p><label for="">@lang('menu.title')<br><input type="text" name="navigation_title" value="' + label.val() + '"></label></p>' +
@@ -194,8 +194,8 @@
 
                     '<p><label for="">@lang('menu.icon')<br><input type="text" name="navigation_icon" value="' + icon.val() + '"></label></p>' +
 
-                    '<p><a class="item-delete" href="javascript:;"> <i class="fa-duotone fa-trash"></i> </a> |' +
-                    '<a class="item-close" href="javascript:;"><i class="fa-duotone fa-circle-xmark"></i></a></p>' +
+                    '<p><a class="item-delete" href="javascript:;"> <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-trash"></i> </a> |' +
+                    '<a class="item-close" href="javascript:;"><i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-circle-xmark"></i></a></p>' +
                     '</div>' +
                     '</li>';
 

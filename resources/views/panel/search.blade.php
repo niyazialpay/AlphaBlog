@@ -26,7 +26,7 @@
                                    value="{{GetPost(request()->search)}}">
                             <div class="input-group-append">
                                 <button class="btn btn-navbar search-button" type="submit">
-                                    <i class="fa-duotone fa-magnifying-glass"></i>
+                                    <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-magnifying-glass"></i>
                                 </button>
                             </div>
                         </div>
@@ -74,9 +74,9 @@
                                    data-bs-placement="left"
                                    data-bs-title="@if($item->think) @lang('search.thinking') @else @lang('search.think') @endif ">
                                     @if($item->think)
-                                        <i class="fa-duotone fa-face-monocle"></i>
+                                        <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-face-monocle"></i>
                                     @else
-                                        <i class="fa-duotone fa-face-thinking"></i>
+                                        <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-face-thinking"></i>
                                     @endif
                                 </a>
 
@@ -85,7 +85,7 @@
                                    data-bs-toggle="tooltip"
                                    data-bs-placement="right"
                                    data-bs-title="@lang('general.delete')">
-                                    <i class="fa-duotone fa-trash"></i>
+                                    <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-trash"></i>
                                 </a>
                             </td>
                         </tr>
@@ -103,11 +103,11 @@
         </div>
         <div class="card-footer text-right">
             <a href="javascript:deleteAll()" class="btn btn-danger">
-                <i class="fa-duotone fa-trash"></i>
+                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-trash"></i>
                 @lang('search.delete.delete_all')
             </a>
             <a href="javascript:deleteNotInterested()" class="btn btn-danger">
-                <i class="fa-duotone fa-trash"></i>
+                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-trash"></i>
                 @lang('search.delete.delete_not_think')
             </a>
         </div>
@@ -127,14 +127,14 @@
                         let word = $('#word-' + id);
                         if(data.think) {
                             word
-                                .html('<i class="fa-duotone fa-face-monocle"></i>')
+                                .html('<i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-face-monocle"></i>')
                                 .attr('data-bs-title', '@lang('search.thinking')');
                             const tooltip = bootstrap.Tooltip.getInstance('#word-' + id);
                             tooltip.setContent({ '.tooltip-inner': '@lang('search.thinking')' });
                         }
                         else{
                             word
-                                .html('<i class="fa-duotone fa-face-thinking"></i>')
+                                .html('<i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-face-thinking"></i>')
                                 .attr('data-bs-title', '@lang('search.think')');
                             const tooltip = bootstrap.Tooltip.getInstance('#word-' + id);
                             tooltip.setContent({ '.tooltip-inner': '@lang('search.think')' });

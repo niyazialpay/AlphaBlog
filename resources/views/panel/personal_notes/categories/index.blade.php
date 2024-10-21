@@ -83,7 +83,7 @@
                        data-bs-toggle="tooltip" data-bs-placement="top"
                        title="@lang('general.new')"
                        class="btn btn-sm btn-primary">
-                        <i class="fa-duotone fa-plus"></i> @lang('general.new')
+                        <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-plus"></i> @lang('general.new')
                     </a>
                     <form class="row" method="post" id="category_create_form" action="javascript:void(0);">
                         <div class="col-12 mb-3">

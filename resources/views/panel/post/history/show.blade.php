@@ -54,7 +54,7 @@
                         <form class="card-footer" method="post" action="javascript:void(0)">
                             @csrf
                             <button class="btn btn-sm btn-primary text-white" type="submit">
-                                <i class="fa-duotone fa-clock-rotate-left"></i> @lang('post.revert')
+                                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-clock-rotate-left"></i> @lang('post.revert')
                             </button>
                             <a class="btn btn-sm btn-danger text-white"
                                data-bs-toggle="tooltip"

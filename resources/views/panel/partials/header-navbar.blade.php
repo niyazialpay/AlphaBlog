@@ -5,13 +5,13 @@
     </li>
     <li class="nav-item">
         <a class="nav-link" href="{{config('app.url')}}">
-            <i class="fa-duotone fa-house"></i>
+            <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-house"></i>
         </a>
     </li>
     @if(config('services.openai.key') || config('gemini.api_key'))
         <li class="nav-item d-none d-md-block">
             <a class="nav-link" href="{{route('chatbot')}}">
-                <i class="fa-duotone fa-robot"></i>
+                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-robot"></i>
             </a>
         </li>
     @endif
@@ -19,7 +19,7 @@
         <li class="nav-item d-none d-md-block">
             <a href="{{route('admin.post.create', ['type' => 'blogs'])}}"
                class="nav-link">
-                <i class="fa-duotone fa-file top-icon"></i>
+                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-file top-icon"></i>
                 <small>
                     @lang('post.new_post')
                 </small>
@@ -31,13 +31,13 @@
                data-bs-placement="right"
                title="@lang('post.new_post')"
                class="nav-link">
-                <i class="fa-duotone fa-file"></i>
+                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-file"></i>
             </a>
         </li>
     @endcan
     <li class="nav-item d-none d-md-block">
         <a class="nav-link clear-cache" href="javascript:void(0);">
-            <i class="fa-duotone fa-trash-can top-icon"></i>
+            <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-trash-can top-icon"></i>
             <small>
                 @lang('cache.clear_cache')
             </small>
@@ -122,22 +122,22 @@
         </a>
         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
             <a href="{{route('admin.profile.index')}}" class="dropdown-item">
-                <i class="fa-duotone fa-user top-icon"></i> @lang('user.profile')
+                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-user top-icon"></i> @lang('user.profile')
             </a>
             <a>
                 <a href="{{route('admin.profile.index')}}?tab=security" class="dropdown-item">
-                    <i class="fa-duotone fa-shield-halved top-icon"></i> @lang('profile.security')
+                    <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-shield-halved top-icon"></i> @lang('profile.security')
                 </a>
             </a>
             <div class="dropdown-divider"></div>
             @if(auth()->user()->webauthn || auth()->user()->otp)
                 <a href="{{route('lockscreen')}}" class="dropdown-item">
-                    <i class="fa-duotone fa-lock top-icon"></i> @lang('user.lockscreen')
+                    <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-lock top-icon"></i> @lang('user.lockscreen')
                 </a>
             @endif
             <a href="javascript:void(0)" class="dropdown-item"
                data-bs-toggle="modal" data-bs-target="#logoutModal">
-                <i class="fa-duotone fa-right-from-bracket top-icon"></i> @lang('user.logout')
+                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-right-from-bracket top-icon"></i> @lang('user.logout')
             </a>
         </div>
     </li>

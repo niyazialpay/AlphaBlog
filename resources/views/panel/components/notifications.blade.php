@@ -2,7 +2,7 @@
    data-bs-placement="bottom"
    title="@lang('notifications.notifications')"
    aria-expanded="false">
-    <i class="fa-duotone fa-bell"></i>
+    <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-bell"></i>
     @if($total_unread_notifications>0)
     <span class="badge badge-danger navbar-badge">{{$total_unread_notifications}}</span>
     @endif
@@ -14,7 +14,7 @@
         <a href="{{route('notifications.readAndRedirect', $notification->id)}}"
            data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $notification->data['title'] }}"
            class="dropdown-item">
-            <span class="notification-message"><i class="fa-duotone fa-bell"></i> {{ $notification->data['message'] }}</span>
+            <span class="notification-message"><i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-bell"></i> {{ $notification->data['message'] }}</span>
             <span class="float-right text-muted text-sm">{{ $notification->created_at->diffForHumans() }}</span>
         </a>
     @endforeach

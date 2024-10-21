@@ -12,7 +12,11 @@
         <li class="nav-item">
             <a href="{{route('admin.analytics')}}" class="nav-link
         @if(request()->is(config('settings.admin_panel_path').'/analytics')) active @endif ">
-                <i class="fa-duotone fa-solid fa-chart-mixed nav-icon"></i>
+                @if(config('settings.fontawesome_pro'))
+                <i class="fa-duotone fa-chart-mixed nav-icon"></i>
+                @else
+                    <i class="fa-regular fa-chart-bar nav-icon"></i>
+                @endif
                 <p>
                     @lang('dashboard.analytics')
                 </p>
@@ -23,7 +27,7 @@
         <li class="nav-item">
             <a href="{{route('chatbot')}}" class="nav-link
         @if(request()->is(config('settings.admin_panel_path').'/ai-chatbot*')) active @endif ">
-                <i class="fa-duotone fa-robot nav-icon"></i>
+                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-robot nav-icon"></i>
                 <p>
                     @lang('chatbot.chatbot')
                 </p>
@@ -35,7 +39,7 @@
         @if(request()->is(config('settings.admin_panel_path').'/blogs*', config('settings.admin_panel_path').'/search*')) menu-open @endif ">
         <a href="{{route('admin.posts', ['type' => 'blogs', 'language' => app('default_language')->code])}}"
            class="nav-link @if(request()->is(config('settings.admin_panel_path').'/blogs*')) active @endif ">
-            <i class="fa-duotone fa-file-lines nav-icon"></i>
+            <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-file-lines nav-icon"></i>
             @can('moderator', 'App\Models\Post\Posts')
             @if($newCommentsCount>0 || $searchedWordsCount>0)
                 <span class="badge badge-danger right">
@@ -58,7 +62,7 @@
                 <li class="nav-item">
                     <a href="{{route('admin.post.create', ['type' => 'blogs'])}}"
                        class="nav-link @if(request()->is(config('settings.admin_panel_path').'/blogs/create')) active @endif ">
-                        <i class="fa-duotone fa-file nav-icon"></i>
+                        <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-file nav-icon"></i>
                         <p>@lang('general.new')</p>
                     </a>
                 </li>
@@ -67,7 +71,7 @@
                 <a href="{{route('admin.posts', ['type' => 'blogs', 'language' => app('default_language')->code])}}"
                    class="nav-link
                    @if(request()->is(config('settings.admin_panel_path').'/blogs', config('settings.admin_panel_path').'/blogs/*/edit')) active @endif ">
-                    <i class="fa-duotone fa-file-lines nav-icon"></i>
+                    <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-file-lines nav-icon"></i>
                     <p>@lang('post.all_blogs')</p>
                 </a>
             </li>
@@ -76,7 +80,7 @@
                     <a href="{{route('admin.categories')}}"
                        class="nav-link
                    @if(request()->is(config('settings.admin_panel_path').'/blogs/categories*')) active @endif ">
-                        <i class="fa-duotone fa-list nav-icon"></i>
+                        <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-list nav-icon"></i>
                         <p>
                             @lang('categories.categories')
                         </p>
@@ -88,7 +92,7 @@
                     <a href="{{route('admin.post.comments')}}"
                        class="nav-link
                    @if(request()->is(config('settings.admin_panel_path').'/blogs/comments*')) active @endif ">
-                        <i class="fa-duotone fa-comments nav-icon"></i>
+                        <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-comments nav-icon"></i>
                         @if($newCommentsCount>0)
                             <span class="badge badge-danger right">
                                 @if($newCommentsCount>99)
@@ -109,7 +113,11 @@
                     <a href="{{route('admin.search.index')}}"
                        class="nav-link
                    @if(request()->is(config('settings.admin_panel_path').'/search*')) active @endif ">
+                        @if(config('settings.fontawesome_pro'))
                         <i class="fa-duotone fa-file-magnifying-glass nav-icon"></i>
+                        @else
+                        <i class="fa-solid fa-magnifying-glass nav-icon"></i>
+                        @endif
                         @if($searchedWordsCount>0)
                             <span class="badge badge-danger right">
                                 @if($searchedWordsCount>99)
@@ -134,7 +142,11 @@
             <a href="{{route('admin.posts', ['type' => 'pages', 'language' => app('default_language')->code])}}"
                class="nav-link
            @if(request()->is(config('settings.admin_panel_path').'/pages*')) active @endif ">
-                <i class="fa-duotone fa-page  nav-icon"></i>
+                @if(config('settings.fontawesome_pro'))
+                <i class="fa-duotone fa-page nav-icon"></i>
+                @else
+                <i class="fa-solid fa-file nav-icon"></i>
+                @endif
                 <p>
                     @lang('post.pages')
                     <i class="right fas fa-angle-left"></i>
@@ -145,7 +157,11 @@
                     <a href="{{route('admin.post.create', ['type' => 'pages', 'language' => app('default_language')->code])}}"
                        class="nav-link
                    @if(request()->is(config('settings.admin_panel_path').'/pages/create')) active @endif ">
-                        <i class="fa-duotone fa-page  nav-icon"></i>
+                        @if(config('settings.fontawesome_pro'))
+                        <i class="fa-duotone fa-page nav-icon"></i>
+                        @else
+                        <i class="fa-solid fa-file nav-icon"></i>
+                        @endif
                         <p>@lang('general.new')</p>
                     </a>
                 </li>
@@ -155,7 +171,7 @@
                        class="nav-link
                    @if(request()->is(config('settings.admin_panel_path').'/pages',
                     config('settings.admin_panel_path').'/pages/*/edit')) active @endif ">
-                        <i class="fa-duotone fa-file-lines nav-icon"></i>
+                        <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-file-lines nav-icon"></i>
                         <p>@lang('post.all_pages')</p>
                     </a>
                 </li>
@@ -166,7 +182,11 @@
         <li class="nav-item">
             <a href="{{route('admin.contact_page')}}" class="nav-link
             @if(request()->is(config('settings.admin_panel_path').'/contact*')) active @endif ">
+                @if(config('settings.fontawesome_pro'))
                 <i class="fa-duotone fa-message-text nav-icon"></i>
+                @else
+                <i class="fa-solid fa-envelope nav-icon"></i>
+                @endif
                 <p>
                     @lang('contact.contact_page')
                 </p>
@@ -179,7 +199,11 @@
         <a class="nav-link
         @if(request()->is(config('settings.admin_panel_path').'/notes*')) active @endif "
            href="javascript:void(0);">
+            @if(config('settings.fontawesome_pro'))
             <i class="fa-duotone fa-file-lock nav-icon"></i>
+            @else
+                <i class="fa-solid fa-file-shield nav-icon"></i>
+            @endif
             <p>
                 @lang('notes.notes')
                 <i class="right fas fa-angle-left"></i>
@@ -190,7 +214,11 @@
                 <a href="{{route('admin.notes.create')}}"
                    class="nav-link
                    @if(request()->is(config('settings.admin_panel_path').'/notes/create')) active @endif ">
-                    <i class="fa-duotone fa-page  nav-icon"></i>
+                    @if(config('settings.fontawesome_pro'))
+                    <i class="fa-duotone fa-page nav-icon"></i>
+                    @else
+                        <i class="fa-solid fa-file nav-icon"></i>
+                    @endif
                     <p>@lang('general.new')</p>
                 </a>
             </li>
@@ -201,7 +229,11 @@
                         config('settings.admin_panel_path').'/notes',
                         config('settings.admin_panel_path').'/notes/show/*'
                     )) active @endif ">
+                    @if(config('settings.fontawesome_pro'))
                     <i class="fa-duotone fa-file-lock nav-icon"></i>
+                    @else
+                        <i class="fa-solid fa-file-shield nav-icon"></i>
+                    @endif
                     <p>@lang('notes.all_notes')</p>
                 </a>
             </li>
@@ -209,7 +241,11 @@
                 <a href="{{route('admin.notes.categories')}}"
                    class="nav-link
                    @if(request()->is(config('settings.admin_panel_path').'/notes/categories*')) active @endif ">
+                    @if(config('settings.fontawesome_pro'))
                     <i class="fa-duotone fa-list nav-icon"></i>
+                    @else
+                        <i class="fa-solid fa-file-lines nav-icon"></i>
+                    @endif
                     <p>
                         @lang('categories.categories')
                     </p>
@@ -231,7 +267,7 @@
         <li class="nav-item">
             <a href="{{route('adminRoutes')}}"
                class="nav-link @if(request()->is(config('settings.admin_panel_path').'/routes*')) active @endif ">
-                <i class="fa-duotone fa-route nav-icon"></i>
+                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-route nav-icon"></i>
                 <p>
                     @lang('redirects.redirects')
                 </p>
@@ -240,7 +276,7 @@
         <li class="nav-item">
             <a href="{{route('admin.users')}}" class="nav-link
         @if(request()->is(config('settings.admin_panel_path').'/users*')) active @endif ">
-                <i class="fa-duotone fa-user nav-icon"></i>
+                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-user nav-icon"></i>
                 <p>
                     @lang('user.users')
                 </p>
@@ -249,7 +285,7 @@
         <li class="nav-item">
             <a href="{{route('admin.menu.index')}}" class="nav-link
             @if(request()->is(config('settings.admin_panel_path').'/menu*')) active @endif ">
-                <i class="fa-duotone fa-bars nav-icon"></i>
+                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-bars nav-icon"></i>
                 <p>
                     @lang('menu.menu')
                 </p>
@@ -258,7 +294,7 @@
         <li class="nav-item">
             <a href="{{route('admin.settings')}}"
                class="nav-link @if(request()->is(config('settings.admin_panel_path').'/settings*')) active @endif ">
-                <i class="fa-duotone fa-gear nav-icon"></i>
+                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-gear nav-icon"></i>
                 <p>
                     @lang('settings.settings')
                 </p>
@@ -288,7 +324,7 @@
                         <a href="{{route('cf.dns')}}"
                            class="nav-link
                    @if(request()->is(config('settings.admin_panel_path').'/cloudflare/dns')) active @endif ">
-                            <i class="fa-duotone fa-solid fa-globe nav-icon"></i>
+                            <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-solid fa-globe nav-icon"></i>
                             <p>DNS</p>
                         </a>
                     </li>
@@ -297,7 +333,7 @@
         @endcan
         <li class="nav-item">
             <a class="nav-link clear-cache" href="javascript:void(0);">
-                <i class="fa-duotone fa-trash-can nav-icon"></i>
+                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-trash-can nav-icon"></i>
                 <p>
                     @lang('cache.clear_cache')
                 </p>
@@ -309,7 +345,11 @@
         <li class="nav-item">
             <a href="{{route('admin.monitoring.pulse')}}"
                class="nav-link @if(request()->is(config('settings.admin_panel_path').'/monitoring/pulse')) active @endif ">
+                @if(config('settings.fontawesome_pro'))
                 <i class="fa-duotone fa-wave-pulse nav-icon"></i>
+                @else
+                    <i class="fa-solid fa-heart-pulse nav-icon"></i>
+                @endif
                 <p>
                     Pulse
                 </p>
@@ -318,7 +358,11 @@
         <li class="nav-item">
             <a href="{{route('admin.monitoring.telescope')}}"
                class="nav-link @if(request()->is(config('settings.admin_panel_path').'/monitoring/telescope')) active @endif ">
+                @if(config('settings.fontawesome_pro'))
                 <i class="fa-duotone fa-telescope nav-icon"></i>
+                @else
+                    <i class="fa-solid fa-binoculars nav-icon"></i>
+                @endif
                 <p>
                     Telescope
                 </p>
@@ -336,7 +380,7 @@
         <li class="nav-item">
             <a href="{{route('admin.monitoring.logs')}}"
                class="nav-link @if(request()->is(config('settings.admin_panel_path').'/monitoring/logs')) active @endif ">
-                <i class="fa-duotone fa-clipboard-list nav-icon"></i>
+                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-clipboard-list nav-icon"></i>
                 <p>
                     Log Viewer
                 </p>

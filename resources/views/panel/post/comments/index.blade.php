@@ -38,7 +38,7 @@
                                         <input class="form-control form-control-navbar" type="search" name="search" placeholder="@lang('general.search')" aria-label="@lang('general.search')" value="{{GetPost(request()->search)}}">
                                         <div class="input-group-append">
                                             <button class="btn btn-navbar search-button" type="submit">
-                                                <i class="fa-duotone fa-magnifying-glass"></i>
+                                                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-magnifying-glass"></i>
                                             </button>
                                         </div>
                                     </div>
@@ -106,21 +106,21 @@
                                                        class="btn btn-sm btn-danger mx-1 my-2"
                                                        data-bs-toggle="tooltip" data-bs-placement="top"
                                                        title="@lang('comments.disapprove')">
-                                                        <i class="fa-duotone fa-ban nav-icon"></i>
+                                                        <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-ban nav-icon"></i>
                                                     </a>
                                                 @else
                                                     <a href="javascript:ApproveComment('{{$comment->id}}', true)"
                                                        class="btn btn-sm btn-success mx-1 my-2"
                                                        data-bs-toggle="tooltip" data-bs-placement="top"
                                                        title="@lang('comments.approve')">
-                                                        <i class="fa-duotone fa-check nav-icon"></i>
+                                                        <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-check nav-icon"></i>
                                                     </a>
                                                 @endif
                                                 <a href="javascript:NewComment('{{$comment->post_id}}', '{{$comment->post->title}}')"
                                                    class="btn btn-sm btn-primary mx-1 my-2"
                                                    data-bs-toggle="tooltip" data-bs-placement="top"
                                                    title="@lang('comments.reply')">
-                                                    <i class="fa-duotone fa-reply nav-icon"></i>
+                                                    <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-reply nav-icon"></i>
                                                 </a>
                                                 <a href="javascript:EditComment('{{$comment->id}}')"
                                                    class="btn btn-sm btn-primary mx-1 my-2"

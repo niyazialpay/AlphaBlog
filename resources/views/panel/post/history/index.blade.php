@@ -39,7 +39,7 @@
                                         <input class="form-control form-control-navbar" type="search" name="search" placeholder="@lang('general.search')" aria-label="@lang('general.search')" value="{{GetPost(request()->search)}}">
                                         <div class="input-group-append">
                                             <button class="btn btn-navbar search-button" type="submit">
-                                                <i class="fa-duotone fa-magnifying-glass"></i>
+                                                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-magnifying-glass"></i>
                                             </button>
                                         </div>
                                     </div>

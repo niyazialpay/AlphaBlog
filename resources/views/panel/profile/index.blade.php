@@ -30,13 +30,13 @@
                             <p class="text-muted text-center">{{$user->nickname}}</p>
 
 
-                            <strong><i class="fa-duotone fa-briefcase mr-1"></i> @lang('profile.job_title')</strong>
+                            <strong><i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-briefcase mr-1"></i> @lang('profile.job_title')</strong>
 
                             <p class="text-muted">
                                 {{$user->job_title}}
                             </p>
 
-                            <strong><i class="fa-duotone fa-book mr-1"></i> @lang('profile.education')</strong>
+                            <strong><i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-book mr-1"></i> @lang('profile.education')</strong>
 
                             <p class="text-muted">
                                 {{$user->education}}
@@ -44,13 +44,13 @@
 
                             <hr>
 
-                            <strong><i class="fa-duotone fa-location-dot mr-1"></i> @lang('profile.location')</strong>
+                            <strong><i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-location-dot mr-1"></i> @lang('profile.location')</strong>
 
                             <p class="text-muted">{{$user->location}}</p>
 
                             <hr>
 
-                            <strong><i class="fa-duotone fa-pencil mr-1"></i> @lang('profile.skills')</strong>
+                            <strong><i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-pencil mr-1"></i> @lang('profile.skills')</strong>
 
                             <p class="text-muted">
                                 @foreach(explode(',',$user->skills) as $skill)
@@ -60,7 +60,7 @@
 
                             <hr>
 
-                            <strong><i class="fa-duotone fa-book-user mr-1"></i> @lang('profile.about-me')</strong>
+                            <strong><i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-book-user mr-1"></i> @lang('profile.about-me')</strong>
 
                             <p class="text-muted">{{$user->about}}</p>
 
@@ -381,7 +381,7 @@
                                         <div class="col-12 mb-3">
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
-                                                    <i class="fa-duotone fa-globe-pointer"
+                                                    <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-globe-pointer"
                                                        data-bs-toggle="tooltip"
                                                        data-bs-placement="left"
                                                        data-bs-title="Web"></i>

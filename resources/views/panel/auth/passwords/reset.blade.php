@@ -11,7 +11,7 @@
 
             <div class="input-group-append">
                 <div class="input-group-text">
-                    <i class="fa-duotone fa-user"></i>
+                    <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-user"></i>
                 </div>
             </div>
         </div>
