@@ -151,8 +151,13 @@ class SearchController extends Controller
         $results['users'] = User::search($query)->orderBy('created_at', 'desc')->take($paginate)->get();
         if (request()->cookie('encryption_key')) {
             $personal_notes = new PersonalNotes;
-            $personal_notes::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
-            $results['personal_notes'] = $personal_notes->search($query)->orderBy('created_at', 'desc')->take($paginate)->get();
+            try{
+                $personal_notes::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
+                $results['personal_notes'] = $personal_notes->search($query)->orderBy('created_at', 'desc')->take($paginate)->get();
+            }
+            catch (Exception $e) {
+                $results['personal_notes'] = [];
+            }
         } else {
             $results['personal_notes'] = [];
         }

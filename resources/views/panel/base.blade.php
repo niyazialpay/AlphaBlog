@@ -287,35 +287,35 @@
                 if(data.posts.length > 0){
                     result_items += '<li><strong>@lang('post.blogs')</strong><ul class="sub-results">';
                     $.each(data.posts, function(index, item) {
-                        result_items += '<li class="result-item"><a href="{{config('app.url')}}/{{config('settings.admin_panel_path')}}/blogs/' + item.id + '/edit">' + item.title.replace('\\', '') + ' (' + item.language + ')</a></li>';
+                        result_items += '<li class="result-item"><a href="{{config('app.url')}}/{{config('settings.admin_panel_path')}}/blogs/' + item.id + '/edit">' + item.title.replace(/\\/g, '') + ' (' + item.language + ')</a></li>';
                     });
                     result_items += '</ul></li>';
                 }
                 if(data.page.length > 0){
                     result_items += '<li><strong>@lang('post.pages')</strong><ul class="sub-results">';
                     $.each(data.page, function(index, item) {
-                        result_items += '<li class="result-item"><a href="{{config('app.url')}}/{{config('settings.admin_panel_path')}}/blogs/' + item.id + '/edit">' + item.title.replace('\\', '') + ' (' + item.language + ')</a></li>';
+                        result_items += '<li class="result-item"><a href="{{config('app.url')}}/{{config('settings.admin_panel_path')}}/blogs/' + item.id + '/edit">' + item.title.replace(/\\/g, '') + ' (' + item.language + ')</a></li>';
                     });
                     result_items += '</ul></li>';
                 }
                 if(data.categories.length > 0){
                     result_items += '<li><strong>@lang('categories.categories')</strong><ul class="sub-results">';
                     $.each(data.categories, function(index, item) {
-                        result_items += '<li class="result-item"><a href="{{config('app.url')}}/{{config('settings.admin_panel_path')}}/blogs/categories/' + item.id + '/edit">' + item.name.replace('\\', '') + ' (' + item.language + ')</a></li>';
+                        result_items += '<li class="result-item"><a href="{{config('app.url')}}/{{config('settings.admin_panel_path')}}/blogs/categories/' + item.id + '/edit">' + item.name.replace(/\\/g, '') + ' (' + item.language + ')</a></li>';
                     });
                     result_items += '</ul></li>';
                 }
                 if(data.personal_notes.length > 0){
                     result_items += '<li><strong>@lang('notes.notes')</strong><ul class="sub-results">';
                     $.each(data.personal_notes, function(index, item) {
-                        result_items += '<li class="result-item"><a href="{{config('app.url')}}/{{config('settings.admin_panel_path')}}/notes/show/' + item.id + '">' + item.title.replace('\\', '') + '</a></li>';
+                        result_items += '<li class="result-item"><a href="{{config('app.url')}}/{{config('settings.admin_panel_path')}}/notes/show/' + item.id + '">' + item.title.replace(/\\/g, '') + '</a></li>';
                     });
                     result_items += '</ul></li>';
                 }
                 if(data.users.length > 0){
                     result_items += '<li><strong>@lang('user.users')</strong><ul class="sub-results">';
                     $.each(data.users, function(index, item) {
-                        result_items += '<li class="result-item"><a href="{{config('app.url')}}/{{config('settings.admin_panel_path')}}/users/' + item.id + '/edit">' + item.name.replace('\\', '') + ' ' + item.surname.replace('\\', '') + ' - ' + item.nickname.replace('\\', '') + '</a></li>';
+                        result_items += '<li class="result-item"><a href="{{config('app.url')}}/{{config('settings.admin_panel_path')}}/users/' + item.id + '/edit">' + item.name.replace(/\\/g, '') + ' ' + item.surname.replace(/\\/g, '') + ' - ' + item.nickname.replace(/\\/g, '') + '</a></li>';
                     });
                     result_items += '</ul></li>';
                 }
