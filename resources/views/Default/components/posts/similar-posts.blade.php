@@ -10,9 +10,9 @@
             @foreach($posts as $item)
                 <li class="item col-lg-4 col-md-4 col-sm-4">
                     <div class="thporb">
-                        @if($item->media->last())
+                        @if($item->media->where('collection_name', 'posts')->last())
+                            @php($media = $item->media->where('collection_name', 'posts')->last())
                         <a href="{{route('page', ['language' => session('language'), $item])}}">
-                            @php($media = $item->media->last())
                             <img class="lazy"
                                  src="{{config('app.url')}}/themes/Default/images/loading.svg"
                                  data-src="{{route('image', [

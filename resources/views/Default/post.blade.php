@@ -14,8 +14,8 @@
 
 @section('canonical_url', url()->current())
 
-@if($post->media->last())
-    @php($media = $post->media->last())
+@if($media = $post->media->where('collection_name', 'posts')->last())
+    @php($media = $post->media->where('collection_name', 'posts')->last())
     @section('og_image', route('image', [
     'path' => $media->id,
     'width' => 800,
@@ -76,8 +76,8 @@
                     </a>
                 </div>
             </header>
-            @if($post->media->last())
-            @php($media = $post->media->last())
+            @if($post->media->where('collection_name', 'posts')->last())
+            @php($media = $post->media->where('collection_name', 'posts')->last())
             <div class="image featured">
                 <img class="lazy"
                      src="{{config('app.url')}}/themes/Default/images/loading.svg"

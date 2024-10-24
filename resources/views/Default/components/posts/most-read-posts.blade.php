@@ -27,14 +27,15 @@
                         <img class="lazy" src="{{config('app.url')}}/themes/Default/images/loading.svg" data-src="https://www.gravatar.com/avatar/{{hash('sha256', strtolower(trim($item->email)))}}" alt="{{$item->nickname}}" />
                     </a>
                 </header>
-                @if($item->media_id)
+                @if($item->media->where('collection_name', 'posts')->last())
+                    @php($media = $item->media->where('collection_name', 'posts')->last())
                 <a href="{{route('page', ['language' => $item->language, $item])}}" class="image">
                     <img class="lazy" src="{{config('app.url')}}/themes/Default/images/loading.svg" data-src="{{route('image', [
                         'path' => $item->media_id,
                         'width' => 300,
                         'height' => 150,
                         'type' => 'cover',
-                        'image' => $item->file_name
+                        'image' => $media->file_name
                     ])}}" alt="{{stripslashes($item->title)}}" />
                 </a>
                 @endif

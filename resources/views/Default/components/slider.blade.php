@@ -3,14 +3,15 @@
         <div class="owl-carousel owl-theme">
             @foreach($slider as $item)
                 <div class="feat-item item slider">
-                    @if($item->media_id)
+                    @if($item->media->where('collection_name', 'posts')->last())
+                        @php($media = $item->media->where('collection_name', 'posts')->last())
                     <img class="lazy" src="{{config('app.url')}}/themes/Default/images/loading.svg"
                          data-src="{{route('image', [
                             'path' => $item->media_id,
                             'width' => 800,
                             'height' => 400,
                             'type' => 'cover',
-                            'image' => $item->file_name
+                            'image' => $media->file_name
                         ])}}"
                          alt="{{stripslashes($item->title)}}">
                     @endif

@@ -41,7 +41,7 @@
                 'height' => 400,
                 'type' => 'cover',
                 'image' => $item->file_name
-            ])}}" alt="{{$item->title}}" />
+            ])}}" alt="{{stripslashes($item->title)}}" />
             </a>
         @endif
         <p>{!! mb_substr(strip_tags(stripslashesNull($item->content),"<br><p>"),0,2000) !!}</p>

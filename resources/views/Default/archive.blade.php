@@ -23,7 +23,7 @@
                 <ul>
                     <li>
                         <a href="{{route('home', ['language' => session('language')])}}">
-                            <i class="fa-duotone fa-house"></i>
+                            <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif  fa-house"></i>
                         </a>
                     </li>
                     <li>
