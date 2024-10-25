@@ -8,7 +8,6 @@ if (config('app.cdn_url') != null && config('app.cdn_url') != config('app.url'))
 } else {
     $domain = config('app.url');
 }
-
 Route::domain($domain)->group(function () {
     Route::get('/image/{path}/{width}/{height}/{type}/{image}', [\App\Http\Controllers\ImageProcessController::class, 'index'])
         ->name('image')
@@ -20,12 +19,13 @@ Route::domain($domain)->group(function () {
             'type' => '[a-zA-Z0-9\/]+',
         ]);
 
+    Route::get('/{any}', [\App\Http\Controllers\CDNController::class, 'index'])
+        ->where('any', '.*')->name('cdn');
+
     if (config('app.cdn_url') != null && config('app.cdn_url') != config('app.url')) {
         Route::get('/', function () {
             return redirect(config('app.url'));
         });
-        Route::get('/{any}', [\App\Http\Controllers\CDNController::class, 'index'])
-            ->where('any', '.*')->name('cdn');
     }
 });
 
