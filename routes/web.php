@@ -18,15 +18,6 @@ use Laravel\Fortify\Http\Controllers\VerifyEmailController;
 |
 */
 
-Route::middleware([
-    \App\Http\Middleware\DisableCookiesForCdn::class,
-])
-    ->withoutMiddleware([
-        \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
-        \Illuminate\Session\Middleware\StartSession::class,
-    ])
-    ->group(base_path('routes/cdn.php'));
-
 Route::any('/'.config('settings.admin_panel_path').'/manifest.json',
     [\App\Http\Controllers\ManifestController::class, 'manifestPanel'])
     ->name('manifest.panel');
@@ -175,9 +166,9 @@ Route::post('/webauthn/login',
 
 Route::group([
     'middleware' => [
-        \Fahlisaputra\Minify\Middleware\MinifyHtml::class,
-        \Fahlisaputra\Minify\Middleware\MinifyCss::class,
-        \Fahlisaputra\Minify\Middleware\MinifyJavascript::class,
+        //\Fahlisaputra\Minify\Middleware\MinifyHtml::class,
+        //\Fahlisaputra\Minify\Middleware\MinifyCss::class,
+        //\Fahlisaputra\Minify\Middleware\MinifyJavascript::class,
     ],
 ], function () {
     try {

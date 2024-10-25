@@ -26,6 +26,7 @@ return [
     'deleted_at' => 'Silinme Tarihi',
     'actions' => 'İşlemler',
     'author' => 'Yazar',
+    'authors' => 'Yazarlar',
     'new' => 'Yeni',
     'add-edit' => 'Ekle/Düzenle',
     'restore' => 'Geri Yükle',
@@ -41,4 +42,5 @@ return [
     'previous' => 'Önceki',
     'next' => 'Sonraki',
     'rename' => 'Yeniden Adlandır',
+    'post_count' => 'Yazı Sayısı',
 ];

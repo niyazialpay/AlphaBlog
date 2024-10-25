@@ -14,7 +14,7 @@
 
 @section('canonical_url', url()->current())
 
-@if($media = $post->media->where('collection_name', 'posts')->last())
+@if($post->media->where('collection_name', 'posts')->last())
     @php($media = $post->media->where('collection_name', 'posts')->last())
     @section('og_image', route('image', [
     'path' => $media->id,
@@ -70,7 +70,7 @@
                             ])}}" class="author">
                         <span class="name">{{$post->user->nickname}}</span>
                         <img class="lazy"
-                             src="{{config('app.url')}}/themes/Default/images/loading.svg"
+                             src="{{route('cdn', '/themes/Default/images/loading.svg')}}"
                              data-src="https://www.gravatar.com/avatar/{{hash('sha256', strtolower(trim($post->user->email)))}}"
                              alt="{{$post->user->nickname}}"/>
                     </a>
@@ -80,7 +80,7 @@
             @php($media = $post->media->where('collection_name', 'posts')->last())
             <div class="image featured">
                 <img class="lazy"
-                     src="{{config('app.url')}}/themes/Default/images/loading.svg"
+                     src="{{route('cdn', '/themes/Default/images/loading.svg')}}"
                      data-src="{{route('image', [
                         'path' => $media->id,
                         'width' => 800,
@@ -141,7 +141,7 @@
                         <a id="comment-{{$item->id}}"></a>
                         <a class="comment-avtar">
                             <img class="lazy"
-                                 src="{{config('app.url')}}/themes/Default/images/loading.svg"
+                                 src="{{route('cdn', '/themes/Default/images/loading.svg')}}"
                                  data-src="https://www.gravatar.com/avatar/{{hash('sha256', strtolower(trim($item->user?->email ?? $item->email)))}}"
                                  alt="{{$item->user?->nickname ?? $item->name}}"/>
                         </a>

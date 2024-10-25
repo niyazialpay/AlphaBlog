@@ -14,7 +14,7 @@
                             @php($media = $item->media->where('collection_name', 'posts')->last())
                         <a href="{{route('page', ['language' => session('language'), $item])}}">
                             <img class="lazy"
-                                 src="{{config('app.url')}}/themes/Default/images/loading.svg"
+                                 src="{{route('cdn', '/themes/Default/images/loading.svg')}}"
                                  data-src="{{route('image', [
                                         'path' => $media->id,
                                         'width' => 720,

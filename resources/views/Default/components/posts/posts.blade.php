@@ -27,7 +27,7 @@
                         {{$item->user->nickname}}
                     </span>
                     <img class="lazy"
-                         src="{{config('app.url')}}/themes/Default/images/loading.svg"
+                         src="{{route('cdn', '/themes/Default/images/loading.svg')}}"
                          data-src="https://www.gravatar.com/avatar/{{hash('sha256', strtolower(trim($item->user->email)))}}"
                          alt="{{$item->user->nickname}}" />
                 </a>
@@ -36,7 +36,7 @@
         @if($item->media->where('collection_name', 'posts')->last())
             @php($media = $item->media->where('collection_name', 'posts')->last())
         <a href="{{route('page', ['language' => session('language'), $item])}}" class="image featured">
-            <img class="lazy" src="{{config('app.url')}}/themes/Default/images/loading.svg" data-src="{{route('image', [
+            <img class="lazy" src="{{route('cdn', '/themes/Default/images/loading.svg')}}" data-src="{{route('image', [
                 'path' => $media->id,
                 'width' => 800,
                 'height' => 400,

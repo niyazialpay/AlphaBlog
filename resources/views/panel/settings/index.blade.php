@@ -366,7 +366,7 @@
                                     </label>
                                     <textarea
                                         class="form-control" id="google_ad_manager"
-                                        name="google_ad_manager">{{$advertise_settings?->google_ad_manager}}</textarea>
+                                        name="google_ad_manager" rows="10">{{$advertise_settings?->google_ad_manager}}</textarea>
                                 </div>
                                 <div class="col-12 mb-3">
                                     <label for="square_display_advertise">
@@ -374,9 +374,7 @@
                                     </label>
                                     <textarea
                                         class="form-control" id="square_display_advertise"
-                                        name="square_display_advertise">
-                                        {{$advertise_settings?->square_display_advertise}}
-                                    </textarea>
+                                        name="square_display_advertise" rows="10">{{$advertise_settings?->square_display_advertise}}</textarea>
                                 </div>
                                 <div class="col-12 mb-3">
                                     <label for="vertical_display_advertise">
@@ -384,9 +382,7 @@
                                     </label>
                                     <textarea
                                         class="form-control" id="vertical_display_advertise"
-                                        name="vertical_display_advertise">
-                                        {{$advertise_settings?->vertical_display_advertise}}
-                                    </textarea>
+                                        name="vertical_display_advertise" rows="10">{{$advertise_settings?->vertical_display_advertise}}</textarea>
                                 </div>
                                 <div class="col-12 mb-3">
                                     <label for="horizontal_display_advertise">
@@ -394,9 +390,7 @@
                                     </label>
                                     <textarea
                                         class="form-control" id="horizontal_display_advertise"
-                                        name="horizontal_display_advertise">
-                                        {{$advertise_settings?->horizontal_display_advertise}}
-                                    </textarea>
+                                        name="horizontal_display_advertise" rows="10">{{$advertise_settings?->horizontal_display_advertise}}</textarea>
                                 </div>
                                 @csrf
                                 <div class="col-12 mb-3">

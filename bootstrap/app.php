@@ -15,12 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->use([
-            \Illuminate\Session\Middleware\StartSession::class,
             \App\Http\Middleware\TrustProxies::class,
             \App\Http\Middleware\RouteRedirect::class,
             \App\Http\Middleware\Language::class,
             \App\Http\Middleware\IpFilter::class,
-            \App\Http\Middleware\DisableCookiesForCdn::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

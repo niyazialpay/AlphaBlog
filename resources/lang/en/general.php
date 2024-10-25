@@ -26,6 +26,7 @@ return [
     'deleted_at' => 'Deleted At',
     'actions' => 'Actions',
     'author' => 'Author',
+    'authors' => 'Authors',
     'new' => 'New',
     'add-edit' => 'Add/Edit',
     'restore' => 'Restore',
@@ -41,4 +42,5 @@ return [
     'previous' => 'Previous',
     'next' => 'Next',
     'rename' => 'Rename',
+    'post_count' => 'Post Count',
 ];

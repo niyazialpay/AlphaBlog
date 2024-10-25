@@ -56,17 +56,11 @@ class ImageProcessController extends Controller
 
             return Response::make($im, 200)
                 ->header('Content-type', 'image/'.$im->getImageFormat())
-                /*->header('Pragma', 'public')
-                ->header('Cache-Control', ' max-age='.(86400 * 365))
-                ->header('Expires', gmdate('D, d M Y H:i:s \G\M\T', time() + 86400 * 365))
-                ->header('Etag', $etag)*/
-                ->header('access-control-allow-origin', $domain)
-                //->setContent('image/'.$im->getImageFormat())
+                //->header('access-control-allow-origin', $domain)
                 ->setPublic()
                 ->setMaxAge(86400 * 365)
                 ->setExpires(now()->addYear())
                 ->header('Last-Modified', gmdate('D, d M Y H:i:s', $last_modified).' GMT')
-                //->setLastModified(now()->addYear())
                 ->setEtag($etag)->withoutCookie(config('session.cookie'));
         }
     }
