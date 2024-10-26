@@ -17,4 +17,6 @@ return [
     'edit_route' => 'Yönlendirmeyi Düzenle',
     'add_route' => 'Yönlendirme Ekle',
     'redirects' => 'Yönlendirmeler',
+
+    'no_data' => 'Henüz yönlendirme eklenmemiş.',
 ];

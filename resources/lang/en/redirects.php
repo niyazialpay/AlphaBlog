@@ -17,4 +17,6 @@ return [
     'edit_route' => 'Edit Route',
     'add_route' => 'Add Route',
     'redirects' => 'Redirects',
+
+    'no_data' => 'No routes added yet.',
 ];

@@ -35,9 +35,11 @@ class LanguageAction
                 if (session()->has('language')) {
                     if ($request->segment(1) == session('language')) {
                         $language = $languages->getLanguage(session('language'));
-                    } elseif ($request->segment(1) == null) {
+                    }
+                    elseif ($request->segment(1) == null) {
                         $language = $languages->getLanguage(app('default_language')->code);
-                    } else {
+                    }
+                    else {
                         $language = $languages->getLanguage($request->segment(1));
                         if ($language == null) {
                             $route = RouteRedirectAction::RouteRedirect($request);
@@ -52,7 +54,8 @@ class LanguageAction
                             }
                         }
                     }
-                } else {
+                }
+                else {
                     if ($request->segment(1) == null) {
                         $language = $languages->getLanguage(app('default_language')?->code);
                     } else {
@@ -74,7 +77,8 @@ class LanguageAction
             } else {
                 if (session()->has('language')) {
                     $language = $languages->getLanguage(session('language'));
-                } else {
+                }
+                else {
                     $language = $languages->getLanguage(
                         explode('-', explode(',', $request->server('HTTP_ACCEPT_LANGUAGE')
                         )[0])[0]

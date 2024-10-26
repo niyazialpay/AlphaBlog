@@ -208,7 +208,7 @@ Route::group([
 
         Route::post('/comment-save', [\App\Http\Controllers\CommentController::class, 'store'])
             ->middleware([
-                \App\Http\Middleware\CloudflareTurnstile::class,
+                //\App\Http\Middleware\CloudflareTurnstile::class,
                 \Spatie\Honeypot\ProtectAgainstSpam::class,
             ])
             ->name('comment.save');

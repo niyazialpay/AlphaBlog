@@ -11,34 +11,48 @@
 @section('content')
     <div class="col-md-12">
         <div class="card">
-            <div class="card-header">
+            <div class="card-header d-flex">
                 @lang('redirects.redirects')
+                <div class="ms-auto">
+                    <a href="javascript:addRoute()" class="mb-5"><button class="btn btn-default"><i class="fas fa-file-word"></i></button></a>
+                </div>
             </div>
             <div class="card-body">
-                <a href="javascript:addRoute()" class="mb-5"><button class="btn btn-default"><i class="fas fa-file-word"></i></button></a>
-                <ul class="p-0 m-0">
-                    @foreach($routes as $route)
-                        <li class="row border rounded mt-2 mb-2 p-2">
-                            <div class="col-sm-3 col-md-5">
-                                <a href="{{config('app.url')}}/{{$route->old_url}}" target="_blank">{{$route->old_url}}</a>
-                            </div>
-                            <span class="col-sm-2 col-md-1">&raquo;</span>
-                            <div class="col-sm-3 col-md-5">
-                                <a href="{{config('app.url')}}{{$route->new_url}}" target="_blank">{{$route->new_url}}</a>
-                            </div>
-                            <div class="col-sm-3 col-md-1 text-right">
-                                {{$route->redirect_code}}
+                <form method="get" action="{{route('adminRoutes')}}">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" name="search" value="{{request()->has('search')?request()->get('search'):''}}" placeholder="@lang('post.search')" aria-label="@lang('post.search')" aria-describedby="basic-addon2">
+                        <button class="btn btn-outline-secondary" type="submit">@lang('post.search')</button>
+                    </div>
+                </form>
+                <table class="table table-hover table-striped">
+                    <tr>
+                        <th>@lang('redirects.old_url')</th>
+                        <th>@lang('redirects.new_url')</th>
+                        <th>@lang('redirects.redirect_code')</th>
+                        <th>@lang('general.actions')</th>
+                    </tr>
+                    @forelse($routes as $route)
+                        <tr>
+                            <td><a href="{{config('app.url')}}/{{$route->old_url}}" target="_blank">{{$route->old_url}}</a></td>
+                            <td><a href="{{config('app.url')}}{{$route->new_url}}" target="_blank">{{$route->new_url}}</a></td>
+                            <td>{{$route->redirect_code}}</td>
+                            <td>
                                 <a href="javascript:editRoute('{{$route->id}}')" class="btn btn-sm btn-primary">
                                     <i class="fa fa-edit"></i>
                                 </a>
                                 <a href="javascript:deleteRoute('{{$route->id}}', '{{$route->old_url}}')" class="btn btn-sm btn-danger">
                                     <i class="fa fa-trash"></i>
                                 </a>
-                            </div>
-                        </li>
-                    @endforeach
-                </ul>
-
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="text-center">@lang('redirects.no_data')</td>
+                        </tr>
+                    @endforelse
+                </table>
+            </div>
+            <div class="card-footer">
                 <div id="routes-pagination" class="mt-3">
                     {{$routes->links()}}
                 </div>

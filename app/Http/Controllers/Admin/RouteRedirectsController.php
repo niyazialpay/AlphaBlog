@@ -14,12 +14,25 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class RouteRedirectsController extends Controller
 {
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     */
+
     public function index(): Application|Factory|View
     {
-        return view('panel/redirects', ['routes' => RouteRedirects::orderBy('created_at', 'DESC')->paginate(10)]);
+        $routes = RouteRedirects::where(function($query){
+            if(request()->has('search') && request()->get('search') != null){
+                $query->where('old_url', 'LIKE', '%'.request()->get('search').'%');
+                $query->orWhere('new_url', 'LIKE', '%'.request()->get('search').'%');
+            }
+        })->orderBy('created_at', 'DESC')->paginate(10);
+        return view('panel/redirects', ['routes' => $routes]);
     }
 
     public function show(RouteRedirects $route): JsonResponse

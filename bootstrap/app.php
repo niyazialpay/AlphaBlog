@@ -14,14 +14,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->web([
+        $middleware->web(
+            append: [
+                \App\Http\Middleware\Language::class,
+            ],
+            prepend: [
+                \Illuminate\Session\Middleware\StartSession::class
+            ]);
+        $middleware->use([
             \App\Http\Middleware\TrustProxies::class,
             \App\Http\Middleware\IpFilter::class,
-        ], prepend: [
             \App\Http\Middleware\RouteRedirect::class,
-        ]);
-        $middleware->use([
-            \App\Http\Middleware\Language::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

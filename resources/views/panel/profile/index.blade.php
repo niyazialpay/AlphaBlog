@@ -556,7 +556,7 @@
                                                         </td>
                                                         <td>{{ $session->region_name }}</td>
                                                         <td>{{ $session->city_name }}</td>
-                                                        <td>{{ $session->session->last_activity }}</td>
+                                                        <td>{{ $session->session?->last_activity }}</td>
                                                         <td>
                                                             <form method="POST" action="{{ route('user.session.logout') }}">
                                                                 @csrf
