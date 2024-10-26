@@ -14,10 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->use([
+        $middleware->web([
+            \App\Http\Middleware\Language::class,
             \App\Http\Middleware\TrustProxies::class,
             \App\Http\Middleware\RouteRedirect::class,
-            \App\Http\Middleware\Language::class,
             \App\Http\Middleware\IpFilter::class,
         ]);
     })

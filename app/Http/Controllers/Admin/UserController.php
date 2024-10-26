@@ -30,6 +30,7 @@ class UserController extends Controller
     {
         return view('panel.profile.index', [
             'user' => auth()->user(),
+            'sessions' => auth()->user()->sessions()->orderBy('created_at', 'DESC')->paginate(10),
         ]);
     }
 
@@ -333,5 +334,16 @@ class UserController extends Controller
             }
         }
         return redirect()->route('admin.index');
+    }
+
+    public function killSession(Request $request){
+        $session = $request->session_id;
+        $session = \App\Models\UserSessions::find($session);
+        $session->session()->delete();
+        $session->delete();
+        return response()->json([
+            'status' => 'success',
+            'message' => __('profile.delete_success'),
+        ], 200);
     }
 }

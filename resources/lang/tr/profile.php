@@ -91,4 +91,5 @@ return [
     'switch_to_password' => 'Şifre ile giriş yap',
     'switch_to_webauthn' => 'WebAuthn ile giriş yap',
     'email_change' => 'E-posta Değiştir',
+    'sessions' => 'Oturumlar',
 ];

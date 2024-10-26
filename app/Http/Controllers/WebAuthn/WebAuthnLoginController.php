@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\WebAuthn;
 
+use App\Actions\SessionAction;
 use App\Models\User;
+use GeoIp2\Exception\AddressNotFoundException;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\Response;
 use Laragear\WebAuthn\Http\Requests\AssertedRequest;
 use Laragear\WebAuthn\Http\Requests\AssertionRequest;
 
+use MaxMind\Db\Reader\InvalidDatabaseException;
 use function response;
 
 class WebAuthnLoginController
@@ -30,6 +33,11 @@ class WebAuthnLoginController
     {
         $status = $request->login(remember: true) ? 204 : 422;
         if ($status === 204) {
+            try {
+                SessionAction::sessionUpdate($request);
+            } catch (AddressNotFoundException|InvalidDatabaseException $e) {
+
+            }
             session()->put('otp', true);
         }
 

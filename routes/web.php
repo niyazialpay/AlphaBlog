@@ -166,9 +166,9 @@ Route::post('/webauthn/login',
 
 Route::group([
     'middleware' => [
-        //\Fahlisaputra\Minify\Middleware\MinifyHtml::class,
-        //\Fahlisaputra\Minify\Middleware\MinifyCss::class,
-        //\Fahlisaputra\Minify\Middleware\MinifyJavascript::class,
+        \Fahlisaputra\Minify\Middleware\MinifyHtml::class,
+        \Fahlisaputra\Minify\Middleware\MinifyCss::class,
+        \Fahlisaputra\Minify\Middleware\MinifyJavascript::class,
     ],
 ], function () {
     try {

@@ -124,10 +124,16 @@
             <a href="{{route('admin.profile.index')}}" class="dropdown-item">
                 <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-user top-icon"></i> @lang('user.profile')
             </a>
-            <a>
-                <a href="{{route('admin.profile.index')}}?tab=security" class="dropdown-item">
-                    <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-shield-halved top-icon"></i> @lang('profile.security')
-                </a>
+            <a href="{{route('admin.profile.index')}}?tab=security" class="dropdown-item">
+                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-shield-halved top-icon"></i> @lang('profile.security')
+            </a>
+            <a href="{{route('admin.profile.index')}}?tab=sessions" class="dropdown-item">
+                @if(config('settings.fontawesome_pro'))
+                <i class="fa-duotone fa-solid fa-rectangle-history-circle-user top-icon"></i>
+                @else
+                    <i class="fa-solid fa-users-rectangle top-icon"></i>
+                @endif
+                @lang('sessions.active_sessions')
             </a>
             <div class="dropdown-divider"></div>
             @if(auth()->user()->webauthn || auth()->user()->otp)

@@ -60,7 +60,14 @@
 
                             <hr>
 
-                            <strong><i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-book-user mr-1"></i> @lang('profile.about-me')</strong>
+                            <strong>
+                                @if(config('settings.fontawesome_pro'))
+                                    <i class="fa-duotone fa-solid fa-book-user mr-1"></i>
+                                @else
+                                    <i class="fa-solid fa-address-card mr-1"></i>
+                                @endif
+                                @lang('profile.about-me')
+                            </strong>
 
                             <p class="text-muted">{{$user->about}}</p>
 
@@ -95,6 +102,12 @@
                                     <a class="nav-link profile-link @if(request()->get('tab')=='privacy') active @endif"
                                        href="javascript:ChangeTab('privacy')" id="privacy-menu">
                                         @lang('profile.privacy')
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link profile-link @if(request()->get('tab')=='sessions') active @endif"
+                                       href="javascript:ChangeTab('sessions')" id="sessions-menu">
+                                        @lang('profile.sessions')
                                     </a>
                                 </li>
                             </ul>
@@ -498,6 +511,70 @@
 
                                         @csrf
                                     </form>
+                                </div>
+                                <div class="tab-pane profile-tab @if(request()->get('tab')=='sessions') active @endif" id="sessions">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <table class="table table-bordered table-striped table-hover">
+                                                <thead>
+                                                <tr>
+                                                    <th>
+                                                        @lang('sessions.ip_address')
+                                                    </th>
+                                                    <th>
+                                                        @lang('sessions.user_agent')
+                                                    </th>
+                                                    <th>
+                                                        @lang('sessions.country')
+                                                    </th>
+                                                    <th>
+                                                        @lang('sessions.region_name')
+                                                    </th>
+                                                    <th>
+                                                        @lang('sessions.city')
+                                                    </th>
+                                                    <th>
+                                                        @lang('sessions.last_activity')
+                                                    </th>
+                                                    <th>
+                                                        @lang('general.actions')
+                                                    </th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                @foreach ($sessions as $session)
+                                                    <tr>
+                                                        <td>{{ $session->ip_address }}</td>
+                                                        <td>
+                                                            {{ $session->browser_name }} <br>
+                                                            {{ $session->operating_system }}
+                                                        </td>
+                                                        <td>
+                                                            <img src="{{config('app.url')}}/themes/flags/{{strtolower($session->country_code)}}.webp"
+                                                                 alt="{{$session->country_name}}" height="12" class="elevation-2 me-1">
+                                                            {{ $session->country_name }}
+                                                        </td>
+                                                        <td>{{ $session->region_name }}</td>
+                                                        <td>{{ $session->city_name }}</td>
+                                                        <td>{{ $session->session->last_activity }}</td>
+                                                        <td>
+                                                            <form method="POST" action="{{ route('user.session.logout') }}">
+                                                                @csrf
+                                                                <input type="hidden" name="session_id" value="{{$session->id}}">
+                                                                <button type="submit" class="btn btn-danger">@lang('user.logout')</button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        @if($sessions->links())
+                                        <div class="card-footer">
+                                            {{$sessions->withQueryString()->links()}}
+                                        </div>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </div>

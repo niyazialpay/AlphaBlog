@@ -21,6 +21,10 @@ Route::get('/secret-logout', [App\Http\Controllers\Admin\UserController::class, 
     //->can('admin', 'App\Models\User')
     ->name('admin.user.secret-logout');
 
+Route::post('/user/session/kill', [App\Http\Controllers\Admin\UserController::class, 'killSession'])
+    ->can('ownAdmin', 'App\Models\User')
+    ->name('user.session.logout');
+
 Route::get('/{user_id}/secret-login', [App\Http\Controllers\Admin\UserController::class, 'userSecretLogin'])
     ->can('admin', 'App\Models\User')
     ->name('admin.user.secret-login');

@@ -237,4 +237,8 @@ class User extends Authenticatable implements MustVerifyEmail, WebAuthnAuthentic
         return $links;
     }
 
+    public function sessions(): HasMany
+    {
+        return $this->hasMany(UserSessions::class);
+    }
 }

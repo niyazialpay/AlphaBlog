@@ -24,6 +24,11 @@ class UserPolicy
         return $user->id === auth()->id();
     }
 
+    public function ownAdmin(User $user): bool
+    {
+        return $user->role === 'owner' || $user->role === 'admin' || $user->id === auth()->id();
+    }
+
     public function owner(User $user): bool
     {
         return $user->role === 'owner';

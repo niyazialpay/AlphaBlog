@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Actions\SessionAction;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\WebAuthnCredential;
+use GeoIp2\Exception\AddressNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use MaxMind\Db\Reader\InvalidDatabaseException;
 
 class LoginController extends Controller
 {
@@ -77,7 +80,11 @@ class LoginController extends Controller
                 auth()->user()->password = Hash::make($request->password);
                 auth()->user()->save();
             }
+            try {
+                SessionAction::sessionUpdate($request);
+            } catch (AddressNotFoundException|InvalidDatabaseException $e) {
 
+            }
             return response()->json([
                 'status' => true,
                 'webauthn' => false,
