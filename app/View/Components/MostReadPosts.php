@@ -25,6 +25,7 @@ class MostReadPosts extends Component
                 ->join('users', 'posts.user_id', '=', 'users.id')
                 ->select(['posts.*', 'media.file_name', 'media.id as media_id', 'users.nickname', 'users.email'])
                 ->where('media.model_type', 'App\Models\Post\Posts')
+                ->where('media.collection_name', 'posts')
                 ->where('posts.is_published', 1)
                 ->where('posts.post_type', 'post')
                 ->where('posts.language', session('language'))
