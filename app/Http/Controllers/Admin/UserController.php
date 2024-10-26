@@ -114,6 +114,7 @@ class UserController extends Controller
     {
         return view('panel.profile.index', [
             'user' => $user_id,
+            'sessions' => $user_id->sessions()->orderBy('created_at', 'DESC')->paginate(10),
         ]);
     }
 
