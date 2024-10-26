@@ -23,7 +23,7 @@ class Authors extends Component
      */
     public function render(): View|Closure|string
     {
-        $authors = User::withCount('posts')->orderBy('posts_count', 'desc')->limit(10)->get();
+        $authors = User::withCount('posts')->orderBy('posts_count', 'desc')->limit(5)->get();
         try {
             return view('themes.'.app('theme')->name.'.components.authors', [
                 'authors' => $authors,
