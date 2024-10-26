@@ -42,7 +42,7 @@ class LanguageAction
                         if ($language == null) {
                             $route = RouteRedirectAction::RouteRedirect($request);
                             if ($route) {
-                                if ($route->redirect_code == 404) {
+                                if ((int)$route->redirect_code === 404) {
                                     abort(404);
                                 } else {
                                     return redirect($route->new_url, (int) $route->redirect_code);
@@ -60,7 +60,7 @@ class LanguageAction
                         if ($language == null) {
                             $route = RouteRedirectAction::RouteRedirect($request);
                             if ($route) {
-                                if ($route->redirect_code == 404) {
+                                if ((int)$route->redirect_code === 404) {
                                     abort(404);
                                 } else {
                                     return redirect($route->new_url, (int) $route->redirect_code);

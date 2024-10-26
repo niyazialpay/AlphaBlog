@@ -15,10 +15,13 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web([
-            \App\Http\Middleware\Language::class,
             \App\Http\Middleware\TrustProxies::class,
-            \App\Http\Middleware\RouteRedirect::class,
             \App\Http\Middleware\IpFilter::class,
+        ], prepend: [
+            \App\Http\Middleware\RouteRedirect::class,
+        ]);
+        $middleware->use([
+            \App\Http\Middleware\Language::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
