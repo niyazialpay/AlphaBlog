@@ -33,7 +33,12 @@ class UserController extends Controller
     {
         return view('panel.profile.index', [
             'user' => auth()->user(),
-            'sessions' => auth()->user()->sessions()->orderBy('created_at', 'DESC')->paginate(10),
+            'sessions' => auth()->user()
+                ->sessions()
+                ->join('sessions', 'user_sessions.session_id', '=', 'sessions.id')
+                ->orderBy('sessions.last_activity', 'DESC')
+                ->select('user_sessions.*', 'sessions.last_activity')
+                ->paginate(10),
         ]);
     }
 
@@ -349,5 +354,27 @@ class UserController extends Controller
             'status' => 'success',
             'message' => __('profile.delete_success'),
         ], 200);
+    }
+
+    public function killAllSession(Request $request){
+        if($request->has('user_id')){
+            if(auth()->user()->role == 'owner' || auth()->user()->role == 'admin'){
+                $user_id = $request->user_id;
+            }
+            else{
+                $user_id = auth()->id();
+            }
+        }
+        else{
+            $user_id = auth()->id();
+        }
+        $sessions = \App\Models\UserSessions::join('sessions', 'user_sessions.session_id', '=', 'sessions.id')
+            ->orderBy('sessions.last_activity', 'DESC')
+            ->select('user_sessions.*', 'sessions.last_activity')->whereNot('sessions.id', session()->getId())->where('user_sessions.user_id', $user_id)->get();
+        foreach($sessions as $session){
+            $session->session()->delete();
+            $session->delete();
+        }
+        return back()->with('success', __('user.all_sessions_ended'));
     }
 }

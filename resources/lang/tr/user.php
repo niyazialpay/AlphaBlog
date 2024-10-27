@@ -54,4 +54,7 @@ return [
         'code_verified' => 'Doğrulama kodu doğrulandı',
     ],
     'lockscreen' => 'Kilit Ekranı',
+    'current_session' => 'Mevcut Oturum',
+    'logout_all_devices' => 'Tüm cihazlardan çıkış yap',
+    'all_sessions_ended' => 'Tüm oturumlar sonlandırıldı!',
 ];

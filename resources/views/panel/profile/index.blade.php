@@ -513,7 +513,27 @@
                                     </form>
                                 </div>
                                 <div class="tab-pane profile-tab @if(request()->get('tab')=='sessions') active @endif" id="sessions">
+                                    @if(session()->has('success'))
+                                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                            {{session('success')}}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="@lang('general.close')"></button>
+                                        </div>
+                                    @endif
+                                    @if(session()->has('error'))
+                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                            {{session('error')}}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="@lang('general.close')"></button>
+                                        </div>
+                                    @endif
                                     <div class="card">
+                                        <div class="card-header">
+                                            <form method="post" action="{{route('user.session.logout-all')}}" class="text-end">
+                                                @csrf
+                                                <button type="submit" class="btn btn-outline-danger">
+                                                    @lang('user.logout_all_devices')
+                                                </button>
+                                            </form>
+                                        </div>
                                         <div class="card-body">
                                             <table class="table table-bordered table-striped table-hover">
                                                 <thead>
@@ -558,11 +578,15 @@
                                                         <td>{{ $session->city_name }}</td>
                                                         <td>{{ $session->session?->last_activity }}</td>
                                                         <td>
-                                                            <form method="POST" action="{{ route('user.session.logout') }}">
-                                                                @csrf
-                                                                <input type="hidden" name="session_id" value="{{$session->id}}">
-                                                                <button type="submit" class="btn btn-danger">@lang('user.logout')</button>
-                                                            </form>
+                                                            @if($session->session_id == session()->getId())
+                                                                <button class="btn btn-secondary" disabled>@lang('user.current_session')</button>
+                                                            @else
+                                                                <form method="POST" action="{{ route('user.session.logout') }}">
+                                                                    @csrf
+                                                                    <input type="hidden" name="session_id" value="{{$session->id}}">
+                                                                    <button type="submit" class="btn btn-danger">@lang('user.logout')</button>
+                                                                </form>
+                                                            @endif
                                                         </td>
                                                     </tr>
                                                 @endforeach

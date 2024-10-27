@@ -54,5 +54,7 @@ return [
         'code_verified' => 'Two Factor Authentication code verified',
     ],
     'lockscreen' => 'Lock Screen',
-
+    'current_session' => 'Current Session',
+    'logout_all_devices' => 'Log out of all devices',
+    'all_sessions_ended' => 'All sessions ended!',
 ];
