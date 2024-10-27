@@ -80,11 +80,7 @@ class LoginController extends Controller
                 auth()->user()->password = Hash::make($request->password);
                 auth()->user()->save();
             }
-            try {
-                SessionAction::sessionUpdate($request);
-            } catch (AddressNotFoundException|InvalidDatabaseException $e) {
-
-            }
+            SessionAction::sessionUpdate($request);
             return response()->json([
                 'status' => false,
                 'webauthn' => false,
