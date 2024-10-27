@@ -61,6 +61,10 @@ class LoginController extends Controller
         return response()->json($this->checkWebAuthn($login));
     }
 
+    /**
+     * @throws AddressNotFoundException
+     * @throws InvalidDatabaseException
+     */
     public function login(Request $request)
     {
         $login = request()->input('login');
@@ -99,7 +103,6 @@ class LoginController extends Controller
     public function logout()
     {
         Auth::logout();
-
         return redirect()->route('login');
     }
 }

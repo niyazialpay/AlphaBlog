@@ -18,8 +18,21 @@ class SessionAction
         $ip = $request->ip();
         $reader = new Reader(storage_path('GeoLite2-City.mmdb'));
 
-        $record = $reader->city($ip);
-        print_r($record);
+        try{
+            $record = $reader->city($ip);
+            $country_code = $record->country->isoCode;
+            $country_name = $record->country->name;
+            $region_name = $record->mostSpecificSubdivision->name;
+            $city_name = $record->city->name;
+            $zip_code = $record->postal->code;
+        }
+        catch (AddressNotFoundException $e){
+            $country_code = null;
+            $country_name = null;
+            $region_name = null;
+            $city_name = null;
+            $zip_code = null;
+        }
 
         UserSessions::updateOrInsert([
             'session_id' => session()->getId(),
@@ -27,11 +40,11 @@ class SessionAction
         ], [
             'ip_address' => $ip,
             'user_agent' => $request->userAgent(),
-            'country_code' => $record->country->isoCode,
-            'country_name' => $record->country->name,
-            'region_name' => $record->mostSpecificSubdivision->name,
-            'city_name' => $record->city->name,
-            'zip_code' => $record->postal->code,
+            'country_code' => $country_code,
+            'country_name' => $country_name,
+            'region_name' => $region_name,
+            'city_name' => $city_name,
+            'zip_code' => $zip_code,
         ]);
     }
 }
