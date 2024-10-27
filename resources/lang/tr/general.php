@@ -43,4 +43,5 @@ return [
     'next' => 'Sonraki',
     'rename' => 'Yeniden Adlandır',
     'post_count' => 'Yazı Sayısı',
+    'all_authors' => 'Tüm Yazarlar',
 ];

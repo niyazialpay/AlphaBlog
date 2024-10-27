@@ -237,6 +237,10 @@ Route::group([
             ->name('contact.front')
             ->whereIn('contact', Lang::get('route_contact'));
 
+        Route::get('/{authors}', [\App\Http\Controllers\AuthorsController::class, 'index'])
+            ->name('post.authors')
+            ->whereIn('authors', Lang::get('route_authors'));
+
         Route::post('/{contact}', [\App\Http\Controllers\ContactController::class, 'send'])
             ->name('contact.send')
             ->whereIn('contact', Lang::get('route_contact'))

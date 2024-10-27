@@ -36,7 +36,7 @@
     <div class="col-md-8">
         <!-- Slider -->
         <div class="clearfix"></div>
-        <x-home-posts :paginate="10"/>
+        <x-home-posts :paginate="10" :skip="5"/>
     </div>
     @include('Default.sidebar')
 @endsection

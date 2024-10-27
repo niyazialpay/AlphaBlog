@@ -43,4 +43,5 @@ return [
     'next' => 'Next',
     'rename' => 'Rename',
     'post_count' => 'Post Count',
+    'all_authors' => 'All Authors',
 ];

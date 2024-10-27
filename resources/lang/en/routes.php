@@ -7,4 +7,5 @@ return [
     'tags' => 'tags',
     'user' => 'user',
     'search_result' => 'search-result',
+    'authors' => 'authors',
 ];
