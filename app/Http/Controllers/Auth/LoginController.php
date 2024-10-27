@@ -86,7 +86,7 @@ class LoginController extends Controller
 
             }
             return response()->json([
-                'status' => true,
+                'status' => false,
                 'webauthn' => false,
                 'message' => __('user.login_request.success'),
             ]);

@@ -19,6 +19,7 @@ class SessionAction
         $reader = new Reader(storage_path('GeoLite2-City.mmdb'));
 
         $record = $reader->city($ip);
+        print_r($record);
 
         UserSessions::updateOrInsert([
             'session_id' => session()->getId(),
