@@ -28,16 +28,14 @@ class WebAuthnLoginController
 
     /**
      * Log the user in.
+     * @throws AddressNotFoundException
+     * @throws InvalidDatabaseException
      */
     public function login(AssertedRequest $request): Response
     {
         $status = $request->login(remember: true) ? 204 : 422;
         if ($status === 204) {
-            try {
-                SessionAction::sessionUpdate($request);
-            } catch (AddressNotFoundException|InvalidDatabaseException $e) {
-
-            }
+            SessionAction::sessionUpdate($request);
             session()->put('otp', true);
         }
 
