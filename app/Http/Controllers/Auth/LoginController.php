@@ -86,7 +86,7 @@ class LoginController extends Controller
             }
             SessionAction::sessionUpdate($request);
             return response()->json([
-                'status' => false,
+                'status' => true,
                 'webauthn' => false,
                 'message' => __('user.login_request.success'),
             ]);
