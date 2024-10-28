@@ -28,7 +28,7 @@ class Authors extends Component
             $authors = Cache::get('authors');
         } else {
             $authors = User::withCount(['posts' => function($q){
-                $q->where('status', 'published');
+                $q->where('is_published', true);
                 $q->where('type', 'post');
                 $q->where('language', session('language'));
             }])->orderBy('posts_count', 'desc')->limit(5)->get();
