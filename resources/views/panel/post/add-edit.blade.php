@@ -98,7 +98,7 @@
                     @else
                         <div class="input-group">
                             <div class="custom-file">
-                                <input type="file" class="custom-file-input" name="image" id="image" accept="image/*" required>
+                                <input type="file" class="custom-file-input" name="image" id="image" accept="image/*">
                                 <label class="custom-file-label" for="image">@lang('post.image')</label>
                             </div>
                         </div>
