@@ -53,7 +53,7 @@ function GetPost($request): array|string|null
 
 function content($content): string
 {
-    return addslashes(strip_tags($content, '<br><br/><br /><a><b><strong><em><i><div><p><img><li><ul><ol><table><tr><td><h1><h2><h2><h3><h4><h5><h6><span><code><pre><blockquote><u>'));
+    return addslashes(strip_tags($content, '<br><br/><br /><a><b><strong><em><i><div><p><img><li><ul><ol><table><tr><td><h1><h2><h2><h3><h4><h5><h6><span><code><pre><blockquote><u><iframe><del><strike><s><sub><sup><hr>'));
 }
 
 function stripslashesNull($text): string
