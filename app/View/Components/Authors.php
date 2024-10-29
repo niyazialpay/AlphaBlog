@@ -25,7 +25,7 @@ class Authors extends Component
     public function render(): View|Closure|string
     {
         if(Cache::has('authors_'.session('language'))) {
-            $authors = Cache::get('authors');
+            $authors = Cache::get('authors_'.session('language'));
         } else {
             $authors = User::withCount(['posts' => function($q){
                 $q->where('is_published', true);
