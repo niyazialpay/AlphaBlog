@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Post;
 
+use App\Actions\CacheClear;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Post\PostRequest;
 use App\Models\Post\Categories;
@@ -211,7 +212,7 @@ class PostController extends Controller
                     $post->categories()->sync($request->post('category_id'));
                 }
                 DB::commit();
-
+                CacheClear::cacheClear();
                 return response()->json(['status' => 'success', 'message' => $message, 'id' => $post->id]);
             } else {
                 return response()->json(['status' => 'error', 'message' => __('post.error')])->setStatusCode(500);
@@ -233,7 +234,7 @@ class PostController extends Controller
             if ($post->delete()) {
                 Comments::where('post_id', $post->id)->delete();
                 DB::commit();
-
+                CacheClear::cacheClear();
                 return response()->json(['status' => 'success', 'message' => __('post.success_delete')]);
             } else {
                 return response()->json(['status' => 'error', 'message' => __('post.post.error_delete')]);
@@ -259,7 +260,7 @@ class PostController extends Controller
             Comments::where('post_id', $post->id)->forceDelete();
             if ($post->forceDelete()) {
                 DB::commit();
-
+                CacheClear::cacheClear();
                 return response()->json(['status' => 'success', 'message' => __('post.post.success_force_delete')]);
             } else {
                 return response()->json(['status' => 'error', 'message' => __('post.post.error_force_delete')]);
@@ -281,7 +282,7 @@ class PostController extends Controller
             if ($post->restore()) {
                 Comments::onlyTrashed()->where('post_id', $post->id)->restore();
                 DB::commit();
-
+                CacheClear::cacheClear();
                 return response()->json(['status' => 'success', 'message' => __('post.post.success_restore')]);
             } else {
                 return response()->json(['status' => 'error', 'message' => __('post.post.error_restore')]);
