@@ -8,6 +8,7 @@ use App\Models\Post\Posts;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laragear\WebAuthn\Contracts\WebAuthnAuthenticatable;
@@ -16,10 +17,16 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticationProvider;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Scout\Searchable;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class User extends Authenticatable implements MustVerifyEmail, WebAuthnAuthenticatable
+class User extends Authenticatable implements MustVerifyEmail, WebAuthnAuthenticatable, HasMedia
 {
     use HasApiTokens, Notifiable, Searchable, TwoFactorAuthenticatable, WebAuthnAuthentication;
+    use InteractsWithMedia;
+    use Searchable;
+    use SoftDeletes;
 
     protected $table = 'users';
 
@@ -142,7 +149,12 @@ class User extends Authenticatable implements MustVerifyEmail, WebAuthnAuthentic
 
     public function getProfileImageAttribute(): string
     {
-        return 'https://www.gravatar.com/avatar/'.hash('sha256', strtolower(trim($this->email)));
+        if($this->getFirstMediaUrl('profile')){
+            return $this->getFirstMediaUrl('profile');
+        }
+        else{
+            return 'https://www.gravatar.com/avatar/'.hash('sha256', strtolower(trim($this->email)));
+        }
     }
 
     public function getFullNameAttribute(): string
@@ -221,7 +233,7 @@ class User extends Authenticatable implements MustVerifyEmail, WebAuthnAuthentic
                         $icon = 'fa-brands fa-reddit-alien';
                     }
                     elseif($platform == 'website'){
-                        $icon = 'fa-duotone fa-globe-pointer';
+                        $icon = 'fa-solid fa-globe-pointer';
                     }
                     else{
                         $icon = 'fa-brands fa-'.$platform;
@@ -240,5 +252,21 @@ class User extends Authenticatable implements MustVerifyEmail, WebAuthnAuthentic
     public function sessions(): HasMany
     {
         return $this->hasMany(UserSessions::class);
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('resized')
+            ->width(1920)
+            ->height(1080)
+            ->nonOptimized()->keepOriginalImageFormat();
+        $this->addMediaConversion('cover')
+            ->width(850)
+            ->height(480)
+            ->nonOptimized()->keepOriginalImageFormat();
+        $this->addMediaConversion('thumb')
+            ->width(365)
+            ->height(200)
+            ->nonOptimized()->keepOriginalImageFormat();
     }
 }
