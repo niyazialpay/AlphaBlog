@@ -12,6 +12,18 @@
             <h3 class="card-title">@lang('user.profile')</h3>
         </div>
         <div class="card-body">
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{session('success')}}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="@lang('general.close')"></button>
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{session('error')}}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="@lang('general.close')"></button>
+                </div>
+            @endif
             <div class="row">
                 <div class="col-md-3">
 
@@ -21,8 +33,13 @@
                             <h3 class="card-title">@lang('profile.about-me')</h3>
                         </div>
                         <div class="card-body box-profile">
-                            <div class="text-center">
-                                <img class="profile-user-img img-fluid img-circle" src="https://www.gravatar.com/avatar/{{md5(strtolower(trim($user->email)))}}?s=128" alt="{{$user->nickname}}">
+                            <div class="text-center d-flex justify-content-center">
+                                <a class="profileImg" href="#" data-bs-toggle="modal" data-bs-target="#profileImageModal">
+                                    <img class="profile-user-img img-fluid img-circle" src="{{$user->profile_image}}?s=128" alt="{{$user->nickname}}">
+                                    <div class='imgOverlay'>
+                                        <div class='oBody'></div>
+                                    </div>
+                                </a>
                             </div>
 
                             <h3 class="profile-username text-center">{{$user->name}} {{$user->surname}}</h3>
@@ -651,6 +668,52 @@
             </div>
         </div>
     </div>
+
+    <div class="modal" id="profileImageModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <form class="modal-content" method="POST" action="{{route('admin.user.profile-image')}}" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title">@lang('profile.profile_image')</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row justify-content-center">
+                        @if($user->getFirstMediaUrl('profile'))
+                            <div class="col-3">
+                                <img class="profile-user-img img-fluid img-circle" src="{{$user->getFirstMediaUrl('profile')}}?s=128" alt="{{$user->nickname}}">
+                            </div>
+                            <div class="col-9">
+                                <p class="text-muted text-left">
+                                    <a href="javascript:profileImageDelete()">
+                                        @lang('profile.profile_image_remove')
+                                    </a>
+                                </p>
+                                <p class="text-muted text-left">@lang('profile.profile_image_change_text')</p>
+                            </div>
+                        @else
+                            <div class="col-3">
+                                <img class="profile-user-img img-fluid img-circle" src="{{$user->profile_image}}?s=128" alt="{{$user->nickname}}">
+                            </div>
+                            <div class="col-9">
+                                <p class="text-muted text-left">@lang('profile.profile_image_gravatar')</p>
+                            </div>
+                        @endif
+                        <div class="col-11 my-3">
+                            <div class="input-group">
+                                <input type="file" class="form-control" id="profile_image" name="profile_image" accept="image/*">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    @csrf
+                    <input type="hidden" name="user_id" value="{{$user->id}}">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@lang('general.close')</button>
+                    <button type="submit" class="btn btn-primary">@lang('general.save')</button>
+                </div>
+            </form>
+        </div>
+    </div>
 @endsection
 
 @section('script')
@@ -690,6 +753,13 @@
                 });
             }
             console.log(log);
+        }
+
+        function openProfileImage() {
+            $('#profileImageModal').modal({
+                backdrop: 'static',
+                keyboard: false
+            });
         }
 
         function ChangeTab(tab) {
@@ -1057,5 +1127,42 @@
             });
 
         });
+
+        function profileImageDelete(){
+            Swal.fire({
+                title: '@lang('general.are_you_sure')',
+                text: "@lang('profile.profile_image_delete_warning')",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: '@lang('general.delete')',
+                cancelButtonText: '@lang('general.cancel')',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '{{route('admin.user.profile-image-delete')}}',
+                        type: 'POST',
+                        data: {
+                            _token: '{{csrf_token()}}'
+                        },
+                        success: function () {
+                            Swal.fire(
+                                '@lang('general.success')',
+                                '@lang('profile.profile_image_gravatar_activated')'
+                            );
+                            window.location.reload();
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: xhr.responseJSON.message
+                            });
+                        }
+                    });
+                }
+            });
+        }
     </script>
 @endsection

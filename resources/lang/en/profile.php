@@ -92,4 +92,23 @@ return [
     'switch_to_webauthn' => 'Switch to WebAuthn',
     'email_change' => 'Change email',
     'sessions' => 'Sessions',
+
+    'profile_image' => 'Profile Image',
+    'profile_image_gravatar' => 'Your profile image is provided by Gravatar. You can change your profile picture or upload a new one using Gravatar. Uploading a new profile image will disable Gravatar.',
+    'profile_image_change_text' => 'When you upload a new profile image, the old profile image will be deleted.',
+    'profile_image_change' => 'Change profile image',
+    'profile_image_remove' => 'Remove profile image and use Gravatar',
+
+    'profile_image_required' => 'Profile image is required',
+    'profile_image_image' => 'Profile image must be an image',
+    'profile_image_mimes' => 'Profile image must be a file of type: jpeg, png, jpg, gif, svg',
+    'profile_image_max' => 'Profile image may not be greater than 2048 kilobytes',
+
+    'profile_image_uploaded' => 'Profile image uploaded successfully',
+    'profile_image_upload_error' => 'An error occurred while uploading the profile image',
+    'profile_image_deleted' => 'Profile image deleted successfully',
+    'profile_image_delete_error' => 'An error occurred while deleting the profile image',
+    'profile_image_delete_warning' => 'Are you sure you want to delete your profile image?',
+    'profile_image_gravatar_activated' => 'Profile image removed successfully and Gravatar activated',
+
 ];

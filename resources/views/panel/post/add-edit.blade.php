@@ -238,7 +238,7 @@
                                         <a id="comment-{{$comment->id}}"></a>
                                         @if($comment->user_id)
                                             <img
-                                                src="https://www.gravatar.com/avatar/{{md5(strtolower(trim($comment->user->email)))}}?s=34"
+                                                src="{{$comment->user->profile_image}}?s=34"
                                                 class="img-circle elevation-2" alt="{{$comment->user->nickname}}">
 
                                             {{$comment->user->nickname}}
@@ -246,7 +246,7 @@
                                             <small>{{$comment->user->email}}</small>
                                         @else
                                             <img
-                                                src="https://www.gravatar.com/avatar/{{md5(strtolower(trim($comment->email)))}}?s=34"
+                                                src="https://www.gravatar.com/avatar/{{hash('sha256', strtolower(trim($comment->email)))}}?s=34"
                                                 class="img-circle elevation-2" alt="{{$comment->name}}">
                                             {{$comment->name}}
                                             <br>

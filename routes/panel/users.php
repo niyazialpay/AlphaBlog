@@ -29,6 +29,14 @@ Route::post('/user/session/kill-all', [App\Http\Controllers\Admin\UserController
     ->can('ownAdmin', 'App\Models\User')
     ->name('user.session.logout-all');
 
+Route::post('/user/profile-image', [App\Http\Controllers\Admin\UserController::class, 'profileImage'])
+    ->can('ownAdmin', 'App\Models\User')
+    ->name('admin.user.profile-image');
+
+Route::post('/user/delete-profile-image', [App\Http\Controllers\Admin\UserController::class, 'deleteProfilImage'])
+    ->can('ownAdmin', 'App\Models\User')
+    ->name('admin.user.profile-image-delete');
+
 Route::get('/{user_id}/secret-login', [App\Http\Controllers\Admin\UserController::class, 'userSecretLogin'])
     ->can('admin', 'App\Models\User')
     ->name('admin.user.secret-login');

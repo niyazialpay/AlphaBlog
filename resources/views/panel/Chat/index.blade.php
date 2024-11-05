@@ -100,7 +100,7 @@
         const chatItemElementTemplateUser = `
             <div class="d-flex p-2 rounded mb-2 chat-messages ` + chat_message_class + `">
                 <div class="mb-1">
-                    <img src="https://www.gravatar.com/avatar/{{md5(strtolower(trim(auth()->user()->email)))}}"
+                    <img src="{{auth()->user()->profile_image}}?s
                     class="img-circle elevation-2 img-fluid"
                     height="80"
                     width="80"

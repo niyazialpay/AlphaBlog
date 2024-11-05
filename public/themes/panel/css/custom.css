@@ -199,3 +199,42 @@
 .dark-mode .list-group-item:hover, .dark-mode .list-group-item a:hover, .dark-mode .list-group-item-action:hover {
     color: #515151 !important;
 }
+
+.profileImg{
+    border-radius: 50%;
+    border: 1px solid #dadce0;
+    box-sizing: border-box;
+    overflow: hidden;
+    cursor:pointer;
+    position: relative;
+    width:100px;
+    height:100px;
+}
+
+.profileImg:hover > .imgOverlay{
+    opacity: 1;
+}
+
+.profileImg img{
+    width:100%
+}
+
+.profileImg .imgOverlay{
+    transition: opacity .2s ease-in-out;
+    background-color: rgba(32,33,36,0.6);
+    bottom: 0;
+    height: 33%;
+    left: 0;
+    position: absolute;
+    right: 0;
+    opacity: 0;
+}
+
+.imgOverlay .oBody{
+    background-image:       url(//www.gstatic.com/images/icons/material/system/2x/photo_camera_white_24dp.png);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 24px 24px;
+    height: 100%;
+    opacity: .8;
+}

@@ -28,7 +28,7 @@
                     </span>
                     <img class="lazy"
                          src="{{route('cdn', '/themes/Default/images/loading.svg')}}"
-                         data-src="https://www.gravatar.com/avatar/{{hash('sha256', strtolower(trim($item->user->email)))}}"
+                         data-src="{{$item->user->profile_image}}"
                          alt="{{$item->user->nickname}}" />
                 </a>
             </div>

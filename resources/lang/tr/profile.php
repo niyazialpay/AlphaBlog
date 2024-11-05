@@ -92,4 +92,23 @@ return [
     'switch_to_webauthn' => 'WebAuthn ile giriş yap',
     'email_change' => 'E-posta Değiştir',
     'sessions' => 'Oturumlar',
+
+    'profile_image' => 'Profil Resmi',
+    'profile_image_gravatar' => 'Profil resminiz Gravatar tarafından sağlanmaktadır. Gravatar\'ı kullanarak profil resminizi değiştirebilirsiniz ya da yeni bir profil resmi yükleyebilirsiniz. Yeni profil resmi yüklediğinizde Gravatar devredışı kalacaktır',
+    'profile_image_change_text' => 'Yeni profil resmi yüklediğinizde eski profil resmi silinecektir.',
+    'profile_image_change' => 'Profil resmini değiştir',
+    'profile_image_remove' => 'Profil resmini kaldır ve Gravatar\'ı aktif et.',
+
+    'profile_image_required' => 'Profil resmi zorunludur',
+    'profile_image_image' => 'Profil resmi resim olmalıdır',
+    'profile_image_mimes' => 'Profil resmi jpeg, png, jpg, gif, svg formatlarında olmalıdır',
+    'profile_image_max' => 'Profil resmi en fazla 2048 KB olmalıdır',
+
+    'profile_image_uploaded' => 'Profil resmi başarıyla yüklendi',
+    'profile_image_upload_error' => 'Profil resmi yüklenirken bir hata oluştu',
+    'profile_image_deleted' => 'Profil resmi başarıyla silindi',
+    'profile_image_delete_error' => 'Profil resmi silinirken bir hata oluştu',
+    'profile_image_delete_warning' => 'Profil resmini silmek istediğinizden emin misiniz?',
+    'profile_image_gravatar_activated' => 'Profil resmi başarıyla silindi ve Gravatar aktif edildi',
+
 ];

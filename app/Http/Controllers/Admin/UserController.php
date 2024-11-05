@@ -6,6 +6,7 @@ use App\Actions\SocialNetworkSaveAction;
 use App\Actions\UserAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PasswordRequest;
+use App\Http\Requests\ProfileImageRequest;
 use App\Http\Requests\UserCreateRequest;
 use App\Http\Requests\UserRequest;
 use App\Models\ProfilePrivacy;
@@ -18,6 +19,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
+use LaravelIdea\Helper\App\Models\_IH_User_C;
+use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
+use Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
 
 class UserController extends Controller
 {
@@ -376,5 +380,48 @@ class UserController extends Controller
             $session->delete();
         }
         return back()->with('success', __('user.all_sessions_ended'));
+    }
+
+    /**
+     * @throws FileIsTooBig
+     * @throws FileDoesNotExist
+     */
+    public function profileImage(ProfileImageRequest $request){
+        $user = $this->extracted($request);
+        $user->addMediaFromRequest('profile_image')->toMediaCollection('profile');
+        if($user->save()){
+            return back()->with('success', __('profile.profile_image_uploaded'));
+        }
+        else{
+            return back()->with('error', __('profile.profile_image_upload_error'));
+        }
+    }
+
+    public function deleteProfilImage(Request $request){
+        $this->extracted($request);
+        return back()->with('success', __('profile.profile_image_deleted'));
+    }
+
+    /**
+     * @param Request $request
+     * @return User|User[]|_IH_User_C|null
+     */
+    public function extracted(Request $request)
+    {
+        if ($request->has('user_id')) {
+            if (auth()->user()->role == 'owner' || auth()->user()->role == 'admin') {
+                $user_id = $request->user_id;
+            } else {
+                $user_id = auth()->id();
+            }
+        } else {
+            $user_id = auth()->id();
+        }
+
+        $user = User::find($user_id);
+        if ($user->getFirstMedia('profile')) {
+            $user->getFirstMedia('profile')->delete();
+        }
+        return $user;
     }
 }

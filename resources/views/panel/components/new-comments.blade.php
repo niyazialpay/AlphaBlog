@@ -17,12 +17,12 @@
             <div class="media">
                 @if($comment->user_id)
                     <img
-                        src="https://www.gravatar.com/avatar/{{md5(strtolower(trim($comment->user->email)))}}?s=50"
+                        src="{{auth()->user()->profile_image}}?s=50"
                         class="img-size-50 mr-3 img-circle" alt="{{$comment->user->nickname}}">
 
                 @else
                     <img
-                        src="https://www.gravatar.com/avatar/{{md5(strtolower(trim($comment->email)))}}?s=50"
+                        src="{{auth()->user()->profile_image}}?s=50"
                         class="img-size-50 mr-3 img-circle" alt="{{$comment->name}}">
                 @endif
                 <div class="media-body">
