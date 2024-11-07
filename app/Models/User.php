@@ -216,6 +216,9 @@ class User extends Authenticatable implements MustVerifyEmail, WebAuthnAuthentic
                 'youtube' => 'https://youtube.com/',
                 'reddit' => 'https://reddit.com/',
                 'xbox' => 'https://account.xbox.com/en-us/profile?gamertag=',
+                'twitch' => 'https://twitch.tv/',
+                'telegram' => 'https://t.me/',
+                'discord' => 'https://discordapp.com/users/',
                 'website' => '',
             ];
 
