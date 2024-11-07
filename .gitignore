@@ -27,3 +27,4 @@ composer.lock
 config/debugbar.php
 /resources/views/themes
 /public/themes/fontawesome
+/public/robots.txt
