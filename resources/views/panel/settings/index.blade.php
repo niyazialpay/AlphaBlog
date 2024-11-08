@@ -334,22 +334,22 @@
                             <form class="row" id="analyticsForm" method="post" action="javascript:void(0);">
                                 <div class="col-12 mb-3">
                                     <label for="google_analytics">Google Analytics</label>
-                                    <textarea class="form-control" id="google_analytics"
+                                    <textarea class="form-control" id="google_analytics" rows="3"
                                            name="google_analytics">{{$analytics_settings->google_analytics}}</textarea>
                                 </div>
                                 <div class="col-12 mb-3">
                                     <label for="yandex_metrica">Yandex Metrica</label>
-                                    <textarea class="form-control" id="yandex_metrica"
+                                    <textarea class="form-control" id="yandex_metrica" rows="3"
                                               name="yandex_metrica">{{$analytics_settings->yandex_metrica}}</textarea>
                                 </div>
                                 <div class="col-12 mb-3">
                                     <label for="fb_pixel">Facebook Pixel</label>
-                                    <textarea class="form-control" id="fb_pixel"
+                                    <textarea class="form-control" id="fb_pixel" rows="3"
                                               name="fb_pixel">{{$analytics_settings->fb_pixel}}</textarea>
                                 </div>
                                 <div class="col-12 mb-3">
                                     <label for="log_rocket">Log Rocket</label>
-                                    <textarea class="form-control" id="log_rocket"
+                                    <textarea class="form-control" id="log_rocket" rows="3"
                                            name="log_rocket">{{$analytics_settings->log_rocket}}</textarea>
                                 </div>
                                 @csrf
@@ -367,7 +367,7 @@
                                         Google Ad Manager
                                     </label>
                                     <textarea
-                                        class="form-control" id="google_ad_manager"
+                                        class="form-control" id="google_ad_manager" rows="3"
                                         name="google_ad_manager" rows="10">{{$advertise_settings?->google_ad_manager}}</textarea>
                                 </div>
                                 <div class="col-12 mb-3">
@@ -375,7 +375,7 @@
                                         @lang('advertise.square_display_advertise')
                                     </label>
                                     <textarea
-                                        class="form-control" id="square_display_advertise"
+                                        class="form-control" id="square_display_advertise" rows="3"
                                         name="square_display_advertise" rows="10">{{$advertise_settings?->square_display_advertise}}</textarea>
                                 </div>
                                 <div class="col-12 mb-3">
@@ -383,7 +383,7 @@
                                         @lang('advertise.vertical_display_advertise')
                                     </label>
                                     <textarea
-                                        class="form-control" id="vertical_display_advertise"
+                                        class="form-control" id="vertical_display_advertise" rows="3"
                                         name="vertical_display_advertise" rows="10">{{$advertise_settings?->vertical_display_advertise}}</textarea>
                                 </div>
                                 <div class="col-12 mb-3">
@@ -391,7 +391,7 @@
                                         @lang('advertise.horizontal_display_advertise')
                                     </label>
                                     <textarea
-                                        class="form-control" id="horizontal_display_advertise"
+                                        class="form-control" id="horizontal_display_advertise" rows="3"
                                         name="horizontal_display_advertise" rows="10">{{$advertise_settings?->horizontal_display_advertise}}</textarea>
                                 </div>
                                 @csrf
