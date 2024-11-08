@@ -28,3 +28,5 @@ config/debugbar.php
 /resources/views/themes
 /public/themes/fontawesome
 /public/robots.txt
+ads.txt
+app-ads.txt

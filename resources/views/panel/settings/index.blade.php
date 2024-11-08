@@ -367,7 +367,7 @@
                                         Google Ad Manager
                                     </label>
                                     <textarea
-                                        class="form-control" id="google_ad_manager" rows="3"
+                                        class="form-control" id="google_ad_manager"
                                         name="google_ad_manager" rows="10">{{$advertise_settings?->google_ad_manager}}</textarea>
                                 </div>
                                 <div class="col-12 mb-3">
@@ -375,7 +375,7 @@
                                         @lang('advertise.square_display_advertise')
                                     </label>
                                     <textarea
-                                        class="form-control" id="square_display_advertise" rows="3"
+                                        class="form-control" id="square_display_advertise"
                                         name="square_display_advertise" rows="10">{{$advertise_settings?->square_display_advertise}}</textarea>
                                 </div>
                                 <div class="col-12 mb-3">
@@ -383,7 +383,7 @@
                                         @lang('advertise.vertical_display_advertise')
                                     </label>
                                     <textarea
-                                        class="form-control" id="vertical_display_advertise" rows="3"
+                                        class="form-control" id="vertical_display_advertise"
                                         name="vertical_display_advertise" rows="10">{{$advertise_settings?->vertical_display_advertise}}</textarea>
                                 </div>
                                 <div class="col-12 mb-3">
@@ -391,7 +391,7 @@
                                         @lang('advertise.horizontal_display_advertise')
                                     </label>
                                     <textarea
-                                        class="form-control" id="horizontal_display_advertise" rows="3"
+                                        class="form-control" id="horizontal_display_advertise"
                                         name="horizontal_display_advertise" rows="10">{{$advertise_settings?->horizontal_display_advertise}}</textarea>
                                 </div>
                                 @csrf
@@ -1222,7 +1222,7 @@
             if (urlParams.has('tab')) {
                 ChangeTab(urlParams.get('tab'));
             } else {
-                ChangeTab('general');
+                ChangeTab('{{session('language')}}');
             }
 
             $('#seoSave').submit(function () {
