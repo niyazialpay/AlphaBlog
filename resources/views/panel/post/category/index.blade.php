@@ -15,7 +15,7 @@
             <ul class="nav nav-pills">
                 @foreach(app('languages') as $n => $language)
                     <li class="nav-item">
-                        <a class="nav-link @if($n==0)active @endif" href="#{{$language->code}}" data-bs-toggle="tab">
+                        <a class="nav-link tab-link @if(request()->get('tab')==$language->code)active @endif" href="javascript:ChangeTab('{{$language->code}}')" id="{{$language->code}}-menu">
                             {{$language->name}}
                         </a>
                     </li>
@@ -27,7 +27,7 @@
                 <div class="col-6  table-responsive border-end-1">
                     <div class="tab-content">
                         @foreach(app('languages') as $n => $language)
-                            <div class="tab-pane @if($n==0) active @endif" id="{{ $language->code }}">
+                            <div class="tab-pane categories-panel @if(request()->get('tab')==$language->code)active @endif" id="{{ $language->code }}">
                                 <table class="table table-striped" aria-describedby="@lang('categories.categories')">
                                     <thead>
                                     <tr>
@@ -165,6 +165,15 @@
 
 @section('script')
     <script>
+        function ChangeTab(tab) {
+            window.history.pushState("", "", '{{route('admin.categories')}}?tab=' + tab);
+            $('.categories-panel').removeClass('active');
+            $('#' + tab).addClass('active').click();
+            $('.tab-link').removeClass('active');
+            $('#' + tab + '-menu').addClass('active');
+        }
+
+
         function Delete(id) {
             //delete confirmation
             Swal.fire({
@@ -278,6 +287,14 @@
         }
 
         $(document).ready(function () {
+            let urlParams = new URLSearchParams(window.location.search);
+
+            if (urlParams.has('tab')) {
+                ChangeTab(urlParams.get('tab'));
+            } else {
+                ChangeTab('{{session('language') ?? app()->getLocale()}}');
+            }
+
             $("#name").keyup(function () {
                 let name = $(this).val();
                 $("#slug").val(ToSeoUrl(name));
