@@ -36,13 +36,15 @@ class HomePosts extends Component
         } catch (NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             $page = 1;
         }
-        if (Cache::has(config('cache.prefix').'home_posts_'.session('language').'_page_'.$page.'_'.$this->paginate.'_'.$this->skip)) {
-            $posts = Cache::get(config('cache.prefix').'home_posts_'.session('language').'_page_'.$page.'_'.$this->paginate.'_'.$this->skip);
+
+        $cacheKey = config('cache.prefix').'home_posts_'.session('language').'_page_'.$page.'_'.$this->paginate;
+
+        if (Cache::has($cacheKey)) {
+            $posts = Cache::get($cacheKey);
         } else {
-            $skipCount = $this->skip;
             $perPage = $this->paginate;
 
-            $allPosts = Posts::with('categories')
+            $postsQuery = Posts::with('categories')
                 ->join('users', 'posts.user_id', '=', 'users.id')
                 ->join('media', 'posts.id', '=', 'media.model_id')
                 ->select([
@@ -57,26 +59,14 @@ class HomePosts extends Component
                 ->where('posts.is_published', true)
                 ->where('media.collection_name', 'posts')
                 ->where('posts.created_at', '<=', now()->format('Y-m-d H:i:s'))
-                ->orderBy('posts.created_at', 'desc')
-                ->skip($skipCount)
-                ->take($perPage)
-                ->get();
+                ->orderBy('posts.created_at', 'desc');
 
-            $total = Posts::where('post_type', 'post')
-                ->where('language', session('language'))
-                ->where('is_published', true)
-                ->count();
+            // Burada paginate() metodu kullanılıyor
+            $posts = $postsQuery->paginate($perPage);
 
-            $posts = new LengthAwarePaginator(
-                $allPosts,
-                $total,
-                $perPage,
-                $page,
-                ['path' => request()->url(), 'query' => request()->query()]
-            );
-
-            Cache::put(config('cache.prefix').'home_posts_'.session('language').'_page_'.$page.'_'.$this->paginate.'_'.$this->skip, $posts, now()->addHours(12));
+            Cache::put($cacheKey, $posts, now()->addHours(12));
         }
+
         try {
             return view('themes.'.app('theme')->name.'.components.posts.home-posts', [
                 'posts' => $posts,
@@ -86,5 +76,6 @@ class HomePosts extends Component
                 'posts' => $posts,
             ]);
         }
+
     }
 }
