@@ -1222,7 +1222,7 @@
             if (urlParams.has('tab')) {
                 ChangeTab(urlParams.get('tab'));
             } else {
-                ChangeTab('{{session('language')}}');
+                ChangeTab('general');
             }
 
             $('#seoSave').submit(function () {
