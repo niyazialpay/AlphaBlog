@@ -303,6 +303,10 @@
                 headers: {
                     'X-CSRF-TOKEN': '{{csrf_token()}}',
                     'X-XSRF-TOKEN': '{{csrf_token()}}',
+                },
+                drawCallback: function() {
+                    // Tooltip'u yeniden başlat
+                    $('[data-bs-toggle="tooltip"]').tooltip();
                 }
             });
         });
