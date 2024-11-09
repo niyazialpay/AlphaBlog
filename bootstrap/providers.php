@@ -11,4 +11,5 @@ return [
     App\Providers\TelescopeServiceProvider::class,
     Illuminate\Session\SessionServiceProvider::class,
     Yajra\DataTables\DataTablesServiceProvider::class,
+    Nwidart\Modules\LaravelModulesServiceProvider::class,
 ];

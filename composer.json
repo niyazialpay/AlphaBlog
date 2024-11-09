@@ -25,6 +25,7 @@
         "laravel/tinker": "^2.9",
         "laravel/ui": "^4.5",
         "meilisearch/meilisearch-php": "^1.7",
+        "nwidart/laravel-modules": "^11.1",
         "opcodesio/log-viewer": "^3.9",
         "openai-php/client": "^0.9.1",
         "predis/predis": "^2.2",
@@ -73,6 +74,11 @@
     "extra": {
         "laravel": {
             "dont-discover": []
+        },
+        "merge-plugin": {
+            "include": [
+                "Modules/*/composer.json"
+            ]
         }
     },
     "config": {
@@ -81,7 +87,8 @@
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "php-http/discovery": true
+            "php-http/discovery": true,
+            "wikimedia/composer-merge-plugin": true
         }
     },
     "minimum-stability": "dev",
