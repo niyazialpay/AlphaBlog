@@ -109,7 +109,7 @@ return [
     'copy_url_path' => 'URL\'nin yolunu kopyala',
 
     'comments_count' => 'Yorumlar',
-    'views_count' => 'Görüntülenme',
+    'views' => 'Görüntülenme',
 
     'new_post' => 'Yeni Yazı',
 ];
