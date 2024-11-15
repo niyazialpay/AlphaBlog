@@ -14,6 +14,7 @@
         "google-gemini-php/laravel": "^1.0",
         "guzzlehttp/guzzle": "^7.8",
         "hisorange/browser-detect": "^5.0",
+        "james-heinrich/getid3": "^1.9",
         "laragear/webauthn": "^2.0",
         "laravel/fortify": "^1.21",
         "laravel/framework": "^11.0",
