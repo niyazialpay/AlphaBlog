@@ -37,12 +37,13 @@ class HomePosts extends Component
             $page = 1;
         }
 
-        $cacheKey = config('cache.prefix').'home_posts_'.session('language').'_page_'.$page.'_'.$this->paginate;
+        $cacheKey = config('cache.prefix').'home_posts_'.session('language').'_page_'.$page.'_'.$this->paginate.'_skip_'.$this->skip;
 
         if (Cache::has($cacheKey)) {
             $posts = Cache::get($cacheKey);
         } else {
             $perPage = $this->paginate;
+            $skip = ($page - 1) * $perPage + $this->skip;
 
             $postsQuery = Posts::with('categories')
                 ->join('users', 'posts.user_id', '=', 'users.id')
@@ -59,10 +60,25 @@ class HomePosts extends Component
                 ->where('posts.is_published', true)
                 ->where('media.collection_name', 'posts')
                 ->where('posts.created_at', '<=', now()->format('Y-m-d H:i:s'))
-                ->orderBy('posts.created_at', 'desc');
+                ->orderBy('posts.created_at', 'desc')
+                ->skip($skip)
+                ->take($perPage)
+                ->get();
 
-            // Burada paginate() metodu kullanılıyor
-            $posts = $postsQuery->paginate($perPage);
+            // Pagination manually handled
+            $total = Posts::where('post_type', 'post')
+                ->where('language', session('language'))
+                ->where('is_published', true)
+                ->where('created_at', '<=', now()->format('Y-m-d H:i:s'))
+                ->count();
+
+            $posts = new LengthAwarePaginator(
+                $postsQuery,
+                $total,
+                $perPage,
+                $page,
+                ['path' => request()->url(), 'query' => request()->query()]
+            );
 
             Cache::put($cacheKey, $posts, now()->addHours(12));
         }
@@ -76,6 +92,5 @@ class HomePosts extends Component
                 'posts' => $posts,
             ]);
         }
-
     }
 }
