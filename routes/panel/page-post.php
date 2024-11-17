@@ -36,12 +36,12 @@ Route::post('/{post}/delete', [App\Http\Controllers\Admin\Post\PostController::c
 
 Route::post('/{post}/delete/permanent', [App\Http\Controllers\Admin\Post\PostController::class, 'forceDelete'])
     ->name('admin.post.delete.permanent')
-    ->can('delete', 'post')
+    ->can('admin', 'App\Models\User')
     ->withTrashed();
 
 Route::post('/{post}/restore', [App\Http\Controllers\Admin\Post\PostController::class, 'restore'])
     ->name('admin.post.restore')
-    ->can('edit', 'post')
+    ->can('admin', 'App\Models\User')
     ->withTrashed();
 
 Route::post('/image/delete/{post?}', [App\Http\Controllers\Admin\Post\PostController::class, 'imageDelete'])
