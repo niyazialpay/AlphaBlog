@@ -253,53 +253,11 @@
             </li>
         </ul>
     </li>
-    @if(Module::find('Podcast')?->isEnabled())
-        @can('moderator', 'App\Models\User')
-            <li class="nav-header">Podcast</li>
-            <li class="nav-item has-treeview
-            @if(request()->is(config('settings.admin_panel_path').'/podcast*')) menu-open @endif ">
-                <a class="nav-link
-                    @if(request()->is(config('settings.admin_panel_path').'/notes*')) active @endif "
-                   href="javascript:void(0);">
-                    @if(config('settings.fontawesome_pro'))
-                        <i class="fa-duotone fa-solid fa-podcast nav-icon"></i>
-                    @else
-                        <i class="fa-solid fa-podcast nav-icon"></i>
-                    @endif
-                    <p>
-                        Podcast
-                        <i class="right fas fa-angle-left"></i>
-                    </p>
-                </a>
-                <ul class="nav nav-treeview shadow rounded py-2">
-                    <li class="nav-item">
-                        <a href="{{route('panel.podcast.index')}}"
-                           class="nav-link
-                            @if(request()->is(config('settings.admin_panel_path').'/podcast/admin*')) active @endif ">
-                            @if(config('settings.fontawesome_pro'))
-                                <i class="fa-duotone fa-page nav-icon"></i>
-                            @else
-                                <i class="fa-solid fa-file nav-icon"></i>
-                            @endif
-                            <p>@lang('podcast::panel.podcast_list')</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{route('panel.podcast.channels')}}"
-                           class="nav-link
-                            @if(request()->is(config('settings.admin_panel_path').'/podcast/channels*')) active @endif ">
-                            @if(config('settings.fontawesome_pro'))
-                                <i class="fa-duotone fa-page nav-icon"></i>
-                            @else
-                                <i class="fa-solid fa-file nav-icon"></i>
-                            @endif
-                            <p>@lang('podcast::panel.channels')</p>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        @endcan
-    @endif
+    @foreach(Module::all() as $module)
+        @if($module->isEnabled())
+            @includeIf($module->getLowerName().'::panel.menu')
+        @endif
+    @endforeach
     @can('admin', 'App\Models\User')
         <li class="nav-header">@lang('settings.management')</li>
         <li class="nav-item">
