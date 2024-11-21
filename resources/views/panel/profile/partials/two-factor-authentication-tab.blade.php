@@ -43,7 +43,7 @@
     @else
         <form action="{{route('two-factor.enable')}}" method="post">
             @csrf
-            <button type="submit" class="btn btn-primary">@lang('profile.deactivate_2fa')</button>
+            <button type="submit" class="btn btn-primary">@lang('profile.active_2fa')</button>
         </form>
     @endif
 </div>
