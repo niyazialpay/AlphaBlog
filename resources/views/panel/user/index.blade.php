@@ -43,6 +43,11 @@
                             <th>
                                 @lang('user.name')
                             </th>
+                            @can('owner', \App\Models\User::class)
+                                <th>
+                                    @lang('user.username')
+                                </th>
+                            @endcan
                             <th>
                                 @lang('user.email')
                             </th>
@@ -68,6 +73,11 @@
                                     <br>
                                     {{$user->nickname}}
                                 </td>
+                                @can('owner', \App\Models\User::class)
+                                    <th>
+                                        {{$user->username}}
+                                    </th>
+                                @endcan
                                 <td>
                                     {{$user->email}}
                                 </td>
@@ -99,7 +109,13 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center">
+                                @php
+                                    $colspan = 7;
+                                    if (auth()->user()->can('owner', \App\Models\User::class)){
+                                        $colspan = 8;
+                                    }
+                                @endphp
+                                <td colspan="@can('owner', \App\Models\User::class)8 @else 7 @endcan" class="text-center">
                                     @lang('user.no_user')
                                 </td>
                             </tr>
