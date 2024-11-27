@@ -35,7 +35,7 @@
     <div class="lockscreen-item">
         <!-- lockscreen image -->
         <div class="lockscreen-image">
-            <img src="{{auth()->user()->profile_image}}?s=128"  width="128" alt="{{auth()->user()->nickname}}" />
+            <img src="{{auth()->user()->profile_image}}&s=128"  width="128" alt="{{auth()->user()->nickname}}" />
         </div>
         <!-- /.lockscreen-image -->
 

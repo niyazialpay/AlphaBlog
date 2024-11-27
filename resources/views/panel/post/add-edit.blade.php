@@ -238,7 +238,7 @@
                                         <a id="comment-{{$comment->id}}"></a>
                                         @if($comment->user_id)
                                             <img
-                                                src="{{$comment->user->profile_image}}?s=34"
+                                                src="{{$comment->user->profile_image}}&s=34"
                                                 class="img-circle elevation-2" alt="{{$comment->user->nickname}}">
 
                                             {{$comment->user->nickname}}

@@ -150,10 +150,10 @@ class User extends Authenticatable implements MustVerifyEmail, WebAuthnAuthentic
     public function getProfileImageAttribute(): string
     {
         if($this->getFirstMediaUrl('profile')){
-            return $this->getFirstMediaUrl('profile');
+            return $this->getFirstMediaUrl('profile').'?';
         }
         else{
-            return 'https://www.gravatar.com/avatar/'.hash('sha256', strtolower(trim($this->email)));
+            return 'https://www.gravatar.com/avatar/'.hash('sha256', strtolower(trim($this->email))).'?d=wavatar';
         }
     }
 

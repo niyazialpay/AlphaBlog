@@ -35,7 +35,7 @@
                         <div class="card-body box-profile">
                             <div class="text-center d-flex justify-content-center">
                                 <a class="profileImg" href="#" data-bs-toggle="modal" data-bs-target="#profileImageModal">
-                                    <img class="profile-user-img img-fluid img-circle" src="{{$user->profile_image}}?s=128" alt="{{$user->nickname}}">
+                                    <img class="profile-user-img img-fluid img-circle" src="{{$user->profile_image}}&s=128" alt="{{$user->nickname}}">
                                     <div class='imgOverlay'>
                                         <div class='oBody'></div>
                                     </div>
@@ -741,7 +741,7 @@
                             </div>
                         @else
                             <div class="col-3">
-                                <img class="profile-user-img img-fluid img-circle" src="{{$user->profile_image}}?s=128" alt="{{$user->nickname}}">
+                                <img class="profile-user-img img-fluid img-circle" src="{{$user->profile_image}}&s=128" alt="{{$user->nickname}}">
                             </div>
                             <div class="col-9">
                                 <p class="text-muted text-left">@lang('profile.profile_image_gravatar')</p>
@@ -1194,6 +1194,9 @@
                         type: 'POST',
                         data: {
                             _token: '{{csrf_token()}}'
+                            @if(request()->route()->parameter('user_id')),
+                            user_id: '{{$user->id}}'
+                            @endif
                         },
                         success: function () {
                             Swal.fire(
