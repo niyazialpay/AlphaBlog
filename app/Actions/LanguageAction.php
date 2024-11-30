@@ -78,22 +78,17 @@ class LanguageAction
             }
             else {
                 if (session()->has('language')) {
-                    if($request->segment(1) == session('language')) {
-                        $language = $languages->getLanguage(session('language'));
-                    }
-                    else {
-                        $language = $languages->getLanguage($request->segment(1));
-                        if ($language == null) {
-                            $route = RouteRedirectAction::RouteRedirect($request);
-                            if ($route) {
-                                if ((int)$route->redirect_code === 404) {
-                                    abort(404);
-                                } else {
-                                    return redirect($route->new_url, (int) $route->redirect_code);
-                                }
-                            } else {
+                    $language = $languages->getLanguage(session('language'));
+                    if ($language == null) {
+                        $route = RouteRedirectAction::RouteRedirect($request);
+                        if ($route) {
+                            if ((int)$route->redirect_code === 404) {
                                 abort(404);
+                            } else {
+                                return redirect($route->new_url, (int) $route->redirect_code);
                             }
+                        } else {
+                            abort(404);
                         }
                     }
                 }
