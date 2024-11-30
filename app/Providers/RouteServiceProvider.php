@@ -28,7 +28,6 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        LanguageAction::setLanguage(request());
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
@@ -38,13 +37,13 @@ class RouteServiceProvider extends ServiceProvider
                 return $query->where('is_approved', 1);
             }, 'comments.user'])
                 ->where('slug', $slug)
-                ->where('language', session()->get('language'))
+                ->where('language', request()->segment(1))
                 ->where('is_published', 1)->firstOrFail();
         });
 
         Route::bind('showCategory', function ($slug) {
             return Categories::where('slug', $slug)
-                ->where('language', session()->get('language'))->firstOrFail();
+                ->where('language', request()->segment(1))->firstOrFail();
         });
 
         Route::bind('showTag', function ($tag) {
@@ -63,7 +62,7 @@ class RouteServiceProvider extends ServiceProvider
             return User::select(['name', 'surname', 'nickname', 'email'])
                 ->with(['posts', 'posts.categories', 'posts.media', 'posts.media.model'])
                 ->whereHas('posts', function ($query) {
-                    $query->where('language', session()->get('language'))
+                    $query->where('language', request()->segment(1))
                         ->where('is_published', 1);
                 })
                 ->where('nickname', $nickname)

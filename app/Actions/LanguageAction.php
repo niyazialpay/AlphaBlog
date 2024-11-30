@@ -31,7 +31,7 @@ class LanguageAction
                 'email/verify',
             ];
             $languages = new Languages;
-            if (! in_array($request->segment(1), $except)) {
+            if (!in_array($request->segment(1), $except)) {
                 if (session()->has('language')) {
                     if ($request->segment(1) == session('language')) {
                         $language = $languages->getLanguage(session('language'));
@@ -58,7 +58,8 @@ class LanguageAction
                 else {
                     if ($request->segment(1) == null) {
                         $language = $languages->getLanguage(app('default_language')?->code);
-                    } else {
+                    }
+                    else {
                         $language = $languages->getLanguage($request->segment(1));
                         if ($language == null) {
                             $route = RouteRedirectAction::RouteRedirect($request);
@@ -74,9 +75,27 @@ class LanguageAction
                         }
                     }
                 }
-            } else {
+            }
+            else {
                 if (session()->has('language')) {
-                    $language = $languages->getLanguage(session('language'));
+                    if($request->segment(1) == session('language')) {
+                        $language = $languages->getLanguage(session('language'));
+                    }
+                    else {
+                        $language = $languages->getLanguage($request->segment(1));
+                        if ($language == null) {
+                            $route = RouteRedirectAction::RouteRedirect($request);
+                            if ($route) {
+                                if ((int)$route->redirect_code === 404) {
+                                    abort(404);
+                                } else {
+                                    return redirect($route->new_url, (int) $route->redirect_code);
+                                }
+                            } else {
+                                abort(404);
+                            }
+                        }
+                    }
                 }
                 else {
                     $language = $languages->getLanguage(
@@ -88,6 +107,7 @@ class LanguageAction
                     }
                 }
             }
+
             session()->put('language', $language?->code);
             session()->put('language_flag', $language?->flag);
             session()->put('language_name', $language?->name);
