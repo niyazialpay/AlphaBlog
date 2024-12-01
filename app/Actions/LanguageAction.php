@@ -40,19 +40,7 @@ class LanguageAction
                         $language = $languages->getLanguage(app('default_language')->code);
                     }
                     else {
-                        $language = $languages->getLanguage($request->segment(1));
-                        if ($language == null) {
-                            $route = RouteRedirectAction::RouteRedirect($request);
-                            if ($route) {
-                                if ((int)$route->redirect_code === 404) {
-                                    abort(404);
-                                } else {
-                                    return redirect($route->new_url, (int) $route->redirect_code);
-                                }
-                            } else {
-                                abort(404);
-                            }
-                        }
+                        $language = self::language($languages);
                     }
                 }
                 else {
@@ -60,19 +48,7 @@ class LanguageAction
                         $language = $languages->getLanguage(app('default_language')?->code);
                     }
                     else {
-                        $language = $languages->getLanguage($request->segment(1));
-                        if ($language == null) {
-                            $route = RouteRedirectAction::RouteRedirect($request);
-                            if ($route) {
-                                if ((int)$route->redirect_code === 404) {
-                                    abort(404);
-                                } else {
-                                    return redirect($route->new_url, (int) $route->redirect_code);
-                                }
-                            } else {
-                                abort(404);
-                            }
-                        }
+                        $language = self::language($languages);
                     }
                 }
             }
@@ -97,7 +73,7 @@ class LanguageAction
                         explode('-', explode(',', $request->server('HTTP_ACCEPT_LANGUAGE')
                         )[0])[0]
                     );
-                    if (! $language) {
+                    if (!$language) {
                         $language = $languages->getLanguage(app('default_language')->code);
                     }
                 }
@@ -111,5 +87,22 @@ class LanguageAction
             setlocale(LC_ALL, $language?->code);
             setlocale(LC_TIME, $language?->code);
         }
+    }
+
+    private static function language($languages){
+        $language = $languages->getLanguage(request()->segment(1));
+        if ($language == null) {
+            $route = RouteRedirectAction::RouteRedirect(request());
+            if ($route) {
+                if ((int)$route->redirect_code === 404) {
+                    abort(404);
+                } else {
+                    return redirect($route->new_url, (int) $route->redirect_code);
+                }
+            } else {
+                abort(404);
+            }
+        }
+        return $language;
     }
 }
