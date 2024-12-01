@@ -36,12 +36,12 @@
         </div>
         <div class="card-body">
             <form class="row" method="POST" id="blogSave" enctype="multipart/form-data" action="javascript:void(0)">
-                <div class="col-12 mb-3">
+                <div class="col-sm-12 col-md-6 mb-3">
                     <label for="title">@lang('post.title')</label>
                     <input type="text" class="form-control" name="title" id="title" placeholder="@lang('post.title')"
                            value="{{stripslashesNull($post->title)}}">
                 </div>
-                <div class="col-12 mb-3">
+                <div class="col-sm-12 col-md-6 mb-3">
                     <label for="slug">@lang('post.slug')</label>
                     <input type="text" class="form-control" name="slug" id="slug" placeholder="@lang('post.slug')"
                            value="{{stripslashesNull($post->slug)}}">
@@ -52,18 +52,22 @@
                             {{route('page', [$post->language, $post->slug])}}
                         </a>
 
-                        <button type="button" class="btn btn-default ms-1" style="font-size:12px"
-                                onclick="navigator.clipboard.writeText('{{route('page', [$post->language, $post->slug])}}')">
-                            @lang('post.copy_full_url')
-                        </button>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default btn-sm ms-1" style="font-size:12px"
+                                    onclick="navigator.clipboard.writeText('{{route('page', [$post->language, $post->slug])}}')">
+                                <i class="@if(config('settings.fontawesome_pro')) fa-duotone @endif fa-duotone fa-solid fa-copy"></i>
+                                @lang('post.copy_full_url')
+                            </button>
 
-                        <button type="button" class="btn btn-default ms-1" style="font-size:12px"
-                                onclick="navigator.clipboard.writeText('/{{$post->language}}/{{$post->slug}}')">
-                            @lang('post.copy_url_path')
-                        </button>
+                            <button type="button" class="btn btn-default btn-sm ms-1" style="font-size:12px"
+                                    onclick="navigator.clipboard.writeText('/{{$post->language}}/{{$post->slug}}')">
+                                <i class="@if(config('settings.fontawesome_pro')) fa-duotone @endif fa-solid fa-copy"></i>
+                                @lang('post.copy_url_path')
+                            </button>
+                        </div>
                     </div>
                 @endif
-                <div class="col-12 mb-3">
+                <div class="col-sm-12 col-md-6 mb-3">
                     <label for="language">@lang('general.language')</label>
                     <select name="language" id="language" class="form-control">
                         @foreach(app('languages') as $language)
@@ -75,7 +79,7 @@
                     </select>
                 </div>
                 @if($type=='blogs')
-                    <div class="col-12 mb-3">
+                    <div class="col-sm-12 col-md-6 mb-3">
                         <div class="form-group">
                             <label for="category_id">@lang('post.category')</label>
                             <select name="category_id[]" id="category_id" class="form-control select2" style="width: 100%"
@@ -87,24 +91,33 @@
                         </div>
                     </div>
                 @endif
-                <div class="col-12 mb-3" id="image_input">
-                    @if($post->getFirstMediaUrl('posts', 'thumb'))
-                        <label for="image">@lang('post.image')</label>
-                        <img src="{{$post->getFirstMediaUrl('posts', 'thumb')}}" id="image"
-                             alt="{{stripslashesNull($post->title)}}" class="img-fluid" width="450">
-                        <a href="javascript:imageDelete('{{$post->id}}')" class="text-danger">
-                            <i class="fa fa-trash"></i>
-                        </a>
-                    @else
+                @if($post->getFirstMediaUrl('posts', 'thumb'))
+                    <div class="col-sm-12 row mb-3" id="image_input">
+                        <div class="col-6">
+                            <label for="image">@lang('post.image')</label>
+                            <img src="{{$post->getFirstMediaUrl('posts', 'thumb')}}" id="image"
+                                 alt="{{stripslashesNull($post->title)}}" class="img-fluid" width="450">
+                        </div>
+                        <div class="col-6 text-start">
+                            <a href="javascript:imageDelete('{{$post->id}}')" class="text-danger">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                @else
+                    <div class="col-sm-12 col-md-6 mb-3">
                         <div class="input-group">
                             <div class="custom-file">
-                                <input type="file" class="custom-file-input" name="image" id="image" accept="image/*">
+                                <input type="file" class="custom-file-input" name="image" id="image"  onchange="document.getElementById('image-preview').src = window.URL.createObjectURL(this.files[0])" accept="image/*">
                                 <label class="custom-file-label" for="image">@lang('post.image')</label>
                             </div>
                         </div>
-
-                    @endif
-                </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 mb-3">
+                        <img src="" id="image-preview"
+                             class="img-fluid" width="350" alt="">
+                    </div>
+                @endif
                 <div class="col-12 mb-3">
                     <label for="content">@lang('post.content')</label>
                     <textarea name="content" id="content" class="form-control"
@@ -122,18 +135,7 @@
                            placeholder="@lang('post.meta_description')"
                            value="{{stripslashesNull($post->meta_description)}}">
                 </div>
-                <div class="col-12 mb-3">
-                    <label for="is_published">@lang('post.is_published')</label>
-                    <select name="is_published" id="is_published" class="form-control">
-                        <option value="1" @if($post->is_published) selected @endif>
-                            @lang('post.status_active')
-                        </option>
-                        <option value="0" @if(!$post->is_published) selected @endif>
-                            @lang('post.status_passive')
-                        </option>
-                    </select>
-                </div>
-                <div class="col-12 mb-3">
+                <div class="col-sm-12 col-md-6 mb-3">
                     <label for="user_id">@lang('post.author')</label>
                     <select name="user_id" id="user_id" class="form-control select2">
                         @foreach($users as $user)
@@ -147,6 +149,17 @@
                                 {{$user->name}} {{$user->surname}} ({{$user->nickname}})
                             </option>
                         @endforeach
+                    </select>
+                </div>
+                <div class="col-sm-12 col-md-6 mb-3">
+                    <label for="is_published">@lang('post.is_published')</label>
+                    <select name="is_published" id="is_published" class="form-control">
+                        <option value="1" @if($post->is_published) selected @endif>
+                            @lang('post.status_active')
+                        </option>
+                        <option value="0" @if(!$post->is_published) selected @endif>
+                            @lang('post.status_passive')
+                        </option>
                     </select>
                 </div>
                 <div class="col-12 mb-3 border rounded p-3">
@@ -622,6 +635,7 @@
             });
 
         });
+
     </script>
     @include('panel.post.comments.js')
 @endsection

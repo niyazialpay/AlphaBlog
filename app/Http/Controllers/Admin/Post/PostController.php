@@ -188,7 +188,10 @@ class PostController extends Controller
             }
             $post->slug = $slug;
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
-                $post->addMediaFromRequest('image')->toMediaCollection('posts');
+                $ext  = $request->file('image')->extension();
+                $post->addMediaFromRequest('image')
+                    ->usingFileName($slug.'-'.time() . '.'.$ext)
+                    ->toMediaCollection('posts');
             }
             $post->content = content($request->post('content'));
             $post->meta_description = GetPost($request->post('meta_description'));
@@ -318,13 +321,14 @@ class PostController extends Controller
      */
     public function editorImageUpload($type, Posts $post, Request $request)
     {
+        if ($request->slug == null) {
+            $slug = Str::slug($request->post('title'));
+        } else {
+            $slug = Str::slug($request->post('slug'));
+        }
+
         if (! $post->id) {
             $post->title = GetPost($request->post('title')).' (draft)';
-            if ($request->slug == null) {
-                $slug = Str::slug($request->post('title'));
-            } else {
-                $slug = Str::slug($request->post('slug'));
-            }
             $post->slug = $slug;
             $post->content = content($request->post('content'));
             $post->post_type = GetPost($request->post('post_type'));
@@ -335,7 +339,10 @@ class PostController extends Controller
         }
 
         if ($request->hasFile('file') && $request->file('file')->isValid()) {
-            $post->addMediaFromRequest('file')->toMediaCollection('content_images');
+            $ext  = $request->file('file')->extension();
+            $post->addMediaFromRequest('file')
+                ->usingFileName($slug.'-'.time() . '.'.$ext)
+                ->toMediaCollection('content_images');
         }
 
         return response()->json([

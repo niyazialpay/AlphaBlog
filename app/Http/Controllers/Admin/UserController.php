@@ -388,7 +388,10 @@ class UserController extends Controller
      */
     public function profileImage(ProfileImageRequest $request){
         $user = $this->extracted($request);
-        $user->addMediaFromRequest('profile_image')->toMediaCollection('profile');
+        $ext = $request->file('profile_image')->getClientOriginalExtension();
+        $user->addMediaFromRequest('profile_image')
+            ->usingFileName($user->username . '.'.$ext)
+            ->toMediaCollection('profile');
         if($user->save()){
             return back()->with('success', __('profile.profile_image_uploaded'));
         }
