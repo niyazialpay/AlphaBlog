@@ -41,6 +41,9 @@
                         <thead>
                         <tr>
                             <th>
+                                @lang('user.profile_image')
+                            </th>
+                            <th>
                                 @lang('user.name')
                             </th>
                             @can('owner', \App\Models\User::class)
@@ -68,6 +71,9 @@
                         <tbody>
                         @forelse($users as $user)
                             <tr>
+                                <td>
+                                    <img src="{{$user->profile_image}}" alt="{{$user->name}}" class="img-circle img-size-32 mr-2">
+                                </td>
                                 <td>
                                     {{$user->name}} {{$user->surname}}
                                     <br>
@@ -110,12 +116,12 @@
                         @empty
                             <tr>
                                 @php
-                                    $colspan = 7;
+                                    $colspan = 8;
                                     if (auth()->user()->can('owner', \App\Models\User::class)){
-                                        $colspan = 8;
+                                        $colspan = 9;
                                     }
                                 @endphp
-                                <td colspan="@can('owner', \App\Models\User::class)8 @else 7 @endcan" class="text-center">
+                                <td colspan="@can('owner', \App\Models\User::class)9 @else 8 @endcan" class="text-center">
                                     @lang('user.no_user')
                                 </td>
                             </tr>

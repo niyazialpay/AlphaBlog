@@ -15,6 +15,7 @@ return [
     'remember_me' => 'Beni Hatırla',
     'forgot_password' => 'Şifremi Unuttum',
     'username_or_email' => 'Kullanıcı Adı veya E-posta',
+    'profile_image' => 'Profil Resmi',
 
     'login_request' => [
         'login_required' => 'Kullanıcı adı veya e-posta alanı boş bırakılamaz!',

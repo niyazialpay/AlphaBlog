@@ -15,6 +15,7 @@ return [
     'remember_me' => 'Remember Me',
     'forgot_password' => 'Forgot Password',
     'username_or_email' => 'Username or Email',
+    'profile_image' => 'Profile Image',
 
     'login_request' => [
         'login_required' => 'Username or email field cannot be empty!',
