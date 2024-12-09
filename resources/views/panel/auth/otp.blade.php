@@ -20,6 +20,8 @@
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>
+    <link rel="shortcut icon" href="{{$general_settings->getFirstMediaUrl('site_favicon')}}" type="image/x-icon">
+    <link rel="icon" href="{{$general_settings->getFirstMediaUrl('site_favicon')}}" type="image/x-icon">
     <link rel="manifest" href="{{route('manifest.panel')}}">
 </head>
 <body class="hold-transition lockscreen">
