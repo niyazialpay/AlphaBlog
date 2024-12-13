@@ -18,6 +18,8 @@ use Laravel\Fortify\Http\Controllers\VerifyEmailController;
 |
 */
 
+include "cdn.php";
+
 Route::any('/'.config('settings.admin_panel_path').'/manifest.json',
     [\App\Http\Controllers\ManifestController::class, 'manifestPanel'])
     ->name('manifest.panel');

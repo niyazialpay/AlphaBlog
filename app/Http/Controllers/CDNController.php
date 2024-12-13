@@ -8,9 +8,11 @@ class CDNController extends Controller
 {
     public function index($any){
         $path = public_path($any);
-        if (file_exists($path)) {
+        
+        if (file_exists($path) && is_file($path)) {
             return response()->file($path);
         }
+
         abort(404);
     }
 }
