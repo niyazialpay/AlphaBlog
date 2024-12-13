@@ -18,7 +18,15 @@ use Laravel\Fortify\Http\Controllers\VerifyEmailController;
 |
 */
 
-include "cdn.php";
+if (config('app.cdn_url') != null && config('app.cdn_url') != config('app.url')) {
+    $domain = config('app.cdn_url');
+} else {
+    $domain = config('app.url');
+}
+Route::domain($domain)->group(function () {
+    Route::get('/{any?}', [\App\Http\Controllers\CDNController::class, 'index'])
+        ->where('any', '.*');
+});
 
 Route::any('/'.config('settings.admin_panel_path').'/manifest.json',
     [\App\Http\Controllers\ManifestController::class, 'manifestPanel'])
