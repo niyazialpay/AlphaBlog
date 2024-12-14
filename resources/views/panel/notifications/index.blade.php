@@ -10,12 +10,18 @@
     <div class="card">
         <div class="card-header d-flex">
             <h3 class="card-title">@lang('notifications.notifications')</h3>
+            <div class="ms-auto">
+                <div class="btn-group">
+                    <a href="{{route('notifications.markAllAsRead')}}" class="btn btn-primary">@lang('notifications.mark_all_as_read')</a>
+                    <a href="javascript:deleteAll()" class="btn btn-danger">@lang('notifications.delete_all')</a>
+                </div>
+            </div>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-12">
                     <ul>
-                        @foreach ($notifications as $notification)
+                        @forelse ($notifications as $notification)
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <div>
                                     @if($notification->read_at == null)
@@ -47,7 +53,11 @@
                                     </button>
                                 </div>
                             </li>
-                        @endforeach
+                        @empty
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{trans_choice('notifications.unread_notifications', 0)}}
+                            </li>
+                        @endforelse
                     </ul>
                     <div class="mt-4">
                         {{ $notifications->links() }}
@@ -109,5 +119,47 @@
                 });
             });
         });
+
+        function deleteAll(){
+            Swal.fire({
+                title: '@lang('general.are_you_sure')',
+                text: "@lang('notifications.delete_warning')",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '@lang('general.delete_confirm_yes')!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '{{ route('notifications.destroyAll') }}',
+                        type: 'DELETE',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function (response) {
+                            if (response.result === 'success') {
+                                location.reload();
+                            } else {
+                                Swal.fire(
+                                    '@lang('general.error')!',
+                                    '@lang('notifications.delete_error')',
+                                    'error'
+                                );
+                            }
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        title: '@lang('general.error')!',
+                        text: '@lang('notifications.delete_error')',
+                        icon: 'error',
+                        showCancelButton: false,
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                }
+            });
+        }
     </script>
 @endsection

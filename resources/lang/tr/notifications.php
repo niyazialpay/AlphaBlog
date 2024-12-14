@@ -17,4 +17,8 @@ return [
     'delete_error' => 'Bildirim silinirken bir hata oluştu.',
     'delete_warning' => 'Bu işlemi geri alamayacaksınız!',
     'unread_notifications' => '{0} Bildiriminiz yok|{1} :count Okunmamış Bildirim|[2,*] :count Okunmamış Bildirim',
+    'mark_all_as_read' => 'Tümünü Okundu Olarak İşaretle',
+    'delete_all' => 'Tümünü Sil',
+    'notifications_deleted' => 'Bildirimler başarıyla silindi.',
+    'delete_all_warning'
 ];

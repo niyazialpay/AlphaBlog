@@ -17,4 +17,7 @@ return [
     'delete_error' => 'An error occurred while deleting the notification.',
     'delete_warning' => "You won't be able to revert this!",
     'unread_notifications' => '{0} There are no notifications|{1} :count Unread Notification|[2,*] :count Unread Notifications',
+    'mark_all_as_read' => 'Mark All as Read',
+    'delete_all' => 'Delete All',
+    'notifications_deleted' => 'Notifications deleted successfully.',
 ];

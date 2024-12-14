@@ -60,4 +60,23 @@ class NotificationController extends Controller
             'message' => __('notifications.notification_not_found'),
         ]);
     }
+
+    public function markAllAsRead(Request $request)
+    {
+        $user = $request->user();
+        $user->unreadNotifications->markAsRead();
+
+        return redirect()->route('notifications.index');
+    }
+
+    public function deleteAll(Request $request)
+    {
+        $user = $request->user();
+        $user->notifications()->delete();
+
+        return response()->json([
+            'result' => 'success',
+            'message' => __('notifications.notifications_deleted'),
+        ]);
+    }
 }
