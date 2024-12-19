@@ -22,6 +22,7 @@ use Laravel\Pulse\Facades\Pulse;
 use Opcodes\LogViewer\Facades\LogViewer;
 use Opcodes\LogViewer\LogFile;
 use Opcodes\LogViewer\LogFolder;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -53,6 +54,8 @@ class AppServiceProvider extends ServiceProvider
 
         Posts::observe(PostsObserver::class);
         User::observe(UserObserver::class);
+
+        Media::observe(\App\Observers\MediaObserver::class);
 
         Gate::define('viewPulse', function (User $user) {
             return $user->role === 'owner' || $user->role === 'admin';

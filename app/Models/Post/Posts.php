@@ -2,6 +2,7 @@
 
 namespace App\Models\Post;
 
+use App\Models\Logs;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -127,5 +128,39 @@ class Posts extends Model implements HasMedia
             ->width(365)
             ->height(200)
             ->nonOptimized()->keepOriginalImageFormat();
+    }
+
+    public static function boot(): void
+    {
+        parent::boot();
+
+        $data = [
+            'user_id' => auth()->id(),
+            'ip' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'port' => request()->getPort(),
+            'model' => 'Posts',
+        ];
+
+        static::created(function ($model) use ($data) {
+            $data['old_data'] = json_encode($model->getOriginal());
+            $data['new_data'] = json_encode($model->toArray());
+            $data['action'] = 'create';
+            Logs::create($data);
+        });
+
+        static::updating(function ($model) use ($data) {
+            $data['old_data'] = json_encode($model->getOriginal());
+            $data['new_data'] = json_encode($model->toArray());
+            $data['action'] = 'update';
+            Logs::create($data);
+        });
+
+        static::deleted(function ($model) use ($data) {
+            $data['old_data'] = json_encode($model->getOriginal());
+            $data['new_data'] = json_encode($model->toArray());
+            $data['action'] = 'delete';
+            Logs::create($data);
+        });
     }
 }

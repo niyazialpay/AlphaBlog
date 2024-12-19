@@ -74,10 +74,10 @@ class GlobalVariableServiceProvider extends ServiceProvider
                 return $theme;
             });
 
-            if (Cache::has(config('cache.prefix').'ad_settings')) {
-                $ad_settings = Cache::get(config('cache.prefix').'ad_settings');
+            if (Cache::has(config('cache.prefix').'advertise_settings')) {
+                $ad_settings = Cache::get(config('cache.prefix').'advertise_settings');
             } else {
-                $ad_settings = Cache::rememberForever(config('cache.prefix').'ad_settings', function () {
+                $ad_settings = Cache::rememberForever(config('cache.prefix').'advertise_settings', function () {
                     return AdvertiseSettings::first();
                 });
             }

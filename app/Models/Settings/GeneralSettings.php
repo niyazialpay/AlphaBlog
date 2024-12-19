@@ -2,6 +2,7 @@
 
 namespace App\Models\Settings;
 
+use App\Models\Logs;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -76,5 +77,24 @@ class GeneralSettings extends Model implements HasMedia
             ->width(16)
             ->height(16)
             ->nonOptimized()->keepOriginalImageFormat();
+    }
+
+    public static function boot(): void
+    {
+        parent::boot();
+
+        static::updating(function ($model) {
+            cache()->forget(config('cache.prefix').'general_settings');
+            Logs::create([
+                'user_id' => auth()->id(),
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'port' => request()->getPort(),
+                'old_data' => json_encode($model->getOriginal()),
+                'new_data' => json_encode($model->toArray()),
+                'model' => 'GeneralSettings',
+                'action' => 'update'
+            ]);
+        });
     }
 }
