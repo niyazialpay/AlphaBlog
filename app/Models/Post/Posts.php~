@@ -152,6 +152,7 @@ class Posts extends Model implements HasMedia
         static::updating(function ($model) use ($data) {
             $dirty = $model->getDirty();
 
+            // Eğer sadece 'views' alanı güncelleniyorsa log oluşturma
             if (isset($dirty['views']) && count($dirty) === 1) {
                 return;
             }

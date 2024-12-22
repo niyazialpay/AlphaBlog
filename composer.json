@@ -9,6 +9,7 @@
         "ext-imagick": "*",
         "ext-zip": "*",
         "cloudflare/sdk": "^1.3",
+        "duosecurity/duo_universal_php": "*",
         "fahlisaputra/laravel-minify": "^1.1",
         "geoip2/geoip2": "^3.0",
         "google-gemini-php/laravel": "^1.0",

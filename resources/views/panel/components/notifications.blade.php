@@ -10,7 +10,7 @@
 <div class="dropdown-menu dropdown-menu-xl dropdown-menu-right" style="left: inherit; right: 0px;">
     <span class="dropdown-item dropdown-header">{{trans_choice('notifications.unread_notifications', $total_unread_notifications)}}</span>
     <div class="dropdown-divider"></div>
-    @foreach($notifications as $notification)
+    @foreach($notifications->take(10) as $notification)
         <a href="{{route('notifications.readAndRedirect', $notification->id)}}"
            data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $notification->data['title'] }}"
            class="dropdown-item">
