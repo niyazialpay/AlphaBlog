@@ -88,6 +88,17 @@
                     </div>
                 </div>
             </div>
+
+            <div class="col-12">
+                <div class="card radius-10">
+                    <div class="card-header">
+                        @lang('dashboard.ad_impression')
+                    </div>
+                    <div class="card-body">
+                        <div id="ad_impression"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     @endcan
 @endsection
@@ -109,6 +120,7 @@
             let countries_chart;
             let visitors_chart;
             let viewed_chart;
+            let ad_impression_chart;
 
             // Theme settings
             let dashboard_theme_mode = localStorage.getItem("dark-mode") === "true" ? 'dark' : 'light';
@@ -124,6 +136,7 @@
             countries_chart.render();
             visitors_chart.render();
             viewed_chart.render();
+            ad_impression_chart.render();
 
             // Date range picker and AJAX request
             $('input[name="daterange"]').daterangepicker({
@@ -177,6 +190,7 @@
                 updateChartThemeMode(countries_chart, dashboard_theme_mode, dashboard_text_color);
                 updateChartThemeMode(visitors_chart, dashboard_theme_mode, dashboard_text_color);
                 updateChartThemeMode(viewed_chart, dashboard_theme_mode, dashboard_text_color);
+                updateChartThemeMode(ad_impression_chart, dashboard_theme_mode, dashboard_text_color);
             });
 
             // Function to initialize charts
@@ -406,6 +420,67 @@
                     }
                 };
                 viewed_chart = new ApexCharts(document.querySelector("#top_viewed_chart"), topViewed_options);
+
+
+                let chartRegions     = [];
+                let chartImpressions = [];
+                let chartSessions    = [];
+                let adClicks         = [];
+                @foreach($events as $event)
+                chartRegions.push('{{$event['region']}}');
+                chartImpressions.push({{$event['publisherAdImpressions']}});
+                chartSessions.push({{$event['sessions']}});
+                adClicks.push({{$event['publisherAdClicks']}});
+                @endforeach
+                let ad_impression_options = {
+                    chart: {
+                        type: 'bar',
+                        height: 400
+                    },
+                    series: [
+                        {
+                            name: '@lang('dashboard.ad_impression')',
+                            data: chartImpressions
+                        },
+                        {
+                            name: '@lang('dashboard.sessions')',
+                            data: chartSessions
+                        },
+                        {
+                            name: '@lang('dashboard.ad_clicks')',
+                            data: adClicks
+                        }
+                    ],
+                    xaxis: {
+                        categories: chartRegions
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: false,
+                            columnWidth: '55%',
+                            endingShape: 'rounded'
+                        },
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    stroke: {
+                        show: true,
+                        width: 2,
+                        colors: ['transparent']
+                    },
+                    fill: {
+                        opacity: 1
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function (val) {
+                                return val;
+                            }
+                        }
+                    }
+                };
+                ad_impression_chart = new ApexCharts(document.querySelector("#ad_impression"), ad_impression_options);
             }
 
             $('#refresh-button').on('click', function(){
@@ -537,6 +612,7 @@
                         updateChartThemeMode(countries_chart, dashboard_theme_mode, dashboard_text_color);
                         updateChartThemeMode(visitors_chart, dashboard_theme_mode, dashboard_text_color);
                         updateChartThemeMode(viewed_chart, dashboard_theme_mode, dashboard_text_color);
+                        updateChartThemeMode(ad_impression_chart, dashboard_theme_mode, dashboard_text_color);
                     }
                 });
             }
@@ -554,7 +630,13 @@
                 });
             }
 
+            updateChartThemeMode(operation_system_chart, dashboard_theme_mode, dashboard_text_color);
+            updateChartThemeMode(user_type_chart, dashboard_theme_mode, dashboard_text_color);
+            updateChartThemeMode(browser_chart, dashboard_theme_mode, dashboard_text_color);
+            updateChartThemeMode(countries_chart, dashboard_theme_mode, dashboard_text_color);
+            updateChartThemeMode(visitors_chart, dashboard_theme_mode, dashboard_text_color);
             updateChartThemeMode(viewed_chart, dashboard_theme_mode, dashboard_text_color);
+            updateChartThemeMode(ad_impression_chart, dashboard_theme_mode, dashboard_text_color);
         });
         @endcan
     </script>

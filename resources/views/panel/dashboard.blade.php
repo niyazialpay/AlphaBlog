@@ -75,6 +75,17 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-12">
+            <div class="card radius-10">
+                <div class="card-header">
+                    @lang('dashboard.ad_impression')
+                </div>
+                <div class="card-body">
+                    <div id="ad_impression"></div>
+                </div>
+            </div>
+        </div>
     </div>
     @endcan
 @endsection
@@ -361,6 +372,68 @@
             viewed_chart.render();
             operation_system_chart.render();
 
+
+            let chartRegions     = [];
+            let chartImpressions = [];
+            let chartSessions    = [];
+            let adClicks         = [];
+            @foreach($events as $event)
+            chartRegions.push('{{$event['region']}}');
+            chartImpressions.push({{$event['publisherAdImpressions']}});
+            chartSessions.push({{$event['sessions']}});
+            adClicks.push({{$event['publisherAdClicks']}});
+            @endforeach
+                let ad_impression_options = {
+                    chart: {
+                        type: 'bar',
+                        height: 400
+                    },
+                    series: [
+                        {
+                            name: 'Impressions',
+                            data: chartImpressions
+                        },
+                        {
+                            name: 'Sessions',
+                            data: chartSessions
+                        },
+                        {
+                            name: 'Ad Clicks',
+                            data: adClicks
+                        }
+                    ],
+                    xaxis: {
+                        categories: chartRegions
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: false,
+                            columnWidth: '55%',
+                            endingShape: 'rounded'
+                        },
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    stroke: {
+                        show: true,
+                        width: 2,
+                        colors: ['transparent']
+                    },
+                    fill: {
+                        opacity: 1
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function (val) {
+                                return val;
+                            }
+                        }
+                    }
+                };
+                let ad_impression_chart = new ApexCharts(document.querySelector("#ad_impression"), ad_impression_options);
+                ad_impression_chart.render();
+
             @endcan
 
             $('#dark-mode-switcher-button').on('click', function(){
@@ -379,6 +452,7 @@
                 updateChartThemeMode(visitors_chart, dashboard_theme_mode, dashboard_text_color);
                 updateChartThemeMode(viewed_chart, dashboard_theme_mode, dashboard_text_color);
                 updateChartThemeMode(operation_system_chart, dashboard_theme_mode, dashboard_text_color);
+                updateChartThemeMode(ad_impression_chart, dashboard_theme_mode, dashboard_text_color);
                 @endcan
             });
             @can('admin', 'App\Models\User')
@@ -388,6 +462,7 @@
             updateChartThemeMode(visitors_chart, dashboard_theme_mode, dashboard_text_color);
             updateChartThemeMode(viewed_chart, dashboard_theme_mode, dashboard_text_color);
             updateChartThemeMode(operation_system_chart, dashboard_theme_mode, dashboard_text_color);
+            updateChartThemeMode(ad_impression_chart, dashboard_theme_mode, dashboard_text_color);
             @endcan
         });
 

@@ -19,8 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 \App\Http\Middleware\Language::class,
             ],
             prepend: [
-                \Illuminate\Session\Middleware\StartSession::class,
-                \App\Http\Middleware\FirewallMiddleware::class,
+                \Illuminate\Session\Middleware\StartSession::class
             ]);
         $middleware->use([
             \App\Http\Middleware\TrustProxies::class,

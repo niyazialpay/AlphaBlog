@@ -7,8 +7,6 @@ return [
     'top_browsers' => 'Top Browsers',
     'top_operating_systems' => 'Top Operating Systems',
     'ad_impression' => 'Ad Impressions',
-    'sessions' => 'Sessions',
-    'ad_clicks' => 'Ad Clicks',
     'total_visitors_and_page_views' => 'Total Visitors and Page Views',
     'total_visitors' => 'Total Visitors',
     'total_page_views' => 'Total Page Views',
