@@ -67,7 +67,7 @@ class ManifestController extends Controller
                     ],
                 ],
             ],
-            "screenshots" => [
+            /*"screenshots" => [
                 [
                     "src" => "screenshots/desktop-home.webp",
                     "sizes" => "1920x1080",
@@ -80,7 +80,7 @@ class ManifestController extends Controller
                     "form_factor" => "narrow",
                     "label" => "Desktop view showing weekly meal calendar"
                 ],
-            ],
+            ],*/
             'icons' => [
                 [
                     'src' => $general_settings->getFirstMediaUrl('app_icon', 'r_32x32'),

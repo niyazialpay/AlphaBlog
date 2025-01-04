@@ -9,9 +9,12 @@ use Closure;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\IpUtils;
 
 /**
  * Eski 'PHP Firewall' scriptindeki mantıkları
@@ -24,64 +27,138 @@ class FirewallMiddleware
      *
      * @param Request $request
      * @param Closure(Request): Response $next
-     * @return Application|Response|ResponseFactory|JsonResponse
+     * @return Application|Response|ResponseFactory|JsonResponse|RedirectResponse
      */
     public function handle(Request $request, Closure $next): Application|Response|ResponseFactory|JsonResponse|RedirectResponse
     {
+        // Retrieve filters from cache or database
+        $filters = Cache::rememberForever(config('cache.prefix').'ip_filter', function () {
+            return \App\Models\IPFilter\IPFilter::with('ipList', 'routeList')
+                ->where('is_active', true)
+                ->get();
+        });
+
+        if ($filters->isEmpty()) {
+            return $next($request);
+        }
+
+
+        // Separate filters into those with route '*' and others
+        $starFilters = $filters->filter(function ($filter) {
+            return $filter->routeList->pluck('route')->contains('*');
+        });
+
+        $allIps = $starFilters
+            ->pluck('ipList.*.ip')
+            ->flatten()
+            ->unique()
+            ->toArray();
+
+        $otherFilters = $filters->diff($starFilters);
+
         $firewall = Firewall::first();
 
         if ($firewall->is_active) {
             if ($firewall->check_referer) {
                 if (! $this->checkReferer($request)) {
-                    $this->blockRequest('Referer Blocked', $request, $firewall);
+                    $this->blockRequest('Referer Blocked', $request, $firewall, $allIps);
                 }
             }
 
             if ($firewall->check_bots) {
                 if ($this->isBadBot($request->userAgent())) {
-                    $this->blockRequest('Bot Blocked', $request, $firewall);
+                    $this->blockRequest('Bot Blocked', $request, $firewall, $allIps);
                 }
             }
 
             if ($firewall->check_request_method) {
                 if (! $this->checkRequestMethod($request)) {
-                    $this->blockRequest('Invalid Request Method', $request, $firewall);
+                    $this->blockRequest('Invalid Request Method', $request, $firewall, $allIps);
                 }
             }
 
             if ($firewall->check_dos) {
                 if ($this->checkDosAttack($request)) {
-                    $this->blockRequest('DOS Attack', $request, $firewall);
+                    $this->blockRequest('DOS Attack', $request, $firewall, $allIps);
                 }
             }
 
             if ($firewall->check_union_sql) {
                 if ($this->checkUnionSql($request)) {
-                    $this->blockRequest('Union SQL Attack', $request, $firewall);
+                    $this->blockRequest('Union SQL Attack', $request, $firewall, $allIps);
                 }
             }
 
             if ($firewall->check_click_attack) {
                 if ($this->checkClickAttack($request)) {
-                    $this->blockRequest('Click Attack', $request, $firewall);
+                    $this->blockRequest('Click Attack', $request, $firewall, $allIps);
                 }
             }
 
             if ($firewall->check_xss) {
                 if ($this->checkXss($request)) {
-                    $this->blockRequest('XSS Attack', $request, $firewall);
+                    $this->blockRequest('XSS Attack', $request, $firewall, $allIps);
                 }
             }
 
             if ($firewall->check_cookie_injection) {
                 if ($this->checkCookieInjection($request)) {
-                    $this->blockRequest('Cookie Injection', $request, $firewall);
+                    $this->blockRequest('Cookie Injection', $request, $firewall, $allIps);
                 }
             }
         }
 
 
+        // Process filters with route '*'
+        foreach ($starFilters as $filter) {
+            $ips = $filter->ipList->pluck('ip')->toArray();
+            $blockCode = $filter->code ?? 403;
 
+            if (IpUtils::checkIp($request->getClientIp(), $ips)) {
+                if ($filter->list_type === 'blacklist') {
+                    // Block the request for blacklisted IPs
+                    abort($blockCode);
+                } elseif ($filter->list_type === 'whitelist') {
+                    // Allow the request for whitelisted IPs
+                    return $next($request);
+                }
+            } else {
+                if ($filter->list_type === 'whitelist') {
+                    // Block the request if the IP is not in the whitelist
+                    abort($blockCode);
+                }
+                // For blacklists, do nothing if IP doesn't match
+            }
+        }
+
+        // Process other filters
+        foreach ($otherFilters as $filter) {
+            $routes = $filter->routeList->pluck('route')->toArray();
+            $ips = $filter->ipList->pluck('ip')->toArray();
+            $blockCode = $filter->code ?? 403;
+
+            // Check if the request matches any of the routes in the filter
+            if ($request->is($routes)) {
+                if (IpUtils::checkIp($request->getClientIp(), $ips)) {
+                    if ($filter->list_type === 'blacklist') {
+                        // Block the request for blacklisted IPs
+                        abort($blockCode);
+                    } elseif ($filter->list_type === 'whitelist') {
+                        // Allow the request for whitelisted IPs
+                        return $next($request);
+                    }
+                } else {
+                    if ($filter->list_type === 'whitelist') {
+                        // Block the request if the IP is not in the whitelist
+                        abort($blockCode);
+                    }
+                    // For blacklists, do nothing if IP doesn't match
+                }
+            }
+            // Continue to the next filter if the route doesn't match
+        }
+
+        // Allow the request if no filters apply
         return $next($request);
     }
 
@@ -243,22 +320,54 @@ class FirewallMiddleware
         return false;
     }
 
-    protected function blockRequest($reason, Request $request, $firewall): void
+    function ipInRange($ip, $cidr)
     {
+        list($subnet, $mask) = explode('/', $cidr);
+        $ip     = ip2long($ip);
+        $subnet = ip2long($subnet);
+        $mask   = ~((1 << (32 - $mask)) - 1);
+
+        return ($ip & $mask) === ($subnet & $mask);
+    }
+
+    protected function blockRequest($reason, Request $request, $firewall, $ipList): void
+    {
+        $ip       = $request->ip();
+        $exists = false;
+        dd($ipList);
+        foreach ($ipList as $record) {
+            $storedIp = $record->ip;
+
+            if (str_contains($storedIp, '/')) {
+                if ($this->ipInRange($ip, $storedIp)) {
+                    $exists = true;
+                    break;
+                }
+            } else {
+                if ($storedIp === $ip) {
+                    $exists = true;
+                    break;
+                }
+            }
+        }
+
+        if ($exists) {
+            return;
+        }
         Log::warning(
-            "[FIREWALL] Reason: {$reason} | IP: {$request->ip()} | Agent: {$request->userAgent()} | URL: {$request->fullUrl()}"
+            "[FIREWALL] Reason: {$reason} | IP: {$ip} | Agent: {$request->userAgent()} | URL: {$request->fullUrl()}"
         );
 
         $ipList = IpList::updateOrCreate(
             [
-                'ip'         => $request->ip(),
+                'ip'         => $ip,
                 'filter_id'  => $firewall->ip_filter_id,
             ]
         );
 
         if ($ipList->wasRecentlyCreated) {
             FirewallLogs::create([
-                'ip'          => $request->ip(),
+                'ip'          => $ip,
                 'user_agent'  => $request->userAgent(),
                 'url'         => $request->fullUrl(),
                 'reason'      => $reason,

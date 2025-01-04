@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('firewall_logs', function (Blueprint $table) {
+            $table->id();
+            $table->string('ip', 15);
+            $table->string('url', 255);
+            $table->string('user_agent', 255);
+            $table->string('reason', 255);
+            $table->text('request_data')->nullable();
+            $table->foreignId('ip_filter_id')->constrained('ip_filters')->restrictOnDelete();
+            $table->foreignId('ip_list_id')->constrained('ip_lists')->nullOnDelete();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('firewall_logs');
+    }
+};
