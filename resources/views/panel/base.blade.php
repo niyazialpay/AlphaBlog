@@ -111,7 +111,7 @@
         </a>
 
         <!-- Sidebar -->
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <!-- Sidebar user panel (optional) -->
             <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                 <div class="image">
@@ -405,6 +405,16 @@
                 $('#searchResults').hide();
             }
         });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const sidebar = document.getElementById("sidebar");
+
+        const activeItem = document.querySelector(".nav-item .active");
+
+        if (activeItem && sidebar) {
+            sidebar.scrollTop = activeItem.offsetTop - sidebar.offsetTop;
+        }
     });
 </script>
 

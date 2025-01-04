@@ -24,7 +24,6 @@ return Application::configure(basePath: dirname(__DIR__))
             ]);
         $middleware->use([
             \App\Http\Middleware\TrustProxies::class,
-            \App\Http\Middleware\IpFilter::class,
             \App\Http\Middleware\RouteRedirect::class,
         ]);
     })

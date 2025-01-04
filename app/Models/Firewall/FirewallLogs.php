@@ -10,12 +10,11 @@ class FirewallLogs extends Model
 
     protected $fillable = [
         'ip',
-        'request_uri',
-        'request_method',
+        'url',
+        'user_agent',
+        'reason',
         'request_data',
-        'response_data',
-        'response_code',
-        'response_message',
-        'created_at',
+        'ip_filter_id',
+        'ip_list_id',
     ];
 }

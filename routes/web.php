@@ -89,6 +89,10 @@ Route::group([
         ->group(base_path('routes/panel/ip-filter.php'));
 
     Route::middleware(['web', 'auth'])
+        ->prefix(config('settings.admin_panel_path').'/firewall')
+        ->group(base_path('routes/panel/firewall.php'));
+
+    Route::middleware(['web', 'auth'])
         ->prefix(config('settings.admin_panel_path').'/profile')
         ->group(base_path('routes/panel/profile.php'));
 

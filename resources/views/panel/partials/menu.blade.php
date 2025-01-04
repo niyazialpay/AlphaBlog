@@ -261,15 +261,6 @@
     @can('admin', 'App\Models\User')
         <li class="nav-header">@lang('settings.management')</li>
         <li class="nav-item">
-            <a href="{{route('admin.ip-filter')}}" class="nav-link
-        @if(request()->is(config('settings.admin_panel_path').'/ip-filter*')) active @endif">
-                <i class="fa-solid fa-shield-halved nav-icon"></i>
-                <p>
-                    @lang('ip_filter.ip_filter')
-                </p>
-            </a>
-        </li>
-        <li class="nav-item">
             <a href="{{route('adminRoutes')}}"
                class="nav-link @if(request()->is(config('settings.admin_panel_path').'/routes*')) active @endif ">
                 <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-route nav-icon"></i>
@@ -343,6 +334,49 @@
                     @lang('cache.clear_cache')
                 </p>
             </a>
+        </li>
+        <li class="nav-header">@lang('firewall.security')</li>
+        <li class="nav-item">
+            <a href="{{route('admin.ip-filter')}}" class="nav-link
+               @if(request()->is(config('settings.admin_panel_path').'/ip-filter*')) active @endif">
+                <i class="fa-solid fa-shield-halved nav-icon"></i>
+                <p>
+                    @lang('ip_filter.ip_filter')
+                </p>
+            </a>
+        </li>
+        <li class="nav-item has-treeview @if(request()->is(config('settings.admin_panel_path').'/firewall*')) menu-open @endif">
+            <a href="javascript:void(0);" class="nav-link
+               @if(request()->is(config('settings.admin_panel_path').'/firewall*')) active @endif">
+                @if(config('settings.fontawesome_pro'))
+                    <i class="fa-sharp-duotone fa-solid fa-block-brick-fire nav-icon"></i>
+                @else
+                    <i class="fa-solid fa-shield-alt nav-icon"></i>
+                @endif
+                <p>
+                    @lang('firewall.firewall')
+                    <i class="right fas fa-angle-left"></i>
+                </p>
+            </a>
+            <ul class="nav nav-treeview shadow rounded py-2">
+                <li class="nav-item">
+                    <a href="{{route('admin.firewall')}}" class="nav-link
+                    @if(request()->is(config('settings.admin_panel_path').'/firewall')) active @endif ">
+                        <i class="nav-icon @if(config('settings.fontawesome_pro')) fa-duotone @endif fa-solid fa-user-secret"></i>
+                        <p>
+                            @lang('firewall.rules')
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{route('admin.firewall.logs')}}"
+                       class="nav-link
+                   @if(request()->is(config('settings.admin_panel_path').'/firewall/logs')) active @endif ">
+                        <i class="@if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-clipboard-list nav-icon"></i>
+                        <p>@lang('firewall.logs')</p>
+                    </a>
+                </li>
+            </ul>
         </li>
         <li class="nav-header">
             @lang('settings.monitoring')
