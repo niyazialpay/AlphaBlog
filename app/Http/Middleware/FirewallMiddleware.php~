@@ -359,13 +359,13 @@ class FirewallMiddleware
 
         if ($ipList->wasRecentlyCreated) {
             FirewallLogs::create([
-                'ip'          => $ip,
-                'user_agent'  => $request->userAgent(),
-                'url'         => $request->fullUrl(),
-                'reason'      => $reason,
-                'request_data'=> json_encode($request->all()),
-                'ip_filter_id'=> $firewall->ip_filter_id,
-                'ip_list_id'  => $ipList->id,
+                'ip'                => $ip,
+                'user_agent'        => $request->userAgent(),
+                'url'               => $request->fullUrl(),
+                'reason'            => $reason,
+                'request_data'      => json_encode($request->all()),
+                'blacklist_rule_id' => $firewall->blacklist_rule_id,
+                'ip_list_id'        => $ipList->id,
             ]);
         }
     }

@@ -364,7 +364,7 @@ class FirewallMiddleware
                 'url'               => $request->fullUrl(),
                 'reason'            => $reason,
                 'request_data'      => json_encode($request->all()),
-                'blacklist_rule_id' => $firewall->ip_filter_id,
+                'ip_filter_id'      => $firewall->blacklist_rule_id,
                 'ip_list_id'        => $ipList->id,
             ]);
         }
