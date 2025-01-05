@@ -353,7 +353,7 @@ class FirewallMiddleware
         $ipList = IpList::updateOrCreate(
             [
                 'ip'         => $ip,
-                'filter_id'  => $firewall->ip_filter_id,
+                'filter_id'  => $firewall->blacklist_rule_id,
             ]
         );
 
