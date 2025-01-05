@@ -66,7 +66,7 @@ class FirewallMiddleware
             }
 
             if ($firewall->check_bots) {
-                if ($this->isBadBot($request->userAgent())) {
+                if ($this->isBadBot($request->userAgent(), explode(',', $firewall->bad_bots))) {
                     $this->blockRequest('Bot Blocked', $request, $firewall, $allIps);
                 }
             }
@@ -176,21 +176,16 @@ class FirewallMiddleware
     }
 
 
-    protected function isBadBot($userAgent): bool
+    protected function isBadBot($userAgent, $badBots): bool
     {
         if (! $userAgent) {
             return true;
         }
 
-        $badBots = [
-            'apache', 'bandit', 'blackwidow', 'bot', 'crawler', 'disco', 'dragonfly', 'grabber',
-            'harvest', 'httpconnect', 'httrack', 'larbin', 'nikto', 'wget', 'libwww', 'offline',
-            'searchspider', 'sucker', 'turnitinbot', 'zeus',
-        ];
-
         $agent = strtolower($userAgent);
         foreach ($badBots as $badBot) {
-            if (str_contains($agent, $badBot)) {
+            $bot = trim($badBot);
+            if (str_contains($agent, $bot)) {
                 return true;
             }
         }
@@ -320,7 +315,7 @@ class FirewallMiddleware
         return false;
     }
 
-    function ipInRange($ip, $cidr)
+    function ipInRange($ip, $cidr): bool
     {
         list($subnet, $mask) = explode('/', $cidr);
         $ip     = ip2long($ip);
@@ -334,17 +329,14 @@ class FirewallMiddleware
     {
         $ip       = $request->ip();
         $exists = false;
-        dd($ipList);
         foreach ($ipList as $record) {
-            $storedIp = $record->ip;
-
-            if (str_contains($storedIp, '/')) {
-                if ($this->ipInRange($ip, $storedIp)) {
+            if (str_contains($record, '/')) {
+                if ($this->ipInRange($ip, $record)) {
                     $exists = true;
                     break;
                 }
             } else {
-                if ($storedIp === $ip) {
+                if ($record === $ip) {
                     $exists = true;
                     break;
                 }

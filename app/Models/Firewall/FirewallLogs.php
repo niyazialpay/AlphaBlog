@@ -17,4 +17,14 @@ class FirewallLogs extends Model
         'ip_filter_id',
         'ip_list_id',
     ];
+
+    public function ipFilter(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\App\Models\IPFilter\IPFilter::class, 'ip_filter_id');
+    }
+
+    public function ipList(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\App\Models\IPFilter\IPList::class, 'ip_list_id');
+    }
 }

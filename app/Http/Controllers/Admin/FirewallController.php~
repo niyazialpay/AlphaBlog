@@ -83,11 +83,4 @@ class FirewallController extends Controller
 
         return response()->json(['success' => true]);
     }
-
-    public function delete(Request $request)
-    {
-        IpList::where('ip', $request->ip)->delete();
-
-        return response()->json(['success' => true]);
-    }
 }

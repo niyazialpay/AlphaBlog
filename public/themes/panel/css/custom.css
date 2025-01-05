@@ -238,3 +238,13 @@
     height: 100%;
     opacity: .8;
 }
+.table>:not(caption)>*>* {
+    background: none !important;
+}
+body > div.dtr-bs-modal.fade.dtr-bs-modal.show > div > div > div.modal-body > table.table-responsive > tr > td > pre{
+    color: #111111;
+}
+
+body.dark-mode > div.dtr-bs-modal.fade.dtr-bs-modal.show > div > div > div.modal-body > table.table-responsive > tr > td > pre{
+    color: #f8f9fa;
+}

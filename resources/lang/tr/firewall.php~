@@ -23,6 +23,4 @@ return [
     'select_rule' => 'Kural Seçin',
     'add_to_whitelist' => 'İzinli Listesine Ekle',
     'remove_from_blocklist' => 'Engelli Listesinden Kaldır',
-    'add_to_whitelist_text' => 'Bu IP\'yi izinli listesine eklemek istiyor musunuz?',
-    'remove_from_blocklist_text' => 'Bu IP\'yi engelli listesinden kaldırmak istiyor musunuz?',
 ];

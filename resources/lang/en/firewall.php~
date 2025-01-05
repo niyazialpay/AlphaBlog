@@ -23,6 +23,4 @@ return [
     'select_rule' => 'Select Rule',
     'add_to_whitelist' => 'Add to Whitelist',
     'remove_from_blocklist' => 'Remove from Blocklist',
-    'add_to_whitelist_text' => 'Are you want to add this IP to whitelist?',
-    'remove_from_blocklist_text' => 'Are you want to remove this IP from blocklist?',
 ];

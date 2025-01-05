@@ -66,7 +66,7 @@ class FirewallMiddleware
             }
 
             if ($firewall->check_bots) {
-                if ($this->isBadBot($request->userAgent())) {
+                if ($this->isBadBot($request->userAgent(), explode(',', $firewall->bad_bots))) {
                     $this->blockRequest('Bot Blocked', $request, $firewall, $allIps);
                 }
             }
@@ -176,21 +176,16 @@ class FirewallMiddleware
     }
 
 
-    protected function isBadBot($userAgent): bool
+    protected function isBadBot($userAgent, $badBots): bool
     {
         if (! $userAgent) {
             return true;
         }
 
-        $badBots = [
-            'apache', 'bandit', 'blackwidow', 'bot', 'crawler', 'disco', 'dragonfly', 'grabber',
-            'harvest', 'httpconnect', 'httrack', 'larbin', 'nikto', 'wget', 'libwww', 'offline',
-            'searchspider', 'sucker', 'turnitinbot', 'zeus',
-        ];
-
         $agent = strtolower($userAgent);
         foreach ($badBots as $badBot) {
-            if (str_contains($agent, $badBot)) {
+            $bot = trim($badBot);
+            if (str_contains($agent, $bot)) {
                 return true;
             }
         }
@@ -364,13 +359,13 @@ class FirewallMiddleware
 
         if ($ipList->wasRecentlyCreated) {
             FirewallLogs::create([
-                'ip'          => $ip,
-                'user_agent'  => $request->userAgent(),
-                'url'         => $request->fullUrl(),
-                'reason'      => $reason,
-                'request_data'=> json_encode($request->all()),
-                'ip_filter_id'=> $firewall->ip_filter_id,
-                'ip_list_id'  => $ipList->id,
+                'ip'                => $ip,
+                'user_agent'        => $request->userAgent(),
+                'url'               => $request->fullUrl(),
+                'reason'            => $reason,
+                'request_data'      => json_encode($request->all()),
+                'blacklist_rule_id' => $firewall->ip_filter_id,
+                'ip_list_id'        => $ipList->id,
             ]);
         }
     }

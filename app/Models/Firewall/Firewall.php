@@ -10,7 +10,8 @@ class Firewall extends Model
 
     protected $fillable = [
         'is_active',
-        'ip_filter_id',
+        'whitelist_rule_id',
+        'blacklist_rule_id',
         'check_referer',
         'check_bots',
         'check_request_method',
@@ -19,5 +20,6 @@ class Firewall extends Model
         'check_click_attack',
         'check_xss',
         'check_cookie_injection',
+        'bad_bots',
     ];
 }

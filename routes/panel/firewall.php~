@@ -23,7 +23,3 @@ Route::post('/logs/data', [App\Http\Controllers\Admin\FirewallController::class,
 Route::post('/whitelist', [App\Http\Controllers\Admin\FirewallController::class, 'whitelist'])
     ->can('admin', 'App\Models\User')
     ->name('admin.firewall.whitelist');
-
-Route::post('/delete', [App\Http\Controllers\Admin\FirewallController::class, 'delete'])
-    ->can('admin', 'App\Models\User')
-    ->name('admin.firewall.delete');
