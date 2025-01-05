@@ -20,7 +20,6 @@
                 <table id="logs_table" class="table table-bordered">
                     <thead>
                     <tr>
-                        <th>@lang('media.show')</th>
                         <th>@lang('general.created_at')</th>
                         <th>@lang('ip_filter.ip_range')</th>
                         <th>@lang('menu.url')</th>
@@ -61,14 +60,13 @@
                     }
                 },
                 columns: [
-                    { data: 'details', name: 'details' },
                     { data: 'created_at', name: 'created_at' },
-                    { data: 'ip', name: 'ip_range' },
+                    { data: 'ip', name: 'ip' },
                     { data: 'url', name: 'url' },
                     { data: 'user_agent', name: 'user_agent' },
                     { data: 'reason', name: 'reason' },
                     { data: 'request_data', name: 'request_data' },
-                    { data: 'actions', name: 'actions' },
+                    { data: 'actions', name: 'actions', searchable: false, orderable: false },
                 ],
                 order: false,
                 ordering: false,

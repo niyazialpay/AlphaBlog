@@ -48,7 +48,6 @@ class FirewallController extends Controller
                         ->orWhere('firewall_logs.url', 'like', "%{$search}%")
                         ->orWhere('firewall_logs.user_agent', 'like', "%{$search}%")
                         ->orWhere('firewall_logs.reason', 'like', "%{$search}%")
-                        ->orWhere('firewall_logs.request_data', 'like', "%{$search}%")
                         ->orWhereHas('ipFilter', function ($q) use ($search) {
                             $q->where('name', 'like', "%{$search}%");
                         });
