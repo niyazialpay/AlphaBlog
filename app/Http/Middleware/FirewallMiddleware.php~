@@ -331,7 +331,7 @@ class FirewallMiddleware
         $exists = false;
         foreach ($ipList as $record) {
             if (str_contains($record, '/')) {
-                if ($this->ipInRange($ip, $record)) {
+                if (IpUtils::checkIp($ip, $ipList)) {
                     $exists = true;
                     break;
                 }
@@ -353,7 +353,7 @@ class FirewallMiddleware
         $ipList = IpList::updateOrCreate(
             [
                 'ip'         => $ip,
-                'filter_id'  => $firewall->ip_filter_id,
+                'filter_id'  => $firewall->blacklist_rule_id,
             ]
         );
 

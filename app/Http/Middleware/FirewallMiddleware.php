@@ -315,23 +315,13 @@ class FirewallMiddleware
         return false;
     }
 
-    function ipInRange($ip, $cidr): bool
-    {
-        list($subnet, $mask) = explode('/', $cidr);
-        $ip     = ip2long($ip);
-        $subnet = ip2long($subnet);
-        $mask   = ~((1 << (32 - $mask)) - 1);
-
-        return ($ip & $mask) === ($subnet & $mask);
-    }
-
     protected function blockRequest($reason, Request $request, $firewall, $ipList): void
     {
         $ip       = $request->ip();
         $exists = false;
         foreach ($ipList as $record) {
             if (str_contains($record, '/')) {
-                if ($this->ipInRange($ip, $record)) {
+                if (IpUtils::checkIp($ip, $ipList)) {
                     $exists = true;
                     break;
                 }
