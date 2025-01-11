@@ -2,6 +2,7 @@
 
 namespace App\Models\Post;
 
+use App\Traits\ModelLogger;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -17,6 +18,7 @@ class Categories extends Model implements HasMedia
 {
     use InteractsWithMedia;
     use Searchable;
+    use ModelLogger;
 
     protected $table = 'categories';
 

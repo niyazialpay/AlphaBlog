@@ -4,6 +4,7 @@ namespace App\Models\Post;
 
 use App\Models\Logs;
 use App\Models\User;
+use App\Traits\ModelLogger;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -19,6 +20,7 @@ class Posts extends Model implements HasMedia
     use InteractsWithMedia;
     use Searchable;
     use SoftDeletes;
+    use ModelLogger;
 
     /**
      * @var bool|mixed
@@ -130,49 +132,4 @@ class Posts extends Model implements HasMedia
             ->nonOptimized()->keepOriginalImageFormat();
     }
 
-    public static function boot(): void
-    {
-        parent::boot();
-
-        $data = [
-            'user_id' => auth()->id(),
-            'ip' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-            'port' => request()->getPort(),
-            'model' => 'Posts',
-        ];
-
-        static::created(function ($model) use ($data) {
-            $data['old_data'] = json_encode($model->getOriginal());
-            $data['new_data'] = json_encode($model->toArray());
-            $data['action'] = 'create';
-            Logs::create($data);
-        });
-
-        static::updating(function ($model) use ($data) {
-            $dirty = $model->getDirty();
-
-            if (isset($dirty['views']) && count($dirty) === 1) {
-                return;
-            }
-
-            Logs::create([
-                'user_id' => auth()->id(),
-                'ip' => request()->ip(),
-                'user_agent' => request()->userAgent(),
-                'port' => request()->getPort(),
-                'model' => 'Posts',
-                'old_data' => json_encode($model->getOriginal()),
-                'new_data' => json_encode($model->toArray()),
-                'action' => 'update',
-            ]);
-        });
-
-        static::deleted(function ($model) use ($data) {
-            $data['old_data'] = json_encode($model->getOriginal());
-            $data['new_data'] = json_encode($model->toArray());
-            $data['action'] = 'delete';
-            Logs::create($data);
-        });
-    }
 }

@@ -2,10 +2,13 @@
 
 namespace App\Models\Firewall;
 
+use App\Traits\ModelLogger;
 use Illuminate\Database\Eloquent\Model;
 
 class Firewall extends Model
 {
+    use ModelLogger;
+
     protected $table = 'firewall';
 
     protected $fillable = [

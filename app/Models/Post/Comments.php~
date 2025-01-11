@@ -12,7 +12,7 @@ class Comments extends Model
 {
     use SoftDeletes;
     use ModelLogger;
-
+    
 
     protected $table = 'comments';
 

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\PersonalNotes\PersonalNoteCategories;
 use App\Models\PersonalNotes\PersonalNotes;
 use App\Models\Post\Posts;
+use App\Traits\ModelLogger;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -27,6 +28,7 @@ class User extends Authenticatable implements MustVerifyEmail, WebAuthnAuthentic
     use InteractsWithMedia;
     use Searchable;
     use SoftDeletes;
+    use ModelLogger;
 
     protected $table = 'users';
 

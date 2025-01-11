@@ -2,11 +2,14 @@
 
 namespace App\Models\IPFilter;
 
+use App\Traits\ModelLogger;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RouteList extends Model
 {
+    use ModelLogger;
+
     protected $table = 'route_lists';
 
     protected $fillable = [

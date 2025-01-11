@@ -2,15 +2,12 @@
 
 namespace App\Models;
 
-use App\Traits\ModelLogger;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Database\Eloquent\Model;
 use Psr\Http\Message\StreamInterface;
 
 class OneSignal extends Model
 {
-    use ModelLogger;
-
     protected $table = 'onesignal';
 
     protected $fillable = [

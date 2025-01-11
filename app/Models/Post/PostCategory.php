@@ -2,11 +2,14 @@
 
 namespace App\Models\Post;
 
+use App\Traits\ModelLogger;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PostCategory extends Model
 {
+    use ModelLogger;
+
     protected $table = 'post_categories';
 
     protected $fillable = [

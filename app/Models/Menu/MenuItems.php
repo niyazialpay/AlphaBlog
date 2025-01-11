@@ -2,12 +2,15 @@
 
 namespace App\Models\Menu;
 
+use App\Traits\ModelLogger;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MenuItems extends Model
 {
+    use ModelLogger;
+
     protected $table = 'menu_items';
 
     protected $fillable = [

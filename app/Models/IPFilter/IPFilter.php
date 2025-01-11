@@ -2,11 +2,14 @@
 
 namespace App\Models\IPFilter;
 
+use App\Traits\ModelLogger;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class IPFilter extends Model
 {
+    use ModelLogger;
+
     protected $table = 'ip_filters';
 
     protected $fillable = [

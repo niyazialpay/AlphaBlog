@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\ModelLogger;
 use Illuminate\Database\Eloquent\Model;
 
 class Search extends Model
 {
+    use ModelLogger;
+
     protected $table = 'search';
 
     protected $fillable = [

@@ -2,14 +2,11 @@
 
 namespace App\Models\IPFilter;
 
-use App\Traits\ModelLogger;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class IPList extends Model
 {
-    use ModelLogger;
-
     protected $table = 'ip_lists';
 
     protected $fillable = [

@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\ModelLogger;
 use Illuminate\Database\Eloquent\Model;
 
 class ContactPage extends Model
 {
+    use ModelLogger;
+
     protected $table = 'contact_pages';
 
     protected $fillable = [
@@ -19,22 +22,4 @@ class ContactPage extends Model
     ];
 
     public $timestamps = false;
-
-    public static function boot(): void
-    {
-        parent::boot();
-
-        static::updating(function ($model) {
-            Logs::create([
-                'user_id' => auth()->id(),
-                'ip' => request()->ip(),
-                'user_agent' => request()->userAgent(),
-                'port' => request()->getPort(),
-                'old_data' => json_encode($model->getOriginal()),
-                'new_data' => json_encode($model->toArray()),
-                'model' => 'ContactPage',
-                'action' => 'update'
-            ]);
-        });
-    }
 }
