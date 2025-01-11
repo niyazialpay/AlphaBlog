@@ -203,22 +203,19 @@ class FirewallMiddleware
      */
     protected function isBadBot(?string $userAgent, array $badBots): bool
     {
-        // If the user agent is empty, do NOT block
         if (! $userAgent) {
             return false;
         }
 
         $agent = strtolower($userAgent);
 
-        // Only block if there is a direct match with a known bad bot
+        // Regex ile bot kontrolü
         foreach ($badBots as $badBot) {
-            $bot = trim(strtolower($badBot));
-            if ($bot !== '' && str_contains($agent, $bot)) {
+            if (preg_match('/\b' . preg_quote($badBot, '/') . '\b/', $agent)) {
                 return true;
             }
         }
 
-        // No match found, do NOT block
         return false;
     }
 
