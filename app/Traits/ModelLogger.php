@@ -14,7 +14,6 @@ trait ModelLogger
         });
 
         static::updating(function ($model) {
-            // Sadece "view" alanı değiştiyse log yazma
             if (count($model->getDirty()) === 1 && array_key_exists('view', $model->getDirty())) {
                 return;
             }
@@ -23,13 +22,11 @@ trait ModelLogger
         });
 
         static::deleted(function ($model) {
-            // Eğer model SoftDeletes trait'ini kullanıyorsa "soft delete" logla, aksi halde "delete"
             $action = in_array(SoftDeletes::class, class_uses($model)) ? 'soft delete' : 'delete';
 
             self::logAction($model, $action, oldData: $model->getOriginal(), newData: null);
         });
 
-        // Soft delete destekleyen modeller için restore ve force delete olaylarını dinle
         if (in_array(SoftDeletes::class, class_uses(static::class))) {
             static::restored(function ($model) {
                 self::logAction($model, 'restore', oldData: null, newData: $model->toArray());
