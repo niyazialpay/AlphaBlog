@@ -163,13 +163,13 @@ class FirewallMiddleware
                 } else {
                     // IP not found in this filter's list
                     if ($filter->list_type === 'whitelist') {
-                        // Whitelist filter => block if not in list
+                        // Whitelist filter => blocks if not in the list
                         abort($blockCode);
                     }
-                    // Blacklist filter => ignore if not in list
+                    // Blacklist filter => ignores if not in the list
                 }
             }
-            // If route does not match, continue to the next filter
+            // If the route does not match, continue to the next filter
         }
 
         // If no filters block the request, allow it
@@ -203,7 +203,7 @@ class FirewallMiddleware
      */
     protected function isBadBot(?string $userAgent, array $badBots): bool
     {
-        // If user agent is empty, do NOT block
+        // If the user agent is empty, do NOT block
         if (! $userAgent) {
             return false;
         }
@@ -373,7 +373,7 @@ class FirewallMiddleware
      * @param array $badWords
      * @return bool
      */
-    protected function containsDangerous($haystack, array $badWords): bool
+    protected function containsDangerous(mixed $haystack, array $badWords): bool
     {
         if (is_array($haystack)) {
             foreach ($haystack as $value) {

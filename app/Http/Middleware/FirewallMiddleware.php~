@@ -40,7 +40,7 @@ class FirewallMiddleware
             return $next($request);
         }
 
-        // Separate filters into those that apply to all routes ('*') and others
+        // Separate filters into those that apply to all routes ('*') and the others
         $starFilters = $filters->filter(function ($filter) {
             return $filter->routeList->pluck('route')->contains('*');
         });
@@ -69,7 +69,9 @@ class FirewallMiddleware
 
             // Check Bots
             if ($firewall->check_bots) {
-                if ($this->isBadBot($request->userAgent(), explode(',', $firewall->bad_bots))) {
+                // Convert comma-separated string from DB into array
+                $badBots = explode(',', $firewall->bad_bots ?? '');
+                if ($this->isBadBot($request->userAgent(), $badBots)) {
                     $this->blockRequest('Bot Blocked', $request, $firewall, $allIps);
                 }
             }
@@ -95,7 +97,7 @@ class FirewallMiddleware
                 }
             }
 
-            // Check certain suspicious strings related to click-jacking or injection
+            // Check for suspicious strings related to click-jacking or injection
             if ($firewall->check_click_attack) {
                 if ($this->checkClickAttack($request)) {
                     $this->blockRequest('Click Attack', $request, $firewall, $allIps);
@@ -192,25 +194,31 @@ class FirewallMiddleware
     }
 
     /**
-     * Checks if the user agent is in the list of known bad bots.
+     * Checks if the user agent matches any known bad bot from the DB list.
+     * If the user agent is empty or no match is found, it will NOT be blocked.
      *
      * @param string|null $userAgent
      * @param array $badBots
      * @return bool
      */
-    protected function isBadBot($userAgent, $badBots): bool
+    protected function isBadBot(?string $userAgent, array $badBots): bool
     {
+        // If user agent is empty, do NOT block
         if (! $userAgent) {
-            return true;
+            return false;
         }
 
         $agent = strtolower($userAgent);
+
+        // Only block if there is a direct match with a known bad bot
         foreach ($badBots as $badBot) {
-            $bot = trim($badBot);
-            if (str_contains($agent, $bot)) {
+            $bot = trim(strtolower($badBot));
+            if ($bot !== '' && str_contains($agent, $bot)) {
                 return true;
             }
         }
+
+        // No match found, do NOT block
         return false;
     }
 
@@ -235,6 +243,8 @@ class FirewallMiddleware
     protected function checkDosAttack(Request $request): bool
     {
         $agent = $request->userAgent();
+        // Previously we blocked if $agent was empty.
+        // But you can adjust this logic as needed.
         if (! $agent || $agent === '-') {
             return true;
         }
@@ -720,13 +730,12 @@ class FirewallMiddleware
     {
         $ip = $request->ip();
 
-        // Merge all IPs with whitelistedBotIPS to bypass if it's in bot IP list
+        // Merge all IPs with whitelistedBotIPS to bypass if it's in a bot IP list
         $whitelistedBotIPS = $this->whitelistedBotIPS();
         $ips = array_merge($ipList, $whitelistedBotIPS);
 
-        // Eğer IP, whitelistedBotIPS veya $allIps içinde bulunuyorsa engelleme
+        // If the IP is in the merged list, do not block
         if ($this->checkIpInList($ip, $ips)) {
-            // Bot veya zaten ekli IP ise block yapmadan return (engelleme).
             return;
         }
 
@@ -734,12 +743,12 @@ class FirewallMiddleware
             "[FIREWALL] Reason: {$reason} | IP: {$ip} | Agent: {$request->userAgent()} | URL: {$request->fullUrl()}"
         );
 
-        // Eğer bu IP zaten blacklist tablosunda (tek IP ya da IP bloğu olarak) varsa tekrar ekleme
+        // If this IP is already in the blacklist for this filter, do not add again
         if ($this->ipAlreadyListedInFilter($ip, $firewall->blacklist_rule_id)) {
             return;
         }
 
-        // Değilse blacklist'e ekle
+        // Otherwise, add it to the blacklist
         $ipList = IpList::updateOrCreate(
             [
                 'ip'        => $ip,
@@ -747,7 +756,7 @@ class FirewallMiddleware
             ]
         );
 
-        // Eğer yeni yaratıldıysa, log da ekle
+        // If it was recently created, log it in FirewallLogs
         if ($ipList->wasRecentlyCreated) {
             FirewallLogs::create([
                 'ip'           => $ip,
@@ -762,17 +771,9 @@ class FirewallMiddleware
     }
 
     /**
-     * YARDIMCI METOTLAR
-     * -----------------------------------------------------------------
-     */
-
-    /**
-     * Verilen IP, plaka hâlindeki IP ya da CIDR biçimli IP'lerden
-     * herhangi birinin içine düşüyor mu diye kontrol eder.
-     *
-     * IpUtils::checkIp, tek tek IP veya CIDR formatıyla doğru çalışır.
-     * Eğer veritabanındaki IP, "1.2.3.4" gibi CIDR'siz ise "1.2.3.4/32"
-     * veya IPv6 ise "/128" ekliyoruz ki doğru eşleşme olsun.
+     * Checks if a given client IP is in a list of IPs or CIDR blocks.
+     * If the record in the DB is a plain IP (no slash), we append /32 for IPv4
+     * or /128 for IPv6 before passing to IpUtils::checkIp.
      *
      * @param string $clientIp
      * @param string[] $ips
@@ -783,7 +784,7 @@ class FirewallMiddleware
         foreach ($ips as $ipItem) {
             $ipItem = trim($ipItem);
 
-            // Eğer IP bloğu değilse, IP formatına göre CIDR ekle
+            // If not a CIDR, determine whether it's IPv4 or IPv6 and append the correct mask
             if (!str_contains($ipItem, '/')) {
                 if (filter_var($ipItem, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
                     $ipItem .= '/128';
@@ -801,9 +802,8 @@ class FirewallMiddleware
     }
 
     /**
-     * Bir IP adresi (clientIp) zaten ilgili filter_id'ye ait
-     * IPList tablosundaki bir IP bloğu veya IP tarafından kapsanıyor mu?
-     * Eğer kapsıyorsa True döner, yoksa False.
+     * Checks if a specific IP is already included in the given filter_id's IP list
+     * (whether it is exactly the same IP or within the same CIDR range).
      *
      * @param string $clientIp
      * @param int $filterId
@@ -811,12 +811,10 @@ class FirewallMiddleware
      */
     protected function ipAlreadyListedInFilter(string $clientIp, int $filterId): bool
     {
-        // Bu filter'a kayıtlı tüm IP'leri çek
         $allIps = IpList::where('filter_id', $filterId)
             ->pluck('ip')
             ->toArray();
 
-        // checkIpInList ile kontrol et
         return $this->checkIpInList($clientIp, $allIps);
     }
 }
