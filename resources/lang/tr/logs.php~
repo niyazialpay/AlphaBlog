@@ -1,0 +1,9 @@
+<?php
+
+return [
+    'logs' => 'Sistem Günlükleri',
+    'old_data' => 'Eski Veri',
+    'new_data' => 'Yeni Veri',
+    'model' => 'Model',
+    'action' => 'Eylem',
+];

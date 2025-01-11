@@ -13,7 +13,7 @@ class FirewallController extends Controller
 {
     public function index()
     {
-        return view('admin.firewall.index', [
+        return view('panel.firewall.index', [
             'ipFilters' => \App\Models\IPFilter\IPFilter::all(),
             'firewall' => \App\Models\Firewall\Firewall::first(),
         ]);
@@ -29,7 +29,7 @@ class FirewallController extends Controller
 
     public function logs()
     {
-        return view('admin.firewall.logs');
+        return view('panel.firewall.logs');
     }
 
     /**
@@ -75,7 +75,7 @@ class FirewallController extends Controller
             ->addColumn('request_data', fn($log) => '<pre>' . htmlspecialchars(json_encode(json_decode($log->request_data), JSON_PRETTY_PRINT)) . '</pre>')
             ->addColumn('ip_filter', fn($log) => $log->ipFilter?->name)
             ->addColumn('created_at', fn($log) => $log->created_at->format('Y-m-d H:i:s'))
-            ->addColumn('actions', fn($log) => view('admin.firewall.logs.actions', ['log' => $log]))
+            ->addColumn('actions', fn($log) => view('panel.firewall.logs.actions', ['log' => $log]))
             ->rawColumns(['request_data', 'actions'])
             ->make(true);
     }

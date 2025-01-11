@@ -93,7 +93,7 @@ Route::group([
         ->group(base_path('routes/panel/firewall.php'));
 
     Route::middleware(['web', 'auth'])
-        ->prefix(config('settings.admin_panel_path').'/system-logs')
+        ->prefix(config('settings.admin_panel_path').'/system/logs')
         ->group(base_path('routes/panel/logs.php'));
 
     Route::middleware(['web', 'auth'])

@@ -378,6 +378,15 @@
                 </li>
             </ul>
         </li>
+        <li class="nav-item">
+            <a href="{{route('admin.system-logs')}}"
+               class="nav-link @if(request()->is(config('settings.admin_panel_path').'/system-logs')) active @endif ">
+                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-clipboard-list nav-icon"></i>
+                <p>
+                    @lang('logs.logs')
+                </p>
+            </a>
+        </li>
         <li class="nav-header">
             @lang('settings.monitoring')
         </li>

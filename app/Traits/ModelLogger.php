@@ -22,7 +22,7 @@ trait ModelLogger
         });
 
         static::deleted(function ($model) {
-            $action = in_array(SoftDeletes::class, class_uses($model)) ? 'soft delete' : 'delete';
+            $action = in_array(SoftDeletes::class, class_uses($model)) ? 'soft_delete' : 'delete';
 
             self::logAction($model, $action, oldData: $model->getOriginal(), newData: null);
         });
@@ -33,7 +33,7 @@ trait ModelLogger
             });
 
             static::forceDeleted(function ($model) {
-                self::logAction($model, 'force delete', oldData: $model->getOriginal(), newData: null);
+                self::logAction($model, 'force_delete', oldData: $model->getOriginal(), newData: null);
             });
         }
     }
