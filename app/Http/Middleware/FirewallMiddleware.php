@@ -203,14 +203,19 @@ class FirewallMiddleware
      */
     protected function isBadBot(?string $userAgent, array $badBots): bool
     {
-        if (! $userAgent) {
+        if (!$userAgent) {
             return false;
         }
 
         $agent = strtolower($userAgent);
 
-        // Regex ile bot kontrolü
         foreach ($badBots as $badBot) {
+            $badBot = trim(strtolower($badBot));
+            // Boş bot isimlerini atla
+            if (empty($badBot)) {
+                continue;
+            }
+            // Tam kelime eşleşmesi için \b kullan
             if (preg_match('/\b' . preg_quote($badBot, '/') . '\b/', $agent)) {
                 return true;
             }
@@ -740,31 +745,41 @@ class FirewallMiddleware
             "[FIREWALL] Reason: {$reason} | IP: {$ip} | Agent: {$request->userAgent()} | URL: {$request->fullUrl()}"
         );
 
-        // If this IP is already in the blacklist for this filter, do not add again
-        if ($this->ipAlreadyListedInFilter($ip, $firewall->blacklist_rule_id)) {
+        // Herhangi bir filtrede (whitelist veya blacklist) zaten varsa, ekleme yapma
+        if ($this->isIpListedInAnyFilter($ip)) {
             return;
         }
 
         // Otherwise, add it to the blacklist
-        $ipList = IpList::updateOrCreate(
-            [
-                'ip'        => $ip,
-                'filter_id' => $firewall->blacklist_rule_id,
-            ]
-        );
+        $ipList = IpList::create([
+            'ip'        => $ip,
+            'filter_id' => $firewall->blacklist_rule_id,
+        ]);
 
-        // If it was recently created, log it in FirewallLogs
-        if ($ipList->wasRecentlyCreated) {
-            FirewallLogs::create([
-                'ip'           => $ip,
-                'user_agent'   => $request->userAgent(),
-                'url'          => $request->fullUrl(),
-                'reason'       => $reason,
-                'request_data' => json_encode($request->all()),
-                'ip_filter_id' => $firewall->blacklist_rule_id,
-                'ip_list_id'   => $ipList->id,
-            ]);
-        }
+        FirewallLogs::create([
+            'ip'           => $ip,
+            'user_agent'   => $request->userAgent(),
+            'url'          => $request->fullUrl(),
+            'reason'       => $reason,
+            'request_data' => json_encode($request->all()),
+            'ip_filter_id' => $firewall->blacklist_rule_id,
+            'ip_list_id'   => $ipList->id,
+        ]);
+    }
+
+    /**
+     * Checks if a given IP is already listed in any filter (whitelist or blacklist)
+     *
+     * @param string $clientIp
+     * @return bool
+     */
+    protected function isIpListedInAnyFilter(string $clientIp): bool
+    {
+        $allIps = IPList::whereHas('filter', function ($query) {
+            $query->where('is_active', true);
+        })->pluck('ip')->toArray();
+
+        return $this->checkIpInList($clientIp, $allIps);
     }
 
     /**
