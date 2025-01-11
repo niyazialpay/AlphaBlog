@@ -74,7 +74,7 @@ class FirewallController extends Controller
             ->addColumn('reason', fn($log) => $log->reason)
             ->addColumn('request_data', fn($log) => '<pre>' . htmlspecialchars(json_encode(json_decode($log->request_data), JSON_PRETTY_PRINT)) . '</pre>')
             ->addColumn('ip_filter', fn($log) => $log->ipFilter?->name)
-            ->addColumn('created_at', fn($log) => $log->created_at->format('d.m.Y H:i:s'))
+            ->addColumn('created_at', fn($log) => $log->created_at->format('Y-m-d H:i:s'))
             ->addColumn('actions', fn($log) => view('panel.firewall.logs.actions', ['log' => $log]))
             ->rawColumns(['request_data', 'actions'])
             ->make(true);

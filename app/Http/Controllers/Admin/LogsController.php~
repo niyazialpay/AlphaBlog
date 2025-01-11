@@ -49,7 +49,7 @@ class LogsController extends Controller
                 return $log->user ? $log->user->nickname : '';
             })
             ->addColumn('created_at', function (Logs $log) {
-                return $log->created_at->format('d.m.Y H:i:s');
+                return $log->created_at->format('Y-m-d H:i:s');
             })
             ->addColumn('old_data', function (Logs $log) {
                 $json = json_decode($log->old_data, true);
