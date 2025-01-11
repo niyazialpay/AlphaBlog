@@ -39,6 +39,20 @@ class FirewallController extends Controller
     {
         $query = FirewallLogs::with('ipFilter', 'ipList', 'ipList.filter');
 
+        if ($request->has('order.0.name')) {
+            $order = $request->input('order.0.name');
+        } else {
+            $order = 'created_at';
+        }
+
+        if ($request->has('order.0.dir')) {
+            $dir = $request->input('order.0.dir');
+        } else {
+            $dir = 'desc';
+        }
+
+        $query->orderBy($order, $dir);
+
         return DataTables::eloquent($query)
             ->filter(function ($query) use ($request) {
                 if ($request->has('search') && $request->get('search')['value']) {

@@ -60,16 +60,16 @@
                     }
                 },
                 columns: [
-                    { data: 'created_at', name: 'created_at' },
-                    { data: 'ip', name: 'ip' },
-                    { data: 'url', name: 'url' },
-                    { data: 'user_agent', name: 'user_agent' },
-                    { data: 'reason', name: 'reason' },
-                    { data: 'request_data', name: 'request_data' },
+                    { data: 'created_at', name: 'created_at', orderable: true },
+                    { data: 'ip', name: 'ip', orderable: true },
+                    { data: 'url', name: 'url', orderable: true },
+                    { data: 'user_agent', name: 'user_agent', orderable: false },
+                    { data: 'reason', name: 'reason', orderable: true },
+                    { data: 'request_data', name: 'request_data', orderable: false },
                     { data: 'actions', name: 'actions', searchable: false, orderable: false },
                 ],
                 order: false,
-                ordering: false,
+                ordering: true,
                 responsive: {
                     details: {
                         display: DataTable.Responsive.display.modal({
