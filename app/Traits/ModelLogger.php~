@@ -14,7 +14,7 @@ trait ModelLogger
         });
 
         static::updating(function ($model) {
-            if (count($model->getDirty()) === 1 && array_key_exists('views', $model->getDirty())) {
+            if (count($model->getDirty()) === 1 && array_key_exists('view', $model->getDirty())) {
                 return;
             }
 
