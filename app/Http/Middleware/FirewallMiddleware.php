@@ -207,16 +207,14 @@ class FirewallMiddleware
             return false;
         }
 
+        $badBots = array_map('trim', array_filter($badBots, 'strlen'));
+
         $agent = strtolower($userAgent);
 
         foreach ($badBots as $badBot) {
-            $badBot = trim(strtolower($badBot));
-            // Boş bot isimlerini atla
-            if (empty($badBot)) {
-                continue;
-            }
-            // Tam kelime eşleşmesi için \b kullan
-            if (preg_match('/\b' . preg_quote($badBot, '/') . '\b/', $agent)) {
+            $badBot = strtolower($badBot);
+
+            if (preg_match('/(?:^|[^a-z])' . preg_quote($badBot, '/') . '(?:$|[^a-z])/i', $agent)) {
                 return true;
             }
         }

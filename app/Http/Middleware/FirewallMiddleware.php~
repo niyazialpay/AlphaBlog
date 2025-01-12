@@ -768,6 +768,21 @@ class FirewallMiddleware
     }
 
     /**
+     * Checks if a given IP is already listed in any filter (whitelist or blacklist)
+     *
+     * @param string $clientIp
+     * @return bool
+     */
+    protected function isIpListedInAnyFilter(string $clientIp): bool
+    {
+        $allIps = IPList::whereHas('filter', function ($query) {
+            $query->where('is_active', true);
+        })->pluck('ip')->toArray();
+
+        return $this->checkIpInList($clientIp, $allIps);
+    }
+
+    /**
      * Checks if a given client IP is in a list of IPs or CIDR blocks.
      * If the record in the DB is a plain IP (no slash), we append /32 for IPv4
      * or /128 for IPv6 before passing to IpUtils::checkIp.

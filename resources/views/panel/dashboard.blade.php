@@ -8,6 +8,48 @@
 @section('content')
     @can('admin', 'App\Models\User')
     <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    @lang('logs.logs')
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>@lang('ip_filter.ip_range')</th>
+                            <th>@lang('firewall.reason')</th>
+                            <th>@lang('sessions.user_agent')</th>
+                            <th>@lang('general.created_at')</th>
+                        </tr>
+                        @foreach($last_sec_logs as $log)
+                            <tr>
+                                <td>
+                                    <a href="{{route('admin.firewall.logs')}}">
+                                        {{$log->ip}}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{{route('admin.firewall.logs')}}">
+                                        {{$log->reason}}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{{route('admin.firewall.logs')}}">
+                                        {{$log->user_agent}}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{{route('admin.firewall.logs')}}">
+                                        {{$log->created_at->format('d.m.Y H:i:s')}}
+                                    </a>
+                                </td>
+                            </tr>
+
+                        @endforeach
+                    </table>
+                </div>
+            </div>
+        </div>
         <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-6">
             <div class="card radius-10">
                 <div class="card-header">

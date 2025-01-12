@@ -51,7 +51,7 @@ class DashboardController extends Controller
             ];
         }
 
-        $dashboard['last_comments'] = Comments::with('user', 'post')->orderBy('created_at', 'desc')->limit(5)->get();
+        $dashboard['last_comments'] = Comments::orderBy('created_at', 'desc')->limit(5)->get();
 
         $dashboard['last_sec_logs'] = FirewallLogs::orderBy('created_at', 'desc')->limit(5)->get();
 
