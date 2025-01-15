@@ -101,7 +101,6 @@ class LoginController extends Controller
 
             return $this->sendLockoutResponse($request);
         }
-        $this->incrementLoginAttempts($request);
 
         return response()->json([
             'status' => false,
