@@ -27,7 +27,7 @@
                         {{$item->user->nickname}}
                     </span>
                     <img class="lazy"
-                         src="{{route('cdn', '/themes/Default/images/loading.svg')}}"
+                         src="{{config('cdn_url')}}/themes/Default/images/loading.svg"
                          data-src="{{$item->user->profile_image}}"
                          alt="{{$item->user->nickname}}" />
                 </a>
@@ -36,7 +36,7 @@
         @if($item->media->where('collection_name', 'posts')->last())
             @php($media = $item->media->where('collection_name', 'posts')->last())
         <a href="{{route('page', ['language' => session('language'), $item])}}" class="image featured">
-            <img class="lazy" src="{{route('cdn', '/themes/Default/images/loading.svg')}}" data-src="{{route('image', [
+            <img class="lazy" src="{{config('cdn_url')}}/themes/Default/images/loading.svg" data-src="{{route('image', [
                 'path' => $media->id,
                 'width' => 800,
                 'height' => 400,

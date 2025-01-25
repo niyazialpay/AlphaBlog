@@ -17,12 +17,12 @@
             <div class="media">
                 @if($comment->user_id)
                     <img
-                        src="{{auth()->user()->profile_image}}&s=50"
+                        src="{{replaceCDN(auth()->user()->profile_image)}}&s=50"
                         class="img-size-50 mr-3 img-circle" alt="{{$comment->user->nickname}}">
 
                 @else
                     <img
-                        src="{{auth()->user()->profile_image}}&s=50"
+                        src="{{replaceCDN(auth()->user()->profile_image)}}&s=50"
                         class="img-size-50 mr-3 img-circle" alt="{{$comment->name}}">
                 @endif
                 <div class="media-body">

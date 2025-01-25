@@ -64,8 +64,3 @@ function stripslashesNull($text): string
         return '';
     }
 }
-
-function replaceCDN($text): string
-{
-    return str_replace(config('app.url'), config('app.cdn_url'), $text);
-}

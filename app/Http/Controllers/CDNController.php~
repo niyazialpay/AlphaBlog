@@ -14,12 +14,12 @@ class CDNController extends Controller
         $path = public_path($any);
 
         if (file_exists($path) && is_file($path)) {
-            if(\Cache::has(config('cache.prefix').'cdn.'.Str::slug($any))){
-                $file = \Cache::get(config('cache.prefix').'cdn.'.Str::slug($any));
+            if(\Cache::has('cdn.'.Str::slug($any))){
+                $file = \Cache::get('cdn.'.Str::slug($any));
             }
             else{
                 $file = file_get_contents($path);
-                \Cache::forever(config('cache.prefix').'cdn.'.Str::slug($any), $file);
+                \Cache::put('cdn.'.Str::slug($any), $file, now()->addDays(30));
             }
 
             $extension = pathinfo($path, PATHINFO_EXTENSION);

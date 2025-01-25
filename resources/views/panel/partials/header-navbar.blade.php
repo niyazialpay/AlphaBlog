@@ -117,7 +117,7 @@
     <li class="nav-item dropdown">
         <a class="nav-link" data-bs-toggle="dropdown" href="#">
             <img
-                src="{{auth()->user()->profile_image}}&s=20" width="20" height="20"
+                src="{{replaceCDN(auth()->user()->profile_image)}}&s=20" width="20" height="20"
                 class="img-circle elevation-2" alt="{{auth()->user()->nickname}}">
         </a>
         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">

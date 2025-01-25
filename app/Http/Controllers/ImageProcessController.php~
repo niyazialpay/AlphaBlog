@@ -14,6 +14,7 @@ class ImageProcessController extends Controller
      */
     public function index($path, $width, $height, $type, $image)
     {
+        //dd($path, $width, $height, $type, $image);
         // Create a unique cache key based on the parameters
         // Note: If the underlying image changes with the same parameters,
         // you would need to invalidate or forget the old cache entry manually.
