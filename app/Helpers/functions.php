@@ -67,5 +67,10 @@ function stripslashesNull($text): string
 
 function replaceCDN($text): string
 {
-    return str_replace(config('app.url'), config('app.cdn_url'), $text);
+    if (config('app.cdn_url') != null && config('app.cdn_url') != config('app.url')) {
+        return str_replace(config('app.url'), config('app.cdn_url'), $text);
+    } else {
+        return $text;
+    }
+
 }

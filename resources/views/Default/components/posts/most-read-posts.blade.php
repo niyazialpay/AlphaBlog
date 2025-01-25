@@ -24,13 +24,13 @@
                     <a href="{{route('user.posts', [
                             'language' => session('language'), __('routes.user'), $item->nickname
                             ])}}" class="author">
-                        <img class="lazy" src="{{config('cdn_url')}}/themes/Default/images/loading.svg" data-src="{{$item->user->profile_image}}" alt="{{$item->nickname}}" />
+                        <img class="lazy" src="{{config('app.cdn_url')}}/themes/Default/images/loading.svg" data-src="{{$item->user->profile_image}}" alt="{{$item->nickname}}" />
                     </a>
                 </header>
                 @if($item->media->where('collection_name', 'posts')->last())
                     @php($media = $item->media->where('collection_name', 'posts')->last())
                 <a href="{{route('page', ['language' => $item->language, $item])}}" class="image">
-                    <img class="lazy" src="{{config('cdn_url')}}/themes/Default/images/loading.svg" data-src="{{route('image', [
+                    <img class="lazy" src="{{config('app.cdn_url')}}/themes/Default/images/loading.svg" data-src="{{route('image', [
                         'path' => $item->media_id,
                         'width' => 300,
                         'height' => 150,

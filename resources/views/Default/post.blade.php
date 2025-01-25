@@ -70,7 +70,7 @@
                             ])}}" class="author">
                         <span class="name">{{$post->user->nickname}}</span>
                         <img class="lazy"
-                             src="{{config('cdn_url')}}/themes/Default/images/loading.svg"
+                             src="{{config('app.cdn_url')}}/themes/Default/images/loading.svg"
                              data-src="{{$post->user->profile_image}}"
                              alt="{{$post->user->nickname}}"/>
                     </a>
@@ -80,7 +80,7 @@
             @php($media = $post->media->where('collection_name', 'posts')->last())
             <div class="image featured">
                 <img class="lazy"
-                     src="{{config('cdn_url')}}/themes/Default/images/loading.svg"
+                     src="{{config('app.cdn_url')}}/themes/Default/images/loading.svg"
                      data-src="{{route('image', [
                         'path' => $media->id,
                         'width' => 800,
@@ -141,7 +141,7 @@
                         <a id="comment-{{$item->id}}"></a>
                         <a class="comment-avtar">
                             <img class="lazy"
-                                 src="{{config('cdn_url')}}/themes/Default/images/loading.svg"
+                                 src="{{config('app.cdn_url')}}/themes/Default/images/loading.svg"
                                  data-src="{{$item->user?->profile_image ?? 'https://www.gravatar.com/avatar/'.hash('sha256', strtolower(trim($item->email)))}}"
                                  alt="{{$item->user?->nickname ?? $item->name}}"/>
                         </a>

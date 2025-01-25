@@ -25,7 +25,7 @@
                     </header>
                     @if($item->media_id)
                     <a href="{{route('page', ['language' => $item->language, $item])}}" class="image">
-                        <img class="lazy" src="{{config('cdn_url')}}/themes/Default/images/loading.svg"
+                        <img class="lazy" src="{{config('app.cdn_url')}}/themes/Default/images/loading.svg"
                              data-src="{{route('image', [
                                 'path' => $item->media_id,
                                 'width' => 300,
