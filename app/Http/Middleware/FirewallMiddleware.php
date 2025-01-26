@@ -207,14 +207,15 @@ class FirewallMiddleware
             return false;
         }
 
-        $badBots = array_map('trim', array_filter($badBots, 'strlen'));
-
         $agent = strtolower($userAgent);
+
+        $badBots = array_map('trim', $badBots);
+        $badBots = array_filter($badBots, 'strlen');
 
         foreach ($badBots as $badBot) {
             $badBot = strtolower($badBot);
 
-            if (preg_match('/(?:^|[^a-z])' . preg_quote($badBot, '/') . '(?:$|[^a-z])/i', $agent)) {
+            if (str_contains($agent, $badBot)) {
                 return true;
             }
         }
