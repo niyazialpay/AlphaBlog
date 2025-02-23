@@ -711,7 +711,11 @@ class FirewallMiddleware
                 '2a02:6b8::/29'
             ];
 
-            $ipList = array_merge($ipList, $duckduckgo_ips, $yandex_bot_ips);
+            $google_bot_ips = [
+                '66.249.92.0/18',
+            ];
+
+            $ipList = array_merge($ipList, $duckduckgo_ips, $yandex_bot_ips, $google_bot_ips);
             Cache::put(config('cache.prefix')."whitelisted_bot_ips", $ipList, now()->addDay());
         }
 
