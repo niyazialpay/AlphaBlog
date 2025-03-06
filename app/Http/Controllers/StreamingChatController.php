@@ -28,13 +28,17 @@ class StreamingChatController extends Controller
             function () use (
                 $question
             ) {
-                $result = Gemini::geminiPro()->generateContent($question);
-
+                //$result = Gemini::embeddingModel()->generateContent($question);
+                //$resultArray = $result->toArray();
+                $model = 'gemini-2.0-flash';
+                $gemini = new Gemini();
+                $client = $gemini->client(config('gemini.api_key'));
+                $result = $client->generativeModel($model)->generateContent($question);
                 $this->send('update', json_encode([
-                    'text' => $result->text(),
+                    'text' => $result,
                 ]));
                 $this->send('update', '<END_STREAMING_SSE>');
-                logger($result->toArray());
+                //logger($resultArray);
             },
             200,
             [

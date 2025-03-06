@@ -139,7 +139,7 @@ NOTIFICATION_SEND_METHOD=queue
 - Email SMTP
 - Media Library
 - MySQL
-- Laravel 11
+- Laravel 12
 - PHP 8.3
 - Bootstrap 5
 - Font Awesome 6.5.1

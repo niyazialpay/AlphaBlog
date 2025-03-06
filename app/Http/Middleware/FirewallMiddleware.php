@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\IpUtils;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FirewallMiddleware
 {
@@ -24,9 +25,9 @@ class FirewallMiddleware
      *
      * @param Request $request
      * @param Closure(Request): Response $next
-     * @return Application|Response|ResponseFactory|JsonResponse|RedirectResponse
+     * @return Application|Response|ResponseFactory|JsonResponse|RedirectResponse|StreamedResponse
      */
-    public function handle(Request $request, Closure $next): Application|Response|ResponseFactory|JsonResponse|RedirectResponse
+    public function handle(Request $request, Closure $next): Application|Response|ResponseFactory|JsonResponse|RedirectResponse|StreamedResponse
     {
         // Fetch IP filters (with IPList and RouteList relations) from cache or DB
         $filters = Cache::rememberForever(config('cache.prefix').'ip_filter', function () {
