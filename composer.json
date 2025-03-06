@@ -16,9 +16,9 @@
         "guzzlehttp/guzzle": "^7.8",
         "hisorange/browser-detect": "^5.0",
         "james-heinrich/getid3": "^1.9",
-        "laragear/webauthn": "^2.0",
+        "laragear/webauthn": "^4.0",
         "laravel/fortify": "^1.21",
-        "laravel/framework": "^11.0",
+        "laravel/framework": "^12.0",
         "laravel/horizon": "^5.24",
         "laravel/pulse": "^1.1",
         "laravel/sanctum": "^4.0",
@@ -36,7 +36,7 @@
         "spatie/laravel-analytics": "^5.3",
         "spatie/laravel-honeypot": "^4.5",
         "spatie/laravel-medialibrary": "^11.4",
-        "yajra/laravel-datatables": "^11.0"
+        "yajra/laravel-datatables": "^12.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.12",
@@ -45,7 +45,7 @@
         "laravel/sail": "^1.26",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.0",
-        "phpunit/phpunit": "^10.5",
+        "phpunit/phpunit": "^11.0",
         "spatie/laravel-ignition": "^2.4"
     },
     "autoload": {
