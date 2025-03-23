@@ -33,3 +33,4 @@ app-ads.txt
 /Modules
 modules_statuses.json
 *~
+public/acusensor.php

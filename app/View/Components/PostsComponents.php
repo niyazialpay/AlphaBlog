@@ -46,7 +46,11 @@ class PostsComponents extends Component
     {
         $search = replace_characters(GetPost($this->search));
         try {
-            $page = request()->get('page') ?? 1;
+            if (is_numeric(request()->get('page'))) {
+                $page = request()->get('page') ?? 1;
+            } else {
+                $page = 1;
+            }
         } catch (NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             $page = 1;
         }

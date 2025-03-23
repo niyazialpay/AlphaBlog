@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             ],
             prepend: [
                 \Illuminate\Session\Middleware\StartSession::class,
+                \App\Http\Middleware\VerifyCsrfToken::class,
                 \App\Http\Middleware\FirewallMiddleware::class,
             ]);
         $middleware->use([

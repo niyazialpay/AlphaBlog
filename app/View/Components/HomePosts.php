@@ -14,7 +14,7 @@ use Psr\Container\NotFoundExceptionInterface;
 
 class HomePosts extends Component
 {
-    public mixed $paginate;
+    public int $paginate;
     public int  $skip = 0;
 
     /**
@@ -32,7 +32,12 @@ class HomePosts extends Component
     public function render(): View|Closure|string
     {
         try {
-            $page = request()->get('page') ?? 1;
+            if(is_numeric(request()->get('page'))) {
+                $page = request()->get('page') ?? 1;
+            }
+            else{
+                $page = 1;
+            }
         } catch (NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             $page = 1;
         }
