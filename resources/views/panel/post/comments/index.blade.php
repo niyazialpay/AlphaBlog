@@ -82,7 +82,7 @@
                                         </td>
                                         <td>
                                             @if($comment->post)
-                                                <a href="{{route('admin.post.edit', ['type' => 'blogs', $comment->post->id])}}">{{$comment->post->title}}</a>
+                                                <a href="{{route('admin.post.edit', ['type' => 'blogs', $comment->post->id])}}">{{stripslashesNull($comment->post->title)}}</a>
                                             @endif
                                         </td>
                                         <td>{{dateformat($comment->created_at, 'd M. Y D. H:i:s', timezone: config('app.timezone'))}}</td>

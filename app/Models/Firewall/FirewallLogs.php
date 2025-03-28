@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class FirewallLogs extends Model
 {
-    use ModelLogger;
-
     protected $table = 'firewall_logs';
 
     protected $fillable = [
