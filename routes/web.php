@@ -183,12 +183,12 @@ Route::domain(config('app.url'))->group(function(){
 
     Route::post('/webauthn/login/options',
         [\App\Http\Controllers\WebAuthn\WebAuthnLoginController::class, 'options'])
-        ->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class)
+        ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
         ->name('webauthn.login.options');
 
     Route::post('/webauthn/login',
         [\App\Http\Controllers\WebAuthn\WebAuthnLoginController::class, 'login'])
-        ->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class)
+        ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
         ->name('webauthn.login');
 
     Route::group([
