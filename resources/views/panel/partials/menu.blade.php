@@ -434,5 +434,17 @@
                 </p>
             </a>
         </li>
+        <li class="nav-header">
+            @lang('general.about')
+        </li>
+        <li class="nav-item mb-5">
+            <a href="{{route('admin.about')}}"
+               class="nav-link @if(request()->is(config('settings.admin_panel_path').'/about')) active @endif ">
+                <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else  fa-solid @endif fa-address-card  nav-icon"></i>
+                <p>
+                    @lang('general.about')
+                </p>
+            </a>
+        </li>
     @endcan
 </ul>

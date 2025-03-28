@@ -44,4 +44,7 @@ return [
     'rename' => 'Rename',
     'post_count' => 'Post Count',
     'all_authors' => 'All Authors',
+    'about' => 'About',
+    'feature' => 'Feature',
+    'version_info' => 'Version/Info',
 ];

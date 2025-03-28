@@ -44,4 +44,7 @@ return [
     'rename' => 'Yeniden Adlandır',
     'post_count' => 'Yazı Sayısı',
     'all_authors' => 'Tüm Yazarlar',
+    'about' => 'Hakkında',
+    'feature' => 'Özellik',
+    'version_info' => 'Version/Bilgi'
 ];

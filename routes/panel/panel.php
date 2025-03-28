@@ -44,3 +44,6 @@ Route::get('/analytics', [App\Http\Controllers\Admin\AnalyticsController::class,
 
 Route::post('/analytics', [App\Http\Controllers\Admin\AnalyticsController::class, 'fetchAnalytics'])
     ->name('admin.analytics.fetch')->can('admin', 'App\Models\User');
+
+Route::get('/about', [App\Http\Controllers\Admin\AboutController::class, 'index'])
+    ->name('admin.about')->can('admin', 'App\Models\User');
