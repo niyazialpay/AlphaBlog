@@ -27,7 +27,6 @@ class AboutController extends Controller
             'Locale' => app()->getLocale(),
             'Default Charset' => ini_get('default_charset'),
             'Cache Driver' => config('cache.default'),
-            'Cache Status' => Cache::getStore()->getPrefix(),
             'Session Driver' => config('session.driver'),
             'Session Lifetime' => config('session.lifetime') . ' minutes',
             'Queue Driver' => config('queue.default'),
