@@ -4,10 +4,12 @@ namespace App\Http\Middleware;
 
 use App\Models\Firewall\Firewall;
 use App\Models\Firewall\FirewallLogs;
+use App\Models\IPFilter\IPFilter;
 use App\Models\IPFilter\IPList;
 use Closure;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,12 +28,13 @@ class FirewallMiddleware
      * @param Request $request
      * @param Closure(Request): Response $next
      * @return Application|Response|ResponseFactory|JsonResponse|RedirectResponse|StreamedResponse
+     * @throws ConnectionException
      */
     public function handle(Request $request, Closure $next): Application|Response|ResponseFactory|JsonResponse|RedirectResponse|StreamedResponse
     {
         // Fetch IP filters (with IPList and RouteList relations) from cache or DB
         $filters = Cache::rememberForever(config('cache.prefix').'ip_filter', function () {
-            return \App\Models\IPFilter\IPFilter::with('ipList', 'routeList')
+            return IPFilter::with('ipList', 'routeList')
                 ->where('is_active', true)
                 ->get();
         });
@@ -400,6 +403,7 @@ class FirewallMiddleware
      * Fetches (or builds) whitelisted bot IP ranges from various official sources.
      *
      * @return array
+     * @throws ConnectionException
      */
     protected function whitelistedBotIPS(): array
     {
@@ -731,6 +735,7 @@ class FirewallMiddleware
      * @param Firewall $firewall
      * @param array $ipList
      * @return void
+     * @throws ConnectionException
      */
     protected function blockRequest(string $reason, Request $request, Firewall $firewall, array $ipList): void
     {
@@ -746,7 +751,7 @@ class FirewallMiddleware
         }
 
         Log::warning(
-            "[FIREWALL] Reason: {$reason} | IP: {$ip} | Agent: {$request->userAgent()} | URL: {$request->fullUrl()}"
+            "[FIREWALL] Reason: $reason | IP: $ip | Agent: {$request->userAgent()} | URL: {$request->fullUrl()}"
         );
 
         // Herhangi bir filtrede (whitelist veya blacklist) zaten varsa, ekleme yapma
@@ -762,7 +767,7 @@ class FirewallMiddleware
 
         FirewallLogs::create([
             'ip'           => $ip,
-            'user_agent'   => $request->userAgent(),
+            'user_agent'   => $request->userAgent()?? 'not detected',
             'url'          => $request->fullUrl(),
             'reason'       => $reason,
             'request_data' => json_encode($request->all()),
