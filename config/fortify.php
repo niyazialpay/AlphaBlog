@@ -9,7 +9,7 @@ return [
     'passwords' => 'users',
     'username' => 'email',
     'email' => 'email',
-    'views' => true,
+    'views' => false,
     'home' => env('ADMIN_PANEL_PATH', '/admin'),
     'prefix' => '',
     'domain' => null,

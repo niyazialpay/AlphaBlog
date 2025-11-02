@@ -1,7 +1,13 @@
 <!-- Left navbar links -->
 <ul class="navbar-nav" id="top-menu-navbar">
     <li class="nav-item">
-        <a class="nav-link" id="pushmenu" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+        <a class="nav-link" id="pushmenu" data-widget="pushmenu" href="#" role="button">
+            @if(config('settings.fontawesome_pro'))
+                <i class="fa-duotone fa-solid fa-bars"></i>
+            @else
+                <i class="fa-solid fa-bars"></i>
+            @endif
+        </a>
     </li>
     <li class="nav-item">
         <a class="nav-link" href="{{config('app.url')}}">

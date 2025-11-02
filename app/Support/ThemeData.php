@@ -149,9 +149,13 @@ class ThemeData
 
     public static function theme(): array
     {
+        $adminPath = trim(config('settings.admin_panel_path'), '/');
+
         return [
             'name' => app()->bound('theme') ? app('theme')->name : null,
             'renderer' => config('theme.renderer'),
+            'adminPath' => $adminPath,
+            'profilePath' => $adminPath !== '' ? $adminPath.'/profile' : 'profile',
         ];
     }
 

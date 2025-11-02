@@ -349,7 +349,7 @@
             <a href="javascript:void(0);" class="nav-link
                @if(request()->is(config('settings.admin_panel_path').'/firewall*')) active @endif">
                 @if(config('settings.fontawesome_pro'))
-                    <i class="fa-sharp-duotone fa-solid fa-block-brick-fire nav-icon"></i>
+                    <i class="fa-duotone fa-solid fa-block-brick-fire nav-icon"></i>
                 @else
                     <i class="fa-solid fa-shield-alt nav-icon"></i>
                 @endif

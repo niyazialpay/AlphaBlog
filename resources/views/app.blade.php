@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <link rel="stylesheet" href="{{ rtrim(config('app.cdn_url') ?: config('app.url'), '/') }}/themes/fontawesome/css/all.min.css">
+        <link rel="stylesheet" href="{{ rtrim(config('app.cdn_url') ?: config('app.url'), '/') }}/themes/fontawesome/css/all.css">
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @php
             $meta = $meta ?? [];
