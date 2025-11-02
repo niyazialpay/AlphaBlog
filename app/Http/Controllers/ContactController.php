@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Mail\Contact;
 use App\Models\ContactPage;
-use Exception;
+use App\Support\ThemeData;
+use App\Support\ThemeManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -13,15 +14,15 @@ class ContactController extends Controller
     public function index($language, $contact)
     {
         $contact = ContactPage::where('language', $language)->first();
-        try {
-            return view('themes.'.app('theme')->name.'.contact', [
-                'contact' => $contact,
-            ]);
-        } catch (Exception $exception) {
-            return view('Default.contact', [
-                'contact' => $contact,
+        if (ThemeManager::usingVue()) {
+            return ThemeManager::render('contact', [
+                'contact' => ThemeData::contactPage($contact),
             ]);
         }
+
+        return ThemeManager::render('contact', [
+            'contact' => $contact,
+        ]);
     }
 
     private function emailSend($request)

@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
+use App\Support\ThemeData;
+use App\Support\ThemeManager;
 
 class CategoryController extends Controller
 {
     public function show($language, $categories, $showCategory)
     {
-        try {
-            return response()->view('themes.'.app('theme')->name.'.categories', [
-                'category' => $showCategory,
-            ]);
-        } catch (Exception $e) {
-            return response()->view('Default.categories', [
-                'category' => $showCategory,
-            ]);
+        if (ThemeManager::usingVue()) {
+            return ThemeManager::render('categories', ThemeData::categoryDetail($showCategory));
         }
+
+        return ThemeManager::render('categories', [
+            'category' => $showCategory,
+        ]);
     }
 }

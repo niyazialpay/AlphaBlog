@@ -17,6 +17,8 @@ use App\Policies\PostPolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Pulse\Facades\Pulse;
 use Opcodes\LogViewer\Facades\LogViewer;
@@ -51,6 +53,14 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useBootstrap();
+
+        if ($this->shouldForceHttps()) {
+            URL::forceScheme('https');
+        }
+
+        Paginator::currentPathResolver(function () {
+            return Request::getPathInfo(); // sadece "/tr/kategoriler/php"
+        });
 
         Posts::observe(PostsObserver::class);
         User::observe(UserObserver::class);
@@ -90,5 +100,18 @@ class AppServiceProvider extends ServiceProvider
             'extra' => $user->email,
             'avatar' => 'https://gravatar.com/avatar/'.hash('sha256', $user->email).'?d=mp',
         ]);
+    }
+
+    private function shouldForceHttps(): bool
+    {
+        if (filter_var(config('app.force_https'), FILTER_VALIDATE_BOOLEAN)) {
+            return true;
+        }
+
+        if (filter_var(env('FORCE_HTTPS'), FILTER_VALIDATE_BOOLEAN)) {
+            return true;
+        }
+
+        return str_starts_with((string) config('app.url'), 'https://');
     }
 }

@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Exception;
+use App\Support\ThemeData;
+use App\Support\ThemeManager;
 
 class AuthorsController extends Controller
 {
@@ -14,14 +15,14 @@ class AuthorsController extends Controller
             ->whereNot('role', 'user')
             ->paginate();
 
-        try {
-            return response()->view('themes.' . app('theme')->name . '.authors', [
-                'authors' => $authors,
-            ]);
-        } catch (Exception $e) {
-            return response()->view('Default.authors', [
-                'authors' => $authors,
+        if (ThemeManager::usingVue()) {
+            return ThemeManager::render('authors', [
+                'authors' => ThemeData::authorsPaginatorToArray($authors),
             ]);
         }
+
+        return ThemeManager::render('authors', [
+            'authors' => $authors,
+        ]);
     }
 }

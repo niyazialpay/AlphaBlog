@@ -2,22 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
+use App\Support\ThemeData;
+use App\Support\ThemeManager;
 
 class TagController extends Controller
 {
     public function show($language, $tags, $showTag)
     {
-        try {
-            return response()->view('themes.'.app('theme')->name.'.tags', [
-                'posts' => $showTag,
-                'tag' => request()->segment(3),
-            ]);
-        } catch (Exception $e) {
-            return response()->view('Default.tags', [
-                'posts' => $showTag,
+        if (ThemeManager::usingVue()) {
+            return ThemeManager::render('tags', [
+                'posts' => ThemeData::postsFromPaginator($showTag),
                 'tag' => request()->segment(3),
             ]);
         }
+
+        return ThemeManager::render('tags', [
+            'posts' => $showTag,
+            'tag' => request()->segment(3),
+        ]);
     }
 }

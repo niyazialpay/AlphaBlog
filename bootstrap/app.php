@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(
             append: [
                 \App\Http\Middleware\Language::class,
+                \App\Http\Middleware\HandleInertiaRequests::class,
             ],
             prepend: [
                 \Illuminate\Session\Middleware\StartSession::class,

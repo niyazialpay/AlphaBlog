@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
+use App\Support\ThemeData;
+use App\Support\ThemeManager;
 use Illuminate\Support\Facades\Cookie;
 
 class PostController extends Controller
@@ -14,16 +15,17 @@ class PostController extends Controller
             $showPost->save();
             Cookie::queue(Cookie::make($showPost->slug, true, 7200, null, null, true, true));
         }
-        try {
-            return response()->view('themes.'.app('theme')->name.'.post', [
-                'post' => $showPost,
-                'ignore_minify' => true,
-            ]);
-        } catch (Exception $e) {
-            return response()->view('Default.post', [
-                'post' => $showPost,
-                'ignore_minify' => true,
+
+        if (ThemeManager::usingVue()) {
+            return ThemeManager::render('post', [
+                'post' => ThemeData::postDetail($showPost),
+                'relatedPosts' => ThemeData::relatedPosts($showPost),
             ]);
         }
+
+        return ThemeManager::render('post', [
+            'post' => $showPost,
+            'ignore_minify' => true,
+        ]);
     }
 }

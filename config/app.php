@@ -54,6 +54,7 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
     'cdn_url' => env('APP_CDN_URL', null),
+    'force_https' => env('FORCE_HTTPS', false),
 
     /*
     |--------------------------------------------------------------------------

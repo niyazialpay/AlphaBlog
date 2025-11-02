@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
-use Illuminate\Http\Response;
+use App\Support\ThemeData;
+use App\Support\ThemeManager;
 
 class HomeController extends Controller
 {
@@ -17,14 +17,18 @@ class HomeController extends Controller
     /**
      * Show the application dashboard.
      *
-     * @return Response
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function index()
     {
-        try {
-            return response()->view('themes.'.app('theme')->name.'.home', ['category' => null]);
-        } catch (Exception $e) {
-            return response()->view('Default.home', ['category' => null]);
+        if (ThemeManager::usingVue()) {
+            return ThemeManager::render('home', [
+                'featuredPosts' => ThemeData::featuredPosts(5),
+                'recentPosts' => ThemeData::recentPosts(9, 5),
+                'categories' => ThemeData::topCategories(8),
+            ]);
         }
+
+        return ThemeManager::render('home', ['category' => null]);
     }
 }
