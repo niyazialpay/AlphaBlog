@@ -29,10 +29,24 @@ class ThemeManager
                 $structuredData = array_merge($structuredData, $pageStructuredData);
             }
 
+            $meta = ThemeData::metaDefaults();
+            $pageMeta = $data['pageMeta'] ?? null;
+
+            if (! $pageMeta && isset($data['post']['pageMeta'])) {
+                $pageMeta = $data['post']['pageMeta'];
+                unset($data['post']['pageMeta']);
+            }
+
+            if ($pageMeta && is_array($pageMeta)) {
+                $meta = ThemeData::mergeMeta($meta, $pageMeta);
+            }
+
             $data['structuredData'] = $structuredData;
+            $data['pageMeta'] = $meta;
 
             $response = Inertia::render($component, $data)
                 ->withViewData('structuredData', $structuredData)
+                ->withViewData('meta', $meta)
                 ->toResponse(request());
             $response->setStatusCode($status);
 

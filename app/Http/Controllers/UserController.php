@@ -16,6 +16,7 @@ class UserController extends Controller
             return ThemeManager::render('user-posts', [
                 'author' => ThemeData::authorSummary($users),
                 'posts' => ThemeData::postsForUser($users),
+                'pageMeta' => ThemeData::metaForUser($users),
             ]);
         }
 

@@ -8,6 +8,28 @@
         <link rel="stylesheet" href="{{ rtrim(config('app.cdn_url') ?: config('app.url'), '/') }}/themes/fontawesome/css/all.min.css">
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @php
+            $meta = $meta ?? [];
+            $renderAttributes = static function (array $attributes): string {
+                return collect($attributes)
+                    ->map(function ($value, $key) {
+                        if ($value === null || $value === false || $value === '') {
+                            return null;
+                        }
+
+                        return $key.'="'.e($value).'"';
+                    })
+                    ->filter()
+                    ->implode(' ');
+            };
+        @endphp
+        <title inertia>{{ $meta['title'] ?? config('app.name') }}</title>
+        @foreach (($meta['meta'] ?? []) as $tag)
+            <meta {!! $renderAttributes($tag) !!}>
+        @endforeach
+        @foreach (($meta['links'] ?? []) as $link)
+            <link {!! $renderAttributes($link) !!}>
+        @endforeach
+        @php
             $structuredData = $structuredData ?? [];
             $jsonLd = static fn ($value) => json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         @endphp

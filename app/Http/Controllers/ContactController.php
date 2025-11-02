@@ -17,6 +17,7 @@ class ContactController extends Controller
         if (ThemeManager::usingVue()) {
             return ThemeManager::render('contact', [
                 'contact' => ThemeData::contactPage($contact),
+                'pageMeta' => ThemeData::metaForContact($contact),
             ]);
         }
 

@@ -976,6 +976,315 @@ class ThemeData
         ];
     }
 
+    public static function metaForHome(): array
+    {
+        $site = self::site();
+        $language = session('language') ?? app()->getLocale();
+        $url = route('home', ['language' => $language]);
+
+        return self::buildMeta([
+            'title' => $site['title'] ?? $site['name'] ?? config('app.name'),
+            'description' => $site['description'] ?? null,
+            'keywords' => $site['keywords'] ?? null,
+            'url' => $url,
+            'image' => $site['ogImage'] ?? null,
+            'robots' => $site['robots'] ?? null,
+            'alternate' => self::languageAlternateLinks('home'),
+        ]);
+    }
+
+    public static function metaForPost(Posts $post): array
+    {
+        $post->loadMissing(['categories', 'user.social', 'media']);
+
+        $language = session('language') ?? $post->language ?? app()->getLocale();
+        $site = self::site();
+
+        $canonical = route('page', [
+            'language' => $language,
+            'showPost' => $post->slug,
+        ]);
+
+        $description = self::sanitizeMetaText($post->meta_description)
+            ?? self::sanitizeMetaText(Str::limit(strip_tags((string) $post->excerpt), 160))
+            ?? self::sanitizeMetaText(Str::limit(strip_tags((string) $post->content), 160));
+
+        $keywords = $post->meta_keywords ?: ($site['keywords'] ?? null);
+
+        $authorName = $post->user
+            ? ($post->user->display_name ?: $post->user->full_name ?: $post->user->nickname)
+            : null;
+
+        $userSlug = self::firstRouteVariant('route_user', $language, 'user');
+        $authorUrl = $post->user
+            ? route('user.posts', [
+                'language' => $language,
+                'user' => $userSlug,
+                'users' => $post->user->nickname,
+            ])
+            : null;
+
+        $alternates = $post->href_lang ? self::alternateLinksFromJson($post->href_lang) : [];
+
+        return self::buildMeta([
+            'title' => stripslashesNull($post->title),
+            'description' => $description,
+            'keywords' => $keywords,
+            'url' => $canonical,
+            'image' => self::postImage($post),
+            'robots' => $post->is_published ? 'index, follow' : 'noindex, nofollow',
+            'type' => 'article',
+            'author' => $authorName,
+            'authorUrl' => $authorUrl,
+            'siteName' => $site['name'] ?? $site['title'] ?? config('app.name'),
+            'publishedTime' => optional($post->created_at)->toIso8601String(),
+            'modifiedTime' => optional($post->updated_at ?: $post->created_at)->toIso8601String(),
+            'section' => $post->categories->first()->name ?? null,
+            'tags' => self::explodeKeywords($keywords),
+            'alternate' => $alternates,
+        ]);
+    }
+
+    public static function metaForCategory(Categories $category): array
+    {
+        $category->loadMissing('children');
+
+        $language = session('language') ?? $category->language ?? app()->getLocale();
+        $slug = self::firstRouteVariant('route_categories', $language, 'categories');
+
+        $canonical = route('post.categories', [
+            'language' => $language,
+            'categories' => $slug,
+            'showCategory' => $category->slug,
+        ]);
+
+        $description = self::sanitizeMetaText($category->meta_description)
+            ?? self::sanitizeMetaText(Str::limit(strip_tags((string) $category->description), 160));
+
+        $keywords = $category->meta_keywords;
+
+        $alternates = $category->href_lang ? self::alternateLinksFromJson($category->href_lang) : [];
+
+        return self::buildMeta([
+            'title' => stripslashesNull($category->name),
+            'description' => $description,
+            'keywords' => $keywords,
+            'url' => $canonical,
+            'image' => self::defaultOgImage(),
+            'alternate' => $alternates,
+        ]);
+    }
+
+    public static function metaForTag(?string $tag): array
+    {
+        $tag = $tag ? trim((string) $tag) : null;
+        $language = session('language') ?? app()->getLocale();
+        $site = self::site();
+
+        $slug = self::firstRouteVariant('route_tags', $language, 'tags');
+
+        $canonical = $tag
+            ? route('post.tags', [
+                'language' => $language,
+                'tags' => $slug,
+                'showTag' => $tag,
+            ])
+            : route('post.tags', [
+                'language' => $language,
+                'tags' => $slug,
+                'showTag' => '',
+            ]);
+
+        $titleTemplate = Lang::get('crypt.tags.title', ['tag' => $tag], $language);
+        $title = is_string($titleTemplate) && $titleTemplate !== '' ? $titleTemplate : ($tag ?? 'Tag');
+
+        return self::buildMeta([
+            'title' => $title,
+            'description' => self::sanitizeMetaText($site['description'] ?? null),
+            'keywords' => $site['keywords'] ?? null,
+            'url' => $canonical,
+            'image' => self::defaultOgImage(),
+            'robots' => $site['robots'] ?? null,
+        ]);
+    }
+
+    public static function metaForSearch(?string $term): array
+    {
+        $language = session('language') ?? app()->getLocale();
+        $site = self::site();
+        $slug = self::firstRouteVariant('route_search', $language, 'search');
+
+        $canonical = route('search.result', [
+            'language' => $language,
+            'search_result' => $slug,
+            'search_term' => $term,
+        ]);
+
+        $title = Lang::get('post.search_results_for', [], $language);
+        if (! is_string($title) || $title === '') {
+            $title = 'Search results for';
+        }
+        if ($term) {
+            $title = trim($title).' '.$term;
+        }
+
+        return self::buildMeta([
+            'title' => $title,
+            'description' => self::sanitizeMetaText($site['description'] ?? null),
+            'keywords' => $site['keywords'] ?? null,
+            'url' => $canonical,
+            'image' => self::defaultOgImage(),
+            'robots' => $site['robots'] ?? null,
+        ]);
+    }
+
+    public static function metaForArchive(int $year, ?int $month = null, ?int $day = null): array
+    {
+        $language = session('language') ?? app()->getLocale();
+        $site = self::site();
+        $slug = self::firstRouteVariant('route_archives', $language, 'archives');
+
+        $params = [
+            'language' => $language,
+            'archives' => $slug,
+            'year' => $year,
+        ];
+        if ($month !== null) {
+            $params['month'] = sprintf('%02d', $month);
+        }
+        if ($day !== null) {
+            $params['day'] = sprintf('%02d', $day);
+        }
+
+        $canonical = route('post.archives', $params);
+
+        $dateParts = array_filter([$year, $month, $day], fn ($part) => $part !== null);
+        $dateLabel = implode('-', array_map(fn ($part) => sprintf('%02d', (int) $part), $dateParts));
+
+        $title = Lang::get('crypt.archive.title', [], $language);
+        if (! is_string($title) || $title === '') {
+            $title = 'Archive';
+        }
+        $title = $title.' - '.$dateLabel;
+
+        return self::buildMeta([
+            'title' => $title,
+            'description' => self::sanitizeMetaText($site['description'] ?? null),
+            'keywords' => $site['keywords'] ?? null,
+            'url' => $canonical,
+            'image' => self::defaultOgImage(),
+            'robots' => $site['robots'] ?? null,
+        ]);
+    }
+
+    public static function metaForAuthors(): array
+    {
+        $language = session('language') ?? app()->getLocale();
+        $site = self::site();
+        $slug = self::firstRouteVariant('route_authors', $language, 'authors');
+
+        $canonical = route('post.authors', [
+            'language' => $language,
+            'authors' => $slug,
+        ]);
+
+        $title = Lang::get('crypt.authors.title', [], $language);
+        if (! is_string($title) || $title === '') {
+            $title = 'Authors';
+        }
+
+        $description = Lang::get('crypt.authors.description', [], $language);
+        if (! is_string($description) || $description === '') {
+            $description = $site['description'] ?? null;
+        }
+
+        return self::buildMeta([
+            'title' => $title,
+            'description' => self::sanitizeMetaText($description),
+            'keywords' => $site['keywords'] ?? null,
+            'url' => $canonical,
+            'image' => self::defaultOgImage(),
+            'robots' => $site['robots'] ?? null,
+        ]);
+    }
+
+    public static function metaForUser(User $user): array
+    {
+        $language = session('language') ?? $user->preferredLocale() ?? app()->getLocale();
+        $site = self::site();
+        $slug = self::firstRouteVariant('route_user', $language, 'user');
+
+        $canonical = route('user.posts', [
+            'language' => $language,
+            'user' => $slug,
+            'users' => $user->nickname,
+        ]);
+
+        $title = $user->display_name ?: $user->full_name ?: $user->nickname;
+        $description = $user->display_about ?: $user->about ?: $site['description'] ?? null;
+
+        $profileImage = self::mediaUrl($user->getFirstMediaUrl('profile')) ?: replaceCDN($user->profile_image);
+
+        return self::buildMeta([
+            'title' => $title,
+            'description' => self::sanitizeMetaText($description),
+            'keywords' => $site['keywords'] ?? null,
+            'url' => $canonical,
+            'image' => $profileImage,
+            'robots' => $site['robots'] ?? null,
+            'author' => $title,
+        ]);
+    }
+
+    public static function metaForContact(?ContactPage $contact): array
+    {
+        $language = session('language') ?? $contact?->language ?? app()->getLocale();
+        $site = self::site();
+        $slug = self::firstRouteVariant('route_contact', $language, 'contact');
+
+        $canonical = route('contact.front', [
+            'language' => $language,
+            'contact' => $slug,
+        ]);
+
+        $title = $contact?->title;
+        if (! is_string($title) || trim($title) === '') {
+            $title = Lang::get('footer.links.contact', [], $language);
+            if (! is_string($title) || $title === '') {
+                $title = 'Contact';
+            }
+        }
+
+        $description = $contact?->meta_description ?: $contact?->description ?: $site['description'] ?? null;
+
+        return self::buildMeta([
+            'title' => $title,
+            'description' => self::sanitizeMetaText($description),
+            'keywords' => $contact?->meta_keywords ?? $site['keywords'] ?? null,
+            'url' => $canonical,
+            'image' => self::defaultOgImage(),
+            'robots' => $site['robots'] ?? null,
+        ]);
+    }
+
+    public static function metaDefaults(): array
+    {
+        return self::metaForHome();
+    }
+
+    public static function mergeMeta(array $base, array $override = []): array
+    {
+        $title = $override['title'] ?? $base['title'] ?? null;
+        $meta = self::mergeMetaTags($base['meta'] ?? [], $override['meta'] ?? []);
+        $links = self::mergeLinkTags($base['links'] ?? [], $override['links'] ?? []);
+
+        return [
+            'title' => $title,
+            'meta' => $meta,
+            'links' => $links,
+        ];
+    }
+
     protected static function postTags(Posts $post): array
     {
         $language = session('language') ?? $post->language ?? app()->getLocale();
@@ -1198,6 +1507,536 @@ class ThemeData
         }
 
         return $filtered;
+    }
+
+    protected static function buildMeta(array $options): array
+    {
+        $site = self::site();
+        $language = session('language') ?? app()->getLocale();
+
+        $title = self::sanitizeMetaText($options['title'] ?? $site['title'] ?? $site['name'] ?? config('app.name'));
+        $description = self::sanitizeMetaText($options['description'] ?? $site['description'] ?? null);
+        $keywords = self::sanitizeMetaText($options['keywords'] ?? $site['keywords'] ?? null, null, false);
+        $url = self::absoluteUrl($options['url'] ?? null);
+        if (! $url) {
+            $url = route('home', ['language' => $language]);
+        }
+
+        $logo = $options['logo'] ?? ($site['logo']['light'] ?? $site['logo']['dark'] ?? null);
+
+        $imageCandidates = [
+            $options['image'] ?? null,
+            $site['ogImage'] ?? null,
+            $site['logo']['light'] ?? null,
+            $site['logo']['dark'] ?? null,
+        ];
+        $image = null;
+        foreach ($imageCandidates as $candidate) {
+            $absolute = self::absoluteUrl($candidate);
+            if ($absolute) {
+                $image = $absolute;
+                break;
+            }
+        }
+
+        $robots = $options['robots'] ?? $site['robots'] ?? 'index, follow';
+        $author = self::sanitizeMetaText($options['author'] ?? null, null, false);
+        $authorUrl = self::absoluteUrl($options['authorUrl'] ?? null);
+        $ogType = $options['type'] ?? 'website';
+        $siteName = self::sanitizeMetaText($options['siteName'] ?? $site['name'] ?? $site['title'] ?? config('app.name'));
+        $twitterHandle = self::sanitizeMetaText($options['twitterHandle'] ?? self::twitterHandle(), null, false);
+
+        $ogLocale = self::sanitizeMetaText($options['ogLocale'] ?? self::toOgLocale($language), null, false);
+        $ogLocaleAlternates = $options['ogLocaleAlternates'] ?? self::ogLocaleAlternates($language);
+
+        $publishedTime = $options['publishedTime'] ?? null;
+        $modifiedTime = $options['modifiedTime'] ?? null;
+        $section = self::sanitizeMetaText($options['section'] ?? null, null, false);
+        $tags = $options['tags'] ?? [];
+
+        $alternate = $options['alternate'] ?? [];
+
+        $meta = [];
+        self::appendMeta($meta, [
+            'name' => 'description',
+            'content' => $description,
+        ]);
+        self::appendMeta($meta, [
+            'name' => 'keywords',
+            'content' => $keywords,
+        ]);
+        self::appendMeta($meta, [
+            'name' => 'author',
+            'content' => $author,
+        ]);
+        self::appendMeta($meta, [
+            'name' => 'robots',
+            'content' => $robots,
+        ]);
+
+        self::appendMeta($meta, [
+            'property' => 'og:type',
+            'content' => $ogType,
+        ]);
+        self::appendMeta($meta, [
+            'property' => 'og:title',
+            'content' => $title,
+        ]);
+        self::appendMeta($meta, [
+            'property' => 'og:description',
+            'content' => $description,
+        ]);
+        self::appendMeta($meta, [
+            'property' => 'og:url',
+            'content' => $url,
+        ]);
+        self::appendMeta($meta, [
+            'property' => 'og:image',
+            'content' => $image,
+        ]);
+        self::appendMeta($meta, [
+            'property' => 'og:image:secure_url',
+            'content' => $image,
+        ]);
+        self::appendMeta($meta, [
+            'property' => 'og:image:alt',
+            'content' => $title,
+        ]);
+        self::appendMeta($meta, [
+            'property' => 'og:site_name',
+            'content' => $siteName,
+        ]);
+        self::appendMeta($meta, [
+            'property' => 'og:logo',
+            'content' => self::absoluteUrl($logo),
+        ]);
+        self::appendMeta($meta, [
+            'property' => 'og:locale',
+            'content' => $ogLocale,
+        ]);
+        foreach ($ogLocaleAlternates as $locale) {
+            self::appendMeta($meta, [
+                'property' => 'og:locale:alternate',
+                'content' => $locale,
+            ]);
+        }
+
+        $twitterCard = $image ? 'summary_large_image' : 'summary';
+        self::appendMeta($meta, [
+            'name' => 'twitter:card',
+            'content' => $twitterCard,
+        ]);
+        self::appendMeta($meta, [
+            'name' => 'twitter:title',
+            'content' => $title,
+        ]);
+        self::appendMeta($meta, [
+            'name' => 'twitter:description',
+            'content' => $description,
+        ]);
+        self::appendMeta($meta, [
+            'name' => 'twitter:image',
+            'content' => $image,
+        ]);
+        if ($twitterHandle) {
+            $handle = str_starts_with($twitterHandle, '@') ? $twitterHandle : '@'.$twitterHandle;
+            self::appendMeta($meta, [
+                'name' => 'twitter:site',
+                'content' => $handle,
+            ]);
+            self::appendMeta($meta, [
+                'name' => 'twitter:creator',
+                'content' => $handle,
+            ]);
+        }
+
+        if ($ogType === 'article') {
+            self::appendMeta($meta, [
+                'property' => 'article:published_time',
+                'content' => $publishedTime,
+            ]);
+            self::appendMeta($meta, [
+                'property' => 'article:modified_time',
+                'content' => $modifiedTime,
+            ]);
+            self::appendMeta($meta, [
+                'property' => 'article:section',
+                'content' => $section,
+            ]);
+            foreach ($tags as $tag) {
+                self::appendMeta($meta, [
+                    'property' => 'article:tag',
+                    'content' => $tag,
+                ]);
+            }
+            self::appendMeta($meta, [
+                'property' => 'article:author',
+                'content' => $authorUrl,
+            ]);
+        }
+
+        if (! empty($options['additionalMeta']) && is_array($options['additionalMeta'])) {
+            foreach ($options['additionalMeta'] as $metaTag) {
+                self::appendMeta($meta, $metaTag);
+            }
+        }
+
+        $links = [];
+        self::appendLink($links, [
+            'rel' => 'canonical',
+            'href' => $url,
+        ]);
+
+        foreach ($alternate as $entry) {
+            $href = self::absoluteUrl($entry['url'] ?? null);
+            $code = $entry['code'] ?? null;
+            if (! $href || ! $code) {
+                continue;
+            }
+            self::appendLink($links, [
+                'rel' => 'alternate',
+                'hreflang' => $code,
+                'href' => $href,
+            ]);
+        }
+
+        if (! empty($options['additionalLinks']) && is_array($options['additionalLinks'])) {
+            foreach ($options['additionalLinks'] as $linkTag) {
+                self::appendLink($links, $linkTag);
+            }
+        }
+
+        return [
+            'title' => $title,
+            'meta' => array_values($meta),
+            'links' => array_values($links),
+        ];
+    }
+
+    protected static function mergeMetaTags(array $base, array $override): array
+    {
+        $combined = [];
+
+        foreach ($base as $tag) {
+            $key = self::metaTagKey($tag);
+            if ($key) {
+                $combined[$key] = $tag;
+            } else {
+                $combined[] = $tag;
+            }
+        }
+
+        foreach ($override as $tag) {
+            $key = self::metaTagKey($tag);
+            if ($key) {
+                $combined[$key] = $tag;
+            } else {
+                $combined[] = $tag;
+            }
+        }
+
+        return array_values($combined);
+    }
+
+    protected static function mergeLinkTags(array $base, array $override): array
+    {
+        $combined = [];
+
+        foreach ($base as $tag) {
+            $key = self::linkTagKey($tag);
+            if ($key) {
+                $combined[$key] = $tag;
+            } else {
+                $combined[] = $tag;
+            }
+        }
+
+        foreach ($override as $tag) {
+            $key = self::linkTagKey($tag);
+            if ($key) {
+                $combined[$key] = $tag;
+            } else {
+                $combined[] = $tag;
+            }
+        }
+
+        return array_values($combined);
+    }
+
+    protected static function metaTagKey(array $tag): ?string
+    {
+        if (isset($tag['name'])) {
+            return 'name:'.strtolower((string) $tag['name']);
+        }
+        if (isset($tag['property'])) {
+            return 'property:'.strtolower((string) $tag['property']);
+        }
+        if (isset($tag['http-equiv'])) {
+            return 'http-equiv:'.strtolower((string) $tag['http-equiv']);
+        }
+
+        return null;
+    }
+
+    protected static function linkTagKey(array $tag): ?string
+    {
+        if (! isset($tag['rel'])) {
+            return null;
+        }
+
+        $key = strtolower((string) $tag['rel']);
+        if (isset($tag['hreflang'])) {
+            $key .= ':'.strtolower((string) $tag['hreflang']);
+        }
+
+        return $key;
+    }
+
+    protected static function appendMeta(array &$collection, array $attributes): void
+    {
+        $content = $attributes['content'] ?? null;
+
+        if ($content === null || (is_string($content) && trim($content) === '')) {
+            return;
+        }
+
+        $attributes['content'] = is_string($content) ? trim($content) : $content;
+
+        $key = self::metaTagKey($attributes);
+        if ($key) {
+            $attributes['data-head-key'] = $key;
+        }
+
+        $attributes['data-managed-head'] = 'meta';
+
+        $collection[] = $attributes;
+    }
+
+    protected static function appendLink(array &$collection, array $attributes): void
+    {
+        $href = $attributes['href'] ?? null;
+        if ($href === null || (is_string($href) && trim($href) === '')) {
+            return;
+        }
+
+        $attributes['href'] = is_string($href) ? trim($href) : $href;
+
+        $key = self::linkTagKey($attributes);
+        if ($key) {
+            $attributes['data-head-key'] = $key;
+        }
+
+        $attributes['data-managed-head'] = 'link';
+
+        $collection[] = $attributes;
+    }
+
+    protected static function languageAlternateLinks(string $routeName): array
+    {
+        $languages = self::languagesCollection();
+        $links = $languages
+            ->map(function ($language) use ($routeName) {
+                $code = $language->code ?? null;
+                if (! $code) {
+                    return null;
+                }
+
+                $url = match ($routeName) {
+                    'home' => route('home', ['language' => $code]),
+                    default => null,
+                };
+
+                if (! $url) {
+                    return null;
+                }
+
+                return [
+                    'code' => $code,
+                    'url' => $url,
+                ];
+            })
+            ->filter()
+            ->values();
+
+        $defaultLanguage = $languages->first(fn ($language) => ! empty($language->is_default));
+        $defaultCode = $defaultLanguage->code ?? ($languages->first()->code ?? session('language') ?? app()->getLocale());
+
+        if ($defaultCode) {
+            $defaultUrl = match ($routeName) {
+                'home' => route('home', ['language' => $defaultCode]),
+                default => null,
+            };
+
+            if ($defaultUrl) {
+                $links->prepend([
+                    'code' => 'x-default',
+                    'url' => $defaultUrl,
+                ]);
+            }
+        }
+
+        return $links->values()->toArray();
+    }
+
+    protected static function alternateLinksFromJson(?string $json): array
+    {
+        if (! $json) {
+            return [];
+        }
+
+        $decoded = json_decode($json, true);
+        if (! is_array($decoded)) {
+            return [];
+        }
+
+        $links = [];
+        foreach ($decoded as $code => $url) {
+            if (! $code || ! $url) {
+                continue;
+            }
+            $links[] = [
+                'code' => $code,
+                'url' => self::absoluteUrl($url),
+            ];
+        }
+
+        return $links;
+    }
+
+    protected static function explodeKeywords(?string $keywords): array
+    {
+        if (! $keywords) {
+            return [];
+        }
+
+        return collect(explode(',', $keywords))
+            ->map(fn ($value) => self::sanitizeMetaText($value, null, false))
+            ->filter()
+            ->values()
+            ->toArray();
+    }
+
+    protected static function defaultOgImage(): ?string
+    {
+        $site = self::site();
+
+        $candidates = [
+            $site['ogImage'] ?? null,
+            $site['logo']['light'] ?? null,
+            $site['logo']['dark'] ?? null,
+        ];
+
+        foreach ($candidates as $candidate) {
+            $absolute = self::absoluteUrl($candidate);
+            if ($absolute) {
+                return $absolute;
+            }
+        }
+
+        return null;
+    }
+
+    protected static function twitterHandle(): ?string
+    {
+        $social = self::social();
+        if (! isset($social['x']) || ! $social['x']) {
+            return null;
+        }
+
+        $handle = $social['x'];
+        return is_string($handle) ? trim($handle) : null;
+    }
+
+    protected static function toOgLocale(?string $code): string
+    {
+        if (! $code) {
+            return 'en_US';
+        }
+
+        $normalized = str_replace('_', '-', strtolower($code));
+        [$primary, $secondary] = array_pad(explode('-', $normalized), 2, null);
+
+        if ($secondary) {
+            return $primary.'_'.$secondary;
+        }
+
+        return $primary.'_'.strtoupper($primary);
+    }
+
+    protected static function ogLocaleAlternates(string $currentCode): array
+    {
+        $languages = self::languagesCollection();
+
+        return $languages
+            ->map(function ($language) use ($currentCode) {
+                $code = $language->code ?? null;
+                if (! $code || $code === $currentCode) {
+                    return null;
+                }
+
+                return self::toOgLocale($code);
+            })
+            ->filter()
+            ->values()
+            ->toArray();
+    }
+
+    protected static function languagesCollection(): Collection
+    {
+        $languages = app()->bound('languages') ? app('languages') : [];
+
+        return $languages instanceof Collection ? $languages : collect($languages);
+    }
+
+    protected static function absoluteUrl(?string $url): ?string
+    {
+        if (! $url || ! is_string($url)) {
+            return null;
+        }
+
+        $trimmed = trim($url);
+        if ($trimmed === '') {
+            return null;
+        }
+
+        if (str_starts_with($trimmed, '//')) {
+            return 'https:'.$trimmed;
+        }
+
+        if (preg_match('#^https?://#i', $trimmed)) {
+            return $trimmed;
+        }
+
+        $base = config('app.cdn_url') ?: config('app.url');
+        if (! $base) {
+            return $trimmed;
+        }
+
+        return rtrim($base, '/').'/'.ltrim($trimmed, '/');
+    }
+
+    protected static function sanitizeMetaText(?string $value, ?int $limit = 160, bool $applyLimit = true): ?string
+    {
+        if (! is_string($value)) {
+            return null;
+        }
+
+        $sanitized = strip_tags($value);
+        $sanitized = preg_replace('/\s+/u', ' ', $sanitized ?? '');
+        if (! is_string($sanitized)) {
+            return null;
+        }
+
+        $sanitized = trim($sanitized);
+        if ($sanitized === '') {
+            return null;
+        }
+
+        if ($applyLimit && $limit !== null) {
+            return Str::limit($sanitized, $limit);
+        }
+
+        return $sanitized;
     }
 
     protected static function placeholderImage(): string

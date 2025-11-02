@@ -18,6 +18,7 @@ class AuthorsController extends Controller
         if (ThemeManager::usingVue()) {
             return ThemeManager::render('authors', [
                 'authors' => ThemeData::authorsPaginatorToArray($authors),
+                'pageMeta' => ThemeData::metaForAuthors(),
             ]);
         }
 

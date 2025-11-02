@@ -43,6 +43,7 @@ class ArchiveController extends Controller
                     'month' => $month,
                     'year' => $year,
                 ],
+                'pageMeta' => ThemeData::metaForArchive((int) $year, $month !== null ? (int) $month : null, $day !== null ? (int) $day : null),
             ]);
         }
 
@@ -55,4 +56,3 @@ class ArchiveController extends Controller
         ]);
     }
 }
-
