@@ -14,11 +14,11 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': path.resolve(__dirname, 'resources/js'),
-            qs: path.resolve(__dirname, 'node_modules/qs/lib/index.js'),
-            'side-channel': path.resolve(__dirname, 'node_modules/side-channel/index.js'),
+            // qs ve side-channel aliaslarını KALDIR
         },
     },
     optimizeDeps: {
-        include: ['qs', 'side-channel'],
+        // prod build'te kullanılmıyor ama dursun istiyorsan sade tut
+        include: ['laravel-echo', 'pusher-js'],
     },
 });

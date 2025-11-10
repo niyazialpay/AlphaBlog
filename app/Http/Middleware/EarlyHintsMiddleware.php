@@ -18,7 +18,7 @@ class EarlyHintsMiddleware
         $this->frankenphp_send_early_hints([
             '<https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css>; rel=preload; as=style',
             '<https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css>; rel=preload; as=style',
-            '<'.asset('themes/fontawesome/css/all.min.css').'>; rel=preload; as=style',
+            '<'.asset('themes/fontawesome/css/all.css').'>; rel=preload; as=style',
             '<'.asset('theme/Cryptograph/css/animate.min.css').'>; rel=preload; as=style',
             '<'.asset('theme/Cryptograph/css/bootstrap.min.css').'>; rel=preload; as=style',
             '<'.asset('theme/Cryptograph/css/slick.min.css').'>; rel=preload; as=style',

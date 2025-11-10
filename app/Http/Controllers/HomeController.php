@@ -26,9 +26,12 @@ class HomeController extends Controller
                 'featuredPosts' => ThemeData::featuredPosts(5),
                 'recentPosts' => ThemeData::recentPosts(9, 5),
                 'categories' => ThemeData::topCategories(8),
+                'pageMeta' => ThemeData::metaForHome(),
             ]);
         }
 
-        return ThemeManager::render('home', ['category' => null]);
+        return ThemeManager::render('home', [
+            'category' => null,
+        ]);
     }
 }

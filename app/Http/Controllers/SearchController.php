@@ -13,6 +13,7 @@ class SearchController extends Controller
             return ThemeManager::render('search', [
                 'search' => $search_term,
                 'results' => ThemeData::searchPosts($search_term),
+                'pageMeta' => ThemeData::metaForSearch($search_term),
             ]);
         }
 
@@ -21,4 +22,3 @@ class SearchController extends Controller
         ]);
     }
 }
-

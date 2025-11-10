@@ -17,9 +17,15 @@ class PostController extends Controller
         }
 
         if (ThemeManager::usingVue()) {
+            $postDetail = ThemeData::postDetail($showPost);
+            $structuredData = $postDetail['structuredData'] ?? null;
+            unset($postDetail['structuredData']);
+
             return ThemeManager::render('post', [
-                'post' => ThemeData::postDetail($showPost),
+                'post' => $postDetail,
                 'relatedPosts' => ThemeData::relatedPosts($showPost),
+                'pageMeta' => ThemeData::metaForPost($showPost),
+                'structuredData' => $structuredData,
             ]);
         }
 
