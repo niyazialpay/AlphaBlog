@@ -3,8 +3,10 @@
 function social_list()
 {
     return [
+        'website' => 'Website',
         'facebook' => 'Facebook',
         'x' => 'X',
+        'bluesky' => 'Bluesky',
         'instagram' => 'Instagram',
         'linkedin' => 'Linkedin',
         'github' => 'Github',

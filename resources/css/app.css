@@ -106,7 +106,7 @@
 
     .submenu {
         /* Güvenli koridor: tetikleyiciden menüye geçerken kapanmasın diye 8px üst boşluk */
-        padding-top: 8px;
+        padding-top: 0;
         @apply absolute left-0 top-full z-50 mt-2;
         /* Varsayılan olarak gizli */
         visibility: hidden;
@@ -132,6 +132,17 @@
             visibility 0ms step-start; /* görünür olur olmaz tık alınsın */
     }
 
+    .menu-links{
+        @apply cursor-pointer;
+    }
+    .submenu .menu-links{
+        @apply block px-4 py-2 text-sm text-muted-foreground;
+    }
+    .submenu .menu-links:hover{
+        background-color: #000;
+        border-radius: 0.5rem;
+    }
+
     /* Panel: asıl kutu - padding-top'ı absorbe eder */
     .submenu-panel { @apply relative -mt-2; }
 
@@ -140,7 +151,7 @@
         /* sol boşluk yerine sağa yapış */
         left: 100%;
         top: 0;
-        margin-left: .5rem;
+        margin-left: .1rem;
         padding-top: 0; /* flyout'ta üst koridor gerekmez */
         transform: translateY(0) translateX(-4px);
     }
