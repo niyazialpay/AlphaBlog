@@ -1,3 +1,19 @@
+@if($social_networks?->website && in_array('website',json_decode($show, true)))
+    <li>
+        <a href="{{$social_networks->website}}" target="_blank" rel="nofollow">
+            <i class="fa-solid fa-globe"></i>
+        </a>
+    </li>
+@endif
+
+@if($social_networks?->bluesky && in_array('bluesky',json_decode($show, true)))
+    <li>
+        <a href="https://bsky.app/profile/{{ltrim($social_networks->bluesky, '@')}}" target="_blank" rel="nofollow">
+            <i class="fa-brands fa-bluesky"></i>
+        </a>
+    </li>
+@endif
+
 @if($social_networks?->github && in_array('github',json_decode($show, true)))
     <li>
         <a href="https://github.com/{{$social_networks->github}}" target="_blank" rel="nofollow">
@@ -82,6 +98,30 @@
     <li>
         <a href="https://account.xbox.com/en-us/profile?gamertag={{$social_networks->xbox}}" target="_blank" rel="nofollow">
             <i class="fa-brands fa-xbox"></i>
+        </a>
+    </li>
+@endif
+
+@if($social_networks?->twitch && in_array('twitch',json_decode($show, true)))
+    <li>
+        <a href="https://www.twitch.tv/{{$social_networks->twitch}}" target="_blank" rel="nofollow">
+            <i class="fa-brands fa-twitch"></i>
+        </a>
+    </li>
+@endif
+
+@if($social_networks?->telegram && in_array('telegram',json_decode($show, true)))
+    <li>
+        <a href="https://t.me/{{$social_networks->telegram}}" target="_blank" rel="nofollow">
+            <i class="fa-brands fa-telegram"></i>
+        </a>
+    </li>
+@endif
+
+@if($social_networks?->discord && in_array('discord',json_decode($show, true)))
+    <li>
+        <a href="https://discord.gg/{{$social_networks->discord}}" target="_blank" rel="nofollow">
+            <i class="fa-brands fa-discord"></i>
         </a>
     </li>
 @endif

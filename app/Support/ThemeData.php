@@ -195,18 +195,100 @@ class ThemeData
             return [];
         }
 
-        return [
-            'linkedin' => $social->linkedin,
-            'facebook' => $social->facebook,
-            'x' => $social->x,
-            'instagram' => $social->instagram,
-            'github' => $social->github,
-            'youtube' => $social->youtube,
-            'twitch' => $social->twitch,
-            'telegram' => $social->telegram,
-            'discord' => $social->discord,
-            'website' => $social->website,
+        $socialSettings = app()->bound('social_settings') ? app('social_settings') : null;
+        $headerAllow = self::decodeSocialList($socialSettings?->social_networks_header);
+        $footerAllow = self::decodeSocialList($socialSettings?->social_networks_footer);
+
+        $allNetworks = self::socialNetworksMap();
+        $rawLinks = [];
+        $headerLinks = [];
+        $footerLinks = [];
+
+        foreach ($allNetworks as $key => $meta) {
+            $value = $social->{$key} ?? null;
+            if (! $value) {
+                continue;
+            }
+
+            $showInHeader = empty($headerAllow) ? true : in_array($key, $headerAllow, true);
+            $showInFooter = empty($footerAllow) ? true : in_array($key, $footerAllow, true);
+            $builtUrl = self::buildSocialUrl($key, $value, $meta['base']);
+
+            $entry = [
+                'key' => $key,
+                'label' => $meta['label'],
+                'icon' => $meta['icon'],
+                'url' => $builtUrl,
+                'showInHeader' => $showInHeader,
+                'showInFooter' => $showInFooter,
+            ];
+
+            $rawLinks[$key] = $entry;
+
+            $filteredEntry = [
+                'key' => $entry['key'],
+                'label' => $entry['label'],
+                'icon' => $entry['icon'],
+                'url' => $entry['url'],
+            ];
+
+            if ($showInHeader) {
+                $headerLinks[] = $filteredEntry;
+            }
+
+            if ($showInFooter) {
+                $footerLinks[] = $filteredEntry;
+            }
+        }
+
+        $language = session('language') ?? app()->getLocale();
+        $rssUrl = route('rss', ['language' => $language]);
+        $rssEntry = [
+            'key' => 'rss',
+            'label' => 'RSS',
+            'icon' => 'fa-solid fa-rss',
+            'url' => $rssUrl,
         ];
+
+        $rawLinks['rss'] = [
+            'key' => 'rss',
+            'label' => 'RSS',
+            'icon' => 'fa-solid fa-rss',
+            'url' => $rssUrl,
+            'showInHeader' => false,
+            'showInFooter' => empty($footerAllow) ? true : in_array('rss', $footerAllow, true),
+        ];
+
+        if ($rawLinks['rss']['showInFooter']) {
+            $footerLinks[] = $rssEntry;
+        }
+
+        $mobileLinks = [];
+        foreach ($rawLinks as $entry) {
+            if ($entry['showInHeader'] || $entry['showInFooter']) {
+                $mobileLinks[$entry['key']] = [
+                    'key' => $entry['key'],
+                    'label' => $entry['label'],
+                    'icon' => $entry['icon'],
+                    'url' => $entry['url'],
+                ];
+            }
+        }
+
+        $result = [
+            'links' => array_values($rawLinks),
+            'headerLinks' => $headerLinks,
+            'footerLinks' => $footerLinks,
+            'mobileLinks' => array_values($mobileLinks),
+        ];
+
+        foreach ($allNetworks as $key => $meta) {
+            $result[$key] = $social->{$key} ?? null;
+        }
+
+        $result['rss'] = $rssUrl;
+
+        return $result;
     }
 
     public static function headerMenu(): array
@@ -918,6 +1000,103 @@ class ThemeData
             'square' => $ads->square_display_advertise,
             'manager' => $ads->google_ad_manager,
         ];
+    }
+
+    protected static function decodeSocialList(mixed $value): array
+    {
+        if (is_array($value)) {
+            return self::normalizeSocialList($value);
+        }
+
+        if (is_string($value) && $value !== '') {
+            $decoded = json_decode($value, true);
+            if (is_array($decoded)) {
+                return self::normalizeSocialList($decoded);
+            }
+        }
+
+        return [];
+    }
+
+    protected static function normalizeSocialList(array $entries): array
+    {
+        return array_values(
+            array_filter(
+                array_map(function ($entry) {
+                    if (! is_string($entry)) {
+                        return null;
+                    }
+
+                    $normalized = self::normalizeSocialKey($entry);
+
+                    return $normalized !== null ? $normalized : null;
+                }, $entries)
+            )
+        );
+    }
+
+    protected static function normalizeSocialKey(string $key): ?string
+    {
+        $trimmed = strtolower(trim($key));
+
+        return match ($trimmed) {
+            'twitter' => 'x',
+            'bsky', 'bsky.app', 'bskyapp' => 'bluesky',
+            'dev.to', 'dev_to', 'dev-to' => 'devto',
+            'rss' => 'rss',
+            '' => null,
+            default => $trimmed,
+        };
+    }
+
+    protected static function socialNetworksMap(): array
+    {
+        return [
+            'website' => ['label' => 'Website', 'icon' => 'fa-solid fa-globe', 'base' => ''],
+            'github' => ['label' => 'GitHub', 'icon' => 'fa-brands fa-github', 'base' => 'https://github.com/'],
+            'linkedin' => ['label' => 'LinkedIn', 'icon' => 'fa-brands fa-linkedin-in', 'base' => 'https://www.linkedin.com/in/'],
+            'facebook' => ['label' => 'Facebook', 'icon' => 'fa-brands fa-facebook-f', 'base' => 'https://www.facebook.com/'],
+            'x' => ['label' => 'X', 'icon' => 'fa-brands fa-x-twitter', 'base' => 'https://twitter.com/'],
+            'bluesky' => ['label' => 'Bluesky', 'icon' => 'fa-brands fa-bluesky', 'base' => 'https://bsky.app/profile/'],
+            'instagram' => ['label' => 'Instagram', 'icon' => 'fa-brands fa-instagram', 'base' => 'https://www.instagram.com/'],
+            'devto' => ['label' => 'Dev.to', 'icon' => 'fa-brands fa-dev', 'base' => 'https://dev.to/'],
+            'medium' => ['label' => 'Medium', 'icon' => 'fa-brands fa-medium', 'base' => 'https://medium.com/@'],
+            'youtube' => ['label' => 'YouTube', 'icon' => 'fa-brands fa-youtube', 'base' => 'https://www.youtube.com/'],
+            'reddit' => ['label' => 'Reddit', 'icon' => 'fa-brands fa-reddit-alien', 'base' => 'https://www.reddit.com/user/'],
+            'xbox' => ['label' => 'Xbox', 'icon' => 'fa-brands fa-xbox', 'base' => 'https://account.xbox.com/en-us/profile?gamertag='],
+            'deviantart' => ['label' => 'DeviantArt', 'icon' => 'fa-brands fa-deviantart', 'base' => 'https://www.deviantart.com/'],
+            'twitch' => ['label' => 'Twitch', 'icon' => 'fa-brands fa-twitch', 'base' => 'https://www.twitch.tv/'],
+            'telegram' => ['label' => 'Telegram', 'icon' => 'fa-brands fa-telegram', 'base' => 'https://t.me/'],
+            'discord' => ['label' => 'Discord', 'icon' => 'fa-brands fa-discord', 'base' => 'https://discord.gg/'],
+        ];
+    }
+
+    protected static function buildSocialUrl(string $key, string $value, string $base): string
+    {
+        $trimmed = trim($value);
+
+        if ($trimmed === '') {
+            return '';
+        }
+
+        if (str_starts_with($trimmed, 'http://') || str_starts_with($trimmed, 'https://')) {
+            return $trimmed;
+        }
+
+        if (str_starts_with($trimmed, '//')) {
+            return 'https:'.$trimmed;
+        }
+
+        if ($base === '') {
+            return $trimmed;
+        }
+
+        $handle = match ($key) {
+            'x', 'bluesky' => ltrim($trimmed, '@'),
+            default => $trimmed,
+        };
+
+        return $base.$handle;
     }
 
     protected static function transformMenuItem(MenuItems $item): array
