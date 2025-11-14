@@ -4,8 +4,8 @@ namespace App\Http\Middleware;
 
 use App\Models\Firewall\Firewall;
 use App\Models\Firewall\FirewallLogs;
-use App\Models\IPFilter\IPFilter;
 use App\Models\IPFilter\IPList;
+use App\Support\IPFilterCache;
 use Closure;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Foundation\Application;
@@ -22,6 +22,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FirewallMiddleware
 {
+    protected array $compiledFilters = [];
+
     /**
      * Handle an incoming request.
      *
@@ -32,32 +34,16 @@ class FirewallMiddleware
      */
     public function handle(Request $request, Closure $next): Application|Response|ResponseFactory|JsonResponse|RedirectResponse|StreamedResponse
     {
-        // Fetch IP filters (with IPList and RouteList relations) from cache or DB
-        $filters = Cache::rememberForever(config('cache.prefix').'ip_filter', function () {
-            return IPFilter::with('ipList', 'routeList')
-                ->where('is_active', true)
-                ->get();
-        });
+        $compiled = IPFilterCache::get();
+        $this->compiledFilters = $compiled;
 
-        // If there are no active filters, proceed
-        if ($filters->isEmpty()) {
+        $globalFilters = $compiled['global'] ?? [];
+        $scopedFilters = $compiled['scoped'] ?? [];
+        $allIps = $compiled['all_ips'] ?? [];
+
+        if (empty($globalFilters) && empty($scopedFilters)) {
             return $next($request);
         }
-
-        // Separate filters into those that apply to all routes ('*') and the others
-        $starFilters = $filters->filter(function ($filter) {
-            return $filter->routeList->pluck('route')->contains('*');
-        });
-
-        // Collect all IP addresses from star filters (regardless of list_type)
-        $allIps = $starFilters
-            ->pluck('ipList.*.ip')
-            ->flatten()
-            ->unique()
-            ->toArray();
-
-        // Filters that apply to specific routes
-        $otherFilters = $filters->diff($starFilters);
 
         // Fetch main Firewall settings
         $firewall = Firewall::first();
@@ -66,7 +52,7 @@ class FirewallMiddleware
         if ($firewall->is_active) {
             // Check Referer
             if ($firewall->check_referer) {
-                if (! $this->checkReferer($request)) {
+                if (!$this->checkReferer($request)) {
                     $this->blockRequest('Referer Blocked', $request, $firewall, $allIps);
                 }
             }
@@ -82,7 +68,7 @@ class FirewallMiddleware
 
             // Check valid request methods (GET, HEAD, POST, PUT)
             if ($firewall->check_request_method) {
-                if (! $this->checkRequestMethod($request)) {
+                if (!$this->checkRequestMethod($request)) {
                     $this->blockRequest('Invalid Request Method', $request, $firewall, $allIps);
                 }
             }
@@ -124,22 +110,21 @@ class FirewallMiddleware
         }
 
         // Process filters that apply to all routes ('*')
-        foreach ($starFilters as $filter) {
-            $ips       = $filter->ipList->pluck('ip')->toArray();
-            $blockCode = $filter->code ?? 403;
+        foreach ($globalFilters as $filter) {
+            $ips = $filter['ips'] ?? [];
+            $blockCode = $filter['code'] ?? 403;
 
-            // If the client's IP is in this list
             if ($this->checkIpInList($request->getClientIp(), $ips)) {
-                if ($filter->list_type === 'blacklist') {
+                if ($filter['list_type'] === 'blacklist') {
                     // Block blacklisted IP
                     abort($blockCode);
-                } elseif ($filter->list_type === 'whitelist') {
+                } elseif ($filter['list_type'] === 'whitelist') {
                     // Allow whitelisted IP
                     return $next($request);
                 }
             } else {
                 // IP is not in the list
-                if ($filter->list_type === 'whitelist') {
+                if ($filter['list_type'] === 'whitelist') {
                     // If it's a whitelist and not found, block
                     abort($blockCode);
                 }
@@ -148,25 +133,25 @@ class FirewallMiddleware
         }
 
         // Process filters for specific routes
-        foreach ($otherFilters as $filter) {
-            $routes    = $filter->routeList->pluck('route')->toArray();
-            $ips       = $filter->ipList->pluck('ip')->toArray();
-            $blockCode = $filter->code ?? 403;
+        foreach ($scopedFilters as $filter) {
+            $routes = $filter['routes'] ?? [];
+            $ips = $filter['ips'] ?? [];
+            $blockCode = $filter['code'] ?? 403;
 
             // Check if the request path matches any route for this filter
-            if ($request->is($routes)) {
+            if (!empty($routes) && $request->is($routes)) {
                 // If the IP is in the filter's list
                 if ($this->checkIpInList($request->getClientIp(), $ips)) {
-                    if ($filter->list_type === 'blacklist') {
+                    if ($filter['list_type'] === 'blacklist') {
                         // Block blacklisted IP
                         abort($blockCode);
-                    } elseif ($filter->list_type === 'whitelist') {
+                    } elseif ($filter['list_type'] === 'whitelist') {
                         // Allow whitelisted IP
                         return $next($request);
                     }
                 } else {
                     // IP not found in this filter's list
-                    if ($filter->list_type === 'whitelist') {
+                    if ($filter['list_type'] === 'whitelist') {
                         // Whitelist filter => blocks if not in the list
                         abort($blockCode);
                     }
@@ -190,7 +175,7 @@ class FirewallMiddleware
     {
         if ($request->isMethod('post')) {
             $referer = $request->headers->get('referer');
-            if ($referer && ! str_contains($referer, $request->getHost())) {
+            if ($referer && !str_contains($referer, $request->getHost())) {
                 return false;
             }
         }
@@ -235,7 +220,7 @@ class FirewallMiddleware
      */
     protected function checkRequestMethod(Request $request): bool
     {
-        $validMethods = ['get','head','post','put'];
+        $validMethods = ['get', 'head', 'post', 'put'];
         return in_array(strtolower($request->method()), $validMethods);
     }
 
@@ -250,7 +235,7 @@ class FirewallMiddleware
         $agent = $request->userAgent();
         // Previously we blocked if $agent was empty.
         // But you can adjust this logic as needed.
-        if (! $agent || $agent === '-') {
+        if (!$agent || $agent === '-') {
             return true;
         }
         return false;
@@ -342,9 +327,9 @@ class FirewallMiddleware
     protected function checkCookieInjection(Request $request): bool
     {
         $dangerousTags = [
-            'applet','base','bgsound','blink','embed','expression','frame',
-            'javascript','layer','link','meta','object','script','style',
-            'title','vbscript','xml','onabort','onerror','onload','onclick',
+            'applet', 'base', 'bgsound', 'blink', 'embed', 'expression', 'frame',
+            'javascript', 'layer', 'link', 'meta', 'object', 'script', 'style',
+            'title', 'vbscript', 'xml', 'onabort', 'onerror', 'onload', 'onclick',
         ];
 
         // Check cookies
@@ -407,8 +392,8 @@ class FirewallMiddleware
      */
     protected function whitelistedBotIPS(): array
     {
-        if (Cache::has(config('cache.prefix')."whitelisted_bot_ips")) {
-            $ipList = Cache::get(config('cache.prefix')."whitelisted_bot_ips");
+        if (Cache::has(config('cache.prefix') . "whitelisted_bot_ips")) {
+            $ipList = Cache::get(config('cache.prefix') . "whitelisted_bot_ips");
         } else {
             $urls = [
                 'googlebot' => 'https://developers.google.com/search/apis/ipranges/googlebot.json',
@@ -721,7 +706,7 @@ class FirewallMiddleware
             ];
 
             $ipList = array_merge($ipList, $duckduckgo_ips, $yandex_bot_ips, $google_bot_ips);
-            Cache::put(config('cache.prefix')."whitelisted_bot_ips", $ipList, now()->addDay());
+            Cache::put(config('cache.prefix') . "whitelisted_bot_ips", $ipList, now()->addDay());
         }
 
         return $ipList;
@@ -761,18 +746,18 @@ class FirewallMiddleware
 
         // Otherwise, add it to the blacklist
         $ipList = IpList::create([
-            'ip'        => $ip,
+            'ip' => $ip,
             'filter_id' => $firewall->blacklist_rule_id,
         ]);
 
         FirewallLogs::create([
-            'ip'           => $ip,
-            'user_agent'   => $request->userAgent()?? 'not detected',
-            'url'          => $request->fullUrl(),
-            'reason'       => $reason,
+            'ip' => $ip,
+            'user_agent' => $request->userAgent() ?? 'not detected',
+            'url' => $request->fullUrl(),
+            'reason' => $reason,
             'request_data' => json_encode($request->all()),
             'ip_filter_id' => $firewall->blacklist_rule_id,
-            'ip_list_id'   => $ipList->id,
+            'ip_list_id' => $ipList->id,
         ]);
     }
 
@@ -784,10 +769,7 @@ class FirewallMiddleware
      */
     protected function isIpListedInAnyFilter(string $clientIp): bool
     {
-        $allIps = IPList::whereHas('filter', function ($query) {
-            $query->where('is_active', true);
-        })->pluck('ip')->toArray();
-
+        $allIps = $this->compiledFilters['all_ips'] ?? [];
         return $this->checkIpInList($clientIp, $allIps);
     }
 
@@ -832,10 +814,26 @@ class FirewallMiddleware
      */
     protected function ipAlreadyListedInFilter(string $clientIp, int $filterId): bool
     {
-        $allIps = IpList::where('filter_id', $filterId)
-            ->pluck('ip')
-            ->toArray();
+        $filter = $this->findCompiledFilterById($filterId);
 
+        if ($filter) {
+            return $this->checkIpInList($clientIp, $filter['ips'] ?? []);
+        }
+
+        $allIps = IpList::where('filter_id', $filterId)->pluck('ip')->toArray();
         return $this->checkIpInList($clientIp, $allIps);
+    }
+
+    protected function findCompiledFilterById(int $filterId): ?array
+    {
+        foreach (['global', 'scoped'] as $group) {
+            foreach ($this->compiledFilters[$group] ?? [] as $filter) {
+                if (($filter['id'] ?? null) === $filterId) {
+                    return $filter;
+                }
+            }
+        }
+
+        return null;
     }
 }

@@ -89,6 +89,70 @@
             </form>
         </div>
     </div>
+    @if($ip_filter->id)
+        <div class="card mt-4">
+            <div class="card-header d-flex align-items-center gap-2 flex-wrap">
+                <h3 class="card-title mb-0">@lang('ip_filter.ip_list')</h3>
+                <span class="badge bg-secondary" id="ip-count">{{$ip_filter->ipList->count()}}</span>
+                <div class="ms-auto w-100 w-md-auto">
+                    <input type="text" id="ip-search" class="form-control" placeholder="@lang('ip_filter.ip_search_placeholder')">
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive" style="max-height: 360px">
+                    <table class="table table-striped table-sm align-middle" id="ip_list_table"
+                           data-destroy-template="{{route('admin.ip-filter.ips.destroy', [$ip_filter->id, '__id__'])}}">
+                        <tbody>
+                        @forelse($ip_filter->ipList as $ip)
+                            <tr data-ip="{{$ip->ip}}">
+                                <td class="font-monospace">{{$ip->ip}}</td>
+                                <td class="text-end">
+                                    <button type="button"
+                                            class="btn btn-outline-danger btn-sm btn-delete-ip"
+                                            data-url="{{route('admin.ip-filter.ips.destroy', [$ip_filter->id, $ip->id])}}">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="2" class="text-muted">@lang('ip_filter.no_ip_filter')</td>
+                            </tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h3 class="card-title mb-0">@lang('ip_filter.ip_bulk_add')</h3>
+            </div>
+            <div class="card-body">
+                <form id="bulk_ip_form">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="bulk_ips_input" class="form-label">@lang('ip_filter.ip_range')</label>
+                        <textarea class="form-control font-monospace"
+                                  id="bulk_ips_input"
+                                  name="ips"
+                                  rows="4"
+                                  placeholder="@lang('ip_filter.ip_bulk_help')"></textarea>
+                        <small class="text-muted d-block mt-2">@lang('ip_filter.ip_bulk_help')</small>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-outline-primary" id="bulk_ip_submit">
+                            @lang('ip_filter.ip_bulk_add')
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="bulk_ip_clear">
+                            @lang('general.clear')
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 @endsection
 
 @section('script')
@@ -181,5 +245,164 @@
                 });
             });
         });
+
+        @if($ip_filter->id)
+        $(function () {
+            const ipTable = $('#ip_list_table');
+            const ipBody = ipTable.find('tbody');
+            const ipCountBadge = $('#ip-count');
+            const searchInput = $('#ip-search');
+            const bulkForm = $('#bulk_ip_form');
+            const bulkTextarea = $('#bulk_ips_input');
+            const bulkSubmitButton = $('#bulk_ip_submit');
+
+            const updateIpCount = () => {
+                ipCountBadge.text(ipBody.find('tr').length);
+            };
+
+            updateIpCount();
+
+            searchInput.on('input', function () {
+                const term = this.value.trim().toLowerCase();
+                ipBody.find('tr').each(function () {
+                    const value = ($(this).data('ip') || '').toLowerCase();
+                    $(this).toggle(value.includes(term));
+                });
+            });
+
+            $('#bulk_ip_clear').on('click', function () {
+                bulkTextarea.val('');
+                bulkTextarea.trigger('focus');
+            });
+
+            const addRows = (items) => {
+                if (!items || !items.length) {
+                    return;
+                }
+                const template = ipTable.data('destroy-template');
+                const rows = items.map(function (item) {
+                    const destroyUrl = template.replace('__id__', item.id);
+                    return `<tr data-ip="${item.ip}">
+                                <td class="font-monospace">${item.ip}</td>
+                                <td class="text-end">
+                                    <button type="button" class="btn btn-outline-danger btn-sm btn-delete-ip" data-url="${destroyUrl}">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>`;
+                });
+                ipBody.prepend(rows.join(''));
+                updateIpCount();
+            };
+
+            const summarizeBulkResponse = (response) => {
+                const messages = [];
+                if (response.added && response.added.length) {
+                    messages.push("@lang('ip_filter.ip_added_success', ['count' => '__count__'])".replace('__count__', response.added.length));
+                }
+                if (response.duplicates && response.duplicates.length) {
+                    messages.push("@lang('ip_filter.ip_duplicates_skipped', ['count' => '__count__'])".replace('__count__', response.duplicates.length));
+                }
+                if (response.invalid && response.invalid.length) {
+                    messages.push("@lang('ip_filter.ip_invalid_skipped', ['count' => '__count__'])".replace('__count__', response.invalid.length));
+                }
+                return messages.join('<br>');
+            };
+
+            bulkForm.on('submit', function (e) {
+                e.preventDefault();
+                const payload = bulkTextarea.val().trim();
+                if (!payload.length) {
+                    swal.fire({
+                        icon: 'warning',
+                        title: "@lang('general.warning')",
+                        text: "@lang('ip_filter.ip_range_required')",
+                    });
+                    return;
+                }
+
+                bulkSubmitButton.prop('disabled', true);
+
+                $.ajax({
+                    url: '{{route('admin.ip-filter.ips.bulk', $ip_filter)}}',
+                    type: 'POST',
+                    data: {
+                        ips: payload,
+                        _token: '{{csrf_token()}}',
+                    },
+                    success: function (response) {
+                        if (response.status) {
+                            addRows(response.added || []);
+                            bulkTextarea.val('');
+                            const summary = summarizeBulkResponse(response);
+                            swal.fire({
+                                icon: 'success',
+                                html: summary || "@lang('general.success')",
+                                timer: 2500,
+                            });
+                        } else {
+                            swal.fire({
+                                icon: 'error',
+                                text: response.message || "@lang('general.error')",
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        swal.fire({
+                            icon: 'error',
+                            text: xhr.responseJSON?.message || "@lang('general.error')",
+                        });
+                    },
+                    complete: function () {
+                        bulkSubmitButton.prop('disabled', false);
+                    },
+                });
+            });
+
+            ipBody.on('click', '.btn-delete-ip', function () {
+                const button = $(this);
+                const url = button.data('url');
+                const row = button.closest('tr');
+
+                swal.fire({
+                    icon: 'warning',
+                    title: "@lang('general.are_you_sure')",
+                    showCancelButton: true,
+                    confirmButtonText: "@lang('general.delete')",
+                    cancelButtonText: "@lang('general.cancel')",
+                }).then((result) => {
+                    if (!result.isConfirmed) {
+                        return;
+                    }
+
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: {
+                            _method: 'DELETE',
+                            _token: '{{csrf_token()}}',
+                        },
+                        success: function (response) {
+                            if (response.status) {
+                                row.remove();
+                                updateIpCount();
+                            } else {
+                                swal.fire({
+                                    icon: 'error',
+                                    text: response.message || "@lang('general.error')",
+                                });
+                            }
+                        },
+                        error: function (xhr) {
+                            swal.fire({
+                                icon: 'error',
+                                text: xhr.responseJSON?.message || "@lang('general.error')",
+                            });
+                        },
+                    });
+                });
+            });
+        });
+        @endif
     </script>
 @endsection

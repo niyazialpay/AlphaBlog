@@ -17,6 +17,16 @@ Route::get('/create',
     ->can('admin', 'App\Models\User')
     ->name('admin.ip-filter.create');
 
+Route::post('{ip_filter}/ips/bulk',
+    [App\Http\Controllers\Admin\IPFilterController::class, 'bulkStoreIps'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.ip-filter.ips.bulk');
+
+Route::delete('{ip_filter}/ips/{ip_list}',
+    [App\Http\Controllers\Admin\IPFilterController::class, 'destroyIp'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.ip-filter.ips.destroy');
+
 Route::get('{ip_filter}',
     [App\Http\Controllers\Admin\IPFilterController::class, 'show'])
     ->can('admin', 'App\Models\User')

@@ -45,4 +45,13 @@ return [
     'code_required' => 'Redirect code is required',
     'code_integer' => 'Redirect code must be an integer',
     'code_in' => 'Redirect code can only be :values',
+
+    'ip_list' => 'IP Address List',
+    'ip_search_placeholder' => 'Search IP address...',
+    'ip_bulk_add' => 'Bulk Add IPs',
+    'ip_bulk_help' => 'Paste one IPv4/IPv6 per line. Existing or invalid entries will be skipped automatically.',
+    'no_valid_ip' => 'No valid IP address detected.',
+    'ip_added_success' => ':count IP address added.',
+    'ip_duplicates_skipped' => ':count duplicate skipped.',
+    'ip_invalid_skipped' => ':count invalid format skipped.',
 ];
