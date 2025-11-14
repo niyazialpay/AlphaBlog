@@ -155,7 +155,7 @@ THEME_TAILWIND_CONFIG=resources/js/CryptographVue/tailwind.config.js
 THEME_PACKAGE_DIR=
 ```
 
-`THEME_CSS_ENTRY` / `THEME_JS_ENTRY` fall back to `<THEME_ASSET_DIR>/app.css|app.js` when left empty, while `THEME_PACKAGE_DIR` defaults to the same directory. Tailwind configs can export either a full config object or a function that receives the base config and returns the final one; both CommonJS (`module.exports = ...`) and ES modules (`export default ...`) are supported.
+`THEME_CSS_ENTRY` / `THEME_JS_ENTRY` fall back to `<THEME_ASSET_DIR>/app.css|app.js` when left empty, while `THEME_PACKAGE_DIR` defaults to the same directory. Tailwind configs can export either a full config object or a function that receives the base config and returns the final one; **for now the override file must be CommonJS** (`module.exports = { ... }` or rename it to `.cjs`) so it can be loaded synchronously.
 
 When the resolved package directory (from `THEME_PACKAGE_DIR`, `THEME_ASSET_DIR` or the entry files) contains a `package.json`, the npm scripts automatically run `npm install` there **only when needed** (missing `node_modules` or a newer `package-lock.json`). You can force a reinstall manually via:
 
