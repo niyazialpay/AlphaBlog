@@ -6,7 +6,15 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <link rel="stylesheet" href="{{ rtrim(config('app.cdn_url') ?: config('app.url'), '/') }}/themes/fontawesome/css/all.css">
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @php
+            $viteEntries = array_values(array_filter([
+                config('theme.assets.css_entry'),
+                config('theme.assets.js_entry', 'resources/js/app.js'),
+            ]));
+        @endphp
+        @if(!empty($viteEntries))
+            @vite($viteEntries)
+        @endif
         @php
             $meta = $meta ?? [];
             $renderAttributes = static function (array $attributes): string {

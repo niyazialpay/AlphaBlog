@@ -2,10 +2,14 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "predev": "node scripts/theme-install.mjs",
+        "prebuild": "node scripts/theme-install.mjs",
+        "prepreview": "node scripts/theme-install.mjs",
         "dev": "vite",
         "build": "vite build",
         "preview": "vite preview",
-        "lint": "eslint ."
+        "lint": "eslint .",
+        "theme:install": "node scripts/theme-install.mjs --force"
     },
     "devDependencies": {
         "@laravel/echo-vue": "^2.2.4",

@@ -144,3 +144,23 @@ NOTIFICATION_SEND_METHOD=queue
 - Bootstrap 5
 - Font Awesome 6.5.1
 
+## Theme-Specific Asset Overrides
+Each deployment can keep its Vue theme (and its npm dependencies) outside of git. Point `THEME_ASSET_DIR` to that gitignored folder (for example `resources/js/CryptographVue`) and the application will automatically treat `<dir>/app.css` and `<dir>/app.js` as the default Vite inputs, expose the directory through `config('theme.paths.asset_dir')`, and install the theme’s `package.json` before every `npm run dev/build/preview`. If your theme uses different filenames, override them explicitly:
+
+```bash
+THEME_ASSET_DIR=resources/js/CryptographVue
+THEME_CSS_ENTRY=
+THEME_JS_ENTRY=
+THEME_TAILWIND_CONFIG=resources/js/CryptographVue/tailwind.config.js
+THEME_PACKAGE_DIR=
+```
+
+`THEME_CSS_ENTRY` / `THEME_JS_ENTRY` fall back to `<THEME_ASSET_DIR>/app.css|app.js` when left empty, while `THEME_PACKAGE_DIR` defaults to the same directory. Tailwind configs can export either a full config object or a function that receives the base config and returns the final one; **for now the override file must be CommonJS** (`module.exports = { ... }` or rename it to `.cjs`) so it can be loaded synchronously.
+
+When the resolved package directory (from `THEME_PACKAGE_DIR`, `THEME_ASSET_DIR` or the entry files) contains a `package.json`, the npm scripts automatically run `npm install` there **only when needed** (missing `node_modules` or a newer `package-lock.json`). You can force a reinstall manually via:
+
+```bash
+npm run theme:install
+```
+
+This keeps shared dependencies such as Pusher in the root `package.json` while allowing each site to own its bespoke theme, package.json and node_modules without committing them to git or affecting other deployments.
