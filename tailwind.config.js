@@ -1,10 +1,9 @@
 import typography from '@tailwindcss/typography';
 import tailwindcssAnimate from 'tailwindcss-animate';
 import defaultTheme from 'tailwindcss/defaultTheme.js';
-import { existsSync, promises as fsPromises } from 'node:fs';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
-import { createHash } from 'node:crypto';
-import { pathToFileURL } from 'node:url';
+import { createRequire } from 'node:module';
 
 const baseConfig = {
     content: [
@@ -82,13 +81,13 @@ const baseConfig = {
     plugins: [typography, tailwindcssAnimate],
 };
 
-const themeConfig = await loadThemeConfig(process.env.THEME_TAILWIND_CONFIG);
+const themeConfig = loadThemeConfig(process.env.THEME_TAILWIND_CONFIG);
 const baseClone = cloneConfig(baseConfig);
 const finalConfig = themeConfig ? resolveThemeConfig(themeConfig, baseClone) : baseConfig;
 
 export default finalConfig;
 
-async function loadThemeConfig(configPathValue) {
+function loadThemeConfig(configPathValue) {
     if (!configPathValue) {
         return null;
     }
@@ -102,71 +101,27 @@ async function loadThemeConfig(configPathValue) {
         return null;
     }
 
-    const imported = await importEsmThemeConfig(resolvedPath);
-    if (imported !== null) {
-        return imported;
-    }
-
-    console.error(`[theme] Unable to load Tailwind config "${resolvedPath}". Using default config instead.`);
-    return null;
-}
-
-async function importEsmThemeConfig(resolvedPath) {
-    const previousEnv = process.env.THEME_TAILWIND_CONFIG;
-    const normalizedEnvPath = previousEnv
-        ? path.resolve(process.cwd(), previousEnv)
-        : null;
-    const shouldUnsetEnv = normalizedEnvPath === resolvedPath;
-
     try {
-        if (shouldUnsetEnv) {
-            delete process.env.THEME_TAILWIND_CONFIG;
+        const requireModule = createRequire(import.meta.url);
+        const loadedModule = requireModule(resolvedPath);
+
+        if (loadedModule && typeof loadedModule === 'object') {
+            return 'default' in loadedModule ? loadedModule.default : loadedModule;
         }
 
-        const preparedPath = await ensureEsmSpecifiers(resolvedPath);
-        const loadedModule = await import(pathToFileURL(preparedPath).href);
-        return unwrapModule(loadedModule);
+        return loadedModule;
     } catch (error) {
-        console.error(`[theme] Unable to import Tailwind config "${resolvedPath}" as an ES module.`);
-        console.error(error);
-        return null;
-    } finally {
-        if (shouldUnsetEnv) {
-            process.env.THEME_TAILWIND_CONFIG = previousEnv;
+        if (error?.code === 'ERR_REQUIRE_ESM') {
+            console.error(
+                `[theme] "${resolvedPath}" is treated as an ES module. Theme Tailwind overrides must currently be CommonJS (e.g. tailwind.theme.cjs).`,
+            );
+        } else {
+            console.error(`[theme] Unable to load Tailwind config "${resolvedPath}". Using default config instead.`);
+            console.error(error);
         }
+
+        return null;
     }
-}
-
-async function ensureEsmSpecifiers(originalPath) {
-    const content = await fsPromises.readFile(originalPath, 'utf8');
-    let mutated = content;
-    let changed = false;
-
-    const specifiers = ['defaultTheme', 'defaultConfig', 'colors'];
-    for (const segment of specifiers) {
-        const pattern = new RegExp(`(['"])tailwindcss\\/${segment}(\\.js)?\\1`, 'g');
-        mutated = mutated.replace(pattern, (match, quote, hasExtension) => {
-            if (hasExtension) {
-                return match;
-            }
-
-            changed = true;
-            return `${quote}tailwindcss/${segment}.js${quote}`;
-        });
-    }
-
-    if (!changed) {
-        return originalPath;
-    }
-
-    const cacheDir = path.join(process.cwd(), 'storage', 'framework', 'cache', 'theme-tailwind');
-    await fsPromises.mkdir(cacheDir, { recursive: true });
-
-    const hash = createHash('sha1').update(originalPath).update(content).digest('hex');
-    const tempPath = path.join(cacheDir, `theme-${hash}.mjs`);
-    await fsPromises.writeFile(tempPath, mutated, 'utf8');
-
-    return tempPath;
 }
 
 function resolveThemeConfig(themeConfigValue, baseConfig) {
@@ -209,12 +164,4 @@ function mergeConfig(target, source) {
 
 function isPlainObject(value) {
     return typeof value === 'object' && value !== null && Object.getPrototypeOf(value) === Object.prototype;
-}
-
-function unwrapModule(moduleValue) {
-    if (moduleValue && typeof moduleValue === 'object' && 'default' in moduleValue && moduleValue.default) {
-        return moduleValue.default;
-    }
-
-    return moduleValue;
 }
