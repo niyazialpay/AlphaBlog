@@ -210,7 +210,7 @@ class User extends Authenticatable implements MustVerifyEmail, WebAuthnAuthentic
                 'github' => 'https://github.com/',
                 'linkedin' => 'https://www.linkedin.com/in/',
                 'facebook' => 'https://facebook.com/',
-                'x' => 'https://twitter.com/',
+                'x' => 'https://x.com/',
                 'devto' => 'https://dev.to/',
                 'instagram' => 'https://instagram.com/',
                 'medium' => 'https://medium.com/@',
