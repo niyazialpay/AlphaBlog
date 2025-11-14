@@ -527,6 +527,7 @@ class ThemeData
             'publishedAt' => optional($post->created_at)->toIso8601String(),
             'readTime' => self::estimateReadTime($post->content),
             'views' => (int) $post->views,
+            'archiveUrl' => self::postArchiveUrl($post),
             'url' => route('page', [
                 'language' => $post->language,
                 'showPost' => $post->slug,
@@ -881,6 +882,7 @@ class ThemeData
                 'user' => __('routes.user'),
                 'users' => $user->nickname,
             ]),
+            'socialLinks' => self::authorSocialLinks($user),
         ];
     }
 
@@ -890,6 +892,37 @@ class ThemeData
             'author' => self::authorSummary($user),
             'posts' => self::postsCollection($posts),
         ];
+    }
+
+    protected static function authorSocialLinks(User $user): array
+    {
+        $links = $user->visible_social_links ?? [];
+
+        if (! is_array($links) && ! $links instanceof \Traversable) {
+            return [];
+        }
+
+        return collect($links)
+            ->map(function ($data, $platform) {
+                if (! is_array($data)) {
+                    return null;
+                }
+
+                $url = $data['url'] ?? null;
+                if (! $url) {
+                    return null;
+                }
+
+                return [
+                    'type' => $platform,
+                    'label' => ucfirst(str_replace(['_', '-'], ' ', $platform)),
+                    'url' => $url,
+                    'icon' => $data['icon'] ?? null,
+                ];
+            })
+            ->filter()
+            ->values()
+            ->toArray();
     }
 
     public static function categorySummary(Categories $category): array
@@ -1097,6 +1130,26 @@ class ThemeData
         };
 
         return $base.$handle;
+    }
+
+    protected static function postArchiveUrl(Posts $post): ?string
+    {
+        if (! $post->created_at) {
+            return null;
+        }
+
+        $language = $post->language ?? session('language') ?? app()->getLocale();
+        $slug = self::firstRouteVariant('route_archives', $language, 'archives');
+
+        $params = [
+            'language' => $language,
+            'archives' => $slug,
+            'year' => $post->created_at->format('Y'),
+            'month' => $post->created_at->format('m'),
+            'day' => $post->created_at->format('d'),
+        ];
+
+        return route('post.archives', $params);
     }
 
     protected static function transformMenuItem(MenuItems $item): array
