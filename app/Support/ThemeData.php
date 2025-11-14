@@ -960,7 +960,7 @@ class ThemeData
         return $data;
     }
 
-    public static function categoryDetail(Categories $category, int $perPage = 10): array
+    public static function categoryDetail(Categories $category, int $perPage = 12): array
     {
         return [
             'category' => array_merge(self::categorySummary($category), [
