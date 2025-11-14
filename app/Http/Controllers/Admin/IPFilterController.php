@@ -8,9 +8,9 @@ use App\Http\Requests\IPFilter\ToogleRequest;
 use App\Models\IPFilter\IPFilter;
 use App\Models\IPFilter\IPList;
 use App\Models\IPFilter\RouteList;
+use App\Support\IPFilterCache;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class IPFilterController extends Controller
@@ -245,9 +245,6 @@ class IPFilterController extends Controller
 
     private function cacheRefresh()
     {
-        Cache::forget(config('cache.prefix').'ip_filter');
-        Cache::rememberForever(config('cache.prefix').'ip_filter', function () {
-            return IPFilter::with('ipList', 'routeList')->where('is_active', true)->get();
-        });
+        IPFilterCache::refresh();
     }
 }
