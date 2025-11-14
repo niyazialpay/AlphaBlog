@@ -142,6 +142,107 @@ class IPFilterController extends Controller
         }
     }
 
+    public function bulkStoreIps(IPFilter $ip_filter, Request $request)
+    {
+        $request->validate([
+            'ips' => 'required|string',
+        ]);
+
+        $rawIps = collect(preg_split('/[\r\n,;]+/', (string) $request->post('ips'), -1, PREG_SPLIT_NO_EMPTY))
+            ->map(fn ($ip) => trim((string) $ip))
+            ->filter(fn ($ip) => $ip !== '');
+
+        if ($rawIps->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => __('ip_filter.ip_range_required'),
+            ]);
+        }
+
+        $validIps = collect();
+        $invalidIps = collect();
+
+        foreach ($rawIps->unique() as $ip) {
+            if (filter_var($ip, FILTER_VALIDATE_IP)) {
+                $validIps->push($ip);
+            } else {
+                $invalidIps->push($ip);
+            }
+        }
+
+        if ($validIps->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => __('ip_filter.no_valid_ip') ?? 'No valid IP address detected.',
+                'invalid' => $invalidIps->values(),
+            ]);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $existing = $ip_filter->ipList()
+                ->whereIn('ip', $validIps->all())
+                ->pluck('ip');
+
+            $uniqueToInsert = $validIps->diff($existing);
+
+            $created = collect();
+
+            if ($uniqueToInsert->isNotEmpty()) {
+                $payload = $uniqueToInsert->map(fn ($ip) => ['ip' => $ip])->all();
+                $created = collect($ip_filter->ipList()->createMany($payload));
+            }
+
+            $this->cacheRefresh();
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'added' => $created->map(fn (IPList $model) => [
+                    'id' => $model->id,
+                    'ip' => $model->ip,
+                ]),
+                'duplicates' => $validIps->intersect($existing)->values(),
+                'invalid' => $invalidIps->values(),
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function destroyIp(IPFilter $ip_filter, IPList $ip_list)
+    {
+        if ($ip_list->filter_id !== $ip_filter->id) {
+            abort(404);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $ip_list->delete();
+            $this->cacheRefresh();
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'id' => $ip_list->id,
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
     private function cacheRefresh()
     {
         Cache::forget(config('cache.prefix').'ip_filter');

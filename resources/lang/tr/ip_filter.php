@@ -45,4 +45,13 @@ return [
     'code_required' => 'Yönlendirme kodu zorunludur',
     'code_integer' => 'Yönlendirme kodu bir tamsayı olmalıdır',
     'code_in' => 'Yönlendirme kodu sadece :values olabilir',
+
+    'ip_list' => 'IP Adres Listesi',
+    'ip_search_placeholder' => 'IP adresi ara...',
+    'ip_bulk_add' => 'Toplu IP Ekle',
+    'ip_bulk_help' => 'Her satıra bir IPv4/IPv6 adresi yazın. Mevcut veya hatalı adresler otomatik olarak atlanır.',
+    'no_valid_ip' => 'Geçerli IP adresi bulunamadı.',
+    'ip_added_success' => ':count IP adresi eklendi.',
+    'ip_duplicates_skipped' => ':count adres zaten mevcut olduğu için atlandı.',
+    'ip_invalid_skipped' => ':count adres geçersiz formatta olduğu için atlandı.',
 ];
