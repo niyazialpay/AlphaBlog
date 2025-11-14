@@ -47,4 +47,5 @@ return [
     'about' => 'About',
     'feature' => 'Feature',
     'version_info' => 'Version/Info',
+    'clear' => 'Clear',
 ];
