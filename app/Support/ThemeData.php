@@ -375,7 +375,7 @@ class ThemeData
     public static function featuredPosts(int $limit = 5): array
     {
         $language = session('language') ?? app()->getLocale();
-        $cacheKey = config('cache.prefix').'featured_posts_vue_'.$language.'_'.$limit;
+        $cacheKey = config('cache.prefix').'featured_posts_vue_v2_'.$language.'_'.$limit;
 
         return Cache::remember($cacheKey, now()->addHours(6), function () use ($language, $limit) {
             $posts = Posts::with(['categories', 'user.social', 'media'])
@@ -394,7 +394,7 @@ class ThemeData
     public static function recentPosts(int $limit = 6, int $skip = 0): array
     {
         $language = session('language') ?? app()->getLocale();
-        $cacheKey = config('cache.prefix').'recent_posts_vue_'.$language.'_'.$limit.'_skip_'.$skip;
+        $cacheKey = config('cache.prefix').'recent_posts_vue_v2_'.$language.'_'.$limit.'_skip_'.$skip;
 
         return Cache::remember($cacheKey, now()->addHours(6), function () use ($language, $limit, $skip) {
             $posts = Posts::with(['categories', 'user.social', 'media'])
