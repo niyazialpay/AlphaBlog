@@ -46,5 +46,6 @@ return [
     'all_authors' => 'Tüm Yazarlar',
     'about' => 'Hakkında',
     'feature' => 'Özellik',
-    'version_info' => 'Version/Bilgi'
+    'version_info' => 'Version/Bilgi',
+    'clear' => 'Temizle',
 ];
