@@ -155,7 +155,7 @@ class User extends Authenticatable implements MustVerifyEmail, WebAuthnAuthentic
             return $this->getFirstMediaUrl('profile').'?';
         }
         else{
-            return 'https://www.gravatar.com/avatar/'.hash('sha256', strtolower(trim($this->email))).'?d=mp';
+            return 'https://www.gravatar.com/avatar/'.hash('sha256', strtolower(trim($this->email))).'?d=mp&s=128';
         }
     }
 
