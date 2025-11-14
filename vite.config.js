@@ -26,6 +26,11 @@ export default defineConfig(({ mode }) => {
                 // qs ve side-channel aliaslarını KALDIR
             },
         },
+        server: {
+            watch: {
+                ignored: ['**/public/themes/**'],
+            },
+        },
         optimizeDeps: {
             // prod build'te kullanılmıyor ama dursun istiyorsan sade tut
             include: ['laravel-echo', 'pusher-js'],
