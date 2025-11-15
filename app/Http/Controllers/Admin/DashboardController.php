@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Firewall\FirewallLogs;
 use App\Models\Languages;
 use App\Models\Post\Comments;
+use Illuminate\Support\Facades\Cache;
 use Spatie\Analytics\Facades\Analytics;
 use Spatie\Analytics\Period;
 
@@ -16,29 +17,36 @@ class DashboardController extends Controller
         if (file_exists(storage_path().'/app/analytics/service-account-credentials.json')) {
             $analytics = new Analytics;
             $period = Period::days(7);
-            $dashboard = [
-                'viewData' => $analytics::fetchMostVisitedPages($period, maxResults: 10),
-                'operatingSystem' => $analytics::fetchTopOperatingSystems($period),
-                'topCountries' => $analytics::fetchTopCountries($period),
-                'topBrowsers' => $analytics::fetchTopBrowsers($period),
-                'events' => $analytics::get(
-                    $period,
-                    metrics: [
-                        'publisherAdImpressions',
-                        'publisherAdClicks',
-                        'sessions',
-                        'screenPageViews',
-                        'userEngagementDuration',
-                    ],
-                    dimensions: [
-                        'eventName',
-                        'platform',
-                        'region',
-                    ],
-                ),
-                'TotalVisitorsAndPageViews' => $analytics::fetchTotalVisitorsAndPageViews($period),
-                'user_types' => $analytics::fetchUserTypes($period),
-            ];
+
+            $dashboard = Cache::remember(
+                config('cache.prefix').'dashboard_analytics',
+                now()->addMinutes(10),
+                function () use ($analytics, $period) {
+                    return [
+                        'viewData' => $analytics::fetchMostVisitedPages($period, maxResults: 10),
+                        'operatingSystem' => $analytics::fetchTopOperatingSystems($period),
+                        'topCountries' => $analytics::fetchTopCountries($period),
+                        'topBrowsers' => $analytics::fetchTopBrowsers($period),
+                        'events' => $analytics::get(
+                            $period,
+                            metrics: [
+                                'publisherAdImpressions',
+                                'publisherAdClicks',
+                                'sessions',
+                                'screenPageViews',
+                                'userEngagementDuration',
+                            ],
+                            dimensions: [
+                                'eventName',
+                                'platform',
+                                'region',
+                            ],
+                        ),
+                        'TotalVisitorsAndPageViews' => $analytics::fetchTotalVisitorsAndPageViews($period),
+                        'user_types' => $analytics::fetchUserTypes($period),
+                    ];
+                }
+            );
         } else {
             $dashboard = [
                 'viewData' => [],
