@@ -494,8 +494,8 @@ class FirewallMiddleware
     {
         $clientIp = $request->getClientIp() ?? '';
 
-        if (! $clientIp || ! IpRangeMatcher::matches($clientIp, $this->trustedBotIps)) {
-            return false;
+        if ($clientIp && IpRangeMatcher::matches($clientIp, $this->trustedBotIps)) {
+            return true;
         }
 
         return TrustedBots::isTrustedAgent($request->userAgent());
