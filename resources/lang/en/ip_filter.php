@@ -54,4 +54,6 @@ return [
     'ip_added_success' => ':count IP address added.',
     'ip_duplicates_skipped' => ':count duplicate skipped.',
     'ip_invalid_skipped' => ':count invalid format skipped.',
+    'trusted_ip_not_allowed' => 'Trusted bot IPs cannot be filtered.',
+    'trusted_ip_skipped' => ':count trusted bot IP skipped.',
 ];

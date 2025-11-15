@@ -54,4 +54,6 @@ return [
     'ip_added_success' => ':count IP adresi eklendi.',
     'ip_duplicates_skipped' => ':count adres zaten mevcut olduğu için atlandı.',
     'ip_invalid_skipped' => ':count adres geçersiz formatta olduğu için atlandı.',
+    'trusted_ip_not_allowed' => 'Güvenilir bot IP adresleri engellenemez.',
+    'trusted_ip_skipped' => ':count güvenilir bot IP adresi atlandı.',
 ];
