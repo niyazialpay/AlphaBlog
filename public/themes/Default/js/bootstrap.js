@@ -737,7 +737,8 @@ if ("undefined" == typeof jQuery)
             a(document).on("click.bs.modal.data-api", '[data-toggle="modal"]', function(c) {
                 var d = a(this)
                     , e = d.attr("href")
-                    , f = a(d.attr("data-target") || e && e.replace(/.*(?=#[^\s]+$)/, ""))
+                    , selector = d.attr("data-target") || (e && e.replace(/.*(?=#[^\s]+$)/, ""))
+                    , f = a(document).find(selector)
                     , g = f.data("bs.modal") ? "toggle" : a.extend({
                     remote: !/#/.test(e) && e
                 }, f.data(), d.data());
