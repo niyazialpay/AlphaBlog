@@ -212,9 +212,13 @@
                     data: $(this).serialize(),
                     success: function (response) {
                         if (response.status) {
+                            let successMessage = response.message || '';
+                            if (response.trusted_skipped && response.trusted_skipped.length) {
+                                successMessage += "\n" + "@lang('ip_filter.trusted_ip_skipped', ['count' => '__count__'])".replace('__count__', response.trusted_skipped.length);
+                            }
                             swal.fire({
                                 title: "@lang('general.success')",
-                                text: response.message,
+                                text: successMessage,
                                 icon: "success",
                                 showCancelButton: false,
                                 showConfirmButton: false,
@@ -305,6 +309,9 @@
                 }
                 if (response.invalid && response.invalid.length) {
                     messages.push("@lang('ip_filter.ip_invalid_skipped', ['count' => '__count__'])".replace('__count__', response.invalid.length));
+                }
+                if (response.trusted_skipped && response.trusted_skipped.length) {
+                    messages.push("@lang('ip_filter.trusted_ip_skipped', ['count' => '__count__'])".replace('__count__', response.trusted_skipped.length));
                 }
                 return messages.join('<br>');
             };

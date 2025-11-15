@@ -16,3 +16,4 @@ Artisan::command('clear-trash', function () {
 })->purpose('Empty recycle bin')->daily();
 
 Schedule::command('telescope:prune --hours=72')->daily();
+Schedule::call(fn () => \App\Support\TrustedBots::refresh())->daily();

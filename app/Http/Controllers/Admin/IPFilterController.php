@@ -9,6 +9,7 @@ use App\Models\IPFilter\IPFilter;
 use App\Models\IPFilter\IPList;
 use App\Models\IPFilter\RouteList;
 use App\Support\IPFilterCache;
+use App\Support\TrustedBots;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -53,6 +54,7 @@ class IPFilterController extends Controller
                     $ip_range[] = $item;
                 }
             }
+            [$ip_range, $trustedSkipped] = TrustedBots::filterOutTrusted($ip_range);
             if ($ip_filter->id) {
                 $message = __('ip_filter.success_update');
             } else {
@@ -83,6 +85,7 @@ class IPFilterController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => $message,
+                'trusted_skipped' => $trustedSkipped,
             ]);
         } catch (Exception $e) {
             DB::rollBack();
@@ -178,6 +181,17 @@ class IPFilterController extends Controller
             ]);
         }
 
+        [$filteredIps, $trustedSkipped] = TrustedBots::filterOutTrusted($validIps->all());
+        $validIps = collect($filteredIps);
+
+        if ($validIps->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => __('ip_filter.trusted_ip_not_allowed') ?? 'Trusted bot IPs cannot be filtered.',
+                'trusted_skipped' => $trustedSkipped,
+            ]);
+        }
+
         DB::beginTransaction();
 
         try {
@@ -205,6 +219,7 @@ class IPFilterController extends Controller
                 ]),
                 'duplicates' => $validIps->intersect($existing)->values(),
                 'invalid' => $invalidIps->values(),
+                'trusted_skipped' => $trustedSkipped,
             ]);
         } catch (Exception $e) {
             DB::rollBack();
