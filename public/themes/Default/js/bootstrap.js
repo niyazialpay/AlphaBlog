@@ -449,7 +449,7 @@ if ("undefined" == typeof jQuery)
             var c = b.attr("data-target");
             c || (c = b.attr("href"),
                 c = c && /#[A-Za-z]/.test(c) && c.replace(/.*(?=#[^\s]*$)/, ""));
-            var d = c && a(c);
+            var d = c && $(document).find(c);
             return d && d.length ? d : b.parent()
         }
         function c(c) {
