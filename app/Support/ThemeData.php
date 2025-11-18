@@ -210,8 +210,8 @@ class ThemeData
                 continue;
             }
 
-            $showInHeader = empty($headerAllow) ? true : in_array($key, $headerAllow, true);
-            $showInFooter = empty($footerAllow) ? true : in_array($key, $footerAllow, true);
+            $showInHeader = empty($headerAllow) || in_array($key, $headerAllow, true);
+            $showInFooter = empty($footerAllow) || in_array($key, $footerAllow, true);
             $builtUrl = self::buildSocialUrl($key, $value, $meta['base']);
 
             $entry = [
@@ -256,7 +256,7 @@ class ThemeData
             'icon' => 'fa-solid fa-rss',
             'url' => $rssUrl,
             'showInHeader' => false,
-            'showInFooter' => empty($footerAllow) ? true : in_array('rss', $footerAllow, true),
+            'showInFooter' => empty($footerAllow) || in_array('rss', $footerAllow, true),
         ];
 
         if ($rawLinks['rss']['showInFooter']) {
@@ -520,7 +520,7 @@ class ThemeData
             'title' => stripslashesNull($post->title),
             'slug' => $post->slug,
             'excerpt' => Str::limit(strip_tags(stripslashesNull($post->content)), 220),
-            'image' => self::postImage($post),
+            'image' => self::postImage($post, 'resized'),
             'category' => $primaryCategory ? self::categorySummary($primaryCategory) : null,
             'categories' => $post->categories->map(fn (Categories $category) => self::categorySummary($category))->toArray(),
             'author' => $post->user ? self::authorSummary($post->user) : null,
