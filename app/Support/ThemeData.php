@@ -542,7 +542,7 @@ class ThemeData
         return array_merge(self::postSummary($post), [
             'content' => stripslashesNull($post->content),
             'meta' => [
-                'description' => $post->meta_description,
+                'description' => stripslashesNull($post->meta_description),
                 'keywords' => $post->meta_keywords,
             ],
             'tags' => self::postTags($post),
@@ -935,7 +935,7 @@ class ThemeData
             'id' => $category->id,
             'name' => stripslashesNull($category->name),
             'slug' => $category->slug,
-            'description' => $category->description ?? $category->meta_description,
+            'description' => stripslashesNull($category->description) ?? stripslashesNull($category->meta_description),
             'postCount' => $category->posts_count ?? $category->posts()->count(),
             'image' => self::mediaUrl($category->getFirstMediaUrl('categories', 'thumb')),
             'url' => route('post.categories', [
@@ -965,7 +965,7 @@ class ThemeData
         return [
             'category' => array_merge(self::categorySummary($category), [
                 'meta' => [
-                    'description' => $category->meta_description,
+                    'description' => stripslashesNull($category->meta_description),
                     'keywords' => $category->meta_keywords,
                     'hrefLang' => $category->href_lang ? json_decode($category->href_lang, true) : null,
                 ],
@@ -1196,7 +1196,7 @@ class ThemeData
             'title' => $contact->title,
             'description' => $contact->description,
             'meta' => [
-                'description' => $contact->meta_description,
+                'description' => stripslashesNull($contact->meta_description),
                 'keywords' => $contact->meta_keywords,
             ],
             'maps' => $contact->maps,
@@ -1241,7 +1241,7 @@ class ThemeData
             'showPost' => $post->slug,
         ]);
 
-        $description = self::sanitizeMetaText($post->meta_description)
+        $description = self::sanitizeMetaText(stripslashesNull($post->meta_description))
             ?? self::sanitizeMetaText(Str::limit(strip_tags((string) $post->excerpt), 160))
             ?? self::sanitizeMetaText(Str::limit(strip_tags((string) $post->content), 160));
 
@@ -1303,7 +1303,7 @@ class ThemeData
 
         return self::buildMeta([
             'title' => stripslashesNull($category->name),
-            'description' => $description,
+            'description' => stripslashesNull($description),
             'keywords' => $keywords,
             'url' => $canonical,
             'image' => self::defaultOgImage(),
@@ -1495,7 +1495,7 @@ class ThemeData
 
         return self::buildMeta([
             'title' => $title,
-            'description' => self::sanitizeMetaText($description),
+            'description' => stripslashesNull(self::sanitizeMetaText($description)),
             'keywords' => $contact?->meta_keywords ?? $site['keywords'] ?? null,
             'url' => $canonical,
             'image' => self::defaultOgImage(),
