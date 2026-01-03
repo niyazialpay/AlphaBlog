@@ -1,0 +1,14 @@
+* text=auto eol=lf
+
+*.blade.php diff=html
+
+*.css linguist-detectable=false
+*.js linguist-detectable=false
+*.html linguist-detectable=false
+
+*.php diff=php
+
+
+/.github export-ignore
+CHANGELOG.md export-ignore
+.styleci.yml export-ignore

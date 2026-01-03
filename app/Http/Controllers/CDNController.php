@@ -1,0 +1,81 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+
+class CDNController extends Controller
+{
+    public function index($any=null){
+        if($any == null){
+            abort(404);
+        }
+        $path = public_path($any);
+
+        if (file_exists($path) && is_file($path)) {
+            if(\Cache::has(config('cache.prefix').'cdn.'.Str::slug($any))){
+                $file = \Cache::get(config('cache.prefix').'cdn.'.Str::slug($any));
+            }
+            else{
+                $file = file_get_contents($path);
+                \Cache::forever(config('cache.prefix').'cdn.'.Str::slug($any), $file);
+            }
+
+            $extension = pathinfo($path, PATHINFO_EXTENSION);
+            if($extension == 'css'){
+                $contentType = 'text/css';
+            }
+            elseif($extension == 'js'){
+                $contentType = 'application/javascript';
+            }
+            elseif($extension == 'json'){
+                $contentType = 'application/json';
+            }
+            elseif($extension == 'xml'){
+                $contentType = 'application/xml';
+            }
+            elseif($extension == 'svg'){
+                $contentType = 'image/svg+xml';
+            }
+            elseif($extension == 'jpg' || $extension == 'jpeg'){
+                $contentType = 'image/jpeg';
+            }
+            elseif($extension == 'png'){
+                $contentType = 'image/png';
+            }
+            elseif($extension == 'gif'){
+                $contentType = 'image/gif';
+            }
+            elseif($extension == 'webp'){
+                $contentType = 'image/webp';
+            }
+            elseif($extension == 'ico'){
+                $contentType = 'image/x-icon';
+            }
+            elseif($extension == 'pdf'){
+                $contentType = 'application/pdf';
+            }
+            elseif($extension == 'doc' || $extension == 'docx'){
+                $contentType = 'application/msword';
+            }
+            elseif($extension == 'xls' || $extension == 'xlsx'){
+                $contentType = 'application/vnd.ms-excel';
+            }
+            elseif($extension == 'ppt' || $extension == 'pptx'){
+                $contentType = 'application/vnd.ms-powerpoint';
+            }
+            elseif($extension == 'zip'){
+                $contentType = 'application/zip';
+            }
+            else{
+                $contentType = 'application/octet-stream';
+            }
+
+            return response($file, 200)
+                ->header('Content-Type', $contentType);
+        }
+
+        abort(404);
+    }
+}

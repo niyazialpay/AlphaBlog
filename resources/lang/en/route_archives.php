@@ -1,0 +1,6 @@
+<?php
+
+return [
+    'archives',
+    'arsiv',
+];

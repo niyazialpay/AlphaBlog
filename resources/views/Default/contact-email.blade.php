@@ -1,0 +1,19 @@
+<strong>
+    Name Surname:
+</strong>
+{{$contact['name']}}
+<br>
+<strong>
+    Email:
+</strong>
+{{$contact['email']}}
+<br>
+<strong>
+    Subject:
+</strong>
+{{$contact['subject']}}
+<br>
+<strong>
+    Message:
+</strong>
+{{$contact['message']}}

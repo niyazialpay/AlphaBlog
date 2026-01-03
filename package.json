@@ -1,0 +1,37 @@
+{
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "predev": "node scripts/theme-install.mjs",
+        "prebuild": "node scripts/theme-install.mjs",
+        "prepreview": "node scripts/theme-install.mjs",
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "lint": "eslint .",
+        "theme:install": "node scripts/theme-install.mjs --force"
+    },
+    "devDependencies": {
+        "@laravel/echo-vue": "^2.2.4",
+        "@tailwindcss/typography": "^0.5.15",
+        "@vitejs/plugin-vue": "^5.1.4",
+        "autoprefixer": "^10.4.20",
+        "laravel-echo": "^2.2.4",
+        "laravel-vite-plugin": "^1.2",
+        "postcss": "^8.4.38",
+        "pusher-js": "^8.4.0",
+        "tailwindcss": "^3.4.14",
+        "tailwindcss-animate": "^1.0.7",
+        "vite": "^6.3"
+    },
+    "dependencies": {
+        "@inertiajs/progress": "^0.1.2",
+        "@inertiajs/vue3": "^1.0.16",
+        "@laragear/webpass": "^2.0.1",
+        "axios": "^1.8.2",
+        "qs": "^6.14.0",
+        "side-channel": "^1.1.0",
+        "tw-animate-css": "1.3.3",
+        "vue": "^3.5.13"
+    }
+}

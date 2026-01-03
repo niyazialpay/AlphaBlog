@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'security' => 'Site Security',
+    'firewall' => 'Firewall',
+    'rules' => 'Firewall Rules',
+    'logs' => 'Firewall Logs',
+    'ip_filter_select' => 'Select IP Filter',
+    'check_referer' => 'Check Referer URL',
+    'check_bots' => 'Check Bots',
+    'check_request_method' => 'Check Request Method',
+    'check_dos' => 'Check DoS Attack',
+    'check_union_sql' => 'Check Union SQL',
+    'check_click_attack' => 'Check Click Attack',
+    'check_xss' => 'Check XSS',
+    'check_cookie_injection' => 'Check Cookie Injection',
+    'bad_bots' => 'Bad Bots',
+    'saved_success' => 'Firewall settings saved successfully',
+    'request_data' => 'Request Data',
+    'reason' => 'Reason',
+    'blacklist_rule_id' => 'Blacklist Rule',
+    'whitelist_rule_id' => 'Whitelist Rule',
+    'select_rule' => 'Select Rule',
+    'add_to_whitelist' => 'Add to Whitelist',
+    'remove_from_blocklist' => 'Remove from Blocklist',
+    'add_to_whitelist_text' => 'Are you want to add this IP to whitelist?',
+    'remove_from_blocklist_text' => 'Are you want to remove this IP from blocklist?',
+];

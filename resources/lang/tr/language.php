@@ -1,0 +1,35 @@
+<?php
+
+return [
+    'language' => 'Dil',
+    'icon' => 'Simge',
+    'status' => 'Durum',
+    'default' => 'Varsayılan',
+    'code' => 'Dil Kodu',
+    'add_edit' => 'Dil Ekle/Düzenle',
+    'flag' => 'Bayrak',
+    'delete_warning' => 'Dili silmek istediğinizden emin misiniz?',
+    'delete_success' => 'Dil başarıyla silindi.',
+    'delete_error' => 'Dil silinirken bir hata oluştu.',
+    'save_success' => 'Dil başarıyla kaydedildi.',
+    'save_error' => 'Dil kaydedilirken bir hata oluştu.',
+
+    'name_required' => 'Ad alanı gereklidir.',
+    'name_string' => 'Ad metin türünde olmalıdır.',
+    'name_unique' => 'Ad zaten alınmış.',
+    'code_required' => 'Kod alanı gereklidir.',
+    'code_string' => 'Dil kodu metin türünde olmalıdır.',
+    'code_unique' => 'Dil kodu zaten kullanılmış.',
+    'flag_required' => 'Bayrak alanı gereklidir.',
+    'flag_string' => 'Bayrak metin türünde olmalıdır.',
+
+    'delete_default' => 'Varsayılan dili silemezsiniz!',
+    'has_posts' => 'Bu dilde gönderiler var. Silemezsiniz!',
+    'has_categories' => 'Bu dilde kategoriler var. Silemezsiniz!',
+    'has_menus' => 'Bu dilde menüler var. Silemezsiniz!',
+    'has_menu_items' => 'Bu dilde menü öğeleri var. Silemezsiniz!',
+    'default_integer' => 'Varsayılan alanı tamsayı olmalıdır.',
+    'default_in' => 'Varsayılan alanı 0 veya 1 olmalıdır.',
+    'status_integer' => 'Durum alanı tamsayı olmalıdır.',
+    'status_in' => 'Durum alanı 0 veya 1 olmalıdır.',
+];

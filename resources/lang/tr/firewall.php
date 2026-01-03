@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'security' => 'Site Güvenliği',
+    'firewall' => 'Güvenlik Duvarı',
+    'rules' => 'Güvenlik Kuralları',
+    'logs' => 'Güvenlik Kayıtları',
+    'ip_filter_select' => 'IP Filtresi Seç',
+    'check_referer' => 'Referer URL\'sini Kontrol Et',
+    'check_bots' => 'Botları Kontrol Et',
+    'check_request_method' => 'İstek Yöntemini Kontrol Et',
+    'check_dos' => 'DoS Saldırısını Kontrol Et',
+    'check_union_sql' => 'Union SQL\'i Kontrol Et',
+    'check_click_attack' => 'Tıklama Saldırısını Kontrol Et',
+    'check_xss' => 'XSS\'i Kontrol Et',
+    'check_cookie_injection' => 'Cookie Injeksiyonunu Kontrol Et',
+    'bad_bots' => 'Zararlı Botlar',
+    'saved_success' => 'Güvenlik duvarı ayarları başarıyla kaydedildi',
+    'request_data' => 'İstek Verisi',
+    'reason' => 'Engelleme Sebebi',
+    'blacklist_rule_id' => 'Engelli Listesi Kuralı',
+    'whitelist_rule_id' => 'İzin Verilen Listesi Kuralı',
+    'select_rule' => 'Kural Seçin',
+    'add_to_whitelist' => 'İzinli Listesine Ekle',
+    'remove_from_blocklist' => 'Engelli Listesinden Kaldır',
+    'add_to_whitelist_text' => 'Bu IP\'yi izinli listesine eklemek istiyor musunuz?',
+    'remove_from_blocklist_text' => 'Bu IP\'yi engelli listesinden kaldırmak istiyor musunuz?',
+];

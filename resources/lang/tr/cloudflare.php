@@ -1,0 +1,53 @@
+<?php
+
+return [
+    'missing-input-secret' => 'Gizli parametre geçilmemiş.',
+    'invalid-input-secret' => 'Gizli parametre geçersiz veya mevcut değil.',
+    'missing-input-response' => 'Yanıt parametresi geçilmemiş.',
+    'invalid-input-response' => 'Yanıt parametresi geçersiz veya süresi dolmuş.',
+    'invalid-widget-id' => 'Ayrıştırılmış site gizli anahtarından alınan widget ID geçersiz veya mevcut değil.',
+    'invalid-parsed-secret' => 'Ayrıştırılmış site gizli anahtarından alınan gizli bilgi geçersiz.',
+    'bad-request' => 'İstek hatalı olduğu için reddedildi.',
+    'timeout-or-duplicate' => 'Yanıt parametresi daha önce doğrulandı.',
+    'internal-error' => 'Yanıt doğrulanırken iç bir hata oluştu. İstek tekrar denenebilir.',
+
+    'development_mode' => 'Geliştirici Modu',
+    'development_mode_toggle' => 'Geliştirici Modu Değiştir',
+    'development_mode_toggled' => 'Geliştirici Modu Değiştirildi',
+    'development_mode_not_toggled' => 'Geliştirici Modu Değiştirilemedi',
+    'development_mode_active' => 'Geliştirici Modu Aktif Et',
+    'development_mode_passive' => 'Geliştirici Modunu Pasif Et',
+    'development_mode_activated' => 'Geliştirme Modu Aktif Edildi',
+    'development_mode_deactivated' => 'Geliştirme Modu Pasif Edildi',
+    'cache_clear' => 'Önbelleği Temizle',
+    'cache_cleared' => 'Önbellek Temizlendi',
+    'cache_not_cleared' => 'Önbellek Temizlenemedi',
+
+    'paused' => 'Duraklatıldı',
+    'active' => 'Aktif',
+    'pending' => 'Beklemede',
+    'passive' => 'Pasif',
+
+    'type' => 'DNS Türü',
+    'add_record' => 'Kayıt Ekle',
+    'edit_record' => 'Kaydı Düzenle',
+    'delete_record' => 'Kaydı Sil',
+    'name' => 'Adres',
+    'content' => 'İçerik',
+    'ttl' => 'TTL',
+    'priority' => 'Öncelik',
+    'flags' => 'İşaret',
+    'tag' => 'Etiket',
+    'target' => 'Hedef',
+    'data' => 'Veri',
+    'proxied' => 'Proxy',
+    'record_added' => 'DNS kaydı başarıyla eklendi',
+    'port' => 'Port',
+    'protocol' => 'Protokol',
+    'service' => 'Servis',
+    'weight' => 'Ağırlık',
+
+    'delete_warning' => 'Bu kaydı silmek istediğinizden emin misiniz?',
+
+    'api_settings_updated' => 'API ayarları başarıyla güncellendi',
+];

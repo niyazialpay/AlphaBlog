@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Models\Firewall;
+
+use App\Traits\ModelLogger;
+use Illuminate\Database\Eloquent\Model;
+
+class FirewallLogs extends Model
+{
+    protected $table = 'firewall_logs';
+
+    protected $fillable = [
+        'ip',
+        'url',
+        'user_agent',
+        'reason',
+        'request_data',
+        'ip_filter_id',
+        'ip_list_id',
+    ];
+
+    public function ipFilter(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\App\Models\IPFilter\IPFilter::class, 'ip_filter_id');
+    }
+
+    public function ipList(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\App\Models\IPFilter\IPList::class, 'ip_list_id');
+    }
+}
