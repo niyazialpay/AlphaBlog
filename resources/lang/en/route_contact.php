@@ -1,6 +1,0 @@
-<?php
-
-return [
-    'contact',
-    'iletisim',
-];
