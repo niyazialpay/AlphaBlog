@@ -20,6 +20,9 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Fortify default routes must be disabled before providers boot.
+        Fortify::ignoreRoutes();
+
         $this->app->singleton(
             \Laravel\Fortify\Contracts\VerifyEmailViewResponse::class,
             \App\Http\Responses\VerifyEmailViewResponse::class
@@ -31,7 +34,6 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Fortify::ignoreRoutes();
         Fortify::createUsersUsing(CreateNewUser::class);
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
