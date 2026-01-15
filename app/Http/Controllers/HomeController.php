@@ -23,7 +23,7 @@ class HomeController extends Controller
     {
         if (ThemeManager::usingVue()) {
             return ThemeManager::render('home', [
-                'featuredPosts' => ThemeData::featuredPosts(5),
+                'featuredPosts' => ThemeData::featuredPosts(6),
                 'recentPosts' => ThemeData::recentPosts(9, 5),
                 'categories' => ThemeData::topCategories(8),
                 'pageMeta' => ThemeData::metaForHome(),
