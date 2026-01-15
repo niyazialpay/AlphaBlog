@@ -373,7 +373,7 @@ class ThemeData
         });
     }
 
-    public static function featuredPosts(int $limit = 5): array
+    public static function featuredPosts(int $limit = 6): array
     {
         $language = self::currentLanguage();
         $cacheKey = config('cache.prefix').'featured_posts_vue_v2_'.$language.'_'.$limit;
