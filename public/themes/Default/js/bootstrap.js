@@ -64,6 +64,12 @@ if ("undefined" == typeof jQuery)
         };
         d.VERSION = "3.3.7",
             d.TRANSITION_DURATION = 150,
+            d._isSafeSelector = function(f) {
+                // Allow only simple ID selectors like "#my-alert"
+                if (!f || "string" != typeof f) return !1;
+                return /^#[A-Za-z][A-Za-z0-9\-_:.]*$/.test(f);
+            }
+            ,
             d.prototype.close = function(b) {
                 function c() {
                     g.detach().trigger("closed.bs.alert").remove()
@@ -72,7 +78,8 @@ if ("undefined" == typeof jQuery)
                     , f = e.attr("data-target");
                 f || (f = e.attr("href"),
                     f = f && f.replace(/.*(?=#[^\s]*$)/, ""));
-                var g = a("#" === f ? [] : f);
+                d._isSafeSelector(f) || (f = null);
+                var g = f ? a("#" === f ? [] : f) : a();
                 b && b.preventDefault(),
                 g.length || (g = e.closest(".alert")),
                     g.trigger(b = a.Event("close.bs.alert")),
