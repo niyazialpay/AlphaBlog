@@ -16,7 +16,7 @@
         "@tailwindcss/typography": "^0.5.15",
         "@vitejs/plugin-vue": "^5.1.4",
         "autoprefixer": "^10.4.20",
-        "laravel-echo": "^2.2.4",
+        "laravel-echo": "^2.3.0",
         "laravel-vite-plugin": "^1.2",
         "postcss": "^8.4.38",
         "pusher-js": "^8.4.0",
