@@ -290,3 +290,4 @@ Route::domain(config('app.url'))->group(function(){
         Route::get('/{language?}', [\App\Http\Controllers\HomeController::class, 'index'])->name('home');
     });
 });
+
