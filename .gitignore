@@ -23,7 +23,6 @@ yarn-error.log
 /storage/app/*
 /storage/debugbar/
 /storage/framework/*
-composer.lock
 config/debugbar.php
 /resources/views/themes
 /public/themes/fontawesome
