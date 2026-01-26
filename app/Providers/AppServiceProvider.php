@@ -7,7 +7,9 @@ use App\Models\PersonalNotes\PersonalNotes;
 use App\Models\Post\Categories;
 use App\Models\Post\Comments;
 use App\Models\Post\Posts;
+use App\Models\ContactMessages;
 use App\Models\User;
+use App\Observers\ContactMessagesObserver;
 use App\Observers\PostsObserver;
 use App\Observers\UserObserver;
 use App\Policies\CommentPolicy;
@@ -64,6 +66,7 @@ class AppServiceProvider extends ServiceProvider
 
         Posts::observe(PostsObserver::class);
         User::observe(UserObserver::class);
+        ContactMessages::observe(ContactMessagesObserver::class);
 
         Media::observe(\App\Observers\MediaObserver::class);
 

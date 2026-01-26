@@ -11,6 +11,9 @@ Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logou
 
 Route::get('/lock-screen', [\App\Http\Controllers\Admin\TwoFactorAuthController::class, 'lock'])->name('lockscreen');
 
+Route::get('/contact/messages', [App\Http\Controllers\Admin\ContactMessagesController::class, 'index'])
+    ->name('admin.contact_messages')->can('admin', 'App\Models\User');
+
 Route::get('/contact', [App\Http\Controllers\Admin\ContactController::class, 'index'])
     ->name('admin.contact_page')->can('admin', 'App\Models\User');
 

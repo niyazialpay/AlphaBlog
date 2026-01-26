@@ -2,6 +2,8 @@
 
 return [
     'contact_page' => 'İletişim Sayfası',
+    'messages' => 'İletişim Mesajları',
+    'no_messages' => 'Herhangi bir mesaj bulunamadı',
     'title' => 'İletişim',
     'maps' => 'Harita',
     'description' => 'Açıklama',

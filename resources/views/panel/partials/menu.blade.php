@@ -179,18 +179,45 @@
         </li>
     @endcan
     @can('admin', 'App\Models\User')
-        <li class="nav-item">
-            <a href="{{route('admin.contact_page')}}" class="nav-link
-            @if(request()->is(config('settings.admin_panel_path').'/contact*')) active @endif ">
+        <li class="nav-item has-treeview
+        @if(request()->is(config('settings.admin_panel_path').'/contact*')) menu-open @endif ">
+            <a class="nav-link
+            @if(request()->is(config('settings.admin_panel_path').'/contact*')) active @endif "
+               href="javascript:void(0);">
                 @if(config('settings.fontawesome_pro'))
                 <i class="fa-duotone fa-message-text nav-icon"></i>
                 @else
                 <i class="fa-solid fa-envelope nav-icon"></i>
                 @endif
                 <p>
-                    @lang('contact.contact_page')
+                    @lang('contact.title')
+                    <i class="right fas fa-angle-left"></i>
                 </p>
             </a>
+            <ul class="nav nav-treeview shadow rounded py-2">
+                <li class="nav-item">
+                    <a href="{{route('admin.contact_messages')}}" class="nav-link
+                    @if(request()->is(config('settings.admin_panel_path').'/contact/messages*')) active @endif ">
+                        @if(config('settings.fontawesome_pro'))
+                        <i class="fa-duotone fa-inbox nav-icon"></i>
+                        @else
+                        <i class="fa-solid fa-inbox nav-icon"></i>
+                        @endif
+                        <p>@lang('contact.messages')</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{route('admin.contact_page')}}" class="nav-link
+                    @if(request()->is(config('settings.admin_panel_path').'/contact')) active @endif ">
+                        @if(config('settings.fontawesome_pro'))
+                        <i class="fa-duotone fa-message-text nav-icon"></i>
+                        @else
+                        <i class="fa-solid fa-envelope nav-icon"></i>
+                        @endif
+                        <p>@lang('contact.contact_page')</p>
+                    </a>
+                </li>
+            </ul>
         </li>
     @endcan
     <li class="nav-header">@lang('notes.note') / @lang('notes.journal')</li>

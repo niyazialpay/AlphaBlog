@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\Contact;
+use App\Models\ContactMessages;
 use App\Models\ContactPage;
 use App\Support\ThemeData;
 use App\Support\ThemeManager;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 
 class ContactController extends Controller
 {
@@ -26,41 +25,38 @@ class ContactController extends Controller
         ]);
     }
 
-    private function emailSend($request)
+    private function storeMessage(Request $request): ContactMessages
     {
-        if (config('settings.mail_send_method') == 'directly') {
-            $function = 'send';
-        } else {
-            $function = 'queue';
-        }
-        $send = Mail::$function(new Contact([
-            'name' => $request->name,
-            'subject' => $request->subject,
-            'email' => $request->email,
-            'message' => $request->message,
-        ]));
-        if ($send) {
-            return true;
-        } else {
-            return false;
-        }
+        return ContactMessages::create([
+            'name' => $request->input('name'),
+            'subject' => $request->input('subject'),
+            'email' => $request->input('email'),
+            'message' => $request->input('message'),
+            'language' => $request->route('language') ?? session('language'),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
     }
 
     public function send(Request $request)
     {
-        if ($this->emailSend($request)) {
-            return redirect()->back()->with('success', __('contact.mail.success'));
-        } else {
+        try {
+            $this->storeMessage($request);
+        } catch (\Throwable $exception) {
             return redirect()->back()->with('error', __('contact.mail.error'));
         }
+
+        return redirect()->back()->with('success', __('contact.mail.success'));
     }
 
     public function send_ajax(Request $request)
     {
-        if ($this->emailSend($request)) {
-            return response()->json(['message' => __('contact.mail.success')]);
-        } else {
-            return response()->json(['message' => __('contact.mail.error')]);
+        try {
+            $this->storeMessage($request);
+        } catch (\Throwable $exception) {
+            return response()->json(['message' => __('contact.mail.error')], 500);
         }
+
+        return response()->json(['message' => __('contact.mail.success')]);
     }
 }

@@ -2,6 +2,8 @@
 
 return [
     'contact_page' => 'Contact Page',
+    'messages' => 'Contact Messages',
+    'no_messages' => 'No contact messages found',
     'title' => 'Contact',
     'maps' => 'Maps',
     'description' => 'Description',
