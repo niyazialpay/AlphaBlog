@@ -48,7 +48,7 @@ Route::post('/image/delete/{post?}', [App\Http\Controllers\Admin\Post\PostContro
     ->can('delete', 'post')
     ->name('admin.post.image.delete');
 
-Route::get('/category/{category}', [App\Http\Controllers\Admin\Post\PostController::class, 'index'])
+Route::any('/category/{category}', [App\Http\Controllers\Admin\Post\PostController::class, 'index'])
     ->name('admin.post.category');
 
 Route::post('/editor/image/upload',
