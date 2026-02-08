@@ -1,35 +1,82 @@
-# Repository Guidelines
+# CLAUDE.md
 
-## Project Structure & Module Organization
-- Core Laravel code sits in `app/` with environment-wide config in `config/` and shared routes in `routes/`.
-- Feature modules (`Modules/Podcast`, `Modules/XSayfaMuhasebe`) mirror the nwidart layout (`app/`, `resources/`, `routes/`, `tests/`) and are toggled through `modules_statuses.json`.
-- Shared views and assets belong in `resources/` (`views/`, `js/app.js`, `lang/`), compiled files deploy from `public/`, and `database/migrations` or `seeders` control schema updates alongside Meilisearch index settings.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Build, Test, and Development Commands
-- Bootstrap dependencies with `composer install` and `npm install`; repeat `npm install` inside a module when its `package.json` changes.
-- Use `php artisan serve` for the backend, `npm run dev` for shared assets, and `npm run dev` from a module directory to watch module bundles.
-- Keep data aligned via `php artisan migrate --seed` and confirm module state with `php artisan module:list`.
-- Quality checks: `./vendor/bin/pint` formats PHP, `npm run lint` runs ESLint, and `php artisan scout:sync-index-settings` refreshes search mappings after schema changes.
+## Project Overview
 
-## Coding Style & Naming Conventions
-- Follow PSR-12 with four-space indentation (`.editorconfig`, `.styleci.yml`); controllers, jobs, and listeners use `StudlyCase` suffixes within the proper namespace.
-- Use camelCase in PHP, snake_case for database columns, and PascalCase for React or Blade component filenames.
-- Prefer `FormRequest` classes for validation and mirror module namespaces (`Modules\<Name>\...`) when adding services, events, or tests.
+**Alpha Blog (Niyazi.Net)** — A multi-language blogging/CMS platform built with Laravel 12, PHP 8.2+, MySQL, Vue 3 + Inertia.js, and Tailwind CSS. Features include AI chatbots (Gemini/ChatGPT), WebAuthn/2FA authentication, Meilisearch full-text search, modular architecture via nwidart/laravel-modules, and a configurable admin panel.
 
-## Testing Guidelines
-- Place HTTP and integration coverage in `tests/Feature/*Test.php`; isolated logic goes in `tests/Unit`.
-- Module-specific tests live in `Modules/<Name>/tests`; run targeted suites with `php artisan test --filter=Podcast` or run everything via `php artisan test`.
-- Cover queue jobs, events, and Meilisearch interactions when modifying those touchpoints.
+## Common Commands
 
-## Commit & Pull Request Guidelines
-- Write small, imperative commits (`Fix authors view fallback`) and reference issues with `Fixes #123` where relevant.
-- Before submitting a PR, run linting and tests, summarise the change, list manual checks, and attach UI screenshots when Blade or Inertia output changes.
-- Note any new environment keys (Meilisearch, Gemini, OpenAI, Cloudflare Turnstile) or PHP extension requirements so reviewers can reproduce.
+```bash
+# Development
+php artisan serve                          # Backend server
+npm run dev                                # Vite dev server (auto-installs theme deps)
+npm run build                              # Production build
 
-## Security & Configuration Tips
-- Never commit `.env`; update `.env.example` instead and remind deployers about required PHP functions (`proc_*`, `escapeshell*`).
-- Queue behaviour respects `MAIL_SEND_METHOD` and `NOTIFICATION_SEND_METHOD`; call out changes that affect worker throughput or Horizon tuning.
-- For new external integrations, add config defaults under `config/` and update the README installation checklist for operators.
+# Testing
+php artisan test                           # Run all tests
+php artisan test --filter=ClassName        # Run specific test
+./vendor/bin/pint                          # PHP code formatting (PSR-12)
+npm run lint                               # ESLint
+
+# Database & Search
+php artisan migrate                        # Run migrations
+php artisan scout:sync-index-settings      # Sync Meilisearch indexes
+
+# Utilities
+php artisan app:create-user                # Create user with role assignment
+php artisan app:clear-trash                # Clean soft-deleted posts/comments, orphan search words
+php artisan module:list                    # Check module status
+php artisan optimize                       # Cache config/routes/views
+```
+
+## Architecture
+
+### Request Flow
+Routes (`routes/web.php`, `routes/api.php`, `routes/panel/`) → Middleware pipeline (Firewall, Language, CSRF, Turnstile, etc.) → Controllers (`app/Http/Controllers/`) → FormRequest validation → Actions (`app/Actions/`) for business logic → Eloquent Models → Views (Blade + Inertia/Vue).
+
+### Key Architectural Patterns
+
+- **Actions pattern**: Business logic lives in `app/Actions/` (e.g., `UserAction`, `LanguageAction`, `CacheClear`), not in controllers.
+- **Domain-organized models**: Models are grouped under `app/Models/Post/`, `app/Models/PersonalNotes/`, `app/Models/Firewall/`, `app/Models/Settings/`, etc.
+- **Global settings as cached singletons**: `GlobalVariableServiceProvider` caches settings (general, SEO, ads, languages, theme, social) and shares them across all views.
+- **Observer pattern**: `PostsObserver`, `UserObserver`, `ContactMessagesObserver` handle side effects on model events. The `ModelLogger` trait logs model changes.
+- **Module system**: Feature modules in `Modules/` (nwidart/laravel-modules) mirror the core app structure. Each has its own routes, views, migrations, tests, and vite.config.js. Module status is toggled in `modules_statuses.json`.
+
+### Admin Panel
+The admin panel path is configurable via `ADMIN_PANEL_PATH` env var (default: `/admin`). Panel routes are organized in `routes/panel/` as separate files.
+
+### Authentication Stack
+Multi-layered: email/password → optional 2FA (TOTP via Fortify) → optional WebAuthn (FIDO2 via laragear/webauthn). IP-based filtering (blacklist/whitelist) via `FirewallMiddleware`. Cloudflare Turnstile for CAPTCHA on public forms.
+
+### User Roles
+`owner` (full access, first user), `admin`, `author`, `editor`, `user`. Authorization via Policy classes and Gates.
+
+### Theme System
+Themes can override Vue entry points via env vars (`THEME_ASSET_DIR`, `THEME_CSS_ENTRY`, `THEME_JS_ENTRY`, `THEME_TAILWIND_CONFIG`). Theme-specific `package.json` is auto-installed. The default theme is `resources/js/CryptographVue/`.
+
+### Queue / Async
+Mail and notification sending is controlled by `MAIL_SEND_METHOD` and `NOTIFICATION_SEND_METHOD` env vars (`directly` or `queue`). Queue uses database driver. Laravel Horizon monitors workers. Laravel Reverb provides WebSocket support.
+
+### Search
+Meilisearch via Laravel Scout. Posts and users are searchable. All search queries are tracked in DB for content idea generation.
+
+## Coding Conventions
+
+- **PHP**: PSR-12, four-space indentation, `StudlyCase` for classes, `camelCase` for methods/variables.
+- **Database**: `snake_case` for columns and table names.
+- **Components**: PascalCase for Vue/Blade component filenames.
+- **Validation**: Use `FormRequest` classes, not inline validation in controllers.
+- **Modules**: Mirror module namespaces (`Modules\<Name>\...`) for services, events, tests.
+
+## Key Environment Variables
+
+Beyond standard Laravel config, notable vars include: `CDN_URL`, `ADMIN_PANEL_PATH`, `MEILISEARCH_HOST`/`MEILISEARCH_KEY`, `GEMINI_API_KEY`, `OPENAI_API_KEY`/`OPENAI_MODEL`, `CF_TURNSTILE_SITE_KEY`/`CF_TURNSTILE_SECRET_KEY`, `MAIL_SEND_METHOD`, `NOTIFICATION_SEND_METHOD`, `THEME_ASSET_DIR`, `FONTAWESOME_PRO`.
+
+## Required PHP Extensions
+
+`escapeshellarg`, `escapeshellcmd`, `proc_open`, `proc_get_status`, `proc_close`, `ext-imagick`, `ext-openssl`, `ext-zip`.
 
 ===
 

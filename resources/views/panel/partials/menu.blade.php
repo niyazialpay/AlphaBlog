@@ -23,7 +23,7 @@
             </a>
         </li>
     @endcan
-    @if(config('services.openai.key') || config('gemini.api_key'))
+    @if(collect(config('ai.providers', []))->contains(fn ($provider) => filled($provider['key'] ?? null)))
         <li class="nav-item">
             <a href="{{route('chatbot')}}" class="nav-link
         @if(request()->is(config('settings.admin_panel_path').'/ai-chatbot*')) active @endif ">

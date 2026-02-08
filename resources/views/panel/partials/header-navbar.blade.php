@@ -14,7 +14,7 @@
             <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-house"></i>
         </a>
     </li>
-    @if(config('services.openai.key') || config('gemini.api_key'))
+    @if(collect(config('ai.providers', []))->contains(fn ($provider) => filled($provider['key'] ?? null)))
         <li class="nav-item d-none d-md-block">
             <a class="nav-link" href="{{route('chatbot')}}">
                 <i class=" @if(config('settings.fontawesome_pro')) fa-duotone @else fa-solid @endif fa-robot"></i>
