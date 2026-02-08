@@ -40,6 +40,13 @@ return [
         ],
     ],
 
+    'firewall' => [
+        'max_reviews_per_minute' => env('AI_FIREWALL_MAX_REVIEWS_PER_MINUTE', 20),
+        'max_reviews_per_ip_per_hour' => env('AI_FIREWALL_MAX_REVIEWS_PER_IP_PER_HOUR', 2),
+        'suspicious_hits_before_review' => env('AI_FIREWALL_SUSPICIOUS_HITS_BEFORE_REVIEW', 2),
+        'suspicious_hits_window_seconds' => env('AI_FIREWALL_SUSPICIOUS_HITS_WINDOW_SECONDS', 900),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | AI Providers

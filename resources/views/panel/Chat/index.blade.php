@@ -120,6 +120,89 @@
         const activeConversationTitleElement = document.getElementById('active-conversation-title');
 
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
+        const storageKeys = {
+            provider: 'panel_ai_chatbot_provider',
+            modelsByProvider: 'panel_ai_chatbot_models',
+        };
+
+        function getLocalStorageItem(key) {
+            try {
+                return window.localStorage.getItem(key);
+            } catch (error) {
+                return null;
+            }
+        }
+
+        function setLocalStorageItem(key, value) {
+            try {
+                window.localStorage.setItem(key, value);
+            } catch (error) {
+                // ignore storage errors
+            }
+        }
+
+        function getStoredProvider() {
+            return getLocalStorageItem(storageKeys.provider);
+        }
+
+        function setStoredProvider(provider) {
+            if (!provider) {
+                return;
+            }
+
+            setLocalStorageItem(storageKeys.provider, provider);
+        }
+
+        function getStoredModelsByProvider() {
+            const rawValue = getLocalStorageItem(storageKeys.modelsByProvider);
+
+            if (!rawValue) {
+                return {};
+            }
+
+            try {
+                const decoded = JSON.parse(rawValue);
+
+                return decoded && typeof decoded === 'object' ? decoded : {};
+            } catch (error) {
+                return {};
+            }
+        }
+
+        function getStoredModelForProvider(provider) {
+            if (!provider) {
+                return null;
+            }
+
+            const modelsByProvider = getStoredModelsByProvider();
+
+            return typeof modelsByProvider[provider] === 'string'
+                ? modelsByProvider[provider]
+                : null;
+        }
+
+        function setStoredModelForProvider(provider, model) {
+            if (!provider || !model) {
+                return;
+            }
+
+            const modelsByProvider = getStoredModelsByProvider();
+            modelsByProvider[provider] = model;
+
+            setLocalStorageItem(storageKeys.modelsByProvider, JSON.stringify(modelsByProvider));
+        }
+
+        function persistProviderAndModelSelections() {
+            const provider = providerSelectElement.value;
+            const model = modelSelectElement.value;
+
+            if (!provider || !model) {
+                return;
+            }
+
+            setStoredProvider(provider);
+            setStoredModelForProvider(provider, model);
+        }
 
         function escapeHtml(content) {
             return String(content ?? '')
@@ -336,11 +419,19 @@
                 providerSelectElement.appendChild(option);
             });
 
-            if (chatState.defaultProvider && chatState.providers[chatState.defaultProvider]) {
-                providerSelectElement.value = chatState.defaultProvider;
+            const storedProvider = getStoredProvider();
+            const fallbackProvider = chatState.defaultProvider || Object.keys(chatState.providers)[0] || null;
+            const providerToUse = storedProvider && chatState.providers[storedProvider]
+                ? storedProvider
+                : fallbackProvider;
+
+            if (providerToUse) {
+                providerSelectElement.value = providerToUse;
             }
 
-            refreshModelOptions();
+            const storedModel = getStoredModelForProvider(providerSelectElement.value);
+            refreshModelOptions(storedModel ?? chatState.defaultModel);
+            persistProviderAndModelSelections();
         }
 
         function modelKindsLabel(kinds) {
@@ -351,7 +442,7 @@
             return translated ? ` (${translated})` : '';
         }
 
-        function refreshModelOptions() {
+        function refreshModelOptions(preferredModel = null) {
             modelSelectElement.innerHTML = '';
 
             const provider = chatState.providers[providerSelectElement.value];
@@ -367,12 +458,15 @@
                 modelSelectElement.appendChild(option);
             });
 
-            if (provider.default_model) {
-                modelSelectElement.value = provider.default_model;
-            }
+            const hasPreferredModel = preferredModel
+                && provider.models.some((item) => item.name === preferredModel);
 
-            if (chatState.defaultModel && provider.models.some((item) => item.name === chatState.defaultModel)) {
-                modelSelectElement.value = chatState.defaultModel;
+            if (hasPreferredModel) {
+                modelSelectElement.value = preferredModel;
+            } else if (provider.default_model) {
+                modelSelectElement.value = provider.default_model;
+            } else if (provider.models[0]) {
+                modelSelectElement.value = provider.models[0].name;
             }
 
             chatState.defaultModel = null;
@@ -477,7 +571,12 @@
             inputMessageElement.focus();
         }
 
-        providerSelectElement.addEventListener('change', refreshModelOptions);
+        providerSelectElement.addEventListener('change', () => {
+            const storedModel = getStoredModelForProvider(providerSelectElement.value);
+            refreshModelOptions(storedModel);
+            persistProviderAndModelSelections();
+        });
+        modelSelectElement.addEventListener('change', persistProviderAndModelSelections);
         sendButtonElement.addEventListener('click', sendMessage);
         newConversationButton.addEventListener('click', startNewConversation);
 

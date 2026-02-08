@@ -2,36 +2,36 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Firewall\Firewall;
-use App\Models\Firewall\FirewallLogs;
-use App\Models\IPFilter\IPList;
+use App\Jobs\ProcessFirewallAiReview;
 use App\Jobs\ProcessFirewallBlock;
+use App\Models\Firewall\Firewall;
+use App\Models\IPFilter\IPList;
 use App\Support\IPFilterCache;
 use App\Support\IpRangeMatcher;
 use App\Support\TrustedBots;
 use Closure;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Foundation\Application;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FirewallMiddleware
 {
     protected array $compiledFilters = [];
+
     protected array $trustedBotIps = [];
 
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param Closure(Request): Response $next
-     * @return Application|Response|ResponseFactory|JsonResponse|RedirectResponse|StreamedResponse
-     * @throws ConnectionException
+     * @param  Closure(Request): Response  $next
      */
     public function handle(Request $request, Closure $next): Application|Response|ResponseFactory|JsonResponse|RedirectResponse|StreamedResponse
     {
@@ -43,84 +43,78 @@ class FirewallMiddleware
         $scopedFilters = $compiled['scoped'] ?? [];
         $allIps = $compiled['all_ips'] ?? [];
 
-        if (empty($globalFilters) && empty($scopedFilters)) {
-            return $next($request);
-        }
-
         if ($this->shouldBypassTrustedBot($request)) {
             return $next($request);
         }
 
-        // Fetch main Firewall settings
-        $firewall = Firewall::first();
+        $firewall = Firewall::query()->first();
+        $wasFlaggedByRuleChecks = false;
 
-        // If the firewall is active, perform additional checks
-        if ($firewall->is_active) {
-            // Check Referer
+        if ($firewall && $firewall->is_active) {
             if ($firewall->check_referer) {
-                if (!$this->checkReferer($request)) {
+                if (! $this->checkReferer($request)) {
                     $this->blockRequest('Referer Blocked', $request, $firewall, $allIps);
+                    $wasFlaggedByRuleChecks = true;
                 }
             }
 
-            // Check Bots
             if ($firewall->check_bots) {
-                // Convert comma-separated string from DB into array
                 $badBots = explode(',', $firewall->bad_bots ?? '');
                 if ($this->isBadBot($request->userAgent(), $badBots)) {
                     $this->blockRequest('Bot Blocked', $request, $firewall, $allIps);
+                    $wasFlaggedByRuleChecks = true;
                 }
             }
 
-            // Check valid request methods (GET, HEAD, POST, PUT)
             if ($firewall->check_request_method) {
-                if (!$this->checkRequestMethod($request)) {
+                if (! $this->checkRequestMethod($request)) {
                     $this->blockRequest('Invalid Request Method', $request, $firewall, $allIps);
+                    $wasFlaggedByRuleChecks = true;
                 }
             }
 
-            // Check possible DOS attacks (simple user agent check here)
             if ($firewall->check_dos) {
                 if ($this->checkDosAttack($request)) {
                     $this->blockRequest('DOS Attack', $request, $firewall, $allIps);
+                    $wasFlaggedByRuleChecks = true;
                 }
             }
 
-            // Check UNION SQL patterns in query strings
             if ($firewall->check_union_sql) {
                 if ($this->checkUnionSql($request)) {
                     $this->blockRequest('Union SQL Attack', $request, $firewall, $allIps);
+                    $wasFlaggedByRuleChecks = true;
                 }
             }
 
-            // Check for suspicious strings related to click-jacking or injection
             if ($firewall->check_click_attack) {
                 if ($this->checkClickAttack($request)) {
                     $this->blockRequest('Click Attack', $request, $firewall, $allIps);
+                    $wasFlaggedByRuleChecks = true;
                 }
             }
 
-            // Check XSS patterns
             if ($firewall->check_xss) {
                 if ($this->checkXss($request)) {
                     $this->blockRequest('XSS Attack', $request, $firewall, $allIps);
+                    $wasFlaggedByRuleChecks = true;
                 }
             }
 
-            // Check cookie injection
             if ($firewall->check_cookie_injection) {
                 if ($this->checkCookieInjection($request)) {
                     $this->blockRequest('Cookie Injection', $request, $firewall, $allIps);
+                    $wasFlaggedByRuleChecks = true;
                 }
             }
+
         }
 
-        // Process filters that apply to all routes ('*')
         foreach ($globalFilters as $filter) {
             $ips = $filter['ips'] ?? [];
             $blockCode = $filter['code'] ?? 403;
 
-            if ($this->checkIpInList($request->getClientIp(), $ips)) {
+            if ($this->checkIpInList($request->getClientIp() ?? '', $ips)) {
                 if ($filter['list_type'] === 'blacklist') {
                     // Block blacklisted IP
                     abort($blockCode);
@@ -145,9 +139,9 @@ class FirewallMiddleware
             $blockCode = $filter['code'] ?? 403;
 
             // Check if the request path matches any route for this filter
-            if (!empty($routes) && $request->is($routes)) {
+            if (! empty($routes) && $request->is($routes)) {
                 // If the IP is in the filter's list
-                if ($this->checkIpInList($request->getClientIp(), $ips)) {
+                if ($this->checkIpInList($request->getClientIp() ?? '', $ips)) {
                     if ($filter['list_type'] === 'blacklist') {
                         // Block blacklisted IP
                         abort($blockCode);
@@ -167,38 +161,35 @@ class FirewallMiddleware
             // If the route does not match, continue to the next filter
         }
 
-        // If no filters block the request, allow it
+        if ($firewall && $firewall->is_active) {
+            $this->dispatchAiReview($request, $firewall, $wasFlaggedByRuleChecks, $allIps);
+        }
+
         return $next($request);
     }
 
     /**
      * Checks the Referer header for POST requests (simple host match).
-     *
-     * @param Request $request
-     * @return bool
      */
     protected function checkReferer(Request $request): bool
     {
         if ($request->isMethod('post')) {
             $referer = $request->headers->get('referer');
-            if ($referer && !str_contains($referer, $request->getHost())) {
+            if ($referer && ! str_contains($referer, $request->getHost())) {
                 return false;
             }
         }
+
         return true;
     }
 
     /**
      * Checks if the user agent matches any known bad bot from the DB list.
      * If the user agent is empty or no match is found, it will NOT be blocked.
-     *
-     * @param string|null $userAgent
-     * @param array $badBots
-     * @return bool
      */
     protected function isBadBot(?string $userAgent, array $badBots): bool
     {
-        if (!$userAgent) {
+        if (! $userAgent) {
             return false;
         }
 
@@ -220,38 +211,31 @@ class FirewallMiddleware
 
     /**
      * Checks if the HTTP method is valid (GET, HEAD, POST, PUT).
-     *
-     * @param Request $request
-     * @return bool
      */
     protected function checkRequestMethod(Request $request): bool
     {
         $validMethods = ['get', 'head', 'post', 'put'];
+
         return in_array(strtolower($request->method()), $validMethods);
     }
 
     /**
      * Checks if the request might be a DOS attack (simple user agent check).
-     *
-     * @param Request $request
-     * @return bool
      */
     protected function checkDosAttack(Request $request): bool
     {
         $agent = $request->userAgent();
         // Previously we blocked if $agent was empty.
         // But you can adjust this logic as needed.
-        if (!$agent || $agent === '-') {
+        if (! $agent || $agent === '-') {
             return true;
         }
+
         return false;
     }
 
     /**
      * Checks if the query string might contain a UNION SQL attack pattern.
-     *
-     * @param Request $request
-     * @return bool
      */
     protected function checkUnionSql(Request $request): bool
     {
@@ -278,9 +262,6 @@ class FirewallMiddleware
 
     /**
      * Checks if the query string might contain suspicious strings like 'c2nyaxb0'.
-     *
-     * @param Request $request
-     * @return bool
      */
     protected function checkClickAttack(Request $request): bool
     {
@@ -288,14 +269,12 @@ class FirewallMiddleware
         if (str_contains($queryString, 'c2nyaxb0')) {
             return true;
         }
+
         return false;
     }
 
     /**
      * Checks if the query string contains common XSS patterns.
-     *
-     * @param Request $request
-     * @return bool
      */
     protected function checkXss(Request $request): bool
     {
@@ -312,7 +291,7 @@ class FirewallMiddleware
             '#-moz-binding[\x00-\x20]*:#u',
 
             // Unneeded tags
-            '#</*(applet|meta|xml|blink|link|style|script|embed|object|iframe|frame|frameset|ilayer|layer|bgsound|title|base|img)[^>]*>?#i'
+            '#</*(applet|meta|xml|blink|link|style|script|embed|object|iframe|frame|frameset|ilayer|layer|bgsound|title|base|img)[^>]*>?#i',
         ];
 
         foreach ($badStrings as $bad) {
@@ -326,9 +305,6 @@ class FirewallMiddleware
 
     /**
      * Checks cookies, POST data, and GET data for dangerous tags (like <script>, <embed>, etc.).
-     *
-     * @param Request $request
-     * @return bool
      */
     protected function checkCookieInjection(Request $request): bool
     {
@@ -364,10 +340,6 @@ class FirewallMiddleware
 
     /**
      * Helper method to detect dangerous keywords or tags in a string or array.
-     *
-     * @param mixed $haystack
-     * @param array $badWords
-     * @return bool
      */
     protected function containsDangerous(mixed $haystack, array $badWords): bool
     {
@@ -377,6 +349,7 @@ class FirewallMiddleware
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -390,25 +363,280 @@ class FirewallMiddleware
         return false;
     }
 
-/**
+    protected function dispatchAiReview(Request $request, Firewall $firewall, bool $wasFlaggedByRuleChecks, array $allIps): void
+    {
+        if (! $firewall->ai_review_enabled) {
+            return;
+        }
+
+        if ($wasFlaggedByRuleChecks) {
+            return;
+        }
+
+        if ($this->shouldIgnorePathForAi($request)) {
+            return;
+        }
+
+        $clientIp = $request->getClientIp() ?? '';
+
+        if ($clientIp === '') {
+            return;
+        }
+
+        $trustedAndListedIps = array_values(array_unique(array_merge($allIps, $this->trustedBotIps)));
+
+        if ($this->checkIpInList($clientIp, $trustedAndListedIps)) {
+            return;
+        }
+
+        $signals = $this->collectAiSignals($request);
+
+        if (! $this->shouldSampleAiReview($firewall, $signals)) {
+            return;
+        }
+
+        if (! $this->hasMinimumSuspiciousHits($signals, $clientIp)) {
+            return;
+        }
+
+        if (! $this->hasAiReviewBudget($clientIp)) {
+            return;
+        }
+
+        $payload = $this->buildAiPayload($request, $firewall, $signals);
+        $dispatchKey = 'firewall:ai:dispatch:'.$payload['fingerprint'];
+
+        if (! Cache::add($dispatchKey, true, now()->addSeconds(30))) {
+            return;
+        }
+
+        ProcessFirewallAiReview::dispatchAfterResponse($payload, $firewall->id);
+    }
+
+    protected function hasMinimumSuspiciousHits(array $signals, string $clientIp): bool
+    {
+        if ($signals === []) {
+            return true;
+        }
+
+        $requiredHits = max(1, (int) config('ai.firewall.suspicious_hits_before_review', 2));
+
+        if ($requiredHits <= 1) {
+            return true;
+        }
+
+        $windowSeconds = max(60, (int) config('ai.firewall.suspicious_hits_window_seconds', 900));
+        $key = 'firewall:ai:suspicious:'.sha1($clientIp);
+        $hits = Cache::increment($key);
+
+        if ($hits === 1) {
+            Cache::put($key, 1, now()->addSeconds($windowSeconds));
+        }
+
+        return $hits >= $requiredHits;
+    }
+
+    protected function hasAiReviewBudget(string $clientIp): bool
+    {
+        $maxGlobalPerMinute = max(1, (int) config('ai.firewall.max_reviews_per_minute', 20));
+        $maxPerIpPerHour = max(1, (int) config('ai.firewall.max_reviews_per_ip_per_hour', 2));
+
+        $globalKey = 'firewall:ai:budget:global:'.now()->format('YmdHi');
+        $globalCount = Cache::increment($globalKey);
+
+        if ($globalCount === 1) {
+            Cache::put($globalKey, 1, now()->addMinutes(2));
+        }
+
+        if ($globalCount > $maxGlobalPerMinute) {
+            return false;
+        }
+
+        $ipKey = 'firewall:ai:budget:ip:'.sha1($clientIp).':'.now()->format('YmdH');
+        $ipCount = Cache::increment($ipKey);
+
+        if ($ipCount === 1) {
+            Cache::put($ipKey, 1, now()->addHours(2));
+        }
+
+        return $ipCount <= $maxPerIpPerHour;
+    }
+
+    protected function shouldIgnorePathForAi(Request $request): bool
+    {
+        $path = ltrim(strtolower($request->path()), '/');
+
+        if ($path === '') {
+            return false;
+        }
+
+        $adminPath = trim((string) config('settings.admin_panel_path'), '/');
+        if (
+            $adminPath !== ''
+            && (
+                $path === strtolower($adminPath)
+                || Str::startsWith($path, strtolower($adminPath).'/')
+            )
+        ) {
+            return true;
+        }
+
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+
+        if ($extension === '') {
+            return false;
+        }
+
+        return in_array($extension, [
+            'css',
+            'js',
+            'jpg',
+            'jpeg',
+            'png',
+            'gif',
+            'svg',
+            'ico',
+            'webp',
+            'avif',
+            'woff',
+            'woff2',
+            'ttf',
+            'eot',
+            'map',
+            'txt',
+            'xml',
+            'pdf',
+            'mp4',
+            'webm',
+            'mp3',
+        ], true);
+    }
+
+    protected function collectAiSignals(Request $request): array
+    {
+        $path = strtolower($request->path());
+        $query = strtolower((string) ($request->getQueryString() ?? ''));
+        $uri = $path.($query !== '' ? '?'.$query : '');
+
+        $signals = [];
+        $patterns = [
+            'wp-admin' => 'wordpress_probe',
+            'wp-login' => 'wordpress_probe',
+            'xmlrpc.php' => 'wordpress_probe',
+            'phpmyadmin' => 'phpmyadmin_probe',
+            '.env' => 'env_probe',
+            '.git' => 'git_probe',
+            '../' => 'path_traversal_pattern',
+            '%2e%2e%2f' => 'path_traversal_pattern',
+            'union%20select' => 'sql_union_pattern',
+            'union+select' => 'sql_union_pattern',
+            'information_schema' => 'schema_enumeration',
+            '<script' => 'xss_pattern',
+            '%3cscript' => 'xss_pattern',
+            '<?php' => 'php_payload_pattern',
+            '%3c%3fphp' => 'php_payload_pattern',
+            'cmd=' => 'command_parameter_pattern',
+            'shell_exec' => 'command_parameter_pattern',
+            'base64_decode' => 'obfuscated_payload',
+        ];
+
+        foreach ($patterns as $needle => $label) {
+            if (str_contains($uri, $needle)) {
+                $signals[] = $label;
+            }
+        }
+
+        if (strlen($query) >= 600) {
+            $signals[] = 'long_query';
+        }
+
+        if (strlen((string) ($request->userAgent() ?? '')) <= 2) {
+            $signals[] = 'missing_or_short_user_agent';
+        }
+
+        if (! in_array(strtolower($request->method()), ['get', 'head', 'post', 'put'], true)) {
+            $signals[] = 'uncommon_method';
+        }
+
+        return array_values(array_unique($signals));
+    }
+
+    protected function shouldSampleAiReview(Firewall $firewall, array $signals): bool
+    {
+        if ($signals !== []) {
+            return true;
+        }
+
+        $sampleRate = max(0, min(100, (int) $firewall->ai_sample_rate));
+
+        if ($sampleRate === 0) {
+            return false;
+        }
+
+        return mt_rand(1, 100) <= $sampleRate;
+    }
+
+    protected function buildAiPayload(Request $request, Firewall $firewall, array $signals): array
+    {
+        $sanitizedData = Arr::except($request->all(), [
+            '_token',
+            'token',
+            'password',
+            'password_confirmation',
+            'current_password',
+            'api_key',
+            'secret',
+        ]);
+
+        $encodedBody = json_encode($sanitizedData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $maxPayloadChars = max(500, min(12000, (int) $firewall->ai_max_payload_chars));
+        $bodyPreview = Str::limit((string) $encodedBody, $maxPayloadChars);
+        $query = (string) ($request->getQueryString() ?? '');
+
+        $fingerprint = hash('sha256', implode('|', [
+            (string) ($request->getClientIp() ?? ''),
+            strtoupper($request->method()),
+            strtolower($request->path()),
+            strtolower($query),
+            strtolower((string) ($request->userAgent() ?? '')),
+            implode(',', $signals),
+        ]));
+
+        return [
+            'fingerprint' => $fingerprint,
+            'ip' => (string) ($request->getClientIp() ?? ''),
+            'method' => strtoupper($request->method()),
+            'url' => $request->fullUrl(),
+            'path' => '/'.ltrim($request->path(), '/'),
+            'query' => $query,
+            'user_agent' => $request->userAgent(),
+            'headers' => array_filter([
+                'referer' => $request->headers->get('referer'),
+                'content_type' => $request->headers->get('content-type'),
+                'accept' => $request->headers->get('accept'),
+                'accept_language' => $request->headers->get('accept-language'),
+                'x_forwarded_for' => $request->headers->get('x-forwarded-for'),
+            ], fn ($value) => filled($value)),
+            'signals' => $signals,
+            'body_preview' => $bodyPreview,
+            'is_ajax' => $request->ajax(),
+            'is_secure' => $request->isSecure(),
+        ];
+    }
+
+    /**
      * Blocks the request, logs it, and optionally adds the IP to the firewall blacklist.
-     *
-     * @param string $reason
-     * @param Request $request
-     * @param Firewall $firewall
-     * @param array $ipList
-     * @return void
-     * @throws ConnectionException
      */
     protected function blockRequest(string $reason, Request $request, Firewall $firewall, array $ipList): void
     {
         $ip = $request->ip();
 
-        // Merge all IPs with trusted bot IPs to bypass if needed
-        $trustedBotIps = TrustedBots::ipRanges();
-        $ips = array_merge($ipList, $trustedBotIps);
+        if (! $ip) {
+            return;
+        }
 
-        // If the IP is in the merged list, do not block
+        $ips = array_merge($ipList, $this->trustedBotIps);
+
         if ($this->checkIpInList($ip, $ips)) {
             return;
         }
@@ -433,13 +661,11 @@ class FirewallMiddleware
 
     /**
      * Checks if a given IP is already listed in any filter (whitelist or blacklist)
-     *
-     * @param string $clientIp
-     * @return bool
      */
     protected function isIpListedInAnyFilter(string $clientIp): bool
     {
         $allIps = $this->compiledFilters['all_ips'] ?? [];
+
         return $this->checkIpInList($clientIp, $allIps);
     }
 
@@ -448,9 +674,7 @@ class FirewallMiddleware
      * If the record in the DB is a plain IP (no slash), we append /32 for IPv4
      * or /128 for IPv6 before checking with the helper.
      *
-     * @param string $clientIp
-     * @param string[] $ips
-     * @return bool
+     * @param  string[]  $ips
      */
     protected function checkIpInList(string $clientIp, array $ips): bool
     {
@@ -460,10 +684,6 @@ class FirewallMiddleware
     /**
      * Checks if a specific IP is already included in the given filter_id's IP list
      * (whether it is exactly the same IP or within the same CIDR range).
-     *
-     * @param string $clientIp
-     * @param int $filterId
-     * @return bool
      */
     protected function ipAlreadyListedInFilter(string $clientIp, int $filterId): bool
     {
@@ -474,6 +694,7 @@ class FirewallMiddleware
         }
 
         $allIps = IpList::where('filter_id', $filterId)->pluck('ip')->toArray();
+
         return $this->checkIpInList($clientIp, $allIps);
     }
 
