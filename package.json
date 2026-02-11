@@ -28,7 +28,7 @@
         "@inertiajs/progress": "^0.1.2",
         "@inertiajs/vue3": "^1.0.16",
         "@laragear/webpass": "^2.0.1",
-        "axios": "^1.8.2",
+        "axios": "^1.13.5",
         "qs": "^6.14.1",
         "side-channel": "^1.1.0",
         "tw-animate-css": "1.3.3",
