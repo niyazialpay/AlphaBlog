@@ -135,7 +135,7 @@ return [
     ],
 
     'flush' => [
-        //
+        \Laravel\Scout\EngineManager::class,
     ],
 
     /*

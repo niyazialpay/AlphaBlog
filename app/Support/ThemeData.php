@@ -836,19 +836,36 @@ class ThemeData
             ];
         }
 
-        $paginator = Posts::search($term)
-            ->query(function ($query) {
-                $query->with(['categories', 'user.social', 'media'])
-                    ->where('posts.created_at', '<=', now()->format('Y-m-d H:i:s'));
-            })
-            ->where('post_type', 'post')
-            ->where('language', session('language') ?? app()->getLocale())
-            ->where('is_published', 1)
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage)
-            ->withQueryString();
+        try {
+            $paginator = Posts::search($term)
+                ->query(function ($query) {
+                    $query->with(['categories', 'user.social', 'media'])
+                        ->where('posts.created_at', '<=', now()->format('Y-m-d H:i:s'));
+                })
+                ->where('post_type', 'post')
+                ->where('language', session('language') ?? app()->getLocale())
+                ->where('is_published', 1)
+                ->orderBy('created_at', 'desc')
+                ->paginate($perPage)
+                ->withQueryString();
 
-        return self::postsPaginatorToArray($paginator);
+            return self::postsPaginatorToArray($paginator);
+        } catch (\Exception $e) {
+            report($e);
+
+            return [
+                'items' => [],
+                'meta' => [
+                    'currentPage' => 1,
+                    'lastPage' => 1,
+                    'perPage' => $perPage,
+                    'total' => 0,
+                    'nextPageUrl' => null,
+                    'prevPageUrl' => null,
+                    'links' => [],
+                ],
+            ];
+        }
     }
 
     public static function postsFromPaginator(LengthAwarePaginator $paginator): array
@@ -2193,6 +2210,7 @@ class ThemeData
         }
 
         $handle = $social['x'];
+
         return is_string($handle) ? trim($handle) : null;
     }
 
