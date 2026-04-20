@@ -964,10 +964,33 @@ if ("undefined" == typeof jQuery)
                 this.arrow().css(c ? "left" : "top", 50 * (1 - a / b) + "%").css(c ? "top" : "left", "")
             }
             ,
+            function sanitizeHtml(a) {
+                var b = document.createElement("div");
+                b.innerHTML = a == null ? "" : String(a);
+                var c = b.getElementsByTagName("*")
+                    , d = ["script", "iframe", "object", "embed", "link", "meta", "style"];
+                for (var e = c.length - 1; e >= 0; e--) {
+                    var f = c[e]
+                        , g = f.nodeName.toLowerCase();
+                    if (d.indexOf(g) !== -1) {
+                        f.parentNode.removeChild(f);
+                        continue
+                    }
+                    for (var h = f.attributes.length - 1; h >= 0; h--) {
+                        var i = f.attributes[h]
+                            , j = i.name.toLowerCase()
+                            , k = (i.value || "").replace(/\s+/g, "").toLowerCase();
+                        ("on" === j.slice(0, 2) || ("src" === j || "href" === j || "xlink:href" === j) && 0 === k.indexOf("javascript:")) && f.removeAttribute(i.name)
+                    }
+                }
+                return b.innerHTML
+            }
+            ,
             c.prototype.setContent = function() {
                 var a = this.tip()
-                    , b = this.getTitle();
-                a.find(".tooltip-inner")[this.options.html ? "html" : "text"](b),
+                    , b = this.getTitle()
+                    , c = this.options.html ? sanitizeHtml(b) : b;
+                a.find(".tooltip-inner")[this.options.html ? "html" : "text"](c),
                     a.removeClass("fade in top bottom left right")
             }
             ,
