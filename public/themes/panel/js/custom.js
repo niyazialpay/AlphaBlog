@@ -10,7 +10,7 @@ function ToSeoUrl(textString) {
     textString = textString.replace(/£/, "");
     textString = textString.replace(/^/, "");
     textString = textString.replace(/#/, "");
-    textString = textString.replace(/$/, "");
+    textString = textString.replace(/\$/g, "");
     textString = textString.replace(/\+/g, "");
     textString = textString.replace(/%/g, "");
     textString = textString.replace(/½/g, "");
