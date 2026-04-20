@@ -748,7 +748,14 @@ if ("undefined" == typeof jQuery)
             a(document).on("click.bs.modal.data-api", '[data-toggle="modal"]', function(c) {
                 var d = a(this)
                     , e = d.attr("href")
-                    , f = a(d.attr("data-target") || e && e.replace(/.*(?=#[^\s]+$)/, ""))
+                    , target = d.attr("data-target") || e && e.replace(/.*(?=#[^\s]+$)/, "")
+                    , targetEl = null;
+                try {
+                    targetEl = target ? document.querySelector(target) : null
+                } catch (h) {
+                    targetEl = null
+                }
+                var f = targetEl ? a(targetEl) : a()
                     , g = f.data("bs.modal") ? "toggle" : a.extend({
                     remote: !/#/.test(e) && e
                 }, f.data(), d.data());
