@@ -980,7 +980,7 @@ if ("undefined" == typeof jQuery)
                         var i = f.attributes[h]
                             , j = i.name.toLowerCase()
                             , k = (i.value || "").replace(/\s+/g, "").toLowerCase();
-                        ("on" === j.slice(0, 2) || ("src" === j || "href" === j || "xlink:href" === j) && 0 === k.indexOf("javascript:")) && f.removeAttribute(i.name)
+                        ("on" === j.slice(0, 2) || ("src" === j || "href" === j || "xlink:href" === j) && (0 === k.indexOf("javascript:") || 0 === k.indexOf("data:") || 0 === k.indexOf("vbscript:"))) && f.removeAttribute(i.name)
                     }
                 }
                 return b.innerHTML
