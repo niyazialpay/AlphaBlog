@@ -1401,9 +1401,10 @@ if ("undefined" == typeof jQuery)
         }
         var c = function(b, d) {
             this.options = a.extend({}, c.DEFAULTS, d);
-            var e = this.options.target;
-            "string" == typeof e && /^\s*</.test(e) && (e = window),
-                this.$target = a(e).on("scroll.bs.affix.data-api", a.proxy(this.checkPosition, this)).on("click.bs.affix.data-api", a.proxy(this.checkPositionWithEventLoop, this)),
+            var e = this.options.target
+                , f = "string" == typeof e ? a(a.find(e)) : a(e);
+            f.length || (f = a(window)),
+                this.$target = f.on("scroll.bs.affix.data-api", a.proxy(this.checkPosition, this)).on("click.bs.affix.data-api", a.proxy(this.checkPositionWithEventLoop, this)),
                 this.$element = a(b),
                 this.affixed = null,
                 this.unpin = null,
