@@ -8,7 +8,6 @@ function ToSeoUrl(textString) {
     textString = textString.replace(/!/g, "");
     textString = textString.replace(/’/, "");
     textString = textString.replace(/£/, "");
-    textString = textString.replace(/^/, "");
     textString = textString.replace(/#/, "");
     textString = textString.replace(/\$/g, "");
     textString = textString.replace(/\+/g, "");
