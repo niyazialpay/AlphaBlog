@@ -146,6 +146,10 @@ function mergeConfig(target, source) {
     }
 
     for (const [key, value] of Object.entries(source)) {
+        if (isUnsafeKey(key)) {
+            continue;
+        }
+
         if (Array.isArray(value)) {
             target[key] = value.slice();
             continue;
@@ -160,6 +164,10 @@ function mergeConfig(target, source) {
     }
 
     return target;
+}
+
+function isUnsafeKey(key) {
+    return key === '__proto__' || key === 'constructor' || key === 'prototype';
 }
 
 function isPlainObject(value) {
