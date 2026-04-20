@@ -27,7 +27,7 @@
                         <li class="nav-item"><a class="nav-link @if($n==0) active @endif " href="#form_{{$language->code}}" data-bs-toggle="tab">{{$language->name}}</a></li>
                     @endforeach
                 </ul>
-                <div class="tab-content row">
+                <div class="tab-content">
                     @foreach(app('languages') as $n => $language)
                         <div class="tab-pane @if($n==0) active @endif" id="form_{{$language->code}}">
                             @php($contact = $contactPage->where('language', $language->code)->first())
@@ -53,15 +53,14 @@
                             </div>
                         </div>
                     @endforeach
-                        <div class="col-12 mb-3">
-                            <label for="maps">@lang('contact.maps')</label>
-                            <input type="text" class="form-control" name="maps"
-                                   id="maps" value="{{$contact->maps}}"
-                                   placeholder="@lang('contact.maps')">
-                        </div>
-                    <div class="col-12 mb-3">
-                        <button type="submit" class="btn btn-primary">@lang('general.save')</button>
-                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="maps">@lang('contact.maps')</label>
+                    <textarea class="form-control" name="maps" id="maps" rows="3"
+                              placeholder="@lang('contact.maps')">{{$contactPage->first()?->maps}}</textarea>
+                </div>
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">@lang('general.save')</button>
                 </div>
             </form>
         </div>

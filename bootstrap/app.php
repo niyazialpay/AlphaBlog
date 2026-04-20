@@ -5,11 +5,28 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__.'/../routes/web.php',
-        api: __DIR__.'/../routes/api.php',
+        using: function () {
+            // Module front routes must load BEFORE web.php so they match
+            // before the catch-all /{showPost:slug} pattern.
+            if (class_exists(\Nwidart\Modules\Facades\Module::class)) {
+                foreach (\Nwidart\Modules\Facades\Module::allEnabled() as $module) {
+                    $frontPath = $module->getPath().'/routes/front.php';
+                    if (is_file($frontPath)) {
+                        Route::domain(config('app.url'))
+                            ->middleware('web')
+                            ->prefix('/{language}')
+                            ->group($frontPath);
+                    }
+                }
+            }
+
+            Route::middleware('web')->group(base_path('routes/web.php'));
+            Route::middleware('api')->prefix('api')->group(base_path('routes/api.php'));
+        },
         commands: __DIR__.'/../routes/console.php',
         channels: __DIR__.'/../routes/channels.php',
         health: '/up',

@@ -31,7 +31,6 @@ class PostController extends Controller
 
         return ThemeManager::render('post', [
             'post' => $showPost,
-            'ignore_minify' => true,
         ]);
     }
 }

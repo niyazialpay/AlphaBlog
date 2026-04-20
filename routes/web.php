@@ -191,13 +191,7 @@ Route::domain(config('app.url'))->group(function(){
         ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
         ->name('webauthn.login');
 
-    Route::group([
-        'middleware' => [
-            \Fahlisaputra\Minify\Middleware\MinifyHtml::class,
-            \Fahlisaputra\Minify\Middleware\MinifyCss::class,
-            \Fahlisaputra\Minify\Middleware\MinifyJavascript::class,
-        ],
-    ], function () {
+    Route::group([], function () {
         try {
             $languages = Languages::all();
         } catch (\Exception $e) {
