@@ -343,7 +343,7 @@ if ("undefined" == typeof jQuery)
         "use strict";
         function b(b) {
             var c, d = b.attr("data-target") || (c = b.attr("href")) && c.replace(/.*(?=#[^\s]+$)/, "");
-            return a(d)
+            return d ? a.find(d) : a()
         }
         function c(b) {
             return this.each(function() {
