@@ -321,7 +321,11 @@ if ("undefined" == typeof jQuery)
             }
         ;
         var e = function(c) {
-            var d, e = a(this), f = a(e.attr("data-target") || (d = e.attr("href")) && d.replace(/.*(?=#[^\s]+$)/, ""));
+            var d, e = a(this), fSelector = e.attr("data-target") || (d = e.attr("href")) && d.replace(/.*(?=#[^\s]+$)/, ""), f = a();
+            if (fSelector && /^#[A-Za-z][\w\-\:\.]*$/.test(fSelector)) {
+                var fElement = document.getElementById(fSelector.slice(1));
+                fElement && (f = a(fElement))
+            }
             if (f.hasClass("carousel")) {
                 var g = a.extend({}, f.data(), e.data())
                     , h = e.attr("data-slide-to");
