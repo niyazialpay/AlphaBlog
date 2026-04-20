@@ -79,7 +79,11 @@ if ("undefined" == typeof jQuery)
                 f || (f = e.attr("href"),
                     f = f && f.replace(/.*(?=#[^\s]*$)/, ""));
                 d._isSafeSelector(f) || (f = null);
-                var g = f ? a("#" === f ? [] : f) : a();
+                var g = a();
+                if (f && "#" !== f) {
+                    var h = document.getElementById(f.slice(1));
+                    h && (g = a(h));
+                }
                 b && b.preventDefault(),
                 g.length || (g = e.closest(".alert")),
                     g.trigger(b = a.Event("close.bs.alert")),
