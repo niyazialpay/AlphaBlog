@@ -815,7 +815,7 @@ if ("undefined" == typeof jQuery)
                     this.type = b,
                     this.$element = a(c),
                     this.options = this.getOptions(d),
-                    this.$viewport = this.options.viewport && a(a.isFunction(this.options.viewport) ? this.options.viewport.call(this, this.$element) : this.options.viewport.selector || this.options.viewport),
+                    this.$viewport = this.options.viewport && this.getViewportElement(this.options.viewport),
                     this.inState = {
                         click: !1,
                         hover: !1,
@@ -842,6 +842,11 @@ if ("undefined" == typeof jQuery)
             ,
             c.prototype.getDefaults = function() {
                 return c.DEFAULTS
+            }
+            ,
+            c.prototype.getViewportElement = function(b) {
+                var c = a.isFunction(b) ? b.call(this, this.$element) : b.selector || b;
+                return "string" == typeof c ? a(a.find(c)) : a(c)
             }
             ,
             c.prototype.getOptions = function(b) {
