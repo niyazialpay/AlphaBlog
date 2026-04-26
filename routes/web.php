@@ -1,11 +1,38 @@
 <?php
 
+use App\Http\Controllers\Admin\TwoFactorAuthController;
+use App\Http\Controllers\ArchiveController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\AuthorsController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ImageProcessController;
+use App\Http\Controllers\ManifestController;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SiteMap\RssController;
+use App\Http\Controllers\SiteMap\SitemapController;
+use App\Http\Controllers\TagController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\WebAuthn\WebAuthnLoginController;
+use App\Http\Middleware\AdminOneSignal;
+use App\Http\Middleware\CloudflareTurnstile;
+use App\Http\Middleware\NewCommentsCount;
+use App\Http\Middleware\SearchedWords;
+use App\Http\Middleware\VerifyOTP;
 use App\Models\Languages;
+use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\EmailVerificationPromptController;
 use Laravel\Fortify\Http\Controllers\VerifyEmailController;
+use Spatie\Honeypot\ProtectAgainstSpam;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,8 +50,8 @@ if (config('app.cdn_url') != null && config('app.cdn_url') != config('app.url'))
 } else {
     $domain = config('app.url');
 }
-Route::domain($domain)->group(function () use ($domain) {
-    Route::get('/image/{path}/{width}/{height}/{type}/{image}', [\App\Http\Controllers\ImageProcessController::class, 'index'])
+Route::domain($domain)->group(function () {
+    Route::get('/image/{path}/{width}/{height}/{type}/{image}', [ImageProcessController::class, 'index'])
         ->name('image')
         ->where([
             'path' => '[a-zA-Z0-9\/]+',
@@ -36,9 +63,9 @@ Route::domain($domain)->group(function () use ($domain) {
 
 });
 
-Route::domain(config('app.url'))->group(function(){
+Route::domain(config('app.url'))->group(function () {
     Route::any('/'.config('settings.admin_panel_path').'/manifest.json',
-        [\App\Http\Controllers\ManifestController::class, 'manifestPanel'])
+        [ManifestController::class, 'manifestPanel'])
         ->name('manifest.panel');
 
     Route::get('/email/verify', [EmailVerificationPromptController::class, '__invoke'])
@@ -49,7 +76,7 @@ Route::domain(config('app.url'))->group(function(){
         ->middleware(['signed'])
         ->name('verification.verify');
 
-    Route::post('/email/resend', function (Illuminate\Http\Request $request) {
+    Route::post('/email/resend', function (Request $request) {
         $request->user()->sendEmailVerificationNotification();
 
         return back()->with('message', __('auth.verification_sent'));
@@ -57,11 +84,11 @@ Route::domain(config('app.url'))->group(function(){
 
     Route::group([
         'middleware' => [
-            \App\Http\Middleware\NewCommentsCount::class,
-            \App\Http\Middleware\AdminOneSignal::class,
-            \App\Http\Middleware\SearchedWords::class,
-            \App\Http\Middleware\VerifyOTP::class,
-            \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+            NewCommentsCount::class,
+            AdminOneSignal::class,
+            SearchedWords::class,
+            VerifyOTP::class,
+            EnsureEmailIsVerified::class,
         ],
     ], function () {
 
@@ -139,149 +166,152 @@ Route::domain(config('app.url'))->group(function(){
         ->name('login');
 
     Route::post('/login/first',
-        [\App\Http\Controllers\Auth\LoginController::class, 'loginFirst'])->name('login.first_step')->middleware([
-        \Spatie\Honeypot\ProtectAgainstSpam::class,
-        'throttle:3,1',
-    ]);
+        [LoginController::class, 'loginFirst'])->name('login.first_step')->middleware([
+            ProtectAgainstSpam::class,
+            'throttle:3,1',
+        ]);
 
     Route::post('/login',
-        [\App\Http\Controllers\Auth\LoginController::class, 'login'])->middleware([
-        \Spatie\Honeypot\ProtectAgainstSpam::class,
-        'throttle:3,1',
-        \App\Http\Middleware\CloudflareTurnstile::class,
-    ]);
+        [LoginController::class, 'login'])->middleware([
+            ProtectAgainstSpam::class,
+            'throttle:3,1',
+            CloudflareTurnstile::class,
+        ]);
 
-    Route::post('/login/2fa-verify', [\App\Http\Controllers\Admin\TwoFactorAuthController::class, 'verify'])
+    Route::post('/login/2fa-verify', [TwoFactorAuthController::class, 'verify'])
         ->middleware([
-            \Spatie\Honeypot\ProtectAgainstSpam::class,
+            ProtectAgainstSpam::class,
         ])
         ->name('two-factor.verify');
 
     Route::get('/forgot-password',
-        [\App\Http\Controllers\Auth\ResetPasswordController::class, 'forgotPassword'])
+        [ResetPasswordController::class, 'forgotPassword'])
         ->name('forgot-password')->middleware('guest');
 
     Route::post('/forgot-password',
-        [\App\Http\Controllers\Auth\ResetPasswordController::class, 'resetPassword'])
+        [ResetPasswordController::class, 'resetPassword'])
         ->middleware([
             'guest',
-            \Spatie\Honeypot\ProtectAgainstSpam::class,
-            \App\Http\Middleware\CloudflareTurnstile::class,
+            ProtectAgainstSpam::class,
+            CloudflareTurnstile::class,
         ]);
 
     Route::get('/reset-password/{token}',
-        [\App\Http\Controllers\Auth\LoginController::class, 'showResetForm'])
+        [LoginController::class, 'showResetForm'])
         ->middleware('guest')->name('password.reset');
 
     Route::post('/reset-password',
-        [\App\Http\Controllers\Auth\LoginController::class, 'reset'])
+        [LoginController::class, 'reset'])
         ->middleware([
             'guest',
-            \Spatie\Honeypot\ProtectAgainstSpam::class,
-            \App\Http\Middleware\CloudflareTurnstile::class,
+            ProtectAgainstSpam::class,
+            CloudflareTurnstile::class,
         ])->name('password.update');
 
     Route::post('/webauthn/login/options',
-        [\App\Http\Controllers\WebAuthn\WebAuthnLoginController::class, 'options'])
-        ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
+        [WebAuthnLoginController::class, 'options'])
+        ->withoutMiddleware([VerifyCsrfToken::class])
         ->name('webauthn.login.options');
 
     Route::post('/webauthn/login',
-        [\App\Http\Controllers\WebAuthn\WebAuthnLoginController::class, 'login'])
-        ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
+        [WebAuthnLoginController::class, 'login'])
+        ->withoutMiddleware([VerifyCsrfToken::class])
         ->name('webauthn.login');
 
     Route::group([], function () {
         try {
             $languages = Languages::all();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $languages = collect();
         }
 
-        Route::get('/sitemap.xml', [\App\Http\Controllers\SiteMap\SitemapController::class, 'index']);
+        Route::get('/sitemap.xml', [SitemapController::class, 'index']);
 
-        Route::get('/sitemap', [\App\Http\Controllers\SiteMap\SitemapController::class, 'index'])
+        Route::get('/sitemap', [SitemapController::class, 'index'])
             ->name('sitemap');
 
-        Route::any('/manifest.json', [\App\Http\Controllers\ManifestController::class, 'manifest'])
+        Route::any('/manifest.json', [ManifestController::class, 'manifest'])
             ->name('manifest');
 
-        Route::group(['prefix' => '/{language}'], function () use ($languages) {
-            App::setLocale(session('language'));
+        Route::prefix('/{language}')
+            ->whereIn('language', $languages->pluck('code')->toArray())
+            ->group(function () use ($languages) {
+                App::setLocale(session('language'));
 
-            foreach ($languages as $language) {
-                foreach (Lang::get('routes', locale: $language->code) as $k => $v) {
-                    Route::pattern($k, $v);
+                foreach ($languages as $language) {
+                    foreach (Lang::get('routes', locale: $language->code) as $k => $v) {
+                        Route::pattern($k, $v);
+                    }
                 }
-            }
 
-            Route::get('/rss', [\App\Http\Controllers\SiteMap\RssController::class, 'show'])
-                ->name('rss');
+                Route::get('/rss', [RssController::class, 'show'])
+                    ->name('rss');
 
-            Route::get('/sitemap-categories', [\App\Http\Controllers\SiteMap\SitemapController::class, 'categories'])
-                ->name('sitemap.categories');
+                Route::get('/sitemap-categories', [SitemapController::class, 'categories'])
+                    ->name('sitemap.categories');
 
-            Route::get('/sitemap-posts', [\App\Http\Controllers\SiteMap\SitemapController::class, 'posts'])
-                ->name('sitemap.posts');
+                Route::get('/sitemap-posts', [SitemapController::class, 'posts'])
+                    ->name('sitemap.posts');
 
-            Route::get('/sitemap-users', [\App\Http\Controllers\SiteMap\SitemapController::class, 'users'])
-                ->name('sitemap.users');
+                Route::get('/sitemap-users', [SitemapController::class, 'users'])
+                    ->name('sitemap.users');
 
-            Route::post('/comment-save', [\App\Http\Controllers\CommentController::class, 'store'])
-                ->middleware([
-                    //\App\Http\Middleware\CloudflareTurnstile::class,
-                    \Spatie\Honeypot\ProtectAgainstSpam::class,
-                ])
-                ->name('comment.save');
+                Route::post('/comment-save', [CommentController::class, 'store'])
+                    ->middleware([
+                        // \App\Http\Middleware\CloudflareTurnstile::class,
+                        ProtectAgainstSpam::class,
+                    ])
+                    ->name('comment.save');
 
-            Route::get('/{tags}/{showTag:tag}', [\App\Http\Controllers\TagController::class, 'show'])
-                ->name('post.tags')
-                ->whereIn('tags', Lang::get('route_tags'));
+                Route::get('/{tags}/{showTag:tag}', [TagController::class, 'show'])
+                    ->name('post.tags')
+                    ->whereIn('tags', Lang::get('route_tags'));
 
-            Route::get('/{categories}/{showCategory:slug}', [\App\Http\Controllers\CategoryController::class, 'show'])
-                ->name('post.categories')
-                ->whereIn('categories', Lang::get('route_categories'));
+                Route::get('/{categories}/{showCategory:slug}', [CategoryController::class, 'show'])
+                    ->name('post.categories')
+                    ->whereIn('categories', Lang::get('route_categories'));
 
-            Route::get('/{user}/{users:nickname}', [\App\Http\Controllers\UserController::class, 'posts'])
-                ->name('user.posts')
-                ->whereIn('user', Lang::get('route_user'));
+                Route::get('/{user}/{users:nickname}', [UserController::class, 'posts'])
+                    ->name('user.posts')
+                    ->whereIn('user', Lang::get('route_user'));
 
-            Route::get('/{archives}/{year}/{month?}/{day?}', [\App\Http\Controllers\ArchiveController::class, 'show'])
-                ->name('post.archives')
-                ->whereIn('archives', Lang::get('route_archives'));
+                Route::get('/{archives}/{year}/{month?}/{day?}', [ArchiveController::class, 'show'])
+                    ->name('post.archives')
+                    ->whereIn('archives', Lang::get('route_archives'));
 
-            Route::get('/{search_result}/{search_term?}', [\App\Http\Controllers\SearchController::class, 'index'])
-                ->name('search.result')
-                ->whereIn('search_result', Lang::get('route_search'));
+                Route::get('/{search_result}/{search_term?}', [SearchController::class, 'index'])
+                    ->name('search.result')
+                    ->whereIn('search_result', Lang::get('route_search'));
 
-            Route::get('/{contact}', [\App\Http\Controllers\ContactController::class, 'index'])
-                ->name('contact.front')
-                ->whereIn('contact', Lang::get('route_contact'));
+                Route::get('/{contact}', [ContactController::class, 'index'])
+                    ->name('contact.front')
+                    ->whereIn('contact', Lang::get('route_contact'));
 
-            Route::get('/{authors}', [\App\Http\Controllers\AuthorsController::class, 'index'])
-                ->name('post.authors')
-                ->whereIn('authors', Lang::get('route_authors'));
+                Route::get('/{authors}', [AuthorsController::class, 'index'])
+                    ->name('post.authors')
+                    ->whereIn('authors', Lang::get('route_authors'));
 
-            Route::post('/{contact}', [\App\Http\Controllers\ContactController::class, 'send'])
-                ->name('contact.send')
-                ->whereIn('contact', Lang::get('route_contact'))
-                ->middleware([
-                    \App\Http\Middleware\CloudflareTurnstile::class,
-                    \Spatie\Honeypot\ProtectAgainstSpam::class,
-                ]);
+                Route::post('/{contact}', [ContactController::class, 'send'])
+                    ->name('contact.send')
+                    ->whereIn('contact', Lang::get('route_contact'))
+                    ->middleware([
+                        CloudflareTurnstile::class,
+                        ProtectAgainstSpam::class,
+                    ]);
 
-            Route::post('/{contact}/ajax', [\App\Http\Controllers\ContactController::class, 'send_ajax'])
-                ->name('contact.send-ajax')
-                ->whereIn('contact', Lang::get('route_contact'))
-                ->middleware([
-                    \App\Http\Middleware\CloudflareTurnstile::class,
-                    \Spatie\Honeypot\ProtectAgainstSpam::class,
-                ]);
+                Route::post('/{contact}/ajax', [ContactController::class, 'send_ajax'])
+                    ->name('contact.send-ajax')
+                    ->whereIn('contact', Lang::get('route_contact'))
+                    ->middleware([
+                        CloudflareTurnstile::class,
+                        ProtectAgainstSpam::class,
+                    ]);
 
-            Route::get('/{showPost:slug}', [\App\Http\Controllers\PostController::class, 'show'])->name('page');
-        })->whereIn('language', $languages->pluck('code')->toArray());
+                Route::get('/{showPost:slug}', [PostController::class, 'show'])->name('page');
+            });
 
-        Route::get('/{language?}', [\App\Http\Controllers\HomeController::class, 'index'])->name('home');
+        Route::get('/{language?}', [HomeController::class, 'index'])
+            ->name('home')
+            ->whereIn('language', $languages->pluck('code')->toArray());
     });
 });
-

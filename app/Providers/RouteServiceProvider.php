@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Actions\LanguageAction;
 use App\Models\Post\Categories;
 use App\Models\Post\Posts;
 use App\Models\User;
@@ -28,6 +27,8 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Route::pattern('type', 'pages|blogs');
+
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
