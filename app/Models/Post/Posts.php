@@ -2,13 +2,13 @@
 
 namespace App\Models\Post;
 
-use App\Models\Logs;
 use App\Models\User;
 use App\Traits\ModelLogger;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
 use Spatie\MediaLibrary\HasMedia;
@@ -18,9 +18,9 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class Posts extends Model implements HasMedia
 {
     use InteractsWithMedia;
+    use ModelLogger;
     use Searchable;
     use SoftDeletes;
-    use ModelLogger;
 
     /**
      * @var bool|mixed
@@ -41,6 +41,7 @@ class Posts extends Model implements HasMedia
         'is_published',
         'language',
         'href_lang',
+        'qr_link',
     ];
 
     protected $attributes = [
@@ -74,9 +75,14 @@ class Posts extends Model implements HasMedia
         return $this->hasManyThrough(Comments::class, Posts::class, 'post_id', 'post_id', 'id', 'id');
     }
 
-    public function postMedia(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function postMedia(): HasOne
     {
         return $this->hasOne(Media::class, 'model_id')->where('collection_name', 'posts');
+    }
+
+    public function qrScans(): HasMany
+    {
+        return $this->hasMany(PostQrScan::class, 'post_id');
     }
 
     public function searchableAs(): string
@@ -131,5 +137,4 @@ class Posts extends Model implements HasMedia
             ->height(200)
             ->nonOptimized()->keepOriginalImageFormat();
     }
-
 }

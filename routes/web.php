@@ -12,6 +12,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImageProcessController;
 use App\Http\Controllers\ManifestController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\PostQrController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SiteMap\RssController;
 use App\Http\Controllers\SiteMap\SitemapController;
@@ -306,6 +307,9 @@ Route::domain(config('app.url'))->group(function () {
                         CloudflareTurnstile::class,
                         ProtectAgainstSpam::class,
                     ]);
+
+                Route::get('/{showPost:slug}/qr/{qr_key}', [PostQrController::class, 'redirect'])
+                    ->name('post.qr');
 
                 Route::get('/{showPost:slug}', [PostController::class, 'show'])->name('page');
             });

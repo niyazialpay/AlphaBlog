@@ -181,6 +181,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css">
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         function DeleteBlog(id, force = false){
             Swal.fire({
@@ -257,7 +258,55 @@
                 }
             });
         }
+        function showQrModal(url, count) {
+            Swal.fire({
+                title: 'QR Kod',
+                html: '<div id="modal-qr-code" style="display:flex;justify-content:center;margin-bottom:10px;"></div>' +
+                      '<p style="margin:4px 0"><small class="text-muted">Okuma sayısı: <strong>' + count + '</strong></small></p>' +
+                      '<p style="margin:4px 0;word-break:break-all"><small>' + url + '</small></p>',
+                didOpen: function() {
+                    new QRCode(document.getElementById('modal-qr-code'), {
+                        text: url,
+                        width: 200,
+                        height: 200,
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                },
+                showConfirmButton: false,
+                showCloseButton: true
+            });
+        }
+
         $(document).ready(function(){
+            $(document).on('click', '.qr-show-btn', function() {
+                showQrModal($(this).data('qr-url'), $(this).data('scan-count'));
+            });
+
+            $(document).on('click', '.qr-generate-btn', function() {
+                var postId = $(this).data('post-id');
+                $.ajax({
+                    url: '{{route('admin.posts', $type)}}/' + postId + '/qr/generate',
+                    type: 'POST',
+                    data: { _token: '{{csrf_token()}}' },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'QR Kod oluşturuldu',
+                                timer: 1200,
+                                showConfirmButton: false
+                            }).then(function() { window.location.reload(); });
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Hata',
+                            text: xhr.responseJSON ? xhr.responseJSON.message : 'Bir hata oluştu'
+                        });
+                    }
+                });
+            });
             @if(request()->get('tab') == 'trashed')
                 $(".tab-menu li").removeClass("active-tab");
                 $(".tab-menu li:nth-child(2)").addClass("active-tab");

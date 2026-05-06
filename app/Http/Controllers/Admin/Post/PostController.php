@@ -49,8 +49,7 @@ class PostController extends Controller
         } else {
             abort(404);
         }
-        $with = ['user', 'categories', 'comments'];
-        $posts = $post::with($with);
+        $posts = $post::withCount('qrScans')->with(['user', 'categories', 'comments']);
         if ($category && $post_type == 'post') {
             $posts = $post->whereHas('categories', function ($query) use ($category) {
                 return $query->where('category_id', $category);
@@ -175,6 +174,7 @@ class PostController extends Controller
     ): JsonResponse {
         try {
             DB::beginTransaction();
+            $isNewPost = ! $post->id;
             if ($post->id) {
                 $message = __('post.success_update');
             } else {
@@ -188,9 +188,9 @@ class PostController extends Controller
             }
             $post->slug = $slug;
             if ($request->hasFile('image') && $request->file('image')->isValid()) {
-                $ext  = $request->file('image')->extension();
+                $ext = $request->file('image')->extension();
                 $post->addMediaFromRequest('image')
-                    ->usingFileName($slug.'-'.time() . '.'.$ext)
+                    ->usingFileName($slug.'-'.time().'.'.$ext)
                     ->toMediaCollection('posts');
             }
             $post->content = content($request->post('content'));
@@ -214,8 +214,13 @@ class PostController extends Controller
                 if ($request->post('post_type') == 'post') {
                     $post->categories()->sync($request->post('category_id'));
                 }
+                if ($isNewPost && $post->post_type === 'post' && ! $post->qr_link) {
+                    $post->qr_link = config('app.url').'/'.$post->language.'/'.$post->slug.'/qr/'.Str::random(64);
+                    $post->saveQuietly();
+                }
                 DB::commit();
                 CacheClear::cacheClear();
+
                 return response()->json(['status' => 'success', 'message' => $message, 'id' => $post->id]);
             } else {
                 return response()->json(['status' => 'error', 'message' => __('post.error')])->setStatusCode(500);
@@ -238,6 +243,7 @@ class PostController extends Controller
                 Comments::where('post_id', $post->id)->delete();
                 DB::commit();
                 CacheClear::cacheClear();
+
                 return response()->json(['status' => 'success', 'message' => __('post.success_delete')]);
             } else {
                 return response()->json(['status' => 'error', 'message' => __('post.post.error_delete')]);
@@ -264,6 +270,7 @@ class PostController extends Controller
             if ($post->forceDelete()) {
                 DB::commit();
                 CacheClear::cacheClear();
+
                 return response()->json(['status' => 'success', 'message' => __('post.post.success_force_delete')]);
             } else {
                 return response()->json(['status' => 'error', 'message' => __('post.post.error_force_delete')]);
@@ -286,6 +293,7 @@ class PostController extends Controller
                 Comments::onlyTrashed()->where('post_id', $post->id)->restore();
                 DB::commit();
                 CacheClear::cacheClear();
+
                 return response()->json(['status' => 'success', 'message' => __('post.post.success_restore')]);
             } else {
                 return response()->json(['status' => 'error', 'message' => __('post.post.error_restore')]);
@@ -339,9 +347,9 @@ class PostController extends Controller
         }
 
         if ($request->hasFile('file') && $request->file('file')->isValid()) {
-            $ext  = $request->file('file')->extension();
+            $ext = $request->file('file')->extension();
             $post->addMediaFromRequest('file')
-                ->usingFileName($slug.'-'.time() . '.'.$ext)
+                ->usingFileName($slug.'-'.time().'.'.$ext)
                 ->toMediaCollection('content_images');
         }
 

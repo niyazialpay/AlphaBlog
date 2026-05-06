@@ -219,6 +219,34 @@
         @endif
     </div>
 
+    @if($post->id && $post->post_type == 'post')
+        <div class="card mt-3" id="qr-code-card">
+            <div class="card-header d-flex align-items-center">
+                <h3 class="card-title"><i class="fas fa-qrcode mr-2"></i> QR Kod</h3>
+                @if($post->qr_link)
+                    <span class="badge badge-info ml-2">{{ $post->qrScans()->count() }} okuma</span>
+                @endif
+            </div>
+            <div class="card-body text-center">
+                @if($post->qr_link)
+                    <div id="edit-qr-code" class="d-flex justify-content-center mb-3"></div>
+                    <p class="small text-muted mb-2" style="word-break:break-all">{{ $post->qr_link }}</p>
+                    <button type="button" class="btn btn-warning btn-sm" id="regenerate-qr-btn">
+                        <i class="fas fa-sync"></i> Yeniden Oluştur
+                    </button>
+                    <button type="button" class="btn btn-info btn-sm ml-1" id="download-qr-btn">
+                        <i class="fas fa-download"></i> İndir
+                    </button>
+                @else
+                    <p class="text-muted">Bu yazı için henüz QR kod oluşturulmamış.</p>
+                    <button type="button" class="btn btn-primary" id="create-qr-btn">
+                        <i class="fas fa-qrcode"></i> QR Kod Oluştur
+                    </button>
+                @endif
+            </div>
+        </div>
+    @endif
+
     @if($post->id && $post->post_type=='post')
         <div class="card">
             <div class="card-header d-flex">
@@ -348,6 +376,7 @@
 @endsection
 
 @section('script')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     @include('panel.post.comments.modal')
     <style>
@@ -638,4 +667,82 @@
 
     </script>
     @include('panel.post.comments.js')
+
+    @if($post->id && $post->post_type == 'post')
+    <script>
+        @if($post->qr_link)
+        $(document).ready(function() {
+            new QRCode(document.getElementById('edit-qr-code'), {
+                text: '{{ $post->qr_link }}',
+                width: 220,
+                height: 220,
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            $('#regenerate-qr-btn').on('click', function() {
+                Swal.fire({
+                    title: 'QR Kod yeniden oluşturulsun mu?',
+                    text: 'Mevcut QR kod geçersiz olacak!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Evet, oluştur',
+                    cancelButtonText: 'İptal'
+                }).then(function(result) {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '{{ route('admin.post.qr.generate', [$type, $post]) }}',
+                            type: 'POST',
+                            data: { _token: '{{ csrf_token() }}' },
+                            success: function(response) {
+                                if (response.status === 'success') {
+                                    window.location.reload();
+                                }
+                            },
+                            error: function(xhr) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Hata',
+                                    text: xhr.responseJSON ? xhr.responseJSON.message : 'Bir hata oluştu'
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+            $('#download-qr-btn').on('click', function() {
+                var canvas = document.querySelector('#edit-qr-code canvas');
+                if (canvas) {
+                    var link = document.createElement('a');
+                    link.download = '{{ $post->slug }}-qr.png';
+                    link.href = canvas.toDataURL();
+                    link.click();
+                }
+            });
+        });
+        @else
+        $(document).ready(function() {
+            $('#create-qr-btn').on('click', function() {
+                $.ajax({
+                    url: '{{ route('admin.post.qr.generate', [$type, $post]) }}',
+                    type: 'POST',
+                    data: { _token: '{{ csrf_token() }}' },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            window.location.reload();
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Hata',
+                            text: xhr.responseJSON ? xhr.responseJSON.message : 'Bir hata oluştu'
+                        });
+                    }
+                });
+            });
+        });
+        @endif
+    </script>
+    @endif
 @endsection
