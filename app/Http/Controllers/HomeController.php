@@ -2,29 +2,38 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Support\ThemeData;
 use App\Support\ThemeManager;
+use Symfony\Component\HttpFoundation\Response;
 
 class HomeController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct() {}
 
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function index()
+    public function index(): Response
     {
         if (ThemeManager::usingVue()) {
+            $featured = ThemeData::featuredPosts(5);
+            $recent = ThemeData::recentPosts(15, 5);
+
+            $featuredIds = array_column($featured, 'id');
+            $rest = array_values(array_filter($recent, fn ($p) => ! in_array($p['id'], $featuredIds)));
+            $articles = array_values(array_merge($featured, $rest));
+
+            $authors = User::withCount('posts')
+                ->with('social')
+                ->whereNot('role', 'user')
+                ->orderByDesc('posts_count')
+                ->limit(8)
+                ->get()
+                ->map(fn (User $u) => ThemeData::authorSummary($u))
+                ->values()
+                ->toArray();
+
             return ThemeManager::render('home', [
-                'featuredPosts' => ThemeData::featuredPosts(6),
-                'recentPosts' => ThemeData::recentPosts(9, 5),
+                'articles' => $articles,
+                'authors' => $authors,
                 'categories' => ThemeData::topCategories(8),
                 'pageMeta' => ThemeData::metaForHome(),
             ]);

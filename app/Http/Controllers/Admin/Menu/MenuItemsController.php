@@ -55,7 +55,7 @@ class MenuItemsController extends Controller
                 'status' => 'error',
             ]);
         }
-        //DB::commit();
+        // DB::commit();
 
         return response()->json([
             'message' => __('menu.menu_saved'),
@@ -83,6 +83,7 @@ class MenuItemsController extends Controller
         }
         foreach (app('languages') as $language) {
             Cache::forget(config('cache.prefix').'header_menu_'.$language->code);
+            Cache::forget(config('cache.prefix').'header_menu_tree_'.$language->code);
         }
     }
 

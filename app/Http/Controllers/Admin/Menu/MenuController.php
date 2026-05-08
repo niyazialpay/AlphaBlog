@@ -27,6 +27,7 @@ class MenuController extends Controller
             $menu->fill($request->except('_token'));
             $menu->save();
             Cache::forget(config('cache.prefix').'header_menu_'.$menu->language);
+            Cache::forget(config('cache.prefix').'header_menu_tree_'.$menu->language);
             Cache::forget(config('cache.prefix').'footer_menu_'.$menu->language);
             DB::commit();
 
@@ -50,6 +51,7 @@ class MenuController extends Controller
             DB::beginTransaction();
             $menu = Menu::find($request->post('menu_id'));
             Cache::forget(config('cache.prefix').'header_menu_'.$menu->language);
+            Cache::forget(config('cache.prefix').'header_menu_tree_'.$menu->language);
             Cache::forget(config('cache.prefix').'footer_menu_'.$menu->language);
             $menu->menuItems()->delete();
             $menu->delete();
