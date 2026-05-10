@@ -58,4 +58,5 @@ return [
     'current_session' => 'Current Session',
     'logout_all_devices' => 'Log out of all devices',
     'all_sessions_ended' => 'All sessions ended!',
+    'email_verification_failed' => 'User created but verification email could not be sent.',
 ];

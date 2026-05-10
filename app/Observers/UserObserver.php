@@ -3,26 +3,42 @@
 namespace App\Observers;
 
 use App\Models\User;
+use App\Notifications\VerifyEmail;
+use Illuminate\Support\Facades\Log;
 
 class UserObserver
 {
-    /**
-     * Handle the User "created" event.
-     */
+    public static bool $emailFailed = false;
+
     public function created(User $user): void
     {
-        $user->notify(new \App\Notifications\VerifyEmail);
+        self::$emailFailed = false;
+        try {
+            $user->notify(new VerifyEmail);
+        } catch (\Throwable $e) {
+            self::$emailFailed = true;
+            Log::warning('[UserObserver] Verification email failed on created', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
-    /**
-     * Handle the User "updated" event.
-     */
     public function updated(User $user): void
     {
         if ($user->email !== $user->getOriginal('email')) {
             $user->email_verified_at = null;
             $user->save();
-            $user->notify(new \App\Notifications\VerifyEmail);
+            try {
+                $user->notify(new VerifyEmail);
+            } catch (\Throwable $e) {
+                Log::warning('[UserObserver] Verification email failed on updated', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
     }
 }

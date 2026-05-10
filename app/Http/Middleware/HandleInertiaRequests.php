@@ -46,6 +46,7 @@ class HandleInertiaRequests extends Middleware
             'social' => ThemeData::social(),
             'navigation' => [
                 'menu' => ThemeData::headerMenu(),
+                'footerMenu' => ThemeData::footerMenu(),
                 'categories' => ThemeData::navigationCategories(),
             ],
             'translations' => ThemeData::translations(),

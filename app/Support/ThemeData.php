@@ -331,6 +331,40 @@ class ThemeData
         });
     }
 
+    public static function footerMenu(): array
+    {
+        $language = request()->route('language')
+            ?? session('language')
+            ?? app()->getLocale();
+        $cacheKey = config('cache.prefix').'footer_menu_tree_'.$language;
+
+        return Cache::rememberForever($cacheKey, function () use ($language) {
+            $menu = Menu::with([
+                'menuItems' => function ($query) {
+                    $query->whereNull('parent_id')
+                        ->orderBy('order')
+                        ->with([
+                            'children' => function ($query) {
+                                $query->orderBy('order');
+                            },
+                        ]);
+                },
+            ])
+                ->where('language', $language)
+                ->where('menu_position', 'footer')
+                ->first();
+
+            if (! $menu) {
+                return [];
+            }
+
+            return $menu->menuItems
+                ->map(fn (MenuItems $item) => self::transformMenuItem($item))
+                ->values()
+                ->toArray();
+        });
+    }
+
     public static function navigationCategories(int $limit = 8): array
     {
         $language = self::currentLanguage();

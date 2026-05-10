@@ -22,13 +22,13 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class User extends Authenticatable implements MustVerifyEmail, WebAuthnAuthenticatable, HasMedia
+class User extends Authenticatable implements HasMedia, MustVerifyEmail, WebAuthnAuthenticatable
 {
     use HasApiTokens, Notifiable, Searchable, TwoFactorAuthenticatable, WebAuthnAuthentication;
     use InteractsWithMedia;
+    use ModelLogger;
     use Searchable;
     use SoftDeletes;
-    use ModelLogger;
 
     protected $table = 'users';
 
@@ -101,7 +101,7 @@ class User extends Authenticatable implements MustVerifyEmail, WebAuthnAuthentic
 
     public function posts(): HasMany
     {
-        return $this->hasMany(Posts::class, 'user_id');
+        return $this->hasMany(Posts::class, 'user_id')->where('post_type', 'post')->where('created_at', '<=', now())->where('is_published', true);
     }
 
     public function noteCategories(): HasMany
@@ -127,7 +127,7 @@ class User extends Authenticatable implements MustVerifyEmail, WebAuthnAuthentic
 
     public function WebAuthn(): HasMany
     {
-        return $this->hasMany(\App\Models\WebAuthnCredential::class, 'authenticatable_id')->select(['id', 'device_name']);
+        return $this->hasMany(WebAuthnCredential::class, 'authenticatable_id')->select(['id', 'device_name']);
     }
 
     public function searchableAs(): string
@@ -151,10 +151,9 @@ class User extends Authenticatable implements MustVerifyEmail, WebAuthnAuthentic
 
     public function getProfileImageAttribute(): string
     {
-        if($this->getFirstMediaUrl('profile')){
+        if ($this->getFirstMediaUrl('profile')) {
             return $this->getFirstMediaUrl('profile').'?';
-        }
-        else{
+        } else {
             return 'https://www.gravatar.com/avatar/'.hash('sha256', strtolower(trim($this->email))).'?d=mp&s=128';
         }
     }
@@ -228,23 +227,19 @@ class User extends Authenticatable implements MustVerifyEmail, WebAuthnAuthentic
                 $username = $this->social->{$platform};
 
                 if ($username) {
-                    if($platform == 'x'){
+                    if ($platform == 'x') {
                         $icon = 'fa-brands fa-x-twitter';
-                    }
-                    elseif($platform == 'devto'){
+                    } elseif ($platform == 'devto') {
                         $icon = 'fa-brands fa-dev';
-                    }
-                    elseif($platform ==  'reddit'){
+                    } elseif ($platform == 'reddit') {
                         $icon = 'fa-brands fa-reddit-alien';
-                    }
-                    elseif($platform == 'website'){
+                    } elseif ($platform == 'website') {
                         $icon = 'fa-solid fa-globe-pointer';
-                    }
-                    else{
+                    } else {
                         $icon = 'fa-brands fa-'.$platform;
                     }
                     $links[$platform] = [
-                        'url' => $baseUrl . $username,
+                        'url' => $baseUrl.$username,
                         'icon' => $icon,
                     ];
                 }

@@ -29,6 +29,7 @@ class MenuController extends Controller
             Cache::forget(config('cache.prefix').'header_menu_'.$menu->language);
             Cache::forget(config('cache.prefix').'header_menu_tree_'.$menu->language);
             Cache::forget(config('cache.prefix').'footer_menu_'.$menu->language);
+            Cache::forget(config('cache.prefix').'footer_menu_tree_'.$menu->language);
             DB::commit();
 
             return response()->json([
@@ -53,6 +54,7 @@ class MenuController extends Controller
             Cache::forget(config('cache.prefix').'header_menu_'.$menu->language);
             Cache::forget(config('cache.prefix').'header_menu_tree_'.$menu->language);
             Cache::forget(config('cache.prefix').'footer_menu_'.$menu->language);
+            Cache::forget(config('cache.prefix').'footer_menu_tree_'.$menu->language);
             $menu->menuItems()->delete();
             $menu->delete();
             DB::commit();

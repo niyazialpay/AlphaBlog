@@ -91,15 +91,15 @@
                 success: function (data) {
                     if (data.status === 'success') {
                         Swal.fire({
-                            icon: 'success',
+                            icon: data.warning ? 'warning' : 'success',
                             title: data.title,
-                            text: data.message,
+                            text: data.warning ? data.warning : data.message,
                             showConfirmButton: false,
-                            timer: 1500
+                            timer: 2000
                         });
                         setTimeout(function () {
                             window.location.href = '{{route('admin.users')}}';
-                        }, 1000);
+                        }, 1500);
                     } else {
                         Swal.fire({
                             icon: 'error',
