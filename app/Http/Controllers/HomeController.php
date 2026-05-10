@@ -14,12 +14,9 @@ class HomeController extends Controller
     public function index(): Response
     {
         if (ThemeManager::usingVue()) {
-            $featured = ThemeData::featuredPosts(5);
-            $recent = ThemeData::recentPosts(15, 5);
-
-            $featuredIds = array_column($featured, 'id');
-            $rest = array_values(array_filter($recent, fn ($p) => ! in_array($p['id'], $featuredIds)));
-            $articles = array_values(array_merge($featured, $rest));
+            $generalSettings = app('general_settings');
+            $totalArticles = max(1, (int) ($generalSettings->homepage_featured_count ?? 20));
+            $articles = ThemeData::recentPosts($totalArticles, 0);
 
             $authors = User::withCount('posts')
                 ->with('social')

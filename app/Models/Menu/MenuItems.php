@@ -18,6 +18,7 @@ class MenuItems extends Model
         'url',
         'target',
         'icon',
+        'order',
         'parent_id',
         'language',
         'menu_type',

@@ -63,10 +63,10 @@ class MenuItemsController extends Controller
         ]);
     }
 
-    private function updateMenu($menu_id, $menu, $parent = null): void
+    private function updateMenu($menu_id, $menu, $parent = null, bool $clearCache = true): void
     {
         if (! empty($menu)) {
-            foreach ($menu as $value) {
+            foreach ($menu as $index => $value) {
                 $menu_item = new MenuItems;
                 $menu_item->title = $value['title'];
                 $menu_item->url = (empty($value['url'])) ? 'javascript:void(0)' : $value['url'];
@@ -75,21 +75,26 @@ class MenuItemsController extends Controller
                 $menu_item->language = $value['language'];
                 $menu_item->icon = $value['icon'];
                 $menu_item->target = $value['nav_target'] ?: '_self';
+                $menu_item->menu_type = $value['menu_type'] ?? 'standard';
+                $menu_item->order = $index;
                 $menu_item->save();
                 if (array_key_exists('children', $value)) {
-                    $this->updateMenu($menu_id, $value['children'], $menu_item->id);
+                    $this->updateMenu($menu_id, $value['children'], $menu_item->id, false);
                 }
             }
         }
-        foreach (app('languages') as $language) {
-            Cache::forget(config('cache.prefix').'header_menu_'.$language->code);
-            Cache::forget(config('cache.prefix').'header_menu_tree_'.$language->code);
+
+        if ($clearCache) {
+            foreach (app('languages') as $language) {
+                Cache::forget(config('cache.prefix').'header_menu_'.$language->code);
+                Cache::forget(config('cache.prefix').'header_menu_tree_'.$language->code);
+            }
         }
     }
 
-    private function renderMenuItem($id, $label, $url, $language, $target, $icon, $menu_id): string
+    private function renderMenuItem($id, $label, $url, $language, $target, $icon, $menu_id, $menu_type = 'standard'): string
     {
-        return '<li class="dd-item dd3-item" data-id="'.$id.'" data-title="'.$label.'" data-url="'.$url.'" data-language="'.$language.'" data-nav_target="'.$target.'" data-icon="'.$icon.'" data-menu_id="'.$menu_id.'">'.
+        return '<li class="dd-item dd3-item" data-id="'.$id.'" data-title="'.$label.'" data-url="'.$url.'" data-language="'.$language.'" data-nav_target="'.$target.'" data-icon="'.$icon.'" data-menu_id="'.$menu_id.'" data-menu_type="'.$menu_type.'">'.
             '<div class="dd-handle dd3-handle" > Drag</div>'.
             '<div class="dd3-content"><span>'.$label.'</span>'.
             '<div class="item-edit"><i class="fa-duotone fa-pen-to-square"></i></div>'.
@@ -116,7 +121,7 @@ class MenuItemsController extends Controller
         if ($query->count() > 0) {
             $items .= '<ol class="dd-list">';
             foreach ($query->get() as $row) {
-                $items .= $this->renderMenuItem($row->id, $row->title, $row->url, $row->language, $row->target, $row->icon, $row->menu_id);
+                $items .= $this->renderMenuItem($row->id, $row->title, $row->url, $row->language, $row->target, $row->icon, $row->menu_id, $row->menu_type ?? 'standard');
                 $items .= $this->menuTree($menu_id, $row->id);
                 $items .= '</li>';
             }

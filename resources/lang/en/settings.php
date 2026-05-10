@@ -46,4 +46,11 @@ return [
     'onesignal_success' => 'OneSignal tracking code saved successfully',
     'management' => 'Management',
     'monitoring' => 'System Monitoring',
+
+    'homepage_featured_count' => 'Homepage Featured Post Count',
+    'homepage_recent_count' => 'Homepage Recent Post Count',
+    'homepage_featured_count_help' => 'Number of featured posts shown in the "All Posts" section on the homepage.',
+    'homepage_recent_count_help' => 'Additional posts shown after featured ones. Total = featured + this number.',
+    'homepage_articles_count' => 'Homepage Total Article Count',
+    'homepage_articles_count_help' => 'Maximum number of articles shown in the "All Posts" section.',
 ];

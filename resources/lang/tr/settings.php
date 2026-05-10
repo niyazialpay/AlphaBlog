@@ -46,4 +46,11 @@ return [
     'onesignal_success' => 'OneSignal takip kodu başarıyla kaydedildi',
     'management' => 'Yönetim',
     'monitoring' => 'Sistem İzleme',
+
+    'homepage_featured_count' => 'Anasayfa Öne Çıkan Yazı Sayısı',
+    'homepage_recent_count' => 'Anasayfa Son Yazı Sayısı',
+    'homepage_featured_count_help' => 'Anasayfada "Bütün yazılar" bölümünde öne çıkan yazı sayısı.',
+    'homepage_recent_count_help' => 'Öne çıkanların ardından gösterilecek ek yazı sayısı. Toplam = öne çıkan + bu sayı.',
+    'homepage_articles_count' => 'Anasayfa Toplam Yazı Sayısı',
+    'homepage_articles_count_help' => '"Bütün yazılar" bölümünde gösterilecek maksimum yazı sayısı.',
 ];

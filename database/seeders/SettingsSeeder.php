@@ -50,6 +50,8 @@ class SettingsSeeder extends Seeder
 
         GeneralSettings::create([
             'contact_email' => null,
+            'homepage_featured_count' => 20,
+            'homepage_recent_count' => 0,
         ]);
 
         AdvertiseSettings::create([

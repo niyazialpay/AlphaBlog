@@ -28,6 +28,8 @@ class GeneralSettingsRequest extends FormRequest
             'app_icon' => 'nullable|file|image|max:4096|mimes:jpeg,png,jpg,gif,svg,webp,ico',
             'contact_email' => 'nullable|email',
             'sharethis' => 'nullable|string|max:255',
+            'homepage_featured_count' => 'nullable|integer|min:1|max:20',
+            'homepage_recent_count' => 'nullable|integer|min:0|max:500',
         ];
     }
 }

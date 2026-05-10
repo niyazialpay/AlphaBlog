@@ -186,6 +186,17 @@
                                     <textarea type="text" class="form-control" id="sharethis"
                                               name="sharethis">{{app('general_settings')->sharethis}}</textarea>
                                 </div>
+                                <div class="col-12 d-none d-md-block mb-3">
+                                    <hr>
+                                    <h6>@lang('settings.general_settings') — Anasayfa</h6>
+                                </div>
+                                <div class="col-sm-12 col-md-6 mb-3">
+                                    <label for="homepage_featured_count">@lang('settings.homepage_articles_count')</label>
+                                    <input type="number" class="form-control" id="homepage_featured_count"
+                                           name="homepage_featured_count" min="1" max="500"
+                                           value="{{ app('general_settings')->homepage_featured_count ?? 20 }}">
+                                    <small class="text-muted">@lang('settings.homepage_articles_count_help')</small>
+                                </div>
                                 <div class="col-12 mb-3">
                                     <button type="submit" class="btn btn-primary">@lang('general.save')</button>
                                 </div>

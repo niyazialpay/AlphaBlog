@@ -2,7 +2,6 @@
 
 namespace App\Models\Settings;
 
-use App\Models\Logs;
 use App\Traits\ModelLogger;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
@@ -21,6 +20,8 @@ class GeneralSettings extends Model implements HasMedia
         'sharethis',
         'logo',
         'favicon',
+        'homepage_featured_count',
+        'homepage_recent_count',
     ];
 
     public $timestamps = false;

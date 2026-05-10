@@ -18,6 +18,8 @@ class GeneralSettingsController extends Controller
             $settings = GeneralSettings::first();
             $settings->contact_email = $request->contact_email;
             $settings->sharethis = $request->sharethis;
+            $settings->homepage_featured_count = $request->homepage_featured_count ?? 5;
+            $settings->homepage_recent_count = $request->homepage_recent_count ?? 45;
 
             if ($request->hasFile('site_logo_light') && $request->file('site_logo_light')->isValid()) {
                 $settings->addMediaFromRequest('site_logo_light')->toMediaCollection('site_logo_light');
