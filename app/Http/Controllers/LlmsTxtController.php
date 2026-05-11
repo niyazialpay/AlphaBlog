@@ -56,6 +56,7 @@ class LlmsTxtController extends Controller
         $allPosts = Posts::query()
             ->published()
             ->where('post_type', 'post')
+            ->where('created_at', '<=', now())
             ->latest()
             ->get(['id', 'title', 'slug', 'meta_description', 'content', 'language']);
 
@@ -115,6 +116,7 @@ class LlmsTxtController extends Controller
         $pages = Posts::query()
             ->published()
             ->where('post_type', 'page')
+            ->where('created_at', '<=', now())
             ->latest()
             ->get(['title', 'slug', 'meta_description', 'language']);
 
