@@ -24,6 +24,15 @@ return [
     'seo_settings_saved' => 'SEO ayarları kaydedildi',
     'robots_txt_saved' => 'Robots.txt kaydedildi',
 
+    'llms_txt' => 'LLMs.txt',
+    'llms_txt_intro' => 'LLM Giriş Metni',
+    'llms_txt_intro_placeholder' => 'LLM\'lere sitenizi tanıtan kısa bir metin (blockquote olarak görünür)',
+    'llms_txt_instructions' => 'LLM Talimatları',
+    'llms_txt_instructions_placeholder' => 'LLM\'lere özel talimatlar veya içerik politikanız',
+    'llms_txt_saved' => 'LLMs.txt ayarları kaydedildi.',
+    'llms_txt_cache_cleared' => 'LLMs.txt önbelleği temizlendi.',
+    'llms_txt_clear_cache' => 'Önbelleği Temizle',
+
     'site_logo' => 'Site Logosu',
     'site_logo_light' => 'Site Logosu (Aydınlık Mod)',
     'site_logo_dark' => 'Site Logosu (Karanlık Mod)',

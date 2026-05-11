@@ -14,6 +14,14 @@ Route::post('/seo/robots/save', [App\Http\Controllers\Admin\Settings\SeoSettings
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.seo.robots.save');
 
+Route::post('/seo/llms/save', [App\Http\Controllers\Admin\Settings\SeoSettingsController::class, 'saveLlms'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.settings.seo.llms.save');
+
+Route::post('/seo/llms/clear-cache', [App\Http\Controllers\Admin\Settings\SeoSettingsController::class, 'clearLlmsCache'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.settings.seo.llms.clear-cache');
+
 Route::post('/general/save', [App\Http\Controllers\Admin\Settings\GeneralSettingsController::class, 'save'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.general.save');

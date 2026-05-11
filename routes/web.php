@@ -226,6 +226,9 @@ Route::domain(config('app.url'))->group(function () {
             $languages = collect();
         }
 
+        Route::get('/llms.txt', [\App\Http\Controllers\LlmsTxtController::class, 'index'])->name('llms.txt');
+        Route::get('/llms-full.txt', [\App\Http\Controllers\LlmsTxtController::class, 'full'])->name('llms.full.txt');
+
         Route::get('/sitemap.xml', [SitemapController::class, 'index']);
 
         Route::get('/sitemap', [SitemapController::class, 'index'])

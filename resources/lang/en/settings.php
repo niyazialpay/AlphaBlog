@@ -24,6 +24,15 @@ return [
     'seo_settings_saved' => 'SEO settings saved',
     'robots_txt_saved' => 'Robots.txt saved',
 
+    'llms_txt' => 'LLMs.txt',
+    'llms_txt_intro' => 'LLM Introduction Text',
+    'llms_txt_intro_placeholder' => 'A short description of your site for LLMs (appears as a blockquote)',
+    'llms_txt_instructions' => 'LLM Instructions',
+    'llms_txt_instructions_placeholder' => 'Special instructions or content policy for LLMs',
+    'llms_txt_saved' => 'LLMs.txt settings saved.',
+    'llms_txt_cache_cleared' => 'LLMs.txt cache cleared.',
+    'llms_txt_clear_cache' => 'Clear Cache',
+
     'site_logo' => 'Site Logo',
     'site_logo_light' => 'Site Logo (Light Mode)',
     'site_logo_dark' => 'Site Logo (Dark Mode)',

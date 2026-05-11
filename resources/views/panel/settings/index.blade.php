@@ -338,6 +338,50 @@
                                     </form>
                                 </div>
                             </div>
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h3 class="card-title">@lang('settings.llms_txt')</h3>
+                                </div>
+                                <div class="card-body">
+                                    <form id="llmsTxtSave" method="post" action="javascript:void(0)">
+                                        @csrf
+                                        <div class="row">
+                                            <div class="col-12 mb-3">
+                                                <label class="form-label" for="llms_txt_intro">@lang('settings.llms_txt_intro')</label>
+                                                <textarea class="form-control"
+                                                  id="llms_txt_intro"
+                                                  name="llms_txt_intro"
+                                                  rows="3"
+                                                  placeholder="{{ __('settings.llms_txt_intro_placeholder') }}"
+                                                  aria-label="@lang('settings.llms_txt_intro')">{{ $general_settings->llms_txt_intro }}</textarea>
+                                            </div>
+                                            <div class="col-12 mb-3">
+                                                <label class="form-label" for="llms_txt_instructions">@lang('settings.llms_txt_instructions')</label>
+                                                <textarea class="form-control"
+                                                  id="llms_txt_instructions"
+                                                  name="llms_txt_instructions"
+                                                  rows="5"
+                                                  placeholder="{{ __('settings.llms_txt_instructions_placeholder') }}"
+                                                  aria-label="@lang('settings.llms_txt_instructions')">{{ $general_settings->llms_txt_instructions }}</textarea>
+                                            </div>
+                                            <div class="col-12 mb-3 d-flex flex-wrap gap-2">
+                                                <button type="submit" class="btn btn-primary">
+                                                    @lang('general.save')
+                                                </button>
+                                                <button type="button" id="clearLlmsCacheBtn" class="btn btn-secondary">
+                                                    @lang('settings.llms_txt_clear_cache')
+                                                </button>
+                                                <a href="{{ url('/llms.txt') }}" target="_blank" class="btn btn-outline-secondary">
+                                                    llms.txt
+                                                </a>
+                                                <a href="{{ url('/llms-full.txt') }}" target="_blank" class="btn btn-outline-secondary">
+                                                    llms-full.txt
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="tab-pane settings-tabs @if(request()->get('tab')=='analytics') active @endif"
@@ -1242,6 +1286,25 @@
 
             $('#robotsTxtSave').submit(function () {
                 saveSettings('{{route('admin.settings.seo.robots.save')}}', 'robotsTxtSave');
+            });
+
+            $('#llmsTxtSave').submit(function () {
+                saveSettings('{{route('admin.settings.seo.llms.save')}}', 'llmsTxtSave');
+            });
+
+            $('#clearLlmsCacheBtn').on('click', function () {
+                $.ajax({
+                    url: '{{route('admin.settings.seo.llms.clear-cache')}}',
+                    method: 'POST',
+                    data: { _token: '{{csrf_token()}}' },
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            toastr.success(response.message);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                });
             });
 
             $('#socialNetworkForm').submit(function () {

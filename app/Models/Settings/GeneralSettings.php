@@ -18,6 +18,8 @@ class GeneralSettings extends Model implements HasMedia
     protected $fillable = [
         'contact_email',
         'sharethis',
+        'llms_txt_intro',
+        'llms_txt_instructions',
         'logo',
         'favicon',
         'homepage_featured_count',
