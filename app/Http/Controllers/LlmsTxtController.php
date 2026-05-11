@@ -44,7 +44,7 @@ class LlmsTxtController extends Controller
         $lines[] = '';
 
         if ($intro = $generalSettings?->llms_txt_intro) {
-            $lines[] = "> {$intro}";
+            $lines[] = $intro;
             $lines[] = '';
         }
 
