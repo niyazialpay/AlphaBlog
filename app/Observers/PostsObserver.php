@@ -2,11 +2,25 @@
 
 namespace App\Observers;
 
+use App\Jobs\SubmitUrlToGoogleIndex;
 use App\Models\Post\PostHistory;
 use App\Models\Post\Posts;
+use App\Models\Settings\GeneralSettings;
 
 class PostsObserver
 {
+    public function saved(Posts $post): void
+    {
+        if (
+            $post->is_published
+            && ($post->wasRecentlyCreated || $post->wasChanged('is_published'))
+            && GeneralSettings::first()?->google_indexing_enabled
+            && ! $post->isIndexed()
+        ) {
+            SubmitUrlToGoogleIndex::dispatch($post);
+        }
+    }
+
     public function updated(Posts $post): void
     {
         $original = $post->getOriginal();

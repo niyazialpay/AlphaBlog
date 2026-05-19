@@ -4,6 +4,8 @@ namespace App\Models\Post;
 
 use App\Models\User;
 use App\Traits\ModelLogger;
+use Database\Factories\PostsFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -17,10 +19,16 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Posts extends Model implements HasMedia
 {
+    use HasFactory;
     use InteractsWithMedia;
     use ModelLogger;
     use Searchable;
     use SoftDeletes;
+
+    protected static function newFactory(): PostsFactory
+    {
+        return PostsFactory::new();
+    }
 
     /**
      * @var bool|mixed
@@ -85,6 +93,24 @@ class Posts extends Model implements HasMedia
         return $this->hasMany(PostQrScan::class, 'post_id');
     }
 
+    public function indexingLogs(): HasMany
+    {
+        return $this->hasMany(PostIndexingLog::class, 'post_id')->orderByDesc('created_at');
+    }
+
+    public function isIndexed(): bool
+    {
+        return $this->indexingLogs()
+            ->where('status', 'success')
+            ->where('type', 'URL_UPDATED')
+            ->exists();
+    }
+
+    public function frontendUrl(): string
+    {
+        return route('page', ['language' => $this->language, 'showPost' => $this->slug]);
+    }
+
     public function searchableAs(): string
     {
         return config('scout.prefix').'posts';
@@ -127,14 +153,20 @@ class Posts extends Model implements HasMedia
         $this->addMediaConversion('resized')
             ->width(1920)
             ->height(1080)
-            ->nonOptimized()->keepOriginalImageFormat();
+            ->format('webp')
+            ->quality(85)
+            ->nonOptimized();
         $this->addMediaConversion('cover')
             ->width(850)
             ->height(480)
-            ->nonOptimized()->keepOriginalImageFormat();
+            ->format('webp')
+            ->quality(80)
+            ->nonOptimized();
         $this->addMediaConversion('thumb')
             ->width(365)
             ->height(200)
-            ->nonOptimized()->keepOriginalImageFormat();
+            ->format('webp')
+            ->quality(80)
+            ->nonOptimized();
     }
 }

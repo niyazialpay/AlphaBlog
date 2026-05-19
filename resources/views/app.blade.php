@@ -5,7 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <link rel="stylesheet" href="{{ rtrim(config('app.cdn_url') ?: config('app.url'), '/') }}/themes/fontawesome/css/all.css">
+        @if(str_contains(config('theme.assets.css_entry', ''), 'BirdergiV2'))
+        <link rel="preload" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=JetBrains+Mono:wght@400;500&display=optional" as="style" crossorigin>
+        @endif
+        <link rel="stylesheet" href="{{ rtrim(config('app.cdn_url') ?: config('app.url'), '/') }}/themes/fontawesome/css/all.css" media="print" onload="this.media='all'">
+        <noscript><link rel="stylesheet" href="{{ rtrim(config('app.cdn_url') ?: config('app.url'), '/') }}/themes/fontawesome/css/all.css"></noscript>
         @php
             $viteEntries = array_values(array_filter([
                 config('theme.assets.css_entry'),

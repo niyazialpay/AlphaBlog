@@ -7,6 +7,7 @@ use App\Models\PersonalNotes\PersonalNotes;
 use App\Models\Post\Posts;
 use App\Traits\ModelLogger;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -24,7 +25,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class User extends Authenticatable implements HasMedia, MustVerifyEmail, WebAuthnAuthenticatable
 {
-    use HasApiTokens, Notifiable, Searchable, TwoFactorAuthenticatable, WebAuthnAuthentication;
+    use HasApiTokens, HasFactory, Notifiable, Searchable, TwoFactorAuthenticatable, WebAuthnAuthentication;
     use InteractsWithMedia;
     use ModelLogger;
     use Searchable;

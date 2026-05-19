@@ -7,6 +7,8 @@
         "prepreview": "node scripts/theme-install.mjs",
         "dev": "vite",
         "build": "vite build",
+        "build:ssr": "vite build --ssr",
+        "build:all": "vite build && vite build --ssr",
         "preview": "vite preview",
         "lint": "eslint .",
         "theme:install": "node scripts/theme-install.mjs --force"

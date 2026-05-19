@@ -1,19 +1,29 @@
 <?php
 
 use App\Actions\RouteRedirectAction;
+use App\Http\Middleware\EarlyHintsMiddleware;
+use App\Http\Middleware\FirewallMiddleware;
+use App\Http\Middleware\GoogleAnalytics;
+use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\Language;
+use App\Http\Middleware\RouteRedirect;
+use App\Http\Middleware\TrustProxies;
+use App\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
+use Nwidart\Modules\Facades\Module;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         using: function () {
             // Module front routes must load BEFORE web.php so they match
             // before the catch-all /{showPost:slug} pattern.
-            if (class_exists(\Nwidart\Modules\Facades\Module::class)) {
-                foreach (\Nwidart\Modules\Facades\Module::allEnabled() as $module) {
+            if (class_exists(Module::class)) {
+                foreach (Module::allEnabled() as $module) {
                     $frontPath = $module->getPath().'/routes/front.php';
                     if (is_file($frontPath)) {
                         Route::domain(config('app.url'))
@@ -34,18 +44,19 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(
             append: [
-                \App\Http\Middleware\Language::class,
-                \App\Http\Middleware\HandleInertiaRequests::class,
+                Language::class,
+                HandleInertiaRequests::class,
+                GoogleAnalytics::class,
             ],
             prepend: [
-                \Illuminate\Session\Middleware\StartSession::class,
-                \App\Http\Middleware\EarlyHintsMiddleware::class,
-                \App\Http\Middleware\VerifyCsrfToken::class,
-                \App\Http\Middleware\FirewallMiddleware::class,
+                StartSession::class,
+                EarlyHintsMiddleware::class,
+                VerifyCsrfToken::class,
+                FirewallMiddleware::class,
             ]);
         $middleware->use([
-            \App\Http\Middleware\TrustProxies::class,
-            \App\Http\Middleware\RouteRedirect::class,
+            TrustProxies::class,
+            RouteRedirect::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

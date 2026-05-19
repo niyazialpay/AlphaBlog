@@ -36,4 +36,9 @@ return [
         'model' => env('OPENAI_MODEL'),
     ],
 
+    'google_analytics' => [
+        'measurement_id' => env('GA_MEASUREMENT_ID'),
+        'api_secret' => env('GA_API_SECRET'),
+    ],
+
 ];

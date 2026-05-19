@@ -20,6 +20,9 @@ class GeneralSettings extends Model implements HasMedia
         'sharethis',
         'llms_txt_intro',
         'llms_txt_instructions',
+        'google_indexing_enabled',
+        'google_indexing_credentials',
+        'google_indexing_daily_limit',
         'logo',
         'favicon',
         'homepage_featured_count',
@@ -27,6 +30,15 @@ class GeneralSettings extends Model implements HasMedia
     ];
 
     public $timestamps = false;
+
+    protected function casts(): array
+    {
+        return [
+            'google_indexing_enabled' => 'boolean',
+            'google_indexing_credentials' => 'encrypted',
+            'google_indexing_daily_limit' => 'integer',
+        ];
+    }
 
     public function registerMediaConversions(?Media $media = null): void
     {

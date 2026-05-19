@@ -54,9 +54,15 @@
                     </ul>
                     <div class="tab_container">
                         <div class="tab_content table-responsive" id="contents">
+                            <div class="mb-2">
+                                <button id="bulk-index-btn" class="btn btn-sm btn-outline-success" disabled>
+                                    <i class="fab fa-google"></i> Google'a Gönder (<span id="selected-count">0</span>)
+                                </button>
+                            </div>
                             <table id="posts-table" class="table table-striped" aria-describedby="contents">
                                 <thead>
                                 <tr>
+                                    <th scope="col" style="width:30px"><input type="checkbox" id="select-all-posts"></th>
                                     <th scope="col">@lang('post.title')</th>
                                     @if($type == 'blogs')
                                     <th scope="col">@lang('post.category')</th>
@@ -73,6 +79,7 @@
                                 </tbody>
                                 <tfoot>
                                 <tr>
+                                    <th scope="col"></th>
                                     <th scope="col">@lang('post.title')</th>
                                     @if($type == 'blogs')
                                         <th scope="col">@lang('post.category')</th>
@@ -87,6 +94,27 @@
                                 </tfoot>
 
                             </table>
+                        </div>
+
+                        <!-- Google Index History Modal -->
+                        <div class="modal fade" id="indexHistoryModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"><i class="fab fa-google me-1"></i> Google Index Durumu</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body" id="index-history-body">
+                                        <div class="text-center"><i class="fas fa-spinner fa-spin"></i> Yükleniyor...</div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" id="resend-index-btn" class="btn btn-success d-none">
+                                            <i class="fab fa-google"></i> Tekrar Gönder
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="tab_content table-responsive" id="trashed">
                             <table class="table table-striped" aria-describedby="trashed">
@@ -320,7 +348,7 @@
             @endif
 
 
-            $('#posts-table').DataTable({
+            var postsTable = $('#posts-table').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -332,6 +360,7 @@
                 },
                 responsive: true,
                 columns: [
+                    { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false, className: 'text-center', width: '30px' },
                     { data: 'title', name: 'title' },
                     @if($type == 'blogs')
                     { data: 'categories', name: 'categories' },
@@ -343,7 +372,7 @@
                     { data: 'updated_at', name: 'updated_at', className: "text-center" },
                     { data: 'action', name: 'action', orderable: false, searchable: false }
                 ],
-                order: [[@if($type == 'blogs') 5 @else 3 @endif, 'desc']],
+                order: [[@if($type == 'blogs') 6 @else 4 @endif, 'desc']],
                 pageLength: @if(session()->has('post_datatable_length')) {{session('post_datatable_length')}} @else 10 @endif,
                 lengthMenu: [10, 25, 50, 75, 100],
                 language: {
@@ -354,9 +383,123 @@
                     'X-XSRF-TOKEN': '{{csrf_token()}}',
                 },
                 drawCallback: function() {
-                    // Tooltip'u yeniden başlat
                     $('[data-bs-toggle="tooltip"]').tooltip();
+                    updateBulkButton();
                 }
+            });
+
+            function updateBulkButton() {
+                var count = $('.post-checkbox:checked').length;
+                $('#selected-count').text(count);
+                $('#bulk-index-btn').prop('disabled', count === 0);
+            }
+
+            $(document).on('change', '.post-checkbox', function() {
+                updateBulkButton();
+            });
+
+            $('#select-all-posts').on('change', function() {
+                var checked = $(this).is(':checked');
+                postsTable.$('.post-checkbox').prop('checked', checked);
+                updateBulkButton();
+            });
+
+            $('#bulk-index-btn').on('click', function() {
+                var ids = [];
+                postsTable.$('.post-checkbox:checked').each(function() {
+                    ids.push($(this).val());
+                });
+                if (ids.length === 0) { return; }
+
+                Swal.fire({
+                    title: 'Google\'a Gönder',
+                    text: ids.length + ' yazı Google\'a indexleme için gönderilecek. Zaten indexlenenler atlanır.',
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonText: 'Gönder',
+                    cancelButtonText: '@lang('general.cancel')',
+                }).then(function(result) {
+                    if (!result.isConfirmed) { return; }
+                    var formData = { _token: '{{csrf_token()}}' };
+                    ids.forEach(function(id, i) { formData['post_ids[' + i + ']'] = id; });
+                    $.ajax({
+                        url: '{{route('admin.post.index.bulk', $type)}}',
+                        type: 'POST',
+                        data: formData,
+                        success: function(res) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Kuyruğa Alındı',
+                                html: '<b>' + res.queued + '</b> yazı kuyruğa alındı.<br><b>' + res.skipped + '</b> yazı zaten indexlendiği için atlandı.',
+                            });
+                            $('#select-all-posts').prop('checked', false);
+                            postsTable.$('.post-checkbox').prop('checked', false);
+                            updateBulkButton();
+                        },
+                        error: function(xhr) {
+                            Swal.fire({ icon: 'error', title: 'Hata', text: xhr.responseJSON ? xhr.responseJSON.message : 'Bir hata oluştu' });
+                        }
+                    });
+                });
+            });
+
+            var currentIndexPostId = null;
+
+            $(document).on('click', '.index-history-btn', function() {
+                currentIndexPostId = $(this).data('post-id');
+                $('#index-history-body').html('<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Yükleniyor...</div>');
+                $('#resend-index-btn').addClass('d-none');
+                var modal = new bootstrap.Modal(document.getElementById('indexHistoryModal'));
+                modal.show();
+                $.ajax({
+                    url: '{{route('admin.posts', $type)}}/' + currentIndexPostId + '/index/history',
+                    type: 'GET',
+                    headers: { 'X-CSRF-TOKEN': '{{csrf_token()}}' },
+                    success: function(logs) {
+                        if (logs.length === 0) {
+                            $('#index-history-body').html('<p class="text-muted">Henüz indexleme geçmişi yok.</p>');
+                            $('#resend-index-btn').removeClass('d-none');
+                            return;
+                        }
+                        var hasFailed = logs.some(function(l) { return l.status === 'failed'; });
+                        var hasSuccess = logs.some(function(l) { return l.status === 'success'; });
+                        if (!hasSuccess) { $('#resend-index-btn').removeClass('d-none'); }
+                        var html = '<div class="table-responsive"><table class="table table-sm table-bordered">';
+                        html += '<thead><tr><th>Tarih</th><th>Tip</th><th>Durum</th><th>Kod</th><th>Mesaj</th></tr></thead><tbody>';
+                        logs.forEach(function(log) {
+                            var badge = log.status === 'success' ? 'badge-success' : 'badge-danger';
+                            var msg = log.message ? log.message.substring(0, 120) : '';
+                            html += '<tr><td style="white-space:nowrap">' + log.created_at + '</td>';
+                            html += '<td><span class="badge badge-secondary">' + log.type + '</span></td>';
+                            html += '<td><span class="badge ' + badge + '">' + log.status + '</span></td>';
+                            html += '<td>' + (log.response_code || '') + '</td>';
+                            html += '<td><small>' + msg + '</small></td></tr>';
+                        });
+                        html += '</tbody></table></div>';
+                        $('#index-history-body').html(html);
+                    },
+                    error: function() {
+                        $('#index-history-body').html('<p class="text-danger">Geçmiş yüklenemedi.</p>');
+                    }
+                });
+            });
+
+            $('#resend-index-btn').on('click', function() {
+                if (!currentIndexPostId) { return; }
+                $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Gönderiliyor...');
+                $.ajax({
+                    url: '{{route('admin.posts', $type)}}/' + currentIndexPostId + '/index',
+                    type: 'POST',
+                    data: { _token: '{{csrf_token()}}' },
+                    success: function() {
+                        Swal.fire({ icon: 'success', title: 'Kuyruğa Alındı', timer: 1500, showConfirmButton: false });
+                        $('#resend-index-btn').prop('disabled', false).html('<i class="fab fa-google"></i> Tekrar Gönder');
+                    },
+                    error: function(xhr) {
+                        Swal.fire({ icon: 'error', title: 'Hata', text: xhr.responseJSON ? xhr.responseJSON.message : 'Bir hata oluştu' });
+                        $('#resend-index-btn').prop('disabled', false).html('<i class="fab fa-google"></i> Tekrar Gönder');
+                    }
+                });
             });
         });
     </script>

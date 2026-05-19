@@ -98,6 +98,9 @@ class PostController extends Controller
 
             return DataTables::eloquent($posts)
                 ->enableScoutSearch(Posts::class)
+                ->addColumn('checkbox', function ($post) {
+                    return '<input type="checkbox" class="post-checkbox" value="'.$post->id.'">';
+                })
                 ->addColumn('user', function ($post) {
                     return $post->user ? $post->user->nickname : '';
                 })
@@ -119,7 +122,7 @@ class PostController extends Controller
                 ->addColumn('updated_at', function ($post) {
                     return dateformat($post->updated_at, 'd.m.Y H:i:s', config('app.timezone'));
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['action', 'checkbox'])
                 ->make(true);
         }
 

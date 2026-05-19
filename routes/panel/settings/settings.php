@@ -1,87 +1,100 @@
 <?php
 
+use App\Http\Controllers\Admin\LanguagesController;
+use App\Http\Controllers\Admin\Settings\AdvertiseSettingsController;
+use App\Http\Controllers\Admin\Settings\AnalyticsSettingsController;
+use App\Http\Controllers\Admin\Settings\GeneralSettingsController;
+use App\Http\Controllers\Admin\Settings\NotificationsController;
+use App\Http\Controllers\Admin\Settings\SeoSettingsController;
+use App\Http\Controllers\Admin\Settings\SettingsController;
+use App\Http\Controllers\Admin\Settings\SocialSettingsController;
+use App\Http\Controllers\Admin\Settings\ThemesSettingsController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [\App\Http\Controllers\Admin\Settings\SettingsController::class, 'index'])
+Route::get('/', [SettingsController::class, 'index'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings');
 
-Route::post('/seo/save', [App\Http\Controllers\Admin\Settings\SeoSettingsController::class, 'save'])
+Route::post('/seo/save', [SeoSettingsController::class, 'save'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.seo.save');
 
-Route::post('/seo/robots/save', [App\Http\Controllers\Admin\Settings\SeoSettingsController::class, 'saveRobots'])
+Route::post('/seo/robots/save', [SeoSettingsController::class, 'saveRobots'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.seo.robots.save');
 
-Route::post('/seo/llms/save', [App\Http\Controllers\Admin\Settings\SeoSettingsController::class, 'saveLlms'])
+Route::post('/seo/llms/save', [SeoSettingsController::class, 'saveLlms'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.seo.llms.save');
 
-Route::post('/seo/llms/clear-cache', [App\Http\Controllers\Admin\Settings\SeoSettingsController::class, 'clearLlmsCache'])
+Route::post('/seo/llms/clear-cache', [SeoSettingsController::class, 'clearLlmsCache'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.seo.llms.clear-cache');
 
-Route::post('/general/save', [App\Http\Controllers\Admin\Settings\GeneralSettingsController::class, 'save'])
+Route::post('/seo/google-indexing/save', [SeoSettingsController::class, 'saveGoogleIndexing'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.settings.seo.google-indexing.save');
+
+Route::post('/general/save', [GeneralSettingsController::class, 'save'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.general.save');
 
 Route::post('/general/logo/delete/{type}',
-    [App\Http\Controllers\Admin\Settings\GeneralSettingsController::class, 'deleteLogo'])
+    [GeneralSettingsController::class, 'deleteLogo'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.general.logo.delete')->where('type', 'light|dark');
 
 Route::post('/general/favicon/delete',
-    [App\Http\Controllers\Admin\Settings\GeneralSettingsController::class, 'deleteFavicon'])
+    [GeneralSettingsController::class, 'deleteFavicon'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.general.favicon.delete');
 
 Route::post('/general/app_icon/delete',
-    [App\Http\Controllers\Admin\Settings\GeneralSettingsController::class, 'deleteAppIcon'])
+    [GeneralSettingsController::class, 'deleteAppIcon'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.general.app_icon.delete');
 
-Route::post('/social/save', [App\Http\Controllers\Admin\Settings\SocialSettingsController::class, 'save'])
+Route::post('/social/save', [SocialSettingsController::class, 'save'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.social.save');
 
-Route::post('/social/header/save', [App\Http\Controllers\Admin\Settings\SocialSettingsController::class, 'saveHeader'])
+Route::post('/social/header/save', [SocialSettingsController::class, 'saveHeader'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.social.header.save');
 
-Route::post('/analytics/save', [App\Http\Controllers\Admin\Settings\AnalyticsSettingsController::class, 'save'])
+Route::post('/analytics/save', [AnalyticsSettingsController::class, 'save'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.analytics.save');
 
-Route::post('/advertise/save', [App\Http\Controllers\Admin\Settings\AdvertiseSettingsController::class, 'save'])
+Route::post('/advertise/save', [AdvertiseSettingsController::class, 'save'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.advertisement.save');
 
-Route::post('/languages/show', [App\Http\Controllers\Admin\LanguagesController::class, 'show'])
+Route::post('/languages/show', [LanguagesController::class, 'show'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.languages.show');
 
-Route::post('/languages/save/{language?}', [App\Http\Controllers\Admin\LanguagesController::class, 'save'])
+Route::post('/languages/save/{language?}', [LanguagesController::class, 'save'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.languages.save');
 
-Route::post('/languages/delete', [App\Http\Controllers\Admin\LanguagesController::class, 'delete'])
+Route::post('/languages/delete', [LanguagesController::class, 'delete'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.languages.delete');
 
-Route::post('/themes/delete', [App\Http\Controllers\Admin\Settings\ThemesSettingsController::class, 'delete'])
+Route::post('/themes/delete', [ThemesSettingsController::class, 'delete'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.themes.delete');
 
-Route::post('/theme/upload', [App\Http\Controllers\Admin\Settings\ThemesSettingsController::class, 'upload'])
+Route::post('/theme/upload', [ThemesSettingsController::class, 'upload'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.themes.upload');
 
 Route::get('/theme/activate/{theme}',
-    [App\Http\Controllers\Admin\Settings\ThemesSettingsController::class, 'makeDefault'])
+    [ThemesSettingsController::class, 'makeDefault'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.themes.default');
 
-Route::post('/notification/save', [App\Http\Controllers\Admin\Settings\NotificationsController::class, 'save'])
+Route::post('/notification/save', [NotificationsController::class, 'save'])
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.notifications.save');

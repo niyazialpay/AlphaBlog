@@ -12,10 +12,13 @@ export default defineConfig(({ mode }) => {
     const inputEntries = [cssEntry, jsEntry]
         .filter((entry) => typeof entry === 'string' && entry.length > 0);
 
+    const ssrEntry = env.THEME_SSR_ENTRY || null;
+
     return {
         plugins: [
             laravel({
                 input: Array.from(new Set(inputEntries)),
+                ssr: ssrEntry || undefined,
                 refresh: true,
             }),
             vue(),

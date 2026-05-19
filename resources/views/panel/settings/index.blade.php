@@ -382,6 +382,62 @@
                                     </form>
                                 </div>
                             </div>
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h3 class="card-title"><i class="fab fa-google me-1"></i> Google Indexing API</h3>
+                                </div>
+                                <div class="card-body">
+                                    <form id="googleIndexingForm" method="post" action="javascript:void(0)" enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="row">
+                                            <div class="col-12 mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="google_indexing_enabled"
+                                                           name="google_indexing_enabled" value="1"
+                                                           @if($general_settings->google_indexing_enabled) checked @endif>
+                                                    <label class="form-check-label" for="google_indexing_enabled">
+                                                        Otomatik indexlemeyi etkinleştir
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-md-4 mb-3">
+                                                <label class="form-label" for="google_indexing_daily_limit">Günlük limit</label>
+                                                <input type="number" class="form-control" id="google_indexing_daily_limit"
+                                                       name="google_indexing_daily_limit" min="1" max="200"
+                                                       value="{{ $general_settings->google_indexing_daily_limit ?? 200 }}">
+                                                <div class="form-text">Google varsayılan günlük kotası 200 URL'dir.</div>
+                                            </div>
+                                            <div class="col-12 mb-3">
+                                                <label class="form-label" for="google_indexing_credentials_file">
+                                                    Servis Hesabı JSON Dosyası
+                                                    @if($general_settings->google_indexing_credentials)
+                                                        <span class="badge badge-success ms-1">Yüklü</span>
+                                                    @endif
+                                                </label>
+                                                <input type="file" class="form-control" id="google_indexing_credentials_file"
+                                                       name="google_indexing_credentials_file" accept=".json">
+                                                <div class="form-text">
+                                                    Google Cloud Console'dan indirilen servis hesabı JSON anahtarı.
+                                                    Boş bırakırsanız mevcut anahtar korunur.
+                                                </div>
+                                            </div>
+                                            <div class="col-12 mb-3">
+                                                <label class="form-label" for="google_indexing_credentials">
+                                                    veya JSON içeriğini yapıştır
+                                                </label>
+                                                <textarea class="form-control" id="google_indexing_credentials"
+                                                          name="google_indexing_credentials" rows="4"
+                                                          placeholder='{"type":"service_account","project_id":"...","client_email":"...","private_key":"..."}'></textarea>
+                                            </div>
+                                            <div class="col-12 mb-3">
+                                                <button type="submit" class="btn btn-primary">
+                                                    @lang('general.save')
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="tab-pane settings-tabs @if(request()->get('tab')=='analytics') active @endif"
@@ -1304,6 +1360,28 @@
                             toastr.error(response.message);
                         }
                     },
+                });
+            });
+
+            $('#googleIndexingForm').submit(function (e) {
+                e.preventDefault();
+                var formData = new FormData(this);
+                $.ajax({
+                    url: '{{route('admin.settings.seo.google-indexing.save')}}',
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            toastr.success(response.message);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function (xhr) {
+                        toastr.error(xhr.responseJSON ? xhr.responseJSON.message : 'Bir hata oluştu');
+                    }
                 });
             });
 

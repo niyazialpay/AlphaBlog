@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\Post\PostController;
+use App\Http\Controllers\Admin\Post\PostIndexingController;
 use App\Http\Controllers\Admin\Post\PostQrAdminController;
 use App\Http\Middleware\CheckPostType;
 use App\Http\Middleware\MergePostTypeToRequest;
@@ -73,3 +74,15 @@ Route::post('/{post}/qr/generate',
     [PostQrAdminController::class, 'generate'])
     ->can('edit', 'post')
     ->name('admin.post.qr.generate');
+
+Route::post('/index/bulk', [PostIndexingController::class, 'bulkIndex'])
+    ->name('admin.post.index.bulk')
+    ->can('edit', 'App\Models\Post\Posts');
+
+Route::post('/{post}/index', [PostIndexingController::class, 'single'])
+    ->name('admin.post.index.single')
+    ->can('edit', 'post');
+
+Route::get('/{post}/index/history', [PostIndexingController::class, 'history'])
+    ->name('admin.post.index.history')
+    ->can('edit', 'post');

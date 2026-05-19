@@ -556,7 +556,7 @@ class ThemeData
             'slug' => $post->slug,
             'type' => $post->post_type,
             'excerpt' => Str::limit(strip_tags(stripslashesNull($post->content)), 220),
-            'image' => self::postImage($post, 'resized'),
+            'image' => self::postImage($post, 'cover'),
             'category' => $primaryCategory ? self::categorySummary($primaryCategory) : null,
             'categories' => $post->categories->map(fn (Categories $category) => self::categorySummary($category))->toArray(),
             'author' => $post->user ? self::authorSummary($post->user) : null,
@@ -576,6 +576,7 @@ class ThemeData
         $post->loadMissing(['categories', 'user.social', 'media']);
 
         return array_merge(self::postSummary($post), [
+            'image' => self::postImage($post, 'resized'),
             'content' => stripslashesNull($post->content),
             'meta' => [
                 'description' => stripslashesNull($post->meta_description),

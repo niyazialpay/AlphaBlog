@@ -25,6 +25,12 @@
         </button>
     @endif
 @endif
+<button class="btn btn-sm btn-success mx-1 my-2 index-history-btn"
+        data-post-id="{{ $post->id }}"
+        data-bs-toggle="tooltip" data-bs-placement="top"
+        title="Google Index Durumu">
+    <i class="fab fa-google"></i>
+</button>
 <a href="javascript:DeleteBlog('{{$post->id}}')"
    class="btn btn-sm btn-danger mx-1 my-2"
    data-bs-toggle="tooltip" data-bs-placement="top"
