@@ -86,3 +86,7 @@ Route::post('/{post}/index', [PostIndexingController::class, 'single'])
 Route::get('/{post}/index/history', [PostIndexingController::class, 'history'])
     ->name('admin.post.index.history')
     ->can('edit', 'post');
+
+Route::get('/{post}/index/status', [PostIndexingController::class, 'status'])
+    ->name('admin.post.index.status')
+    ->can('edit', 'post');

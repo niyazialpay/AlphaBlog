@@ -23,6 +23,7 @@ class GeneralSettings extends Model implements HasMedia
         'google_indexing_enabled',
         'google_indexing_credentials',
         'google_indexing_daily_limit',
+        'google_indexing_site_url',
         'logo',
         'favicon',
         'homepage_featured_count',

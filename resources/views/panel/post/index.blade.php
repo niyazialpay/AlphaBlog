@@ -444,27 +444,43 @@
             });
 
             var currentIndexPostId = null;
+            var basePostUrl = '{{route('admin.posts', $type)}}';
 
             $(document).on('click', '.index-history-btn', function() {
                 currentIndexPostId = $(this).data('post-id');
-                $('#index-history-body').html('<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Yükleniyor...</div>');
+                $('#index-history-body').html('<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Google sorgulanıyor...</div>');
                 $('#resend-index-btn').addClass('d-none');
                 var modal = new bootstrap.Modal(document.getElementById('indexHistoryModal'));
                 modal.show();
-                $.ajax({
-                    url: '{{route('admin.posts', $type)}}/' + currentIndexPostId + '/index/history',
-                    type: 'GET',
-                    headers: { 'X-CSRF-TOKEN': '{{csrf_token()}}' },
-                    success: function(logs) {
-                        if (logs.length === 0) {
-                            $('#index-history-body').html('<p class="text-muted">Henüz indexleme geçmişi yok.</p>');
-                            $('#resend-index-btn').removeClass('d-none');
-                            return;
+
+                $.when(
+                    $.get(basePostUrl + '/' + currentIndexPostId + '/index/status'),
+                    $.get(basePostUrl + '/' + currentIndexPostId + '/index/history')
+                ).done(function(statusRes, historyRes) {
+                    var status = statusRes[0];
+                    var logs = historyRes[0];
+                    var html = '';
+
+                    if (!status.error) {
+                        var alertClass = status.indexed ? 'success' : 'warning';
+                        var statusLabel = status.indexed ? '<strong>İndexlenmiş</strong>' : '<strong>İndexlenmemiş</strong>';
+                        html += '<div class="alert alert-' + alertClass + ' mb-3">';
+                        html += '<i class="fab fa-google me-1"></i> ' + statusLabel + ' — ' + status.coverage_state;
+                        if (status.last_crawl_time) {
+                            html += '<br><small class="text-muted">Son tarama: ' + status.last_crawl_time + '</small>';
                         }
-                        var hasFailed = logs.some(function(l) { return l.status === 'failed'; });
-                        var hasSuccess = logs.some(function(l) { return l.status === 'success'; });
-                        if (!hasSuccess) { $('#resend-index-btn').removeClass('d-none'); }
-                        var html = '<div class="table-responsive"><table class="table table-sm table-bordered">';
+                        html += '</div>';
+                        if (!status.indexed) {
+                            $('#resend-index-btn').removeClass('d-none');
+                        }
+                    } else {
+                        html += '<div class="alert alert-danger mb-3"><i class="fas fa-exclamation-triangle me-1"></i> Google durumu alınamadı: ' + status.coverage_state + '</div>';
+                        $('#resend-index-btn').removeClass('d-none');
+                    }
+
+                    if (logs.length > 0) {
+                        html += '<h6 class="mt-2">Gönderim Geçmişi</h6>';
+                        html += '<div class="table-responsive"><table class="table table-sm table-bordered">';
                         html += '<thead><tr><th>Tarih</th><th>Tip</th><th>Durum</th><th>Kod</th><th>Mesaj</th></tr></thead><tbody>';
                         logs.forEach(function(log) {
                             var badge = log.status === 'success' ? 'badge-success' : 'badge-danger';
@@ -476,11 +492,13 @@
                             html += '<td><small>' + msg + '</small></td></tr>';
                         });
                         html += '</tbody></table></div>';
-                        $('#index-history-body').html(html);
-                    },
-                    error: function() {
-                        $('#index-history-body').html('<p class="text-danger">Geçmiş yüklenemedi.</p>');
+                    } else {
+                        html += '<p class="text-muted mb-0">Henüz gönderim geçmişi yok.</p>';
                     }
+
+                    $('#index-history-body').html(html);
+                }).fail(function() {
+                    $('#index-history-body').html('<p class="text-danger">Bilgiler yüklenemedi.</p>');
                 });
             });
 
@@ -488,11 +506,11 @@
                 if (!currentIndexPostId) { return; }
                 $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Gönderiliyor...');
                 $.ajax({
-                    url: '{{route('admin.posts', $type)}}/' + currentIndexPostId + '/index',
+                    url: basePostUrl + '/' + currentIndexPostId + '/index',
                     type: 'POST',
-                    data: { _token: '{{csrf_token()}}' },
+                    headers: { 'X-CSRF-TOKEN': '{{csrf_token()}}' },
                     success: function() {
-                        Swal.fire({ icon: 'success', title: 'Kuyruğa Alındı', timer: 1500, showConfirmButton: false });
+                        Swal.fire({ icon: 'success', title: 'Kuyruğa Alındı', text: 'Indexleme isteği gönderildi.', timer: 2000, showConfirmButton: false });
                         $('#resend-index-btn').prop('disabled', false).html('<i class="fab fa-google"></i> Tekrar Gönder');
                     },
                     error: function(xhr) {

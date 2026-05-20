@@ -6,6 +6,7 @@ use App\Models\Post\PostIndexingLog;
 use App\Models\Settings\GeneralSettings;
 use Google\Auth\Credentials\ServiceAccountCredentials;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class GoogleIndexingAction
 {
@@ -13,26 +14,38 @@ class GoogleIndexingAction
 
     private const INDEXING_ENDPOINT = 'https://indexing.googleapis.com/v3/urlNotifications:publish';
 
+    private const INSPECTION_SCOPE = 'https://www.googleapis.com/auth/webmasters.readonly';
+
+    private const INSPECTION_ENDPOINT = 'https://searchconsole.googleapis.com/v1/urlInspection/index:inspect';
+
     public function submit(string $url, string $type = 'URL_UPDATED'): array
     {
         $settings = GeneralSettings::first();
         $credentialsJson = $settings?->google_indexing_credentials;
 
         if (! $credentialsJson) {
+            Log::warning('Google Indexing: credentials not configured.');
+
             return ['status' => 'failed', 'code' => 0, 'message' => 'Google indexing credentials not configured.'];
         }
 
         $credentials = json_decode($credentialsJson, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
+            Log::warning('Google Indexing: invalid credentials JSON.');
+
             return ['status' => 'failed', 'code' => 0, 'message' => 'Invalid credentials JSON.'];
         }
 
-        $token = $this->fetchAccessToken($credentials);
+        $token = $this->fetchAccessTokenForScope($credentials, self::INDEXING_SCOPE);
 
         if (! $token) {
+            Log::error('Google Indexing: failed to obtain access token.', ['url' => $url]);
+
             return ['status' => 'failed', 'code' => 0, 'message' => 'Failed to obtain access token.'];
         }
+
+        Log::info('Google Indexing API request', ['url' => $url, 'type' => $type]);
 
         $response = Http::withToken($token)
             ->post(self::INDEXING_ENDPOINT, [
@@ -40,11 +53,85 @@ class GoogleIndexingAction
                 'type' => $type,
             ]);
 
+        Log::info('Google Indexing API response', [
+            'url' => $url,
+            'http_status' => $response->status(),
+            'body' => $response->body(),
+        ]);
+
         if ($response->successful()) {
             return ['status' => 'success', 'code' => $response->status(), 'message' => $response->body()];
         }
 
         return ['status' => 'failed', 'code' => $response->status(), 'message' => $response->body()];
+    }
+
+    public function inspect(string $url): array
+    {
+        $settings = GeneralSettings::first();
+        $credentialsJson = $settings?->google_indexing_credentials;
+
+        if (! $credentialsJson) {
+            return ['indexed' => false, 'coverage_state' => 'Credentials not configured', 'error' => true];
+        }
+
+        $credentials = json_decode($credentialsJson, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return ['indexed' => false, 'coverage_state' => 'Invalid credentials JSON', 'error' => true];
+        }
+
+        $token = $this->fetchAccessTokenForScope($credentials, self::INSPECTION_SCOPE);
+
+        if (! $token) {
+            Log::error('Google URL Inspection: failed to obtain access token.', ['url' => $url]);
+
+            return ['indexed' => false, 'coverage_state' => 'Failed to get access token', 'error' => true];
+        }
+
+        $siteUrl = $settings?->google_indexing_site_url;
+
+        if (! $siteUrl) {
+            $parsed = parse_url($url);
+            $siteUrl = ($parsed['scheme'] ?? 'https').'://'.($parsed['host'] ?? '').'/';
+        }
+
+        $response = Http::withToken($token)
+            ->post(self::INSPECTION_ENDPOINT, [
+                'inspectionUrl' => $url,
+                'siteUrl' => $siteUrl,
+            ]);
+
+        Log::info('Google URL Inspection API response', [
+            'url' => $url,
+            'site_url' => $siteUrl,
+            'http_status' => $response->status(),
+            'body' => $response->body(),
+        ]);
+
+        if (! $response->successful()) {
+            return [
+                'indexed' => false,
+                'coverage_state' => 'API error ('.$response->status().'): '.$response->body(),
+                'error' => true,
+            ];
+        }
+
+        $indexResult = $response->json('inspectionResult.indexStatusResult');
+
+        if (! $indexResult) {
+            return ['indexed' => false, 'coverage_state' => 'Unknown', 'verdict' => 'VERDICT_UNSPECIFIED', 'error' => false];
+        }
+
+        $indexed = ($indexResult['verdict'] ?? '') === 'PASS';
+
+        return [
+            'indexed' => $indexed,
+            'coverage_state' => $indexResult['coverageState'] ?? 'Unknown',
+            'verdict' => $indexResult['verdict'] ?? 'VERDICT_UNSPECIFIED',
+            'last_crawl_time' => $indexResult['lastCrawlTime'] ?? null,
+            'error' => false,
+        ];
     }
 
     public function dailyQuotaReached(): bool
@@ -55,9 +142,9 @@ class GoogleIndexingAction
         return $count >= $limit;
     }
 
-    private function fetchAccessToken(array $credentials): ?string
+    private function fetchAccessTokenForScope(array $credentials, string $scope): ?string
     {
-        $serviceAccount = new ServiceAccountCredentials(self::INDEXING_SCOPE, $credentials);
+        $serviceAccount = new ServiceAccountCredentials($scope, $credentials);
         $token = $serviceAccount->fetchAuthToken();
 
         return $token['access_token'] ?? null;

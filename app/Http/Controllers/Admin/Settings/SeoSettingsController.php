@@ -92,6 +92,7 @@ class SeoSettingsController extends Controller
         $updateData = [
             'google_indexing_enabled' => $request->boolean('google_indexing_enabled'),
             'google_indexing_daily_limit' => (int) $request->post('google_indexing_daily_limit', 200),
+            'google_indexing_site_url' => $request->post('google_indexing_site_url') ?: null,
         ];
 
         if ($credentialsJson) {

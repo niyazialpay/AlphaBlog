@@ -407,6 +407,18 @@
                                                        value="{{ $general_settings->google_indexing_daily_limit ?? 200 }}">
                                                 <div class="form-text">Google varsayılan günlük kotası 200 URL'dir.</div>
                                             </div>
+                                            <div class="col-12 col-md-8 mb-3">
+                                                <label class="form-label" for="google_indexing_site_url">Search Console Site URL</label>
+                                                <input type="text" class="form-control" id="google_indexing_site_url"
+                                                       name="google_indexing_site_url"
+                                                       placeholder="https://niyazialpay.com/ veya sc-domain:niyazialpay.com"
+                                                       value="{{ $general_settings->google_indexing_site_url ?? '' }}">
+                                                <div class="form-text">
+                                                    Search Console'daki property URL'si. URL-prefix property için <code>https://site.com/</code>,
+                                                    domain property için <code>sc-domain:site.com</code> girin.
+                                                    URL durum sorgusu için zorunludur.
+                                                </div>
+                                            </div>
                                             <div class="col-12 mb-3">
                                                 <label class="form-label" for="google_indexing_credentials_file">
                                                     Servis Hesabı JSON Dosyası
