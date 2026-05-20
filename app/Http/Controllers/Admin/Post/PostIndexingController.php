@@ -6,6 +6,7 @@ use App\Actions\GoogleIndexingAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BulkIndexRequest;
 use App\Jobs\SubmitUrlToGoogleIndex;
+use App\Models\Post\PostIndexingLog;
 use App\Models\Post\Posts;
 use Illuminate\Http\JsonResponse;
 
@@ -40,7 +41,35 @@ class PostIndexingController extends Controller
 
     public function status(string $type, Posts $post): JsonResponse
     {
+        $cached = $post->indexingLogs()
+            ->where('type', 'URL_INSPECTED')
+            ->where('status', 'success')
+            ->first();
+
+        if ($cached) {
+            return response()->json([
+                'indexed' => true,
+                'coverage_state' => $cached->message ?? 'Indexed',
+                'verdict' => 'PASS',
+                'last_crawl_time' => null,
+                'error' => false,
+                'from_cache' => true,
+                'cached_at' => $cached->created_at,
+            ]);
+        }
+
         $result = app(GoogleIndexingAction::class)->inspect($post->frontendUrl());
+
+        if (! $result['error'] && $result['indexed']) {
+            PostIndexingLog::create([
+                'post_id' => $post->id,
+                'url' => $post->frontendUrl(),
+                'type' => 'URL_INSPECTED',
+                'status' => 'success',
+                'response_code' => 200,
+                'message' => $result['coverage_state'],
+            ]);
+        }
 
         return response()->json($result);
     }

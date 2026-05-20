@@ -446,9 +446,33 @@
             var currentIndexPostId = null;
             var basePostUrl = '{{route('admin.posts', $type)}}';
 
+            function fmtDate(str) {
+                if (!str) { return ''; }
+                var d = new Date(str);
+                if (isNaN(d.getTime())) { return str; }
+                var p = function(n) { return n.toString().padStart(2, '0'); };
+                return p(d.getDate()) + '.' + p(d.getMonth() + 1) + '.' + d.getFullYear()
+                    + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+            }
+
+            function fmtMsg(msg) {
+                if (!msg) { return ''; }
+                try {
+                    var obj = JSON.parse(msg);
+                    if (obj.urlNotificationMetadata) {
+                        var lu = obj.urlNotificationMetadata.latestUpdate;
+                        return lu ? 'Bildirildi (' + fmtDate(lu.notifyTime) + ')' : 'URL bildirildi';
+                    }
+                    if (obj.error && obj.error.message) { return obj.error.message; }
+                    return JSON.stringify(obj, null, 2);
+                } catch (e) {
+                    return msg.substring(0, 200);
+                }
+            }
+
             $(document).on('click', '.index-history-btn', function() {
                 currentIndexPostId = $(this).data('post-id');
-                $('#index-history-body').html('<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Google sorgulanıyor...</div>');
+                $('#index-history-body').html('<div class="text-center py-3"><i class="fas fa-spinner fa-spin fa-lg text-primary"></i><div class="mt-2 text-muted small">Google sorgulanıyor...</div></div>');
                 $('#resend-index-btn').addClass('d-none');
                 var modal = new bootstrap.Modal(document.getElementById('indexHistoryModal'));
                 modal.show();
@@ -462,43 +486,60 @@
                     var html = '';
 
                     if (!status.error) {
-                        var alertClass = status.indexed ? 'success' : 'warning';
-                        var statusLabel = status.indexed ? '<strong>İndexlenmiş</strong>' : '<strong>İndexlenmemiş</strong>';
-                        html += '<div class="alert alert-' + alertClass + ' mb-3">';
-                        html += '<i class="fab fa-google me-1"></i> ' + statusLabel + ' — ' + status.coverage_state;
-                        if (status.last_crawl_time) {
-                            html += '<br><small class="text-muted">Son tarama: ' + status.last_crawl_time + '</small>';
+                        var icon = status.indexed
+                            ? '<i class="fas fa-check-circle me-2"></i>'
+                            : '<i class="fas fa-clock me-2"></i>';
+                        var label = status.indexed ? 'İndexlenmiş' : 'İndexlenmemiş';
+                        var cardColor = status.indexed ? 'border-success' : 'border-warning';
+                        var textColor = status.indexed ? 'text-success' : 'text-warning';
+                        html += '<div class="card ' + cardColor + ' mb-3" style="border-width:2px">';
+                        html += '<div class="card-body py-2 px-3">';
+                        html += '<span class="fw-bold ' + textColor + '">' + icon + label + '</span>';
+                        html += '<span class="text-muted ms-2">— ' + status.coverage_state + '</span>';
+                        if (status.from_cache) {
+                            html += '<span class="badge bg-secondary ms-2" style="font-size:0.7rem">önbellekten</span>';
                         }
-                        html += '</div>';
+                        if (status.last_crawl_time) {
+                            html += '<div class="mt-1"><small class="text-muted"><i class="fas fa-spider me-1"></i>Son tarama: ' + fmtDate(status.last_crawl_time) + '</small></div>';
+                        }
+                        if (status.cached_at) {
+                            html += '<div><small class="text-muted"><i class="fas fa-database me-1"></i>Kaydedildi: ' + fmtDate(status.cached_at) + '</small></div>';
+                        }
+                        html += '</div></div>';
                         if (!status.indexed) {
                             $('#resend-index-btn').removeClass('d-none');
                         }
                     } else {
-                        html += '<div class="alert alert-danger mb-3"><i class="fas fa-exclamation-triangle me-1"></i> Google durumu alınamadı: ' + status.coverage_state + '</div>';
+                        html += '<div class="card border-danger mb-3" style="border-width:2px"><div class="card-body py-2 px-3">';
+                        html += '<span class="fw-bold text-danger"><i class="fas fa-times-circle me-2"></i>Durum alınamadı</span>';
+                        html += '<div class="mt-1"><small class="text-muted">' + status.coverage_state + '</small></div>';
+                        html += '</div></div>';
                         $('#resend-index-btn').removeClass('d-none');
                     }
 
                     if (logs.length > 0) {
-                        html += '<h6 class="mt-2">Gönderim Geçmişi</h6>';
-                        html += '<div class="table-responsive"><table class="table table-sm table-bordered">';
-                        html += '<thead><tr><th>Tarih</th><th>Tip</th><th>Durum</th><th>Kod</th><th>Mesaj</th></tr></thead><tbody>';
+                        html += '<div class="small fw-bold text-muted mb-1 mt-2"><i class="fas fa-history me-1"></i>Gönderim Geçmişi</div>';
+                        html += '<div class="table-responsive"><table class="table table-sm table-bordered mb-0">';
+                        html += '<thead class="table-light"><tr><th>Tarih</th><th>Tip</th><th>Durum</th><th>Kod</th><th>Mesaj</th></tr></thead><tbody>';
                         logs.forEach(function(log) {
-                            var badge = log.status === 'success' ? 'badge-success' : 'badge-danger';
-                            var msg = log.message ? log.message.substring(0, 120) : '';
-                            html += '<tr><td style="white-space:nowrap">' + log.created_at + '</td>';
-                            html += '<td><span class="badge badge-secondary">' + log.type + '</span></td>';
-                            html += '<td><span class="badge ' + badge + '">' + log.status + '</span></td>';
-                            html += '<td>' + (log.response_code || '') + '</td>';
-                            html += '<td><small>' + msg + '</small></td></tr>';
+                            var statusBg = log.status === 'success' ? 'bg-success' : 'bg-danger';
+                            var typeBg = log.type === 'URL_INSPECTED' ? 'bg-info' : 'bg-secondary';
+                            html += '<tr>';
+                            html += '<td style="white-space:nowrap" class="small">' + fmtDate(log.created_at) + '</td>';
+                            html += '<td><span class="badge ' + typeBg + ' text-white">' + log.type + '</span></td>';
+                            html += '<td><span class="badge ' + statusBg + ' text-white">' + log.status + '</span></td>';
+                            html += '<td class="small">' + (log.response_code || '') + '</td>';
+                            html += '<td><small class="text-muted">' + fmtMsg(log.message) + '</small></td>';
+                            html += '</tr>';
                         });
                         html += '</tbody></table></div>';
                     } else {
-                        html += '<p class="text-muted mb-0">Henüz gönderim geçmişi yok.</p>';
+                        html += '<p class="text-muted mb-0 small"><i class="fas fa-info-circle me-1"></i>Henüz gönderim geçmişi yok.</p>';
                     }
 
                     $('#index-history-body').html(html);
                 }).fail(function() {
-                    $('#index-history-body').html('<p class="text-danger">Bilgiler yüklenemedi.</p>');
+                    $('#index-history-body').html('<p class="text-danger"><i class="fas fa-times me-1"></i>Bilgiler yüklenemedi.</p>');
                 });
             });
 
