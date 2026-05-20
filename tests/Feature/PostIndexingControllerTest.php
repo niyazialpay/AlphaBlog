@@ -2,13 +2,17 @@
 
 namespace Tests\Feature;
 
+use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\VerifyOTP;
 use App\Jobs\SubmitUrlToGoogleIndex;
+use App\Models\Languages;
 use App\Models\Post\PostIndexingLog;
 use App\Models\Post\Posts;
 use App\Models\Settings\GeneralSettings;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class PostIndexingControllerTest extends TestCase
@@ -20,6 +24,16 @@ class PostIndexingControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->withoutMiddleware([HandleInertiaRequests::class, VerifyOTP::class]);
+        Bus::fake();
+        DB::table('languages')->insert([
+            'name' => 'Türkçe', 'code' => 'tr', 'flag' => 'tr',
+            'is_active' => true, 'is_default' => true,
+            'created_at' => now(), 'updated_at' => now(),
+        ]);
+        $lang = Languages::first();
+        app()->instance('default_language', $lang);
+        app()->instance('languages', collect([$lang]));
         GeneralSettings::firstOrCreate([], [
             'google_indexing_enabled' => true,
             'google_indexing_daily_limit' => 200,

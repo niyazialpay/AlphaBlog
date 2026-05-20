@@ -31,5 +31,7 @@
         <env name="REDIS_CLIENT" value="predis" force="true"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
+        <env name="SCOUT_DRIVER" value="null"/>
+        <env name="DB_FOREIGN_KEYS" value="false"/>
     </php>
 </phpunit>

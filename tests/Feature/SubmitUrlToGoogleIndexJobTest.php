@@ -18,6 +18,7 @@ class SubmitUrlToGoogleIndexJobTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Bus::fake();
         GeneralSettings::firstOrCreate([], [
             'google_indexing_enabled' => true,
             'google_indexing_daily_limit' => 200,

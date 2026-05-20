@@ -17,11 +17,11 @@ class SubmitUrlToGoogleIndex implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected Posts $post;
+    public Posts $post;
 
-    protected string $type;
+    public string $type;
 
-    protected bool $force;
+    public bool $force;
 
     public function __construct(Posts $post, string $type = 'URL_UPDATED', bool $force = false)
     {
