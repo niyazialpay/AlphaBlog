@@ -1,6 +1,7 @@
 @php
     $data = $widgetData['ga4']['user_types'] ?? collect();
     $chartId = 'wc_' . uniqid();
+    $userTypeLabels = ['new' => 'Yeni', 'returning' => 'Geri Dönen'];
 @endphp
 <div class="card h-100 mb-0 border-0">
     <div class="card-header py-2 px-3 border-0 bg-transparent">
@@ -13,7 +14,7 @@
         window.addEventListener('load', function(){
             var labels=[], series=[];
             @foreach($data as $row)
-            labels.push('{{ $row['newVsReturning'] }}');
+            labels.push('{{ $userTypeLabels[$row['newVsReturning']] ?? $row['newVsReturning'] }}');
             series.push({{ $row['activeUsers'] }});
             @endforeach
             var opts={series:series,labels:labels,chart:{type:'pie',height:150},legend:{position:'bottom'},theme:{mode:localStorage.getItem('dark-mode')==='true'?'dark':'light'}};
