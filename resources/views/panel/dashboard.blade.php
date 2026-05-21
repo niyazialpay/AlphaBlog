@@ -15,7 +15,7 @@
                 <i class="fas fa-edit me-1"></i> Düzenle
             </button>
             @endif
-            <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#widgetModal">
+            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#widgetModal">
                 <i class="fas fa-plus me-1"></i> Widget Ekle
             </button>
         </div>
@@ -29,7 +29,7 @@
                 <div class="card-body text-center py-5">
                     <i class="fas fa-th-large fa-3x text-muted mb-3 d-block"></i>
                     <p class="text-muted mb-3">Dashboard henüz boş. Widget ekleyerek özelleştirin.</p>
-                    <button class="btn btn-primary" data-toggle="modal" data-target="#widgetModal">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#widgetModal">
                         <i class="fas fa-plus me-1"></i> Widget Ekle
                     </button>
                 </div>
@@ -66,7 +66,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title"><i class="fas fa-th-large me-2"></i>Widget Ekle</h5>
-                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     @foreach($widgetGroups as $group => $items)
@@ -78,7 +78,7 @@
                                     data-type="{{ $type }}"
                                     data-w="{{ $config['w'] }}"
                                     data-h="{{ $config['h'] }}"
-                                    data-dismiss="modal">
+                                    data-bs-dismiss="modal">
                                 <small>{{ $config['label'] }}</small>
                             </button>
                         </div>
@@ -174,22 +174,23 @@
             // Add widget from modal: POST new widget then reload
             $('.add-widget-btn').on('click', function () {
                 var type = $(this).data('type');
-                var w = $(this).data('w');
-                var h = $(this).data('h');
+                var w = parseInt($(this).data('w'));
+                var h = parseInt($(this).data('h'));
 
                 // Append to current layout and save
                 var layout = [];
+                var nextY = 0;
                 @if($widgets->isNotEmpty())
                 var items = grid.getGridItems();
                 items.forEach(function (el) {
                     var node = el.gridstackNode;
                     if (node) {
                         layout.push({ type: el.getAttribute('data-widget-type'), x: node.x, y: node.y, w: node.w, h: node.h });
+                        nextY = Math.max(nextY, node.y + node.h);
                     }
                 });
                 @endif
-                // Add new widget at end (y=9999 → gridstack will place it)
-                layout.push({ type: type, x: 0, y: 9999, w: w, h: h });
+                layout.push({ type: type, x: 0, y: nextY, w: w, h: h });
 
                 $.ajax({
                     url: '{{ route('admin.dashboard.widgets.save') }}',

@@ -78,12 +78,7 @@
     <link rel="icon" type="image/png" sizes="16x16"
           href="{{$general_settings->getFirstMediaUrl('site_favicon', 'r_16x16')}}">
 
-    @php
-        $panelViteEntry = config('theme.assets.js_entry', 'resources/js/app.js');
-    @endphp
-    @if($panelViteEntry)
-        @vite([$panelViteEntry])
-    @endif
+    @vite(['resources/js/panel.js'])
 
 
     <link rel="manifest" href="{{route('manifest.panel')}}">

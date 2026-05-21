@@ -1,22 +1,22 @@
 @extends('panel.base')
 @section('title', 'Search Console')
 @section('breadcrumb_link')
-    <div class="d-flex flex-column align-items-end">
-        <div class="input-group input-group-sm mb-1" style="min-width: 240px; width: auto;">
-            <input type="text" class="form-control" name="daterange" id="daterange" value="{{ $date_range }}" />
-            <button class="btn btn-primary" type="button" id="refresh-button">
-                <i class="fas fa-sync-alt"></i>
-            </button>
-        </div>
-        <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="{{route('admin.index')}}">@lang('dashboard.dashboard')</a></li>
-            <li class="breadcrumb-item active">Search Console</li>
-        </ol>
-    </div>
+    <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="{{route('admin.index')}}">@lang('dashboard.dashboard')</a></li>
+        <li class="breadcrumb-item active">Search Console</li>
+    </ol>
 @endsection
 @section('content')
     @can('admin', 'App\Models\User')
         <div class="row">
+            <div class="col-12 d-flex justify-content-end mb-3">
+                <div class="input-group input-group-sm" style="width: auto; min-width: 240px;">
+                    <input type="text" class="form-control" name="daterange" id="daterange" value="{{ $date_range }}" />
+                    <button class="btn btn-primary" type="button" id="refresh-button">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
 
             @if(!$configured)
                 <!-- Not configured alert -->
@@ -81,7 +81,7 @@
                     <div class="card radius-10">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <span>Anahtar Kelime Performansı (Top 50)</span>
-                            <input type="text" id="keyword-filter" class="form-control form-control-sm w-auto"
+                            <input type="text" id="keyword-filter" class="form-control form-control-sm w-auto ms-auto"
                                    placeholder="Filtrele..." style="max-width:200px">
                         </div>
                         <div class="card-body p-0">

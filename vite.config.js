@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
     const cssEntry = env.THEME_CSS_ENTRY || 'resources/css/app.css';
     const jsEntry = env.THEME_JS_ENTRY || 'resources/js/app.js';
 
-    const inputEntries = [cssEntry, jsEntry]
+    const inputEntries = ['resources/js/panel.js', cssEntry, jsEntry]
         .filter((entry) => typeof entry === 'string' && entry.length > 0);
 
     const ssrEntry = env.THEME_SSR_ENTRY || null;
