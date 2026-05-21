@@ -36,7 +36,11 @@ class GoogleSearchConsoleService
 
     private function getSiteUrl(): ?string
     {
-        return GeneralSettings::first()?->google_indexing_site_url ?: null;
+        try {
+            return GeneralSettings::first()?->google_indexing_site_url ?: null;
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     private function query(string $siteUrl, string $token, array $body): array
@@ -57,9 +61,14 @@ class GoogleSearchConsoleService
     public function getPerformance(Carbon $startDate, Carbon $endDate): array
     {
         $token = $this->getToken();
+
+        if (! $token) {
+            return ['current' => [], 'previous' => []];
+        }
+
         $siteUrl = $this->getSiteUrl();
 
-        if (! $token || ! $siteUrl) {
+        if (! $siteUrl) {
             return ['current' => [], 'previous' => []];
         }
 
@@ -109,9 +118,14 @@ class GoogleSearchConsoleService
     public function getKeywords(Carbon $startDate, Carbon $endDate, int $limit = 50): array
     {
         $token = $this->getToken();
+
+        if (! $token) {
+            return [];
+        }
+
         $siteUrl = $this->getSiteUrl();
 
-        if (! $token || ! $siteUrl) {
+        if (! $siteUrl) {
             return [];
         }
 
@@ -139,9 +153,14 @@ class GoogleSearchConsoleService
     public function getClicksTrend(Carbon $startDate, Carbon $endDate): array
     {
         $token = $this->getToken();
+
+        if (! $token) {
+            return [];
+        }
+
         $siteUrl = $this->getSiteUrl();
 
-        if (! $token || ! $siteUrl) {
+        if (! $siteUrl) {
             return [];
         }
 

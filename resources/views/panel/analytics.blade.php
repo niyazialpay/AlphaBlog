@@ -1,10 +1,18 @@
 @extends('panel.base')
 @section('title', __('dashboard.analytics'))
 @section('breadcrumb_link')
-    <ol class="breadcrumb float-sm-right">
-        <li class="breadcrumb-item"><a href="{{route('admin.index')}}">@lang('dashboard.dashboard')</a></li>
-        <li class="breadcrumb-item active">@lang('dashboard.analytics')</li>
-    </ol>
+    <div class="d-flex flex-column align-items-end">
+        <div class="input-group input-group-sm mb-1" style="min-width: 240px; width: auto;">
+            <input type="text" class="form-control" name="daterange" id="daterange" value="{{ $date_range }}" />
+            <button class="btn btn-primary" type="button" id="refresh-button">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+        </div>
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="{{route('admin.index')}}">@lang('dashboard.dashboard')</a></li>
+            <li class="breadcrumb-item active">@lang('dashboard.analytics')</li>
+        </ol>
+    </div>
 @endsection
 @section('content')
     @can('admin', 'App\Models\User')
@@ -53,16 +61,6 @@
                 </div>
             </div>
             @endif
-            <form class="row d-flex justify-content-end mb-3" method="post" action="javascript:fetchDataAndUpdateCharts()">
-                <div class="col-sm-6 col-md-3 col-lg-2">
-                    <div class="input-group">
-                        <input type="text" class="form-control" name="daterange" id="daterange" value="{{ $date_range }}" />
-                        <button class="btn btn-primary" type="button" id="refresh-button">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                    </div>
-                </div>
-            </form>
             <!-- Browsers Chart -->
             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-6">
                 <div class="card radius-10">

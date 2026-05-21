@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\Language;
 use App\Http\Middleware\VerifyOTP;
 use App\Models\DashboardWidget;
 use App\Models\Languages;
@@ -9,6 +11,7 @@ use App\Models\Settings\GeneralSettings;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\View;
 use Tests\TestCase;
 
 class DashboardWidgetTest extends TestCase
@@ -20,16 +23,23 @@ class DashboardWidgetTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware([VerifyOTP::class]);
+        $this->withoutMiddleware([VerifyOTP::class, Language::class, HandleInertiaRequests::class]);
         DB::table('languages')->insert([
             'name' => 'Türkçe', 'code' => 'tr', 'flag' => 'tr',
             'is_active' => true, 'is_default' => true,
             'created_at' => now(), 'updated_at' => now(),
         ]);
         $lang = Languages::first();
+        $langs = collect([$lang]);
         app()->instance('default_language', $lang);
-        app()->instance('languages', collect([$lang]));
-        GeneralSettings::firstOrCreate([], []);
+        app()->instance('languages', $langs);
+        $generalSettings = GeneralSettings::firstOrCreate([], []);
+        $seoStub = (object) ['site_name' => ''];
+        View::share('general_settings', $generalSettings);
+        View::share('seo_settings', $seoStub);
+        View::share('languages', $langs);
+        app()->instance('general_settings', $generalSettings);
+        app()->instance('seo_settings', $seoStub);
         $this->admin = User::factory()->create(['role' => 'owner']);
     }
 
