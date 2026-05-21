@@ -9,6 +9,50 @@
 @section('content')
     @can('admin', 'App\Models\User')
         <div class="row">
+            @if(!empty($overview))
+            <div class="col-12 mb-3">
+                <div class="row">
+                    @php
+                        $metrics = [
+                            ['key' => 'active_users',    'label' => 'Aktif Kullanıcı'],
+                            ['key' => 'new_users',       'label' => 'Yeni Kullanıcı'],
+                            ['key' => 'pageviews',       'label' => 'Sayfa Görüntüleme'],
+                            ['key' => 'events',          'label' => 'Etkinlik Sayısı'],
+                            ['key' => 'engagement_time', 'label' => 'Ort. Etkileşim'],
+                        ];
+                    @endphp
+                    @foreach($metrics as $m)
+                    <div class="col">
+                        <div class="card radius-10">
+                            <div class="card-body p-3">
+                                <div class="text-muted small mb-1">{{ $m['label'] }}</div>
+                                <div class="h4 mb-1 overview-metric-value" id="metric-{{ $m['key'] }}-value">
+                                    {{ is_numeric($overview[$m['key']]['value']) ? number_format($overview[$m['key']]['value']) : $overview[$m['key']]['value'] }}
+                                </div>
+                                @if($overview[$m['key']]['change'] !== null)
+                                <span class="badge badge-{{ $overview[$m['key']]['change'] >= 0 ? 'success' : 'danger' }} overview-metric-badge" id="metric-{{ $m['key'] }}-badge">
+                                    {{ $overview[$m['key']]['change'] >= 0 ? '▲' : '▼' }} {{ abs($overview[$m['key']]['change']) }}%
+                                </span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+            @if(!empty($trend['current']))
+            <div class="col-12 mb-3">
+                <div class="card radius-10">
+                    <div class="card-header">
+                        Aktif Kullanıcı Trendi
+                    </div>
+                    <div class="card-body">
+                        <div id="overview_trend_chart"></div>
+                    </div>
+                </div>
+            </div>
+            @endif
             <form class="row d-flex justify-content-end mb-3" method="post" action="javascript:fetchDataAndUpdateCharts()">
                 <div class="col-sm-6 col-md-3 col-lg-2">
                     <div class="input-group">
@@ -89,16 +133,6 @@
                 </div>
             </div>
 
-            <div class="col-12">
-                <div class="card radius-10">
-                    <div class="card-header">
-                        @lang('dashboard.ad_impression')
-                    </div>
-                    <div class="card-body">
-                        <div id="ad_impression"></div>
-                    </div>
-                </div>
-            </div>
         </div>
     @endcan
 @endsection
@@ -120,7 +154,7 @@
             let countries_chart;
             let visitors_chart;
             let viewed_chart;
-            let ad_impression_chart;
+            let overview_trend_chart;
 
             // Theme settings
             let dashboard_theme_mode = localStorage.getItem("dark-mode") === "true" ? 'dark' : 'light';
@@ -136,7 +170,7 @@
             countries_chart.render();
             visitors_chart.render();
             viewed_chart.render();
-            ad_impression_chart.render();
+            if (overview_trend_chart) overview_trend_chart.render();
 
             // Date range picker and AJAX request
             $('input[name="daterange"]').daterangepicker({
@@ -190,7 +224,7 @@
                 updateChartThemeMode(countries_chart, dashboard_theme_mode, dashboard_text_color);
                 updateChartThemeMode(visitors_chart, dashboard_theme_mode, dashboard_text_color);
                 updateChartThemeMode(viewed_chart, dashboard_theme_mode, dashboard_text_color);
-                updateChartThemeMode(ad_impression_chart, dashboard_theme_mode, dashboard_text_color);
+                if (overview_trend_chart) updateChartThemeMode(overview_trend_chart, dashboard_theme_mode, dashboard_text_color);
             });
 
             // Function to initialize charts
@@ -417,70 +451,42 @@
                         style: {
                             color: '#444'
                         }
+                    },
+                    theme: {
+                        mode: dashboard_theme_mode
                     }
                 };
                 viewed_chart = new ApexCharts(document.querySelector("#top_viewed_chart"), topViewed_options);
 
+                // Overview Trend Chart
+                let trendCurrentDates = [];
+                let trendCurrentData = [];
+                let trendPrevData = [];
 
-                let chartRegions     = [];
-                let chartImpressions = [];
-                let chartSessions    = [];
-                let adClicks         = [];
-                @foreach($events as $event)
-                chartRegions.push('{{$event['region']}}');
-                chartImpressions.push({{$event['publisherAdImpressions']}});
-                chartSessions.push({{$event['sessions']}});
-                adClicks.push({{$event['publisherAdClicks']}});
+                @foreach($trend['current'] as $t)
+                trendCurrentDates.push('{{ $t['date'] }}');
+                trendCurrentData.push({{ $t['activeUsers'] }});
                 @endforeach
-                let ad_impression_options = {
-                    chart: {
-                        type: 'bar',
-                        height: 400
-                    },
-                    series: [
-                        {
-                            name: '@lang('dashboard.ad_impression')',
-                            data: chartImpressions
-                        },
-                        {
-                            name: '@lang('dashboard.sessions')',
-                            data: chartSessions
-                        },
-                        {
-                            name: '@lang('dashboard.ad_clicks')',
-                            data: adClicks
-                        }
-                    ],
-                    xaxis: {
-                        categories: chartRegions
-                    },
-                    plotOptions: {
-                        bar: {
-                            horizontal: false,
-                            columnWidth: '55%',
-                            endingShape: 'rounded'
-                        },
-                    },
-                    dataLabels: {
-                        enabled: false
-                    },
-                    stroke: {
-                        show: true,
-                        width: 2,
-                        colors: ['transparent']
-                    },
-                    fill: {
-                        opacity: 1
-                    },
-                    tooltip: {
-                        y: {
-                            formatter: function (val) {
-                                return val;
-                            }
-                        }
-                    }
-                };
-                ad_impression_chart = new ApexCharts(document.querySelector("#ad_impression"), ad_impression_options);
+
+                @foreach($trend['previous'] as $t)
+                trendPrevData.push({{ $t['activeUsers'] }});
+                @endforeach
+
+                if (trendCurrentDates.length > 0) {
+                    let trend_options = {
+                        series: [
+                            { name: 'Mevcut Dönem', data: trendCurrentData },
+                            { name: 'Önceki Dönem', data: trendPrevData, dashArray: 5 }
+                        ],
+                        chart: { type: 'line', height: 200, toolbar: { show: false } },
+                        stroke: { curve: 'smooth', width: [2, 2], dashArray: [0, 5] },
+                        xaxis: { categories: trendCurrentDates, type: 'datetime' },
+                        colors: ['#4361ee', '#adb5bd'],
+                        legend: { position: 'top' },
+                        theme: { mode: dashboard_theme_mode }
+                    };
+                    overview_trend_chart = new ApexCharts(document.querySelector("#overview_trend_chart"), trend_options);
+                }
             }
 
             $('#refresh-button').on('click', function(){
@@ -605,6 +611,38 @@
                             }
                         });
 
+                        // Update overview metrics
+                        if (data.overview) {
+                            let metricKeys = ['active_users', 'new_users', 'pageviews', 'events', 'engagement_time'];
+                            metricKeys.forEach(function(key) {
+                                let valueEl = document.getElementById('metric-' + key + '-value');
+                                let badgeEl = document.getElementById('metric-' + key + '-badge');
+                                if (valueEl && data.overview[key]) {
+                                    let val = data.overview[key].value;
+                                    valueEl.textContent = (typeof val === 'number') ? val.toLocaleString() : val;
+                                    if (badgeEl && data.overview[key].change !== null) {
+                                        let ch = data.overview[key].change;
+                                        badgeEl.className = 'badge badge-' + (ch >= 0 ? 'success' : 'danger') + ' overview-metric-badge';
+                                        badgeEl.textContent = (ch >= 0 ? '▲ ' : '▼ ') + Math.abs(ch) + '%';
+                                    }
+                                }
+                            });
+                        }
+
+                        // Update trend chart
+                        if (data.trend && data.trend.current && overview_trend_chart) {
+                            let newDates = data.trend.current.map(t => t.date);
+                            let newCurrent = data.trend.current.map(t => t.activeUsers);
+                            let newPrev = data.trend.previous.map(t => t.activeUsers);
+                            overview_trend_chart.updateOptions({
+                                series: [
+                                    { name: 'Mevcut Dönem', data: newCurrent },
+                                    { name: 'Önceki Dönem', data: newPrev }
+                                ],
+                                xaxis: { categories: newDates, type: 'datetime' }
+                            });
+                        }
+
                         // Update theme mode if necessary
                         updateChartThemeMode(operation_system_chart, dashboard_theme_mode, dashboard_text_color);
                         updateChartThemeMode(user_type_chart, dashboard_theme_mode, dashboard_text_color);
@@ -612,7 +650,7 @@
                         updateChartThemeMode(countries_chart, dashboard_theme_mode, dashboard_text_color);
                         updateChartThemeMode(visitors_chart, dashboard_theme_mode, dashboard_text_color);
                         updateChartThemeMode(viewed_chart, dashboard_theme_mode, dashboard_text_color);
-                        updateChartThemeMode(ad_impression_chart, dashboard_theme_mode, dashboard_text_color);
+                        if (overview_trend_chart) updateChartThemeMode(overview_trend_chart, dashboard_theme_mode, dashboard_text_color);
                     }
                 });
             }
@@ -636,7 +674,7 @@
             updateChartThemeMode(countries_chart, dashboard_theme_mode, dashboard_text_color);
             updateChartThemeMode(visitors_chart, dashboard_theme_mode, dashboard_text_color);
             updateChartThemeMode(viewed_chart, dashboard_theme_mode, dashboard_text_color);
-            updateChartThemeMode(ad_impression_chart, dashboard_theme_mode, dashboard_text_color);
+            if (overview_trend_chart) updateChartThemeMode(overview_trend_chart, dashboard_theme_mode, dashboard_text_color);
         });
         @endcan
     </script>
