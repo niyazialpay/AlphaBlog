@@ -24,13 +24,24 @@ class GoogleIndexingActionTest extends TestCase
 
     public function test_submit_returns_failed_when_no_credentials(): void
     {
-        GeneralSettings::first()->update(['google_indexing_credentials' => null]);
+        // Ensure the credentials file does not exist in test environment
+        $credPath = storage_path('app/analytics/service-account-credentials.json');
+        $exists = file_exists($credPath);
+        if ($exists) {
+            rename($credPath, $credPath.'.bak');
+        }
 
-        $action = new GoogleIndexingAction;
-        $result = $action->submit('https://example.com/test');
+        try {
+            $action = new GoogleIndexingAction;
+            $result = $action->submit('https://example.com/test');
 
-        $this->assertSame('failed', $result['status']);
-        $this->assertStringContainsString('credentials', strtolower($result['message']));
+            $this->assertSame('failed', $result['status']);
+            $this->assertStringContainsString('credentials', strtolower($result['message']));
+        } finally {
+            if ($exists) {
+                rename($credPath.'.bak', $credPath);
+            }
+        }
     }
 
     public function test_daily_quota_not_reached_when_no_logs(): void

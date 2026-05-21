@@ -3,67 +3,45 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Firewall\FirewallLogs;
+use App\Models\DashboardWidget;
 use App\Models\Languages;
-use App\Models\Post\Comments;
-use Illuminate\Support\Facades\Cache;
-use Spatie\Analytics\Facades\Analytics;
-use Spatie\Analytics\Period;
+use App\Services\DashboardWidgetService;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(): View
     {
-        if (file_exists(storage_path().'/app/analytics/service-account-credentials.json')) {
-            $analytics = new Analytics;
-            $period = Period::days(7);
+        $user = Auth::user();
+        $widgets = $user->dashboardWidgets;
+        $widgetData = (new DashboardWidgetService)->getDataForWidgets($widgets);
+        $widgetGroups = DashboardWidgetService::widgetGroups();
 
-            $dashboard = Cache::remember(
-                config('cache.prefix').'dashboard_analytics',
-                now()->addMinutes(10),
-                function () use ($analytics, $period) {
-                    return [
-                        'viewData' => $analytics::fetchMostVisitedPages($period, maxResults: 10),
-                        'operatingSystem' => $analytics::fetchTopOperatingSystems($period),
-                        'topCountries' => $analytics::fetchTopCountries($period),
-                        'topBrowsers' => $analytics::fetchTopBrowsers($period),
-                        'events' => $analytics::get(
-                            $period,
-                            metrics: [
-                                'publisherAdImpressions',
-                                'publisherAdClicks',
-                                'sessions',
-                                'screenPageViews',
-                                'userEngagementDuration',
-                            ],
-                            dimensions: [
-                                'eventName',
-                                'platform',
-                                'region',
-                            ],
-                        ),
-                        'TotalVisitorsAndPageViews' => $analytics::fetchTotalVisitorsAndPageViews($period),
-                        'user_types' => $analytics::fetchUserTypes($period),
-                    ];
-                }
-            );
-        } else {
-            $dashboard = [
-                'viewData' => [],
-                'operatingSystem' => [],
-                'topCountries' => [],
-                'topBrowsers' => [],
-                'events' => [],
-                'TotalVisitorsAndPageViews' => [],
-                'user_types' => [],
-            ];
+        return view('panel.dashboard', compact('widgets', 'widgetData', 'widgetGroups'));
+    }
+
+    public function saveWidgets(Request $request): JsonResponse
+    {
+        $validated = $request->validate(['layout' => 'required|array']);
+        $userId = Auth::id();
+
+        DashboardWidget::where('user_id', $userId)->delete();
+
+        foreach ($validated['layout'] as $item) {
+            DashboardWidget::create([
+                'user_id' => $userId,
+                'widget_type' => $item['type'],
+                'gs_x' => (int) ($item['x'] ?? 0),
+                'gs_y' => (int) ($item['y'] ?? 0),
+                'gs_w' => (int) ($item['w'] ?? 3),
+                'gs_h' => (int) ($item['h'] ?? 2),
+            ]);
         }
 
-        $dashboard['last_comments'] = Comments::with('user', 'post')->orderBy('created_at', 'desc')->limit(5)->get();
-
-        $dashboard['last_sec_logs'] = FirewallLogs::orderBy('created_at', 'desc')->limit(5)->get();
-
-        return view('panel.dashboard', $dashboard);
+        return response()->json(['status' => 'success']);
     }
 
     public function changeLanguage($language)

@@ -55,5 +55,8 @@ Route::get('/search-console', [App\Http\Controllers\Admin\SearchConsoleControlle
 Route::post('/search-console/fetch', [App\Http\Controllers\Admin\SearchConsoleController::class, 'fetch'])
     ->name('admin.search-console.fetch')->can('admin', 'App\Models\User');
 
+Route::post('/dashboard/widgets', [App\Http\Controllers\Admin\DashboardController::class, 'saveWidgets'])
+    ->name('admin.dashboard.widgets.save')->can('admin', 'App\Models\User');
+
 Route::get('/about', [App\Http\Controllers\Admin\AboutController::class, 'index'])
     ->name('admin.about')->can('admin', 'App\Models\User');

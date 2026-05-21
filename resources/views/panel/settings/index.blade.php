@@ -420,26 +420,10 @@
                                                 </div>
                                             </div>
                                             <div class="col-12 mb-3">
-                                                <label class="form-label" for="google_indexing_credentials_file">
-                                                    Servis Hesabı JSON Dosyası
-                                                    @if($general_settings->google_indexing_credentials)
-                                                        <span class="badge badge-success ms-1">Yüklü</span>
-                                                    @endif
-                                                </label>
-                                                <input type="file" class="form-control" id="google_indexing_credentials_file"
-                                                       name="google_indexing_credentials_file" accept=".json">
-                                                <div class="form-text">
-                                                    Google Cloud Console'dan indirilen servis hesabı JSON anahtarı.
-                                                    Boş bırakırsanız mevcut anahtar korunur.
+                                                <div class="alert alert-info mb-0">
+                                                    <i class="fas fa-info-circle me-1"></i>
+                                                    Servis hesabı kimlik bilgileri: <code>storage/app/analytics/service-account-credentials.json</code> dosyasından okunmaktadır.
                                                 </div>
-                                            </div>
-                                            <div class="col-12 mb-3">
-                                                <label class="form-label" for="google_indexing_credentials">
-                                                    veya JSON içeriğini yapıştır
-                                                </label>
-                                                <textarea class="form-control" id="google_indexing_credentials"
-                                                          name="google_indexing_credentials" rows="4"
-                                                          placeholder='{"type":"service_account","project_id":"...","client_email":"...","private_key":"..."}'></textarea>
                                             </div>
                                             <div class="col-12 mb-3">
                                                 <button type="submit" class="btn btn-primary">

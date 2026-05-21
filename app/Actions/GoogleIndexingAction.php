@@ -20,22 +20,15 @@ class GoogleIndexingAction
 
     public function submit(string $url, string $type = 'URL_UPDATED'): array
     {
-        $settings = GeneralSettings::first();
-        $credentialsJson = $settings?->google_indexing_credentials;
+        $credentialsPath = storage_path('app/analytics/service-account-credentials.json');
 
-        if (! $credentialsJson) {
-            Log::warning('Google Indexing: credentials not configured.');
+        if (! file_exists($credentialsPath)) {
+            Log::warning('Google Indexing: service-account-credentials.json not found.');
 
             return ['status' => 'failed', 'code' => 0, 'message' => 'Google indexing credentials not configured.'];
         }
 
-        $credentials = json_decode($credentialsJson, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            Log::warning('Google Indexing: invalid credentials JSON.');
-
-            return ['status' => 'failed', 'code' => 0, 'message' => 'Invalid credentials JSON.'];
-        }
+        $credentials = json_decode(file_get_contents($credentialsPath), true);
 
         $token = $this->fetchAccessTokenForScope($credentials, self::INDEXING_SCOPE);
 
@@ -68,18 +61,13 @@ class GoogleIndexingAction
 
     public function inspect(string $url): array
     {
-        $settings = GeneralSettings::first();
-        $credentialsJson = $settings?->google_indexing_credentials;
+        $credentialsPath = storage_path('app/analytics/service-account-credentials.json');
 
-        if (! $credentialsJson) {
+        if (! file_exists($credentialsPath)) {
             return ['indexed' => false, 'coverage_state' => 'Credentials not configured', 'error' => true];
         }
 
-        $credentials = json_decode($credentialsJson, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            return ['indexed' => false, 'coverage_state' => 'Invalid credentials JSON', 'error' => true];
-        }
+        $credentials = json_decode(file_get_contents($credentialsPath), true);
 
         $token = $this->fetchAccessTokenForScope($credentials, self::INSPECTION_SCOPE);
 
@@ -89,6 +77,7 @@ class GoogleIndexingAction
             return ['indexed' => false, 'coverage_state' => 'Failed to get access token', 'error' => true];
         }
 
+        $settings = GeneralSettings::first();
         $siteUrl = $settings?->google_indexing_site_url;
 
         if (! $siteUrl) {

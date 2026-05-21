@@ -69,35 +69,11 @@ class SeoSettingsController extends Controller
 
     public function saveGoogleIndexing(Request $request): JsonResponse
     {
-        $credentialsJson = null;
-
-        if ($request->hasFile('google_indexing_credentials_file')) {
-            $credentialsJson = file_get_contents($request->file('google_indexing_credentials_file')->getRealPath());
-        } elseif ($request->filled('google_indexing_credentials')) {
-            $credentialsJson = $request->post('google_indexing_credentials');
-        }
-
-        if ($credentialsJson) {
-            $decoded = json_decode($credentialsJson, true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                return response()->json(['status' => 'error', 'message' => __('settings.google_indexing_invalid_json')]);
-            }
-
-            if (empty($decoded['client_email']) || empty($decoded['private_key'])) {
-                return response()->json(['status' => 'error', 'message' => __('settings.google_indexing_invalid_credentials')]);
-            }
-        }
-
         $updateData = [
             'google_indexing_enabled' => $request->boolean('google_indexing_enabled'),
             'google_indexing_daily_limit' => (int) $request->post('google_indexing_daily_limit', 200),
             'google_indexing_site_url' => $request->post('google_indexing_site_url') ?: null,
         ];
-
-        if ($credentialsJson) {
-            $updateData['google_indexing_credentials'] = $credentialsJson;
-        }
 
         GeneralSettings::first()->update($updateData);
         Cache::forget(config('cache.prefix').'general_settings');

@@ -110,6 +110,11 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail, WebAuth
         return $this->hasMany(PersonalNoteCategories::class, 'user_id');
     }
 
+    public function dashboardWidgets(): HasMany
+    {
+        return $this->hasMany(DashboardWidget::class)->orderBy('gs_y')->orderBy('gs_x');
+    }
+
     public function confirmTwoFactorAuth($code): bool
     {
         $codeIsValid = app(TwoFactorAuthenticationProvider::class)

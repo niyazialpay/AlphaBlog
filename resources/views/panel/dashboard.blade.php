@@ -7,124 +7,84 @@
 @endsection
 @section('content')
     @can('admin', 'App\Models\User')
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="card">
-                <div class="card-header">
-                    @lang('logs.logs')
-                </div>
-                <div class="card-body">
-                    <table class="table table-bordered">
-                        <tr>
-                            <th>@lang('ip_filter.ip_range')</th>
-                            <th>@lang('firewall.reason')</th>
-                            <th>@lang('sessions.user_agent')</th>
-                            <th>@lang('general.created_at')</th>
-                        </tr>
-                        @foreach($last_sec_logs as $log)
-                            <tr>
-                                <td>
-                                    <a href="{{route('admin.firewall.logs')}}">
-                                        {{$log->ip}}
-                                    </a>
-                                </td>
-                                <td>
-                                    <a href="{{route('admin.firewall.logs')}}">
-                                        {{$log->reason}}
-                                    </a>
-                                </td>
-                                <td>
-                                    <a href="{{route('admin.firewall.logs')}}">
-                                        {{$log->user_agent}}
-                                    </a>
-                                </td>
-                                <td>
-                                    <a href="{{route('admin.firewall.logs')}}">
-                                        {{$log->created_at->format('d.m.Y H:i:s')}}
-                                    </a>
-                                </td>
-                            </tr>
+    {{-- Toolbar --}}
+    <div class="row mb-2">
+        <div class="col-12 d-flex justify-content-end" style="gap:8px">
+            @if($widgets->isNotEmpty())
+            <button id="edit-toggle-btn" class="btn btn-sm btn-secondary">
+                <i class="fas fa-edit me-1"></i> Düzenle
+            </button>
+            @endif
+            <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#widgetModal">
+                <i class="fas fa-plus me-1"></i> Widget Ekle
+            </button>
+        </div>
+    </div>
 
-                        @endforeach
-                    </table>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-6">
-            <div class="card radius-10">
-                <div class="card-header">
-                    @lang('dashboard.top_browsers')
-                </div>
-                <div class="card-body">
-                    <div id="browsers_chart"></div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-6">
-            <div class="card radius-10">
-                <div class="card-header">
-                    @lang('dashboard.top_countries')
-                </div>
-                <div class="card-body">
-                    <div id="countries_chart"></div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-6">
-            <div class="card radius-10">
-                <div class="card-header">
-                    @lang('dashboard.top_operating_systems')
-                </div>
-                <div class="card-body">
-                    <div id="operating_system_chart"></div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-xs-6">
-            <div class="card radius-10">
-                <div class="card-header">
-                    @lang('dashboard.user_types')
-                </div>
-                <div class="card-body">
-                    <div id="user_types_chart"></div>
+    @if($widgets->isEmpty())
+    {{-- Empty State --}}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-th-large fa-3x text-muted mb-3 d-block"></i>
+                    <p class="text-muted mb-3">Dashboard henüz boş. Widget ekleyerek özelleştirin.</p>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#widgetModal">
+                        <i class="fas fa-plus me-1"></i> Widget Ekle
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+    @else
+    {{-- Gridstack Container --}}
+    <div class="grid-stack">
+        @foreach($widgets as $widget)
+        <div class="grid-stack-item"
+             gs-x="{{ $widget->gs_x }}"
+             gs-y="{{ $widget->gs_y }}"
+             gs-w="{{ $widget->gs_w }}"
+             gs-h="{{ $widget->gs_h }}"
+             data-widget-type="{{ $widget->widget_type }}"
+             data-widget-id="{{ $widget->id }}">
+            <div class="grid-stack-item-content" style="overflow:hidden">
+                {{-- Remove button (hidden by default, shown in edit mode) --}}
+                <button class="widget-remove-btn btn btn-xs btn-danger"
+                        style="position:absolute;top:4px;right:4px;z-index:10;display:none">
+                    <i class="fas fa-times"></i>
+                </button>
+                @include('panel.widgets.'.$widget->widget_type, ['widgetData' => $widgetData, 'widget' => $widget])
+            </div>
+        </div>
+        @endforeach
+    </div>
+    @endif
 
-    <div class="row">
-        <div class="col-sm-12 col-md-6">
-            <div class="card radius-10">
-                <div class="card-header">
-                    @lang('dashboard.total_visitors_and_page_views')
-                    <div class="ms-auto widget-icon-small text-white bg-gradient-info">
-                        <ion-icon name="people-outline"></ion-icon>
+    {{-- Widget Library Modal --}}
+    <div class="modal fade" id="widgetModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-th-large me-2"></i>Widget Ekle</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    @foreach($widgetGroups as $group => $items)
+                    <h6 class="text-uppercase text-muted small font-weight-bold mb-2 mt-3">{{ $group }}</h6>
+                    <div class="row">
+                        @foreach($items as $type => $config)
+                        <div class="col-6 col-md-4 mb-2">
+                            <button class="btn btn-outline-secondary btn-block text-left add-widget-btn"
+                                    data-type="{{ $type }}"
+                                    data-w="{{ $config['w'] }}"
+                                    data-h="{{ $config['h'] }}"
+                                    data-dismiss="modal">
+                                <small>{{ $config['label'] }}</small>
+                            </button>
+                        </div>
+                        @endforeach
                     </div>
-                </div>
-                <div class="card-body">
-                    <div id="total_visitors_chart"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-12 col-md-6">
-            <div class="card radius-10">
-                <div class="card-header">
-                    @lang('dashboard.page_views')
-                </div>
-                <div class="card-body">
-                    <div id="top_viewed_chart"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12">
-            <div class="card radius-10">
-                <div class="card-header">
-                    @lang('dashboard.ad_impression')
-                </div>
-                <div class="card-body">
-                    <div id="ad_impression"></div>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -132,395 +92,121 @@
     @endcan
 @endsection
 @section('script')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack/dist/gridstack.min.css">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gridstack/dist/gridstack-all.js"></script>
 
     <script>
-
-        $(document).ready(function(){
-            @can('admin', 'App\Models\User')
-            let operating_systems = [];
-            let operating_systems_view = [];
-
-            let dashboard_theme_mode;
-            let dashboard_text_color;
-
-            if(localStorage.getItem("dark-mode") === "true"){
-                dashboard_theme_mode = 'dark';
-                dashboard_text_color = '#ffffff';
-            }
-            else{
-                dashboard_theme_mode = 'light';
-                dashboard_text_color = '#000000';
-            }
-
-
-            @foreach($operatingSystem as $system)
-            operating_systems.push('{{$system['operatingSystem']}}');
-            operating_systems_view.push({{$system['screenPageViews']}});
-            @endforeach
-            let operating_system_options = {
-                series: operating_systems_view,
-                labels: operating_systems,
-                chart: {
-                    type: 'pie'
-                },
-                plotOptions: {
-                    pie: {
-                        customScale: 1
-                    }
-                }
-            };
-           let operation_system_chart = new ApexCharts(document.querySelector("#operating_system_chart"), operating_system_options);
-
-            let user_types = [];
-            let user_types_view = [];
-
-            @foreach($user_types as $user_type)
-                @if($user_type['newVsReturning']== 'new')
-                    user_types.push('@lang('dashboard.user_type.'.$user_type['newVsReturning'])');
-                @elseif($user_type['newVsReturning']== 'returning')
-                    user_types.push('@lang('dashboard.user_type.'.$user_type['newVsReturning'])');
-                @else
-                    user_types.push('@lang('dashboard.user_type.others')');
-               @endif
-            user_types_view.push({{$user_type['activeUsers']}});
-            @endforeach
-            let user_types_options = {
-                series: user_types_view,
-                labels: user_types,
-                chart: {
-                    type: 'pie'
-                },
-                plotOptions: {
-                    pie: {
-                        customScale: 1
-                    }
-                }
-            };
-            let user_type_chart = new ApexCharts(document.querySelector("#user_types_chart"), user_types_options);
-
-            let browsers = [];
-            let browsers_view = [];
-
-            @foreach($topBrowsers as $browser)
-            browsers.push('{{$browser['browser']}}');
-            browsers_view.push({{$browser['screenPageViews']}});
-            @endforeach
-
-            let browsers_options = {
-                series: browsers_view,
-                labels: browsers,
-                chart: {
-                    type: 'pie'
-                },
-                plotOptions: {
-                    pie: {
-                        customScale: 1
-                    }
-                }
-            };
-            let browser_chart = new ApexCharts(document.querySelector("#browsers_chart"), browsers_options);
-
-            let topCountries = [];
-            let topCountries_view = [];
-
-            @foreach($topCountries as $country)
-            topCountries.push('{{$country['country']}}');
-            topCountries_view.push({{$country['screenPageViews']}});
-            @endforeach
-
-            let topCountries_options = {
-                series: topCountries_view,
-                labels: topCountries,
-                chart: {
-                    type: 'pie'
-                },
-                plotOptions: {
-                    pie: {
-                        customScale: 1
-                    }
-                }
-            };
-            let countries_chart = new ApexCharts(document.querySelector("#countries_chart"), topCountries_options);
-
-            let TotalVisitorsAndPageViews = [];
-            let TotalVisitorsAndPageViews_view = [];
-            let TotalVisitorsAndPageViews_date = [];
-
-            @foreach($TotalVisitorsAndPageViews as $TotalVisitorsAndPageView)
-            TotalVisitorsAndPageViews.push({{$TotalVisitorsAndPageView['activeUsers']}});
-            TotalVisitorsAndPageViews_view.push({{$TotalVisitorsAndPageView['screenPageViews']}});
-            TotalVisitorsAndPageViews_date.push('{{$TotalVisitorsAndPageView['date']}}');
-            @endforeach
-
-            let totalVisitors_options = {
-                series: [
-                    {
-                        name: "@lang('dashboard.total_visitors')",
-                        data: TotalVisitorsAndPageViews
-                    },
-                    {
-                        name: "@lang('dashboard.total_page_views')",
-                        data: TotalVisitorsAndPageViews_view
-                    }
-                ],
-                chart: {
-                    type: 'bar',
-                    height: 350,
-                    stacked: true,
-                    toolbar: {
-                        show: true
-                    },
-                    zoom: {
-                        enabled: true
-                    }
-                },
-                responsive: [{
-                    breakpoint: 480,
-                    options: {
-                        legend: {
-                            position: 'bottom',
-                            offsetX: -10,
-                            offsetY: 0
-                        }
-                    }
-                }],
-                plotOptions: {
-                    bar: {
-                        horizontal: false,
-                        borderRadius: 10,
-                        dataLabels: {
-                            total: {
-                                enabled: true,
-                                style: {
-                                    fontSize: '13px',
-                                    fontWeight: 900,
-                                    color: '#009500'
-                                }
-                            }
-                        }
-                    },
-                },
-                xaxis: {
-                    type: 'datetime',
-                    categories: TotalVisitorsAndPageViews_date,
-                },
-                legend: {
-                    position: 'bottom',
-                },
-                fill: {
-                    opacity: 1
-                }
-            };
-            let visitors_chart = new ApexCharts(document.querySelector("#total_visitors_chart"), totalVisitors_options);
-
-            let topViewed = [];
-            let topViewed_view = [];
-
-            @foreach($viewData as $views)
-            topViewed.push('{{$views['pageTitle']}}');
-            topViewed_view.push({{$views['screenPageViews']}});
-            @endforeach
-
-            let topViewed_options = {
-                series: [{
-                    name: '@lang('dashboard.page_views')',
-                    data: topViewed_view
-                }],
-                chart: {
-                    type: 'bar',
-                    height: 350
-                },
-                plotOptions: {
-                    bar: {
-                        borderRadius: 10,
-                        dataLabels: {
-                            position: 'top',
-                        },
-                        horizontal: true
-                    }
-                },
-                dataLabels: {
-                    enabled: true,
-                    formatter: function (val) {
-                        return val;
-                    },
-                    offsetY: 0,
-                    offsetX: -20,
-                    style: {
-                        fontSize: '12px',
-                        colors: ["#304758"]
-                    }
-                },
-
-                xaxis: {
-                    categories: topViewed,
-                    position: 'bottom',
-                    labels: {
-                        offsetY: 0,
-                    },
-                    axisBorder: {
-                        show: false
-                    },
-                    axisTicks: {
-                        show: false
-                    },
-                    crosshairs: {
-                        fill: {
-                            type: 'gradient',
-                            gradient: {
-                                colorFrom: '#D8E3F0',
-                                colorTo: '#BED1E6',
-                                stops: [0, 100],
-                                opacityFrom: 0.4,
-                                opacityTo: 0.5,
-                            }
-                        }
-                    },
-                    tooltip: {
-                        enabled: true,
-                    }
-                },
-                yaxis: {
-                    axisBorder: {
-                        show: false
-                    },
-                    axisTicks: {
-                        show: false,
-                    },
-                    labels: {
-                        show: true,
-                        formatter: function (val) {
-                            return val;
-                        }
-                    }
-
-                },
-                title: {
-                    floating: true,
-                    offsetY: 330,
-                    align: 'center',
-                    style: {
-                        color: '#444'
-                    }
-                }
-            };
-            let viewed_chart = new ApexCharts(document.querySelector("#top_viewed_chart"), topViewed_options);
-
-            user_type_chart.render();
-            browser_chart.render();
-            countries_chart.render();
-            visitors_chart.render();
-            viewed_chart.render();
-            operation_system_chart.render();
-
-
-            let chartRegions     = [];
-            let chartImpressions = [];
-            let chartSessions    = [];
-            let adClicks         = [];
-            @foreach($events as $event)
-            chartRegions.push('{{$event['region']}}');
-            chartImpressions.push({{$event['publisherAdImpressions']}});
-            chartSessions.push({{$event['sessions']}});
-            adClicks.push({{$event['publisherAdClicks']}});
-            @endforeach
-                let ad_impression_options = {
-                    chart: {
-                        type: 'bar',
-                        height: 400
-                    },
-                    series: [
-                        {
-                            name: 'Impressions',
-                            data: chartImpressions
-                        },
-                        {
-                            name: 'Sessions',
-                            data: chartSessions
-                        },
-                        {
-                            name: 'Ad Clicks',
-                            data: adClicks
-                        }
-                    ],
-                    xaxis: {
-                        categories: chartRegions
-                    },
-                    plotOptions: {
-                        bar: {
-                            horizontal: false,
-                            columnWidth: '55%',
-                            endingShape: 'rounded'
-                        },
-                    },
-                    dataLabels: {
-                        enabled: false
-                    },
-                    stroke: {
-                        show: true,
-                        width: 2,
-                        colors: ['transparent']
-                    },
-                    fill: {
-                        opacity: 1
-                    },
-                    tooltip: {
-                        y: {
-                            formatter: function (val) {
-                                return val;
-                            }
-                        }
-                    }
-                };
-                let ad_impression_chart = new ApexCharts(document.querySelector("#ad_impression"), ad_impression_options);
-                ad_impression_chart.render();
-
-            @endcan
-
-            $('#dark-mode-switcher-button').on('click', function(){
-                if(localStorage.getItem("dark-mode") === "true"){
-                    dashboard_theme_mode = 'dark';
-                    dashboard_text_color = '#ffffff';
-                }
-                else{
-                    dashboard_theme_mode = 'light';
-                    dashboard_text_color = '#000000';
-                }
-                @can('admin', 'App\Models\User')
-                updateChartThemeMode(user_type_chart, dashboard_theme_mode, dashboard_text_color);
-                updateChartThemeMode(browser_chart, dashboard_theme_mode, dashboard_text_color);
-                updateChartThemeMode(countries_chart, dashboard_theme_mode, dashboard_text_color);
-                updateChartThemeMode(visitors_chart, dashboard_theme_mode, dashboard_text_color);
-                updateChartThemeMode(viewed_chart, dashboard_theme_mode, dashboard_text_color);
-                updateChartThemeMode(operation_system_chart, dashboard_theme_mode, dashboard_text_color);
-                updateChartThemeMode(ad_impression_chart, dashboard_theme_mode, dashboard_text_color);
-                @endcan
-            });
-            @can('admin', 'App\Models\User')
-            updateChartThemeMode(user_type_chart, dashboard_theme_mode, dashboard_text_color);
-            updateChartThemeMode(browser_chart, dashboard_theme_mode, dashboard_text_color);
-            updateChartThemeMode(countries_chart, dashboard_theme_mode, dashboard_text_color);
-            updateChartThemeMode(visitors_chart, dashboard_theme_mode, dashboard_text_color);
-            updateChartThemeMode(viewed_chart, dashboard_theme_mode, dashboard_text_color);
-            updateChartThemeMode(operation_system_chart, dashboard_theme_mode, dashboard_text_color);
-            updateChartThemeMode(ad_impression_chart, dashboard_theme_mode, dashboard_text_color);
-            @endcan
-        });
-
         @can('admin', 'App\Models\User')
-        function updateChartThemeMode(chart, theme_mode, color){
-            chart.updateOptions({
-                theme: {
-                    mode: theme_mode,
-                    palette: 'palette1',
-                    monochrome: {
-                        color: color,
-                        shadeTo: theme_mode,
-                    },
+        $(document).ready(function () {
+            @if($widgets->isNotEmpty())
+            // Initialize gridstack in static (locked) mode
+            var grid = GridStack.init({
+                staticGrid: true,
+                float: false,
+                cellHeight: 80,
+            });
+
+            var editMode = false;
+            var saveTimeout = null;
+
+            // Edit mode toggle
+            $('#edit-toggle-btn').on('click', function () {
+                editMode = !editMode;
+                if (editMode) {
+                    grid.setStatic(false);
+                    $('.widget-remove-btn').show();
+                    $(this).removeClass('btn-secondary').addClass('btn-warning').html('<i class="fas fa-check me-1"></i> Bitti');
+                } else {
+                    grid.setStatic(true);
+                    $('.widget-remove-btn').hide();
+                    $(this).removeClass('btn-warning').addClass('btn-secondary').html('<i class="fas fa-edit me-1"></i> Düzenle');
+                    saveLayout();
                 }
             });
-        }
+
+            // Remove widget
+            $(document).on('click', '.widget-remove-btn', function () {
+                var el = $(this).closest('.grid-stack-item')[0];
+                grid.removeWidget(el);
+                scheduleAutoSave();
+            });
+
+            // Gridstack change event
+            grid.on('change', function (event, items) {
+                scheduleAutoSave();
+            });
+
+            function scheduleAutoSave() {
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(saveLayout, 500);
+            }
+
+            function saveLayout() {
+                var items = grid.getGridItems();
+                var layout = [];
+                items.forEach(function (el) {
+                    var node = el.gridstackNode;
+                    if (node) {
+                        layout.push({
+                            type: el.getAttribute('data-widget-type'),
+                            x: node.x,
+                            y: node.y,
+                            w: node.w,
+                            h: node.h
+                        });
+                    }
+                });
+                $.ajax({
+                    url: '{{ route('admin.dashboard.widgets.save') }}',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        layout: layout
+                    },
+                    error: function () {
+                        console.warn('Dashboard layout save failed');
+                    }
+                });
+            }
+            @endif
+
+            // Add widget from modal: POST new widget then reload
+            $('.add-widget-btn').on('click', function () {
+                var type = $(this).data('type');
+                var w = $(this).data('w');
+                var h = $(this).data('h');
+
+                // Append to current layout and save
+                var layout = [];
+                @if($widgets->isNotEmpty())
+                var items = grid.getGridItems();
+                items.forEach(function (el) {
+                    var node = el.gridstackNode;
+                    if (node) {
+                        layout.push({ type: el.getAttribute('data-widget-type'), x: node.x, y: node.y, w: node.w, h: node.h });
+                    }
+                });
+                @endif
+                // Add new widget at end (y=9999 → gridstack will place it)
+                layout.push({ type: type, x: 0, y: 9999, w: w, h: h });
+
+                $.ajax({
+                    url: '{{ route('admin.dashboard.widgets.save') }}',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        layout: layout
+                    },
+                    success: function () {
+                        window.location.reload();
+                    },
+                    error: function () {
+                        window.location.reload();
+                    }
+                });
+            });
+        });
         @endcan
     </script>
 @endsection
