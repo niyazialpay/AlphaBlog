@@ -23,6 +23,21 @@
             </a>
         </li>
     @endcan
+    @can('admin', 'App\Models\User')
+        <li class="nav-item">
+            <a href="{{route('admin.search-console')}}" class="nav-link
+        @if(request()->is(config('settings.admin_panel_path').'/search-console')) active @endif ">
+                @if(config('settings.fontawesome_pro'))
+                <i class="fa-duotone fa-magnifying-glass-chart nav-icon"></i>
+                @else
+                    <i class="fa-solid fa-magnifying-glass-chart nav-icon"></i>
+                @endif
+                <p>
+                    Search Console
+                </p>
+            </a>
+        </li>
+    @endcan
     @if(collect(config('ai.providers', []))->contains(fn ($provider) => filled($provider['key'] ?? null)))
         <li class="nav-item">
             <a href="{{route('chatbot')}}" class="nav-link

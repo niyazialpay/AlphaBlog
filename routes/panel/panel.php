@@ -49,5 +49,11 @@ Route::get('/analytics', [App\Http\Controllers\Admin\AnalyticsController::class,
 Route::post('/analytics', [App\Http\Controllers\Admin\AnalyticsController::class, 'fetchAnalytics'])
     ->name('admin.analytics.fetch')->can('admin', 'App\Models\User');
 
+Route::get('/search-console', [App\Http\Controllers\Admin\SearchConsoleController::class, 'index'])
+    ->name('admin.search-console')->can('admin', 'App\Models\User');
+
+Route::post('/search-console/fetch', [App\Http\Controllers\Admin\SearchConsoleController::class, 'fetch'])
+    ->name('admin.search-console.fetch')->can('admin', 'App\Models\User');
+
 Route::get('/about', [App\Http\Controllers\Admin\AboutController::class, 'index'])
     ->name('admin.about')->can('admin', 'App\Models\User');
