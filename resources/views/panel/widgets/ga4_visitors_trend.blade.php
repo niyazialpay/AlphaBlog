@@ -10,7 +10,7 @@
         @if($trend->isNotEmpty())
         <div id="{{ $chartId }}"></div>
         <script>
-        (function(){
+        window.addEventListener('load', function(){
             var dates=[], users=[], views=[];
             @foreach($trend as $t)
             dates.push('{{ $t['date'] }}');
@@ -19,7 +19,7 @@
             @endforeach
             var opts={series:[{name:'Kullanıcı',data:users},{name:'Görüntüleme',data:views}],chart:{type:'line',height:120,sparkline:{enabled:false},toolbar:{show:false}},stroke:{curve:'smooth',width:2},xaxis:{categories:dates,type:'datetime'},legend:{show:false},theme:{mode:localStorage.getItem('dark-mode')==='true'?'dark':'light'}};
             new ApexCharts(document.getElementById('{{ $chartId }}'),opts).render();
-        })();
+        });
         </script>
         @else
         <div class="text-muted small p-2">Veri yüklenemedi</div>

@@ -10,7 +10,7 @@
         @if($data->isNotEmpty())
         <div id="{{ $chartId }}"></div>
         <script>
-        (function(){
+        window.addEventListener('load', function(){
             var cats=[], vals=[];
             @foreach($data as $row)
             cats.push('{{ addslashes($row['pageTitle']) }}');
@@ -18,7 +18,7 @@
             @endforeach
             var opts={series:[{name:'Görüntüleme',data:vals}],chart:{type:'bar',height:160,toolbar:{show:false}},plotOptions:{bar:{horizontal:true,borderRadius:4}},xaxis:{categories:cats},theme:{mode:localStorage.getItem('dark-mode')==='true'?'dark':'light'}};
             new ApexCharts(document.getElementById('{{ $chartId }}'),opts).render();
-        })();
+        });
         </script>
         @else
         <div class="text-muted small p-2">Veri yüklenemedi</div>
