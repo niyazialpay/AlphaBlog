@@ -53,7 +53,12 @@
                         style="position:absolute;top:4px;right:4px;z-index:10;display:none">
                     <i class="fas fa-times"></i>
                 </button>
-                @include('panel.widgets.'.$widget->widget_type, ['widgetData' => $widgetData, 'widget' => $widget])
+                @php $allowedWidgets = \App\Services\DashboardWidgetService::allWidgets(); @endphp
+                @if(isset($allowedWidgets[$widget->widget_type]) && str_contains($widget->widget_type, '::'))
+                    @include($widget->widget_type, ['widgetData' => $widgetData, 'widget' => $widget])
+                @elseif(isset($allowedWidgets[$widget->widget_type]))
+                    @include('panel.widgets.'.$widget->widget_type, ['widgetData' => $widgetData, 'widget' => $widget])
+                @endif
             </div>
         </div>
         @endforeach

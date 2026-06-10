@@ -39,7 +39,7 @@ class CategoryRequest extends FormRequest
                 $slug_unique,
             ],
             'parent_id' => ['nullable', 'integer', 'exists:categories,id'],
-            'image' => 'nullable|file|image|max:51200|mimes:jpeg,png,jpg,gif,svg,webp',
+            'image' => 'nullable|file|image|max:51200|mimes:jpeg,png,jpg,gif,webp',
             'meta_description' => ['nullable', 'string'],
             'meta_keywords' => ['nullable', 'string'],
         ];

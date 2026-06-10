@@ -4,8 +4,10 @@ import vue from '@vitejs/plugin-vue';
 import path from 'path';
 
 export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, process.cwd(), '');
-    Object.assign(process.env, env);
+    // SECURITY: load only the prefixes the build actually needs. An empty prefix
+    // plus Object.assign(process.env, env) previously pulled ALL .env secrets
+    // (DB/SMTP/API keys) into the build process — a bundle-leak vector.
+    const env = loadEnv(mode, process.cwd(), ['VITE_', 'THEME_']);
     const cssEntry = env.THEME_CSS_ENTRY || 'resources/css/app.css';
     const jsEntry = env.THEME_JS_ENTRY || 'resources/js/app.js';
 

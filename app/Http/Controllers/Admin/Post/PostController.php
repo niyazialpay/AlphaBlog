@@ -16,6 +16,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -64,17 +65,8 @@ class PostController extends Controller
             session()->remove('post_datatable_length');
             session()->put('post_datatable_length', $request->input('length'));
 
-            if ($request->has('order.0.name')) {
-                $order = $request->input('order.0.name');
-            } else {
-                $order = 'created_at';
-            }
-
-            if ($request->has('order.0.dir')) {
-                $dir = $request->input('order.0.dir');
-            } else {
-                $dir = 'desc';
-            }
+            $order = (string) $request->input('order.0.name', 'created_at');
+            $dir = strtolower((string) $request->input('order.0.dir')) === 'asc' ? 'asc' : 'desc';
 
             $posts = $posts->where('language', GetPost($request->get('language')));
 
@@ -93,6 +85,9 @@ class PostController extends Controller
                         ->orderBy('users.nickname', $dir)->limit(1);
                 });
             } else {
+                if (! Schema::hasColumn((new Posts)->getTable(), $order)) {
+                    $order = 'created_at';
+                }
                 $posts = $posts->orderBy($order, $dir);
             }
 
@@ -199,7 +194,13 @@ class PostController extends Controller
             $post->content = content($request->post('content'));
             $post->meta_description = GetPost($request->post('meta_description'));
             $post->meta_keywords = content($request->post('meta_keywords'));
-            $post->user_id = GetPost($request->post('user_id'));
+            // SECURITY: only owner/admin may assign post ownership to another user.
+            // Lower-privilege authors cannot spoof the author field.
+            if (in_array(auth()->user()->role, ['owner', 'admin'], true)) {
+                $post->user_id = GetPost($request->post('user_id')) ?: ($post->user_id ?? auth()->id());
+            } else {
+                $post->user_id = $post->user_id ?? auth()->id();
+            }
             $post->is_published = $request->post('is_published') == 1;
             $post->post_type = GetPost($request->post('post_type'));
             $post->language = GetPost($request->post('language'));
@@ -332,6 +333,10 @@ class PostController extends Controller
      */
     public function editorImageUpload($type, Posts $post, Request $request)
     {
+        $request->validate([
+            'file' => 'required|file|image|mimes:jpeg,png,jpg,gif,webp|max:51200',
+        ]);
+
         if ($request->slug == null) {
             $slug = Str::slug($request->post('title'));
         } else {

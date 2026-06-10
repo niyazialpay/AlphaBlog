@@ -2,14 +2,16 @@
 
 namespace App\Providers;
 
+use App\Models\ContactMessages;
 use App\Models\PersonalNotes\PersonalNoteCategories;
 use App\Models\PersonalNotes\PersonalNotes;
 use App\Models\Post\Categories;
 use App\Models\Post\Comments;
 use App\Models\Post\Posts;
-use App\Models\ContactMessages;
 use App\Models\User;
+use App\Models\WebAuthnCredential;
 use App\Observers\ContactMessagesObserver;
+use App\Observers\MediaObserver;
 use App\Observers\PostsObserver;
 use App\Observers\UserObserver;
 use App\Policies\CommentPolicy;
@@ -23,6 +25,7 @@ use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Pulse\Facades\Pulse;
+use Laravel\Telescope\TelescopeServiceProvider;
 use Opcodes\LogViewer\Facades\LogViewer;
 use Opcodes\LogViewer\LogFile;
 use Opcodes\LogViewer\LogFolder;
@@ -39,12 +42,12 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(PersonalNoteCategories::class, PersonalNoteCategoryPolicy::class);
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(\Laragear\WebAuthn\Models\WebAuthnCredential::class, UserPolicy::class);
-        Gate::policy(\App\Models\WebAuthnCredential::class, UserPolicy::class);
+        Gate::policy(WebAuthnCredential::class, UserPolicy::class);
         Gate::policy(Posts::class, PostPolicy::class);
         Gate::policy(Comments::class, CommentPolicy::class);
         Gate::policy(Categories::class, PostPolicy::class);
 
-        $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
+        $this->app->register(TelescopeServiceProvider::class);
         $this->app->register(\Laravel\Horizon\HorizonServiceProvider::class);
         $this->app->register(HorizonServiceProvider::class);
     }
@@ -68,7 +71,7 @@ class AppServiceProvider extends ServiceProvider
         User::observe(UserObserver::class);
         ContactMessages::observe(ContactMessagesObserver::class);
 
-        Media::observe(\App\Observers\MediaObserver::class);
+        Media::observe(MediaObserver::class);
 
         Gate::define('viewPulse', function (User $user) {
             return $user->role === 'owner' || $user->role === 'admin';
@@ -98,20 +101,20 @@ class AppServiceProvider extends ServiceProvider
             return $user->role === 'owner' || $user->role === 'admin';
         });
 
+        // SECURITY: do not surface raw email as PII in Pulse dashboards. Use the
+        // public nickname/name and a hashed gravatar id only.
         Pulse::user(fn ($user) => [
-            'name' => $user->name.' '.$user->surname,
-            'extra' => $user->email,
+            'name' => $user->nickname ?: trim($user->name.' '.$user->surname),
+            'extra' => '#'.$user->id,
             'avatar' => 'https://gravatar.com/avatar/'.hash('sha256', $user->email).'?d=mp',
         ]);
     }
 
     private function shouldForceHttps(): bool
     {
+        // Use config only (never env() outside config/): env() returns null under
+        // config:cache, silently disabling HTTPS forcing in production.
         if (filter_var(config('app.force_https'), FILTER_VALIDATE_BOOLEAN)) {
-            return true;
-        }
-
-        if (filter_var(env('FORCE_HTTPS'), FILTER_VALIDATE_BOOLEAN)) {
             return true;
         }
 

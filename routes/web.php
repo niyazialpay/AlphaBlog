@@ -10,6 +10,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImageProcessController;
+use App\Http\Controllers\LlmsTxtController;
 use App\Http\Controllers\ManifestController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostQrController;
@@ -182,6 +183,7 @@ Route::domain(config('app.url'))->group(function () {
     Route::post('/login/2fa-verify', [TwoFactorAuthController::class, 'verify'])
         ->middleware([
             ProtectAgainstSpam::class,
+            'throttle:5,1',
         ])
         ->name('two-factor.verify');
 
@@ -195,6 +197,7 @@ Route::domain(config('app.url'))->group(function () {
             'guest',
             ProtectAgainstSpam::class,
             CloudflareTurnstile::class,
+            'throttle:5,1',
         ]);
 
     Route::get('/reset-password/{token}',
@@ -207,16 +210,19 @@ Route::domain(config('app.url'))->group(function () {
             'guest',
             ProtectAgainstSpam::class,
             CloudflareTurnstile::class,
+            'throttle:5,1',
         ])->name('password.update');
 
     Route::post('/webauthn/login/options',
         [WebAuthnLoginController::class, 'options'])
         ->withoutMiddleware([VerifyCsrfToken::class])
+        ->middleware('throttle:10,1')
         ->name('webauthn.login.options');
 
     Route::post('/webauthn/login',
         [WebAuthnLoginController::class, 'login'])
         ->withoutMiddleware([VerifyCsrfToken::class])
+        ->middleware('throttle:10,1')
         ->name('webauthn.login');
 
     Route::group([], function () {
@@ -226,8 +232,8 @@ Route::domain(config('app.url'))->group(function () {
             $languages = collect();
         }
 
-        Route::get('/llms.txt', [\App\Http\Controllers\LlmsTxtController::class, 'index'])->name('llms.txt');
-        Route::get('/llms-full.txt', [\App\Http\Controllers\LlmsTxtController::class, 'full'])->name('llms.full.txt');
+        Route::get('/llms.txt', [LlmsTxtController::class, 'index'])->name('llms.txt');
+        Route::get('/llms-full.txt', [LlmsTxtController::class, 'full'])->name('llms.full.txt');
 
         Route::get('/sitemap.xml', [SitemapController::class, 'index']);
 
@@ -262,8 +268,10 @@ Route::domain(config('app.url'))->group(function () {
 
                 Route::post('/comment-save', [CommentController::class, 'store'])
                     ->middleware([
+                        // Re-enable once the public comment form embeds the Turnstile widget:
                         // \App\Http\Middleware\CloudflareTurnstile::class,
                         ProtectAgainstSpam::class,
+                        'throttle:5,1',
                     ])
                     ->name('comment.save');
 

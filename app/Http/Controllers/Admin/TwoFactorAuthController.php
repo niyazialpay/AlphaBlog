@@ -28,6 +28,9 @@ class TwoFactorAuthController extends Controller
         if (! $confirmed) {
             return response()->json(['status' => 'error', 'message' => __('user.two_fa.invalid_code')]);
         }
+        // SECURITY: rotate the session ID when the 2FA privilege is granted to
+        // prevent session fixation across the pre-/post-2FA boundary.
+        $request->session()->regenerate();
         if (session()->has('otp')) {
             session()->remove('otp');
         }

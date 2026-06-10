@@ -133,7 +133,7 @@
                                 const webpass = Webpass.assert({
                                     path: "{{route('webauthn.login.options')}}",
                                     body: {
-                                        username: result.username
+                                        username: $('#username').val()
                                     }
                                 }, "{{route('webauthn.login')}}")
                                     .then(response => notify_alert('{{__('webauthn.verification_success')}}', 'success', response))
@@ -176,7 +176,7 @@
                                     const webpass = Webpass.assert({
                                         path: "{{route('webauthn.login.options')}}",
                                         body: {
-                                            username: result.username
+                                            username: $('#username').val()
                                         }
                                     }, "{{route('webauthn.login')}}")
                                         .then(response => notify_alert('{{__('webauthn.verification_success')}}', 'success', response))

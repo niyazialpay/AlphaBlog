@@ -28,9 +28,15 @@ class DashboardController extends Controller
         $validated = $request->validate(['layout' => 'required|array']);
         $userId = Auth::id();
 
+        $allowedTypes = array_keys(DashboardWidgetService::allWidgets());
+
         DashboardWidget::where('user_id', $userId)->delete();
 
         foreach ($validated['layout'] as $item) {
+            if (! in_array($item['type'] ?? '', $allowedTypes, true)) {
+                continue;
+            }
+
             DashboardWidget::create([
                 'user_id' => $userId,
                 'widget_type' => $item['type'],

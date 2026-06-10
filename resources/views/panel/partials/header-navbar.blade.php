@@ -54,6 +54,7 @@
 
 <!-- Right navbar links -->
 <ul class="navbar-nav ml-auto">
+    @can('admin', \App\Models\User::class)
     <li class="nav-item">
         <a class="nav-link" data-widget="navbar-search" href="#" role="button">
             <i class="fas fa-search"></i>
@@ -75,6 +76,7 @@
             </form>
         </div>
     </li>
+    @endcan
     <li class="nav-item dropdown">
         <a class="nav-link tooltip-button d-none d-md-block" data-bs-toggle="dropdown"
            href="javascript:void(0);"

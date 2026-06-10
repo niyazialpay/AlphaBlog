@@ -33,6 +33,11 @@ class DashboardWidgetService
         'site_firewall' => ['label' => 'Firewall Logları',     'w' => 6, 'h' => 4, 'group' => 'Site'],
     ];
 
+    public static function allWidgets(): array
+    {
+        return array_merge(static::WIDGETS, config('dashboard_widgets', []));
+    }
+
     public function getDataForWidgets(Collection $widgets): array
     {
         $types = $widgets->pluck('widget_type')->unique()->toArray();
@@ -135,7 +140,7 @@ class DashboardWidgetService
     public static function widgetGroups(): array
     {
         $groups = [];
-        foreach (self::WIDGETS as $type => $config) {
+        foreach (static::allWidgets() as $type => $config) {
             $groups[$config['group']][$type] = $config;
         }
 

@@ -148,7 +148,7 @@
                         <div class="comment-text">
                             <h3>{{$item->user?->nickname ?? $item->name}}</h3>
                             <h5>{{dateformat($item->created_at, "d M Y H:i", locale: session('language'), timezone: config('app.timezone'))}}</h5>
-                            <p>{!! stripslashes($item->comment) !!}</p>
+                            <p>{{ stripslashes($item->comment) }}</p>
                         </div>
                     </div>
                 @endforeach

@@ -45,13 +45,16 @@
     "require-dev": {
         "fakerphp/faker": "^1.23",
         "fruitcake/laravel-debugbar": "*",
+        "larastan/larastan": "^3.10",
         "laravel/boost": "^2.1",
         "laravel/pint": "^1.15",
         "laravel/sail": "^1.26",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.0",
         "phpunit/phpunit": "^12.0",
-        "spatie/laravel-ignition": "^2.4"
+        "psalm/plugin-laravel": "^4.12",
+        "spatie/laravel-ignition": "^2.4",
+        "vimeo/psalm": "^7.0@beta"
     },
     "autoload": {
         "psr-4": {

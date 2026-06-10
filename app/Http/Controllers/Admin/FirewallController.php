@@ -12,6 +12,7 @@ use App\Support\AiChatModelCatalog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -82,17 +83,11 @@ class FirewallController extends Controller
     {
         $query = FirewallLogs::with('ipFilter', 'ipList', 'ipList.filter');
 
-        if ($request->has('order.0.name')) {
-            $order = $request->input('order.0.name');
-        } else {
+        $order = (string) $request->input('order.0.name', 'created_at');
+        if (! Schema::hasColumn((new FirewallLogs)->getTable(), $order)) {
             $order = 'created_at';
         }
-
-        if ($request->has('order.0.dir')) {
-            $dir = $request->input('order.0.dir');
-        } else {
-            $dir = 'desc';
-        }
+        $dir = strtolower((string) $request->input('order.0.dir')) === 'asc' ? 'asc' : 'desc';
 
         $query->orderBy($order, $dir);
 
@@ -127,7 +122,7 @@ class FirewallController extends Controller
     {
         $firewall = Firewall::query()->firstOrFail();
 
-        IpList::updateOrCreate(
+        IPList::updateOrCreate(
             [
                 'ip' => $request->ip,
             ],
@@ -142,7 +137,7 @@ class FirewallController extends Controller
 
     public function delete(Request $request): JsonResponse
     {
-        IpList::where('ip', $request->ip)->delete();
+        IPList::where('ip', $request->ip)->delete();
 
         return response()->json(['success' => true]);
     }

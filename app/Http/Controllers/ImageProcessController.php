@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Response;
 use Imagick;
 use ImagickException;
 
@@ -41,7 +42,11 @@ class ImageProcessController extends Controller
         try {
             $im->readImage($image_path);
         } catch (ImagickException $e) {
-            return $e->getMessage();
+            // SECURITY: never echo the raw Imagick message — it discloses the
+            // absolute server filesystem path and library internals to anonymous
+            // visitors. Log the detail, return a generic 404.
+            Log::warning('Image processing failed', ['path' => $image_path, 'error' => $e->getMessage()]);
+            abort(404);
         }
 
         // For ETag and Last-Modified, we can use the actual image's file modification time
@@ -84,7 +89,7 @@ class ImageProcessController extends Controller
 
         // Build the HTTP response
         $response = Response::make($im, 200)
-            ->header('Content-type', 'image/' . $format)
+            ->header('Content-type', 'image/'.$format)
             ->setPublic()
             ->setMaxAge(86400 * 365) // 1 year
             ->setExpires(now()->addYear())

@@ -10,9 +10,8 @@ use Exception;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Str;
 
 class PersonalNotesController extends Controller
 {
@@ -121,6 +120,10 @@ class PersonalNotesController extends Controller
 
     public function editorImageUpload(PersonalNotes $note, Request $request)
     {
+        $request->validate([
+            'file' => 'required|file|image|mimes:jpeg,png,jpg,gif,webp|max:51200',
+        ]);
+
         try {
             DB::beginTransaction();
             if (! $note->id) {
@@ -130,7 +133,10 @@ class PersonalNotesController extends Controller
             }
 
             if ($request->hasFile('file') && $request->file('file')->isValid()) {
-                $note->addMediaFromRequest('file')->toMediaCollection('note_images');
+                $ext = $request->file('file')->extension();
+                $note->addMediaFromRequest('file')
+                    ->usingFileName(Str::random(40).'.'.$ext)
+                    ->toMediaCollection('note_images');
             }
             DB::commit();
 

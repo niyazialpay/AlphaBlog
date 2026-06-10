@@ -283,7 +283,7 @@
             });
 
             $.ajax({
-                url: '{!! request()->getRequestUri() !!}',
+                url: {{ \Illuminate\Support\Js::from(request()->getRequestUri()) }},
                 type: 'post',
                 data: {
                     _token: '{{csrf_token()}}',

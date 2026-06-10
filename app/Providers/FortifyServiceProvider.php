@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password;
+use Laravel\Fortify\Contracts\VerifyEmailViewResponse;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -24,7 +26,7 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::ignoreRoutes();
 
         $this->app->singleton(
-            \Laravel\Fortify\Contracts\VerifyEmailViewResponse::class,
+            VerifyEmailViewResponse::class,
             \App\Http\Responses\VerifyEmailViewResponse::class
         );
     }
@@ -34,6 +36,16 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // SECURITY: strengthen the default password policy used by Password::default()
+        // (registration, reset, change). Previously fell back to min-8 only.
+        Password::defaults(function () {
+            return Password::min(12)
+                ->mixedCase()
+                ->numbers()
+                ->symbols()
+                ->uncompromised();
+        });
+
         Fortify::createUsersUsing(CreateNewUser::class);
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);

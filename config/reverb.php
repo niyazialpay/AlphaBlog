@@ -82,7 +82,12 @@ return [
                     'scheme' => env('REVERB_SCHEME', 'https'),
                     'useTLS' => env('REVERB_SCHEME', 'https') === 'https',
                 ],
-                'allowed_origins' => ['*'],
+                // SECURITY: restrict WebSocket origins to the app domain(s) instead
+                // of '*'. Override with REVERB_ALLOWED_ORIGINS (comma-separated).
+                'allowed_origins' => explode(',', (string) env(
+                    'REVERB_ALLOWED_ORIGINS',
+                    parse_url((string) env('APP_URL'), PHP_URL_HOST) ?: 'localhost'
+                )),
                 'ping_interval' => env('REVERB_APP_PING_INTERVAL', 60),
                 'activity_timeout' => env('REVERB_APP_ACTIVITY_TIMEOUT', 30),
                 'max_message_size' => env('REVERB_APP_MAX_MESSAGE_SIZE', 10_000),

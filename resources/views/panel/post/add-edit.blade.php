@@ -297,7 +297,7 @@
                                         <small>{{$comment->ip_address}}</small>
                                     </td>
                                     <td>
-                                        {!! $comment->comment !!}
+                                        {{ $comment->comment }}
                                     </td>
                                     <td>{{dateformat($comment->created_at, 'Y-m-d H:i:s', config('app.timezone'))}}</td>
                                     <td>

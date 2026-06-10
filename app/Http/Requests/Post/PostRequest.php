@@ -48,7 +48,7 @@ class PostRequest extends FormRequest
                 Rule::notIn($predefined_slugs),
             ],
             'content' => ['string', 'nullable'],
-            'image' => 'nullable|file|image|max:51200|mimes:jpeg,png,jpg,gif,svg,webp',
+            'image' => 'nullable|file|image|max:51200|mimes:jpeg,png,jpg,gif,webp',
             'meta_description' => ['nullable', 'string', 'max:255'],
             'meta_keywords' => ['nullable', 'string'],
             'category_id' => ['required_if:post_type,post', 'array'],

@@ -7,6 +7,7 @@ use App\Http\Middleware\GoogleAnalytics;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\Language;
 use App\Http\Middleware\RouteRedirect;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\TrustProxies;
 use App\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Application;
@@ -47,6 +48,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 Language::class,
                 HandleInertiaRequests::class,
                 GoogleAnalytics::class,
+                SecurityHeaders::class,
             ],
             prepend: [
                 StartSession::class,

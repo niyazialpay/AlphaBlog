@@ -23,9 +23,9 @@ class GeneralSettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'site_logo' => 'nullable|file|image|max:4096|mimes:jpeg,png,jpg,gif,svg,webp',
-            'site_favicon' => 'nullable|file|image|max:4096|mimes:jpeg,png,jpg,gif,svg,webp,ico',
-            'app_icon' => 'nullable|file|image|max:4096|mimes:jpeg,png,jpg,gif,svg,webp,ico',
+            'site_logo' => 'nullable|file|image|max:4096|mimes:jpeg,png,jpg,gif,webp',
+            'site_favicon' => 'nullable|file|image|max:4096|mimes:jpeg,png,jpg,gif,webp,ico',
+            'app_icon' => 'nullable|file|image|max:4096|mimes:jpeg,png,jpg,gif,webp,ico',
             'contact_email' => 'nullable|email',
             'sharethis' => 'nullable|string|max:255',
             'homepage_featured_count' => 'nullable|integer|min:1|max:20',

@@ -17,7 +17,7 @@ class CommentController extends Controller
      */
     public function store(CommentRequest $request, Comments $comments)
     {
-        $comments->comment = $request->validated('comment');
+        $comments->comment = sanitizeComment($request->validated('comment'));
         $comments->post_id = $request->validated('post_id');
         $comments->name = $request->validated('name');
         $comments->email = $request->validated('email');

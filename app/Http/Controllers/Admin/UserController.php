@@ -136,7 +136,46 @@ class UserController extends Controller
 
     public function userUpdate(Request $request, User $user_id)
     {
+        if ($request->has('role') && $request->role !== $user_id->role) {
+            if (! $this->canAssignRole(auth()->user(), $request->role)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => __('profile.save_error'),
+                ], 403);
+            }
+            $user_id->role = $request->role;
+            $user_id->save();
+        }
+
         return UserAction::userSave($request, $user_id);
+    }
+
+    /**
+     * Privilege-management hierarchy. Higher number = more privilege.
+     *
+     * @return array<string, int>
+     */
+    private function roleRanks(): array
+    {
+        return ['user' => 0, 'author' => 1, 'editor' => 2, 'admin' => 3, 'owner' => 4];
+    }
+
+    /**
+     * Whether $actor may assign $targetRole to another account.
+     * Only an owner may grant owner/admin; everyone else may grant only roles
+     * strictly below their own rank. Unknown roles are rejected.
+     */
+    private function canAssignRole(User $actor, string $targetRole): bool
+    {
+        $ranks = $this->roleRanks();
+        if (! array_key_exists($targetRole, $ranks)) {
+            return false;
+        }
+        if ($actor->role === 'owner') {
+            return true;
+        }
+
+        return $ranks[$targetRole] < ($ranks[$actor->role] ?? -1);
     }
 
     public function create()
@@ -146,6 +185,13 @@ class UserController extends Controller
 
     public function store(UserCreateRequest $request, User $user)
     {
+        if (! $this->canAssignRole(auth()->user(), (string) $request->role)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => __('profile.save_error'),
+            ], 403);
+        }
+
         try {
             DB::beginTransaction();
             $user->name = $request->name;
@@ -330,6 +376,18 @@ class UserController extends Controller
 
     public function userSecretLogin($user_id)
     {
+        $target = User::find($user_id);
+        if (! $target) {
+            abort(404);
+        }
+
+        $ranks = $this->roleRanks();
+        $actorRank = $ranks[auth()->user()->role] ?? -1;
+        $targetRank = $ranks[$target->role] ?? PHP_INT_MAX;
+        // SECURITY: never impersonate an account whose role is equal to or higher
+        // than the actor's (prevents admin -> owner vertical escalation).
+        abort_unless($targetRank < $actorRank, 403);
+
         $originalUserId = Auth::id();
         session()->put(['impersonated' => $user_id]);
         session()->put(['impersonated_original' => $originalUserId]);
@@ -354,8 +412,15 @@ class UserController extends Controller
 
     public function killSession(Request $request)
     {
-        $session = $request->session_id;
-        $session = UserSessions::find($session);
+        $session = UserSessions::find($request->session_id);
+        if (! $session) {
+            abort(404);
+        }
+
+        // SECURITY: a session may only be killed by its owner, or by an owner/admin.
+        $isPrivileged = in_array(auth()->user()->role, ['owner', 'admin'], true);
+        abort_unless($isPrivileged || $session->user_id === auth()->id(), 403);
+
         $session->session()->delete();
         $session->delete();
 

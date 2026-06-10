@@ -40,6 +40,9 @@ trait ModelLogger
 
     protected static function logAction($model, string $action, ?array $oldData, ?array $newData): void
     {
+        $oldData = self::redactLogData($oldData);
+        $newData = self::redactLogData($newData);
+
         $data = [
             'user_id' => auth()->id(),
             'ip' => request()->ip(),
@@ -52,5 +55,42 @@ trait ModelLogger
         ];
 
         Logs::create($data);
+    }
+
+    /**
+     * Keys whose values must never be written to the audit log. getOriginal()/
+     * toArray() bypass the model's $hidden, so credential material would otherwise
+     * be persisted in plaintext-equivalent form (hashes / encrypted 2FA secrets).
+     *
+     * @return array<int, string>
+     */
+    protected static function loggerRedactedKeys(): array
+    {
+        return [
+            'password',
+            'remember_token',
+            'two_factor_secret',
+            'two_factor_recovery_codes',
+            'two_factor_confirmed_at',
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $data
+     * @return array<string, mixed>|null
+     */
+    protected static function redactLogData(?array $data): ?array
+    {
+        if (! $data) {
+            return $data;
+        }
+
+        foreach (static::loggerRedactedKeys() as $key) {
+            if (array_key_exists($key, $data)) {
+                $data[$key] = '***REDACTED***';
+            }
+        }
+
+        return $data;
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Logs;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Yajra\DataTables\Facades\DataTables;
 
 class LogsController extends Controller
@@ -18,17 +19,11 @@ class LogsController extends Controller
     {
         $query = Logs::with('user');
 
-        if ($request->has('order.0.name')) {
-            $order = $request->input('order.0.name');
-        } else {
+        $order = (string) $request->input('order.0.name', 'created_at');
+        if (! Schema::hasColumn((new Logs)->getTable(), $order)) {
             $order = 'created_at';
         }
-
-        if ($request->has('order.0.dir')) {
-            $dir = $request->input('order.0.dir');
-        } else {
-            $dir = 'desc';
-        }
+        $dir = strtolower((string) $request->input('order.0.dir')) === 'asc' ? 'asc' : 'desc';
 
         $query->orderBy($order, $dir);
 
@@ -53,11 +48,13 @@ class LogsController extends Controller
             })
             ->addColumn('old_data', function (Logs $log) {
                 $json = json_decode($log->old_data, true);
-                return '<pre>' . htmlspecialchars(json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) . '</pre>';
+
+                return '<pre>'.htmlspecialchars(json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)).'</pre>';
             })
             ->addColumn('new_data', function (Logs $log) {
                 $json = json_decode($log->new_data, true);
-                return '<pre>' . htmlspecialchars(json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) . '</pre>';
+
+                return '<pre>'.htmlspecialchars(json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)).'</pre>';
             })
             ->addColumn('action', function (Logs $log) {
                 return __('logs.action_list.'.$log->action);

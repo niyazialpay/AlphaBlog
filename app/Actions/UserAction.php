@@ -20,9 +20,9 @@ class UserAction
             $user->education = $request->education;
             $user->job_title = $request->job_title;
             $user->skills = $request->skills;
-            if ($request->has('role')) {
-                $user->role = $request->role;
-            }
+            // SECURITY: 'role' is intentionally NOT assignable here. Profile/user-edit
+            // saves must never escalate privileges. Role changes go through the
+            // dedicated, ceiling-checked path in UserController::userUpdate().
             $user->save();
             DB::commit();
 

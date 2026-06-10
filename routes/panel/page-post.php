@@ -21,6 +21,7 @@ Route::post('/save', [PostController::class, 'save'])
     ->can('create', 'App\Models\Post\Posts');
 
 Route::get('/{post}/media', [PostController::class, 'media'])
+    ->can('edit', 'post')
     ->name('admin.post.media');
 
 Route::get('/{post?}/edit', [PostController::class, 'create'])

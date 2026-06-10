@@ -19,20 +19,16 @@ use Symfony\Component\HttpFoundation\Response;
 
 class VerifyCsrfToken
 {
-    use InteractsWithTime,
-        ExcludesPaths;
+    use ExcludesPaths,
+        InteractsWithTime;
 
     /**
      * The application instance.
-     *
-     * @var Application
      */
     protected Application $app;
 
     /**
      * The encrypter implementation.
-     *
-     * @var Encrypter
      */
     protected Encrypter $encrypter;
 
@@ -42,30 +38,25 @@ class VerifyCsrfToken
      * @var array<int, string>
      */
     protected array $except = [
-        '/webauthn/*'
+        '/webauthn/*',
+        '*/edergi/track/*',
     ];
 
     /**
      * The globally ignored URIs that should be excluded from CSRF verification.
-     *
-     * @var array
      */
     protected static array $neverVerify = [
-        '/webauthn/*'
+        '/webauthn/*',
     ];
 
     /**
      * Indicates whether the XSRF-TOKEN cookie should be set on the response.
-     *
-     * @var bool
      */
     protected bool $addHttpCookie = true;
 
     /**
      * Create a new middleware instance.
      *
-     * @param Application $app
-     * @param Encrypter $encrypter
      * @return void
      */
     public function __construct(Application $app, Encrypter $encrypter)
@@ -77,9 +68,6 @@ class VerifyCsrfToken
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param Closure $next
-     * @return mixed
      *
      * @throws TokenMismatchException
      */
@@ -151,7 +139,6 @@ class VerifyCsrfToken
      * Get the CSRF token from the request.
      *
      * @param  Request  $request
-     * @return string|null
      */
     protected function getTokenFromRequest($request): ?string
     {
@@ -170,8 +157,6 @@ class VerifyCsrfToken
 
     /**
      * Determine if the cookie should be added to the response.
-     *
-     * @return bool
      */
     public function shouldAddXsrfTokenCookie(): bool
     {
@@ -180,10 +165,6 @@ class VerifyCsrfToken
 
     /**
      * Add the CSRF token to the response cookies.
-     *
-     * @param Request $request
-     * @param Response $response
-     * @return Response
      */
     protected function addCookieToResponse(Request $request, Response $response): Response
     {
@@ -203,7 +184,6 @@ class VerifyCsrfToken
      *
      * @param  Request  $request
      * @param  array  $config
-     * @return Cookie
      */
     protected function newCookie($request, $config): Cookie
     {
@@ -225,7 +205,6 @@ class VerifyCsrfToken
      * Indicate that the given URIs should be excluded from CSRF verification.
      *
      * @param  array|string  $uris
-     * @return void
      */
     public static function except($uris): void
     {
@@ -236,8 +215,6 @@ class VerifyCsrfToken
 
     /**
      * Determine if the cookie contents should be serialized.
-     *
-     * @return bool
      */
     public static function serialized(): bool
     {
@@ -246,8 +223,6 @@ class VerifyCsrfToken
 
     /**
      * Flush the state of the middleware.
-     *
-     * @return void
      */
     public static function flushState(): void
     {
