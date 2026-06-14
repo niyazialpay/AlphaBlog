@@ -21,7 +21,9 @@ class GoogleAnalytics
         if ($this->shouldTrack($request, $response)) {
             $clientId = $this->resolveClientId($request);
 
-            if (! $request->cookie(self::COOKIE_NAME)) {
+            // Cookie yalnızca front-end (app.blade / e-dergi reader) onu üretmediyse
+            // burada yazılır; aksi halde mükerrer cookie set edilmez.
+            if (! app()->bound('ga_client_id') && ! $request->cookie(self::COOKIE_NAME)) {
                 $response->cookie(self::COOKIE_NAME, $clientId, self::COOKIE_DAYS * 60 * 24);
             }
 
@@ -36,7 +38,7 @@ class GoogleAnalytics
 
     private function shouldTrack(Request $request, Response $response): bool
     {
-        if (! config('services.google_analytics.measurement_id')) {
+        if (! $this->measurementId()) {
             return false;
         }
 
@@ -67,8 +69,17 @@ class GoogleAnalytics
         return true;
     }
 
+    /**
+     * Tek client_id otoritesi: front-end (app.blade / reader) ürettiği değer
+     * app()->instance('ga_client_id', ...) ile paylaşılır; böylece gtag.js ile
+     * server-side Measurement Protocol AYNI client_id'yi kullanır (hybrid eşleşme).
+     */
     private function resolveClientId(Request $request): string
     {
+        if (app()->bound('ga_client_id')) {
+            return (string) app('ga_client_id');
+        }
+
         return $request->cookie(self::COOKIE_NAME) ?? Str::uuid()->toString();
     }
 
@@ -100,8 +111,8 @@ class GoogleAnalytics
 
     private function send(array $payload): void
     {
-        $measurementId = config('services.google_analytics.measurement_id');
-        $apiSecret = config('services.google_analytics.api_secret');
+        $measurementId = $this->measurementId();
+        $apiSecret = $this->apiSecret();
 
         if (! $measurementId || ! $apiSecret) {
             return;
@@ -115,5 +126,26 @@ class GoogleAnalytics
         } catch (\Throwable) {
             // Silently fail — analytics should never break the app
         }
+    }
+
+    /**
+     * Önce panelden yönetilen ayar (analytics_settings), yoksa .env fallback.
+     */
+    private function measurementId(): ?string
+    {
+        $fromDb = app()->bound('analytic_settings')
+            ? optional(app('analytic_settings'))->ga_measurement_id
+            : null;
+
+        return $fromDb ?: config('services.google_analytics.measurement_id');
+    }
+
+    private function apiSecret(): ?string
+    {
+        $fromDb = app()->bound('analytic_settings')
+            ? optional(app('analytic_settings'))->ga_api_secret
+            : null;
+
+        return $fromDb ?: config('services.google_analytics.api_secret');
     }
 }

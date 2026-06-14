@@ -142,6 +142,7 @@ class ThemeData
 
         return [
             'googleAnalytics' => $analytics->google_analytics,
+            'gaMeasurementId' => $analytics->ga_measurement_id ?: config('services.google_analytics.measurement_id'),
             'yandexMetrica' => $analytics->yandex_metrica,
             'facebookPixel' => $analytics->fb_pixel,
             'logRocket' => $analytics->log_rocket,

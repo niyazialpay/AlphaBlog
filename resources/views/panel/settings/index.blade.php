@@ -439,10 +439,34 @@
                         <div class="tab-pane settings-tabs @if(request()->get('tab')=='analytics') active @endif"
                              id="analytics">
                             <form class="row" id="analyticsForm" method="post" action="javascript:void(0);">
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label for="ga_measurement_id">Google Analytics 4 — Measurement ID</label>
+                                    <input type="text" class="form-control" id="ga_measurement_id"
+                                           name="ga_measurement_id" placeholder="G-XXXXXXXXXX"
+                                           value="{{$analytics_settings->ga_measurement_id}}">
+                                    <small class="text-muted">
+                                        Doldurulduğunda gtag.js otomatik kurulur (post okuma, scroll, e-dergi olayları
+                                        dahil). Boşsa GA pasif kalır.
+                                    </small>
+                                </div>
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label for="ga_api_secret">Measurement Protocol API Secret</label>
+                                    <input type="password" class="form-control" id="ga_api_secret"
+                                           name="ga_api_secret" autocomplete="off"
+                                           value="{{$analytics_settings->ga_api_secret}}">
+                                    <small class="text-muted">
+                                        GA4 → Admin → Data Streams → Measurement Protocol API secrets. Sunucu taraflı
+                                        page_view (hybrid) için gereklidir.
+                                    </small>
+                                </div>
                                 <div class="col-12 mb-3">
-                                    <label for="google_analytics">Google Analytics</label>
+                                    <label for="google_analytics">Google Analytics — Ek/Özel Snippet (opsiyonel)</label>
                                     <textarea class="form-control" id="google_analytics" rows="3"
                                            name="google_analytics">{{$analytics_settings->google_analytics}}</textarea>
+                                    <small class="text-muted">
+                                        Yalnızca özel bir kod gerekiyorsa kullanın. Yukarıdaki Measurement ID doluyken
+                                        buraya tekrar gtag snippet'i yapıştırmayın — mükerrer yükleme olur.
+                                    </small>
                                 </div>
                                 <div class="col-12 mb-3">
                                     <label for="yandex_metrica">Yandex Metrica</label>

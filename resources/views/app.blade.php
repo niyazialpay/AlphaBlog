@@ -60,6 +60,40 @@
         @if (!empty($structuredData['comments']))
             <script type="application/ld+json">{!! $jsonLd(['@context' => 'https://schema.org/', '@graph' => $structuredData['comments']]) !!}</script>
         @endif
+        @php
+            $gaId = (optional($analytic_settings ?? null)->ga_measurement_id) ?: config('services.google_analytics.measurement_id');
+            $gaClientId = null;
+            if ($gaId) {
+                $gaClientId = request()->cookie('_ga_cid') ?: (string) \Illuminate\Support\Str::uuid();
+                if (! request()->cookie('_ga_cid')) {
+                    \Illuminate\Support\Facades\Cookie::queue('_ga_cid', $gaClientId, 730 * 24 * 60);
+                }
+                app()->instance('ga_client_id', $gaClientId);
+            }
+        @endphp
+        @if ($gaId)
+            <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId }}"></script>
+            <script>
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                // Consent Mode v2 — KVKK/GDPR onay banner'ı eklenince ad_storage/analytics_storage
+                // 'denied' başlatılıp onay alınınca gtag('consent','update',...) ile açılabilir.
+                gtag('consent', 'default', {
+                    'ad_storage': 'denied',
+                    'ad_user_data': 'denied',
+                    'ad_personalization': 'denied',
+                    'analytics_storage': 'granted',
+                    'wait_for_update': 500
+                });
+                // send_page_view:false → page_view server-side Measurement Protocol'den gelir (hybrid).
+                // client_id server tarafından dayatılır → MP ile aynı kullanıcı/oturumda eşleşir.
+                gtag('config', '{{ $gaId }}', {
+                    send_page_view: false,
+                    client_id: '{{ $gaClientId }}'
+                });
+            </script>
+        @endif
         @inertiaHead
     </head>
     <body class="font-sans antialiased">
