@@ -238,7 +238,7 @@ class PostController extends Controller
                 ? $item->categories->map(fn ($category) => ['id' => $category->id, 'name' => $category->name])->values()
                 : [],
             'author' => $item->user ? ['id' => $item->user->id, 'nickname' => $item->user->nickname] : null,
-            'thumbnail' => $item->getFirstMediaUrl('posts', 'resized') ?: null,
+            'thumbnail' => mediaConversionUrl($item->getFirstMedia('posts'), 'resized'),
             // ISO-8601: eski uc created_at icin 'Y-m-d H:i:s', updated_at icin
             // 'd.m.Y H:i:s' basiyordu (tutarsiz). Bicimlendirme artik istemcide.
             'created_at' => $item->created_at?->toIso8601String(),
@@ -365,7 +365,7 @@ class PostController extends Controller
                 ? $post->categories->pluck('id')->map(fn ($id) => (string) $id)->values()
                 : [],
             'hreflang' => $hreflang,
-            'image' => $post->getFirstMediaUrl('posts', 'resized') ?: null,
+            'image' => mediaConversionUrl($post->getFirstMedia('posts'), 'resized'),
             'qr_link' => $post->qr_link ?? null,
             'qr_scans_count' => (int) ($post->qr_scans_count ?? 0),
             // Eski blade QR'i CDN'den yuklenen qrcodejs ile ciziyordu. Yeni
@@ -612,7 +612,7 @@ class PostController extends Controller
                         'name' => $item->file_name,
                         'size' => $item->size,
                         'url' => $item->getFullUrl(),
-                        'thumb' => $item->getFullUrl('resized') ?: $item->getFullUrl(),
+                        'thumb' => mediaConversionUrl($item, 'resized'),
                         'createdAt' => $item->created_at?->toIso8601String(),
                     ])
                     ->values(),
@@ -658,7 +658,7 @@ class PostController extends Controller
         return response()->json([
             'success' => true,
             'blog_id' => $post->id,
-            'location' => $post->getMedia('content_images')->last()->getFullUrl('resized'),
+            'location' => mediaConversionUrl($post->getMedia('content_images')->last(), 'resized'),
         ]);
     }
 

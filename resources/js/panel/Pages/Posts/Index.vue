@@ -7,6 +7,7 @@ import { usePageHeader } from '../../composables/usePageHeader';
 import { formatDateTime } from '../../composables/useFormat';
 import { pushToast } from '../../composables/useToast';
 import ConfirmDialog from '../../components/ConfirmDialog.vue';
+import Modal from '../../components/Modal.vue';
 import Pagination from '../../components/Pagination.vue';
 
 /*
@@ -34,6 +35,71 @@ usePageHeader(title.value, [
   { label: __('dashboard.dashboard'), route: 'admin.index' },
   { label: title.value },
 ]);
+
+/*
+ * Satir basina Google index durumu — panel/post/index.blade.php:473-565 ve
+ * partials/actions.blade.php:28 karsiligi.
+ *
+ * Uc uc da VERI ucu, dolayisiyla Inertia degil axios ile cagrilir (R1):
+ *   GET  admin.post.index.status   -> {indexed, coverage_state, from_cache, ...}
+ *   GET  admin.post.index.history  -> gonderim kayitlari
+ *   POST admin.post.index.single   -> yeniden gonder
+ *
+ * Durum ve gecmis TEK SEFERDE istenir; eski ekran da `$.when(...)` ile ikisini
+ * paralel cagiriyordu. Biri patlarsa digeri yine gosterilir.
+ */
+const indexOpen = ref(false);
+const indexRow = ref(null);
+const indexLoading = ref(false);
+const indexStatus = ref(null);
+const indexLogs = ref([]);
+const indexResending = ref(false);
+
+async function openIndexStatus(row) {
+  indexRow.value = row;
+  indexStatus.value = null;
+  indexLogs.value = [];
+  indexLoading.value = true;
+  indexOpen.value = true;
+
+  const params = { type: props.type, post: row.id };
+
+  const [status, history] = await Promise.allSettled([
+    axios.get(route('admin.post.index.status', params)),
+    axios.get(route('admin.post.index.history', params)),
+  ]);
+
+  indexStatus.value =
+    status.status === 'fulfilled'
+      ? status.value.data
+      : { error: true, coverage_state: __('general.error') };
+
+  indexLogs.value = history.status === 'fulfilled' ? history.value.data || [] : [];
+  indexLoading.value = false;
+}
+
+/* Eski ekran "Tekrar Gonder"i yalnizca indexlenmemis ya da hatali durumda acardi. */
+const canResendIndex = computed(
+  () => indexStatus.value !== null && (indexStatus.value.error || ! indexStatus.value.indexed),
+);
+
+async function resendIndex() {
+  if (! indexRow.value || indexResending.value) {
+    return;
+  }
+
+  indexResending.value = true;
+
+  try {
+    await axios.post(route('admin.post.index.single', { type: props.type, post: indexRow.value.id }));
+    pushToast(__('post.index_queued'), 'success');
+    indexOpen.value = false;
+  } catch (error) {
+    pushToast(error?.response?.data?.message || __('general.error'), 'error');
+  } finally {
+    indexResending.value = false;
+  }
+}
 
 const PER_PAGE = [10, 25, 50, 75, 100];
 
@@ -369,6 +435,14 @@ const list = computed(() => (tab.value === 'trashed' ? props.trashed : props.row
                     >
                       <i class="fa-solid fa-images"></i>
                     </Link>
+                    <!-- Google index durumu: eski actions.blade.php:28 karsiligi. -->
+                    <button
+                      class="p-icon-btn"
+                      :title="__('post.index_status')"
+                      @click="openIndexStatus(row)"
+                    >
+                      <i class="fa-brands fa-google"></i>
+                    </button>
                     <button
                       v-if="row.can.delete"
                       class="p-icon-btn hover:!border-p-danger hover:!text-p-danger"
@@ -395,5 +469,131 @@ const list = computed(() => (tab.value === 'trashed' ? props.trashed : props.row
     <Pagination :links="list.links" :meta="list" :only="['rows', 'trashed', 'filters']" />
 
     <ConfirmDialog ref="confirm" />
+
+    <Modal
+      v-model:open="indexOpen"
+      :title="__('post.index_status')"
+      icon="fa-brands fa-google"
+      width="640px"
+    >
+      <div v-if="indexLoading" class="py-6 text-center text-[12.5px] text-p-ink3">
+        <i class="fa-solid fa-spinner fa-spin mr-1.5"></i>{{ __('post.index_checking') }}
+      </div>
+
+      <template v-else>
+        <div class="truncate text-[12px] text-p-ink3">{{ indexRow?.title }}</div>
+
+        <div
+          v-if="indexStatus"
+          class="mt-2.5 rounded-xl border px-3 py-2.5"
+          :class="
+            indexStatus.error
+              ? 'border-p-danger'
+              : indexStatus.indexed
+                ? 'border-p-ok'
+                : 'border-p-warn'
+          "
+        >
+          <div class="flex flex-wrap items-center gap-2 text-[12.5px] font-semibold">
+            <span
+              :class="
+                indexStatus.error
+                  ? 'text-p-danger'
+                  : indexStatus.indexed
+                    ? 'text-p-ok'
+                    : 'text-p-warn'
+              "
+            >
+              <i
+                class="mr-1.5"
+                :class="
+                  indexStatus.error
+                    ? 'fa-solid fa-circle-xmark'
+                    : indexStatus.indexed
+                      ? 'fa-solid fa-circle-check'
+                      : 'fa-solid fa-clock'
+                "
+              ></i>
+              {{
+                indexStatus.error
+                  ? __('post.index_status_error')
+                  : indexStatus.indexed
+                    ? __('post.indexed')
+                    : __('post.not_indexed')
+              }}
+            </span>
+
+            <span v-if="indexStatus.coverage_state" class="text-p-ink3">
+              — {{ indexStatus.coverage_state }}
+            </span>
+
+            <span v-if="indexStatus.from_cache" class="p-chip">{{ __('post.index_from_cache') }}</span>
+          </div>
+
+          <div v-if="indexStatus.last_crawl_time" class="mt-1 text-[11.5px] text-p-ink3">
+            {{ __('post.index_last_crawl') }}: {{ formatDateTime(indexStatus.last_crawl_time) }}
+          </div>
+          <div v-if="indexStatus.cached_at" class="text-[11.5px] text-p-ink3">
+            {{ __('post.index_cached_at') }}: {{ formatDateTime(indexStatus.cached_at) }}
+          </div>
+        </div>
+
+        <div class="mt-3.5 text-[11.5px] font-bold uppercase tracking-wider text-p-ink3">
+          {{ __('post.index_history') }}
+        </div>
+
+        <div v-if="!indexLogs.length" class="mt-1.5 text-[12px] text-p-ink3">
+          {{ __('post.index_no_history') }}
+        </div>
+
+        <div v-else class="mt-1.5 overflow-x-auto">
+          <table class="w-full min-w-[520px] border-collapse text-[11.5px]">
+            <thead>
+              <tr class="text-left text-p-ink3">
+                <th class="py-1.5 pr-2 font-semibold">{{ __('general.date') }}</th>
+                <th class="py-1.5 pr-2 font-semibold">{{ __('post.index_type') }}</th>
+                <th class="py-1.5 pr-2 font-semibold">{{ __('post.index_result') }}</th>
+                <th class="py-1.5 pr-2 font-semibold">{{ __('post.index_code') }}</th>
+                <th class="py-1.5 font-semibold">{{ __('post.index_message') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="log in indexLogs" :key="log.id" class="border-t border-p-line2 align-top">
+                <td class="whitespace-nowrap py-1.5 pr-2 text-p-ink3">
+                  {{ formatDateTime(log.created_at) }}
+                </td>
+                <td class="py-1.5 pr-2"><span class="p-chip">{{ log.type }}</span></td>
+                <td class="py-1.5 pr-2">
+                  <span
+                    class="p-chip"
+                    :class="log.status === 'success' ? '!text-p-ok' : '!text-p-danger'"
+                  >
+                    {{ log.status }}
+                  </span>
+                </td>
+                <td class="py-1.5 pr-2 text-p-ink3">{{ log.response_code }}</td>
+                <td class="py-1.5 text-p-ink3">{{ log.message }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </template>
+
+      <template #footer>
+        <button class="p-btn" @click="indexOpen = false">{{ __('general.close') }}</button>
+        <button
+          v-if="canResendIndex"
+          class="p-btn-primary"
+          :disabled="indexResending"
+          @click="resendIndex"
+        >
+          <i
+            class="text-xs"
+            :class="indexResending ? 'fa-solid fa-spinner fa-spin' : 'fa-brands fa-google'"
+          ></i>
+          {{ __('post.index_resend') }}
+        </button>
+      </template>
+    </Modal>
   </div>
 </template>

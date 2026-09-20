@@ -2,6 +2,7 @@
 
 use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Support\Carbon;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 function dateformat(
     $date,
@@ -173,6 +174,35 @@ function sanitizeComment($comment): string
 function stripslashesNull($text): string
 {
     return (string) $text;
+}
+
+/**
+ * Bir medya donusumunun URL'i — YALNIZCA dosya gercekten uretilmisse.
+ *
+ * NEDEN VAR: `getFullUrl('resized')` dosya diskte OLMASA DA adlandirma
+ * kuralindan bir URL uretir. Bu yuzden yaygin
+ *
+ *     $media->getFullUrl('resized') ?: $media->getFullUrl()
+ *
+ * kalibi ISE YARAMAZ: sol taraf her zaman dolu bir dize doner, yedege hic
+ * dusulmez ve tarayici 404 alir.
+ *
+ * Donusumler varsayilan olarak KUYRUGA alinir
+ * (`media-library.queue_conversions_by_default`), ayrica `format('webp')` GD'nin
+ * webp destegine baglidir. Worker calismiyorsa ya da webp destegi yoksa dosya
+ * hic olusmaz — o durumda orijinali gostermek 404'ten iyidir.
+ */
+function mediaConversionUrl(?Media $media, string $conversion, bool $fallbackToOriginal = true): ?string
+{
+    if ($media === null) {
+        return null;
+    }
+
+    if ($media->hasGeneratedConversion($conversion)) {
+        return $media->getFullUrl($conversion);
+    }
+
+    return $fallbackToOriginal ? $media->getFullUrl() : null;
 }
 
 function replaceCDN($text): string

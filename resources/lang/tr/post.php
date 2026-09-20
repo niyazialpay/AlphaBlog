@@ -125,4 +125,23 @@ return [
     'qr_download' => 'İndir',
     'qr_not_created' => 'Bu yazı için henüz QR kod oluşturulmamış.',
     'qr_scans' => ':count okuma',
+
+    // Yazi listesindeki Google index durumu penceresi (eski
+    // panel/post/index.blade.php:473-565 karsiligi).
+    'index_status' => 'Google Index Durumu',
+    'index_checking' => 'Google sorgulanıyor...',
+    'indexed' => 'İndexlenmiş',
+    'not_indexed' => 'İndexlenmemiş',
+    'index_status_error' => 'Durum alınamadı',
+    'index_from_cache' => 'önbellekten',
+    'index_last_crawl' => 'Son tarama',
+    'index_cached_at' => 'Kaydedildi',
+    'index_history' => 'Gönderim Geçmişi',
+    'index_no_history' => 'Henüz gönderim geçmişi yok.',
+    'index_resend' => 'Tekrar Gönder',
+    'index_queued' => 'Indexleme isteği kuyruğa alındı.',
+    'index_type' => 'Tip',
+    'index_result' => 'Durum',
+    'index_code' => 'Kod',
+    'index_message' => 'Mesaj',
 ];

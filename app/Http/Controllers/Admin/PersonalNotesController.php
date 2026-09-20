@@ -239,7 +239,7 @@ class PersonalNotesController extends Controller
             return response()->json([
                 'success' => true,
                 'note_id' => $note->id,
-                'location' => $note->getMedia('note_images')->last()->getFullUrl('resized'),
+                'location' => mediaConversionUrl($note->getMedia('note_images')->last(), 'resized'),
             ]);
         } catch (Exception $e) {
             DB::rollBack();
@@ -292,7 +292,7 @@ class PersonalNotesController extends Controller
                         'name' => $item->file_name,
                         'size' => $item->size,
                         'url' => $item->getFullUrl(),
-                        'thumb' => $item->getFullUrl('resized') ?: $item->getFullUrl(),
+                        'thumb' => mediaConversionUrl($item, 'resized'),
                     ])
                     ->values(),
             ],

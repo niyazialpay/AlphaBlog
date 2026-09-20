@@ -125,4 +125,22 @@ return [
     'qr_download' => 'Download',
     'qr_not_created' => 'No QR code has been generated for this post yet.',
     'qr_scans' => ':count scans',
+
+    // Google index status dialog on the post list.
+    'index_status' => 'Google Index Status',
+    'index_checking' => 'Querying Google...',
+    'indexed' => 'Indexed',
+    'not_indexed' => 'Not indexed',
+    'index_status_error' => 'Status unavailable',
+    'index_from_cache' => 'cached',
+    'index_last_crawl' => 'Last crawl',
+    'index_cached_at' => 'Stored',
+    'index_history' => 'Submission History',
+    'index_no_history' => 'No submissions yet.',
+    'index_resend' => 'Resend',
+    'index_queued' => 'Indexing request queued.',
+    'index_type' => 'Type',
+    'index_result' => 'Status',
+    'index_code' => 'Code',
+    'index_message' => 'Message',
 ];
