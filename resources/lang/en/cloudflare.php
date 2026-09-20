@@ -11,6 +11,10 @@ return [
     'timeout-or-duplicate' => 'The response parameter has already been validated before.',
     'internal-error' => 'An internal error happened while validating the response. The request can be retried.',
 
+    'email' => 'Cloudflare Email',
+    'api_key' => 'Cloudflare API Key',
+    'domain' => 'Cloudflare Domain',
+
     'development_mode' => 'Development Mode',
     'development_mode_toggle' => 'Development Mode Toggle',
     'development_mode_toggled' => 'Development Mode Toggled',

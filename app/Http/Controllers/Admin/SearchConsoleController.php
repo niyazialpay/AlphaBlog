@@ -10,7 +10,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
+use Throwable;
 
 class SearchConsoleController extends Controller
 {
@@ -23,6 +25,7 @@ class SearchConsoleController extends Controller
             'panel.search-console',
             [
                 'configured' => $data['configured'],
+                'status' => $data['status'],
                 'dateRange' => $data['date_range'],
                 'performance' => $data['performance'],
                 'keywords' => $data['keywords'],
@@ -57,6 +60,7 @@ class SearchConsoleController extends Controller
         if (! file_exists($credPath) || ! $siteUrl) {
             return [
                 'configured' => false,
+                'status' => 'not_configured',
                 'date_range' => $dateRange,
                 'performance' => [],
                 'keywords' => [],
@@ -66,18 +70,36 @@ class SearchConsoleController extends Controller
 
         $cacheKey = config('cache.prefix').'gsc_data_'.$startDate->format('Y-m-d').'_'.$endDate->format('Y-m-d');
 
-        $data = Cache::remember($cacheKey, now()->addMinutes(30), function () use ($startDate, $endDate) {
-            $service = new GoogleSearchConsoleService;
+        try {
+            $data = Cache::remember($cacheKey, now()->addMinutes(30), function () use ($startDate, $endDate) {
+                $service = new GoogleSearchConsoleService;
+
+                return [
+                    'performance' => $service->getPerformance($startDate, $endDate),
+                    'keywords' => $service->getKeywords($startDate, $endDate),
+                    'trend' => $service->getClicksTrend($startDate, $endDate),
+                ];
+            });
+        } catch (Throwable $e) {
+            /*
+             * Yapilandirilmis ama calismayan entegrasyon ekrani 500'e
+             * dusurmemeli; ayirt edilebilir bir durum olarak donuyor.
+             */
+            Log::error('Search Console verisi alinamadi', ['exception' => $e]);
 
             return [
-                'performance' => $service->getPerformance($startDate, $endDate),
-                'keywords' => $service->getKeywords($startDate, $endDate),
-                'trend' => $service->getClicksTrend($startDate, $endDate),
+                'configured' => true,
+                'status' => 'error',
+                'date_range' => $dateRange,
+                'performance' => [],
+                'keywords' => [],
+                'trend' => [],
             ];
-        });
+        }
 
         return array_merge($data, [
             'configured' => true,
+            'status' => 'ok',
             'date_range' => $dateRange,
         ]);
     }

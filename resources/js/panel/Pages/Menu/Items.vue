@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import { __ } from '../../composables/useLang';
 import { usePageHeader } from '../../composables/usePageHeader';
@@ -8,6 +8,8 @@ import FormField from '../../components/FormField.vue';
 
 /*
  * panel/menu/show.blade.php karşılığı — jquery.nestable'ın yerini alır.
+ * Sınırsız derinlikte alt menü: sıralama sürükle-bırak, seviye girinti/çıkıntı
+ * düğmeleriyle değişir (bkz. components/MenuTreeBuilder.vue).
  *
  * SUNUCU SÖZLEŞMESİ DEĞİŞMEDİ: `admin.menu-item.save` hâlâ `menu_id` + `menu`
  * alanlarını bekler ve `menu` bir JSON STRING'dir. Ağaçtaki her düğüm altı
@@ -18,32 +20,59 @@ import FormField from '../../components/FormField.vue';
  * Satırlar her kayıtta silinip yeniden yaratıldığı için id'ler değişir;
  * kaydetmeden sonra ağaç sunucudan tazelenir.
  */
+/*
+ * `menu` DEĞİL, `menuRecord`.
+ *
+ * HandlePanelInertiaRequests sidebar bölümlerini `menu` adıyla paylaşıyor;
+ * Inertia'da sayfa prop'u aynı adlı paylaşılan prop'u EZER. Bu ekran `menu`
+ * gönderdiği sürece PanelLayout'un `sections` computed'ı dizi yerine bu nesneyi
+ * alıyor, `sections.find(...)` TypeError fırlatıyor ve Vue tüm layout alt
+ * ağacını düşürüyordu — sol menü komple kayboluyordu.
+ */
 const props = defineProps({
-  menu: { type: Object, required: true },
+  menuRecord: { type: Object, required: true },
   tree: { type: Array, default: () => [] },
   categories: { type: Array, default: () => [] },
   pages: { type: Array, default: () => [] },
   posts: { type: Array, default: () => [] },
 });
 
-usePageHeader(props.menu.title, [
+usePageHeader(props.menuRecord.title, [
   { label: __('dashboard.dashboard'), route: 'admin.index' },
   { label: __('menu.menu'), route: 'admin.menu.index' },
-  { label: props.menu.title },
+  { label: props.menuRecord.title },
 ]);
 
-const tree = ref(JSON.parse(JSON.stringify(props.tree)));
+function clone(value) {
+  return JSON.parse(JSON.stringify(value ?? []));
+}
+
+const tree = ref(clone(props.tree));
+
+/*
+ * Kayıtta satırlar SİLİNİP yeniden yaratılıyor, yani id'ler değişiyor. Sunucu
+ * `back()` döndürdüğü için aynı bileşen taze `tree` prop'uyla yeniden gelir;
+ * yerel ağaç her zaman sunucudan tazelenir, eski id'lere güvenilmez.
+ */
+watch(
+  () => props.tree,
+  (value) => {
+    tree.value = clone(value);
+  },
+);
+
 const showJson = ref(false);
 
 const custom = ref({ title: '', url: '' });
 
 const form = useForm({
-  menu_id: props.menu.id,
+  menu_id: props.menuRecord.id,
   menu: '',
 });
 
 const json = computed(() => JSON.stringify(tree.value, null, 2));
 
+// Sunucu id'leriyle çakışmasın: yeni öğeler kaydedilene kadar negatif id taşır.
 let nextTempId = -1;
 
 /** Sunucunun beklediği ALTI anahtarı da daima doldur. */
@@ -52,10 +81,10 @@ function node(title, url) {
     id: nextTempId--,
     title,
     url,
-    language: props.menu.language,
+    language: props.menuRecord.language,
     nav_target: '_self',
     icon: '',
-    menu_id: props.menu.id,
+    menu_id: props.menuRecord.id,
     menu_type: 'standard',
     children: [],
   };
@@ -72,7 +101,7 @@ function addCustom() {
 
 function addFrom(item, prefix) {
   const slug = item.slug || '';
-  tree.value.push(node(item.title || item.name, `/${props.menu.language}/${prefix}${slug}`));
+  tree.value.push(node(item.title || item.name, `/${props.menuRecord.language}/${prefix}${slug}`));
 }
 
 function save() {
@@ -86,7 +115,7 @@ function save() {
 </script>
 
 <template>
-  <Head :title="menu.title" />
+  <Head :title="menuRecord.title" />
 
   <div class="grid gap-3.5 p-[22px] lg:grid-cols-[320px_minmax(0,1fr)]">
     <!-- Kaynaklar -->
@@ -141,7 +170,9 @@ function save() {
           </button>
         </div>
 
-        <MenuTreeBuilder v-model="tree" :language="menu.language" />
+        <p class="mb-2.5 text-[11.5px] leading-relaxed text-p-ink3">{{ __('menu.builder_hint') }}</p>
+
+        <MenuTreeBuilder v-model="tree" />
 
         <div v-if="!tree.length" class="py-10 text-center text-[12.5px] text-p-ink3">
           {{ __('general.no_records') }}

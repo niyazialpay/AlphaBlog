@@ -133,7 +133,7 @@ final class PanelModuleMenu
             ->filter(fn (RoutingRoute $route) => self::routeAllows($route, $user))
             ->map(fn (RoutingRoute $route) => [
                 'label' => self::itemLabel($key, (string) $route->getName(), $prefix),
-                'icon' => 'fa-circle-dot',
+                'icon' => 'fa-puzzle-piece',
                 'url' => url($route->uri()),
                 'route' => $route->getName(),
                 'active' => Str::after($route->uri(), Panel::path().'/'),

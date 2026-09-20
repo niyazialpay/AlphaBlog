@@ -15,6 +15,14 @@ import ApexChart from '../../components/ApexChart.vue';
  */
 const props = defineProps({
   configured: { type: Boolean, default: false },
+  /*
+   * 'ok' | 'not_configured' | 'error'.
+   *
+   * `configured` tek başına YETMİYORDU: kimlik dosyası kurulu ama Google
+   * isteği patlamışsa da ekran boş kalıyordu ve kullanıcı hangi durumda
+   * olduğunu anlayamıyordu.
+   */
+  status: { type: String, default: 'ok' },
   dateRange: { type: String, default: '' },
   overview: { type: [Object, Array], default: () => ({}) },
   trend: { type: Object, default: () => ({ current: [], previous: [] }) },
@@ -176,11 +184,16 @@ const topViewedChart = computed(() => ({
       </div>
     </div>
 
-    <div
-      v-if="!configured"
-      class="p-card px-4 py-6 text-center text-[12.5px] text-p-ink3"
-    >
-      {{ __('general.not_available') }}
+    <div v-if="status !== 'ok'" class="p-card p-4 text-[12.5px] leading-relaxed text-p-ink2">
+      <i class="fa-solid fa-circle-info mr-1.5 text-p-accent"></i>
+      <template v-if="status === 'not_configured'">
+        {{ __('dashboard.ga4_not_configured') }}
+        <div class="mt-1 text-p-ink3">{{ __('dashboard.ga4_not_configured_hint') }}</div>
+      </template>
+      <template v-else>
+        {{ __('dashboard.data_fetch_failed') }}
+        <div class="mt-1 text-p-ink3">{{ __('dashboard.data_fetch_failed_hint') }}</div>
+      </template>
     </div>
 
     <template v-else>

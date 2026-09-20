@@ -11,6 +11,10 @@ return [
     'timeout-or-duplicate' => 'Yanıt parametresi daha önce doğrulandı.',
     'internal-error' => 'Yanıt doğrulanırken iç bir hata oluştu. İstek tekrar denenebilir.',
 
+    'email' => 'Cloudflare E-Postası',
+    'api_key' => 'Cloudflare API Anahtarı',
+    'domain' => 'Cloudflare Alan Adı',
+
     'development_mode' => 'Geliştirici Modu',
     'development_mode_toggle' => 'Geliştirici Modu Değiştir',
     'development_mode_toggled' => 'Geliştirici Modu Değiştirildi',

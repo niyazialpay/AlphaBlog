@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\DashboardWidgetService;
 use App\Support\Panel\PanelResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Spatie\Analytics\Facades\Analytics;
 use Spatie\Analytics\Period;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
+use Throwable;
 
 class AnalyticsController extends Controller
 {
@@ -22,7 +25,14 @@ class AnalyticsController extends Controller
             'Analytics/Index',
             'panel.analytics',
             [
-                'configured' => file_exists(storage_path().'/app/analytics/service-account-credentials.json'),
+                /*
+                 * `configured` GERIYE DONUK uyumluluk icin duruyor; ekran artik
+                 * `status` uzerinden suruluyor cunku "yapilandirilmamis" ile
+                 * "Google cagrisi patladi" ayni sey degil ve kullaniciya ayni
+                 * mesaji gostermek yanlis.
+                 */
+                'configured' => $data['status'] !== 'not_configured',
+                'status' => $data['status'],
                 'dateRange' => $data['date_range'],
                 'overview' => $data['overview'],
                 'trend' => $data['trend'],
@@ -54,29 +64,42 @@ class AnalyticsController extends Controller
         }
         $period = Period::create($start_date, $end_date);
 
-        if (file_exists(storage_path().'/app/analytics/service-account-credentials.json')) {
-            $analytics = new Analytics;
-            $dashboard = [
-                'viewData' => $analytics::fetchMostVisitedPages($period, maxResults: 10),
-                'operatingSystem' => $analytics::fetchTopOperatingSystems($period),
-                'topCountries' => $analytics::fetchTopCountries($period),
-                'topBrowsers' => $analytics::fetchTopBrowsers($period),
-                'TotalVisitorsAndPageViews' => $analytics::fetchTotalVisitorsAndPageViews($period),
-                'user_types' => $analytics::fetchUserTypes($period),
-                'overview' => $this->fetchOverviewMetrics($start_date, $end_date),
-                'trend' => $this->fetchTrendData($start_date, $end_date),
-            ];
+        $empty = [
+            'viewData' => [],
+            'operatingSystem' => [],
+            'topCountries' => [],
+            'topBrowsers' => [],
+            'TotalVisitorsAndPageViews' => [],
+            'user_types' => [],
+            'overview' => [],
+            'trend' => ['current' => [], 'previous' => []],
+        ];
+
+        if (! DashboardWidgetService::ga4Configured()) {
+            $dashboard = array_merge($empty, ['status' => 'not_configured']);
         } else {
-            $dashboard = [
-                'viewData' => [],
-                'operatingSystem' => [],
-                'topCountries' => [],
-                'topBrowsers' => [],
-                'TotalVisitorsAndPageViews' => [],
-                'user_types' => [],
-                'overview' => [],
-                'trend' => ['current' => [], 'previous' => []],
-            ];
+            try {
+                $dashboard = [
+                    'viewData' => Analytics::fetchMostVisitedPages($period, maxResults: 10),
+                    'operatingSystem' => Analytics::fetchTopOperatingSystems($period),
+                    'topCountries' => Analytics::fetchTopCountries($period),
+                    'topBrowsers' => Analytics::fetchTopBrowsers($period),
+                    'TotalVisitorsAndPageViews' => Analytics::fetchTotalVisitorsAndPageViews($period),
+                    'user_types' => Analytics::fetchUserTypes($period),
+                    'overview' => $this->fetchOverviewMetrics($start_date, $end_date),
+                    'trend' => $this->fetchTrendData($start_date, $end_date),
+                    'status' => 'ok',
+                ];
+            } catch (Throwable $e) {
+                /*
+                 * Onceden hicbir koruma yoktu: gecersiz property id, iptal
+                 * edilmis servis hesabi ya da bir ag hatasi ekrani 500'e
+                 * dusuruyordu. Artik loglanip ayirt edilebilir bir duruma
+                 * ceviriliyor.
+                 */
+                Log::error('GA4 analytics verisi alinamadi', ['exception' => $e]);
+                $dashboard = array_merge($empty, ['status' => 'error']);
+            }
         }
 
         return array_merge($dashboard, [

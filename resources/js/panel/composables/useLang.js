@@ -46,17 +46,70 @@ export function __(key, replace = {}) {
     );
 }
 
-/** trans_choice karşılığı: "tekil|çoğul" biçimini sayıya göre çözer. */
-export function transChoice(key, count, replace = {}) {
-    const value = __(key, { count, ...replace });
+/**
+ * trans_choice karşılığı: Illuminate\Translation\MessageSelector semantiğiyle birebir.
+ *
+ * Desteklenenler:
+ *   - Tam eşleşme:        {0}, {1}, {42}
+ *   - Aralık:             [1,19], [20,*], [*,4]
+ *   - Koşulsuz "tekil|çoğul" (koşul yoksa count === 1 ? tekil : çoğul)
+ *
+ * Laravel'in kendi seçicisi de aynı regex sözleşmesini kullanır (bkz.
+ * Illuminate\Translation\MessageSelector::extractFromString), böylece lang
+ * dosyaları sunucu ve istemci tarafında birebir aynı davranır. Seçilen
+ * segmentin koşul öneki (`{1} `, `[2,*] `) burada temizlenir; :count ve diğer
+ * replace anahtarları seçimden SONRA uygulanır (Laravel'de de sıra böyledir).
+ */
+const CONDITION_PATTERN = /^[{[]([^{}[\]]*)[}\]](.*)$/s;
 
-    if (!value.includes('|')) {
-        return value;
+function parseCondition(segment) {
+    const match = segment.match(CONDITION_PATTERN);
+
+    return match ? { condition: match[1], text: match[2] } : null;
+}
+
+function conditionMatches(condition, count) {
+    if (condition.includes(',')) {
+        const [from, to] = condition.split(',');
+
+        if (to === '*') {
+            return count >= Number(from);
+        }
+
+        if (from === '*') {
+            return count <= Number(to);
+        }
+
+        return count >= Number(from) && count <= Number(to);
     }
 
-    const [singular, plural] = value.split('|');
+    return Number(condition) === count;
+}
 
-    return (count === 1 ? singular : plural).trim();
+export function transChoice(key, count, replace = {}) {
+    const segments = __(key).split('|');
+
+    let chosen = null;
+
+    for (const segment of segments) {
+        const parsed = parseCondition(segment);
+
+        if (parsed && conditionMatches(parsed.condition, count)) {
+            chosen = parsed.text.trim();
+            break;
+        }
+    }
+
+    if (chosen === null) {
+        const stripped = segments.map((segment) => parseCondition(segment)?.text ?? segment);
+
+        chosen = (stripped.length === 1 ? stripped[0] : stripped[count === 1 ? 0 : 1]).trim();
+    }
+
+    return Object.entries({ count, ...replace }).reduce(
+        (text, [name, value]) => text.replaceAll(`:${name}`, value),
+        chosen,
+    );
 }
 
 export function useLang() {

@@ -141,9 +141,16 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
     >
       <Link
         :href="route('admin.index')"
-        class="mb-3 grid h-9 w-9 place-items-center rounded-xl bg-p-accent font-display text-base font-extrabold text-white"
-        >{{ ($page.props.siteName || 'A').charAt(0).toUpperCase() }}</Link
+        class="mb-3 grid h-9 w-9 place-items-center overflow-hidden rounded-xl bg-p-accent font-display text-base font-extrabold text-white"
       >
+        <img
+          v-if="$page.props.favicon"
+          :src="$page.props.favicon"
+          :alt="$page.props.siteName"
+          class="h-full w-full object-cover"
+        />
+        <template v-else>{{ ($page.props.siteName || 'A').charAt(0).toUpperCase() }}</template>
+      </Link>
 
       <button
         v-for="s in sections"
@@ -186,9 +193,17 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
       class="sticky top-0 z-20 h-screen w-[252px] shrink-0 flex-col border-r border-p-line bg-p-panel"
       :class="mobileNavOpen ? 'fixed left-[68px] flex shadow-pop' : 'hidden lg:flex'"
     >
-      <div class="border-b border-p-line2 px-[18px] pb-3.5 pt-[18px]">
-        <div class="font-display text-[15px] font-extrabold">{{ $page.props.siteName }}</div>
-        <div class="mt-0.5 text-[11.5px] text-p-ink3">{{ $page.props.siteDomain }}</div>
+      <div class="flex items-center gap-2.5 border-b border-p-line2 px-[18px] pb-3.5 pt-[18px]">
+        <img
+          v-if="$page.props.siteLogo || $page.props.favicon"
+          :src="$page.props.siteLogo || $page.props.favicon"
+          :alt="$page.props.siteName"
+          class="h-8 w-8 shrink-0 rounded-lg object-contain"
+        />
+        <div class="min-w-0">
+          <div class="truncate font-display text-[15px] font-extrabold">{{ $page.props.siteName }}</div>
+          <div class="mt-0.5 truncate text-[11.5px] text-p-ink3">{{ $page.props.siteDomain }}</div>
+        </div>
       </div>
 
       <div
@@ -228,17 +243,29 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
       </div>
 
       <div class="flex items-center gap-2.5 border-t border-p-line2 px-3.5 py-3">
-        <div
-          class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-p-soft text-xs font-bold text-p-accent"
+        <Link
+          :href="route('admin.profile.index')"
+          class="flex min-w-0 flex-1 items-center gap-2.5 rounded-[9px] no-underline"
         >
-          {{ $page.props.auth.user?.initials }}
-        </div>
-        <div class="min-w-0 flex-1">
-          <div class="truncate text-[12.5px] font-semibold">
-            {{ $page.props.auth.user?.nickname }}
+          <img
+            v-if="$page.props.auth.user?.profileImage"
+            :src="$page.props.auth.user.profileImage"
+            :alt="$page.props.auth.user?.nickname"
+            class="h-8 w-8 shrink-0 rounded-full object-cover"
+          />
+          <div
+            v-else
+            class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-p-soft text-xs font-bold text-p-accent"
+          >
+            {{ $page.props.auth.user?.initials }}
           </div>
-          <div class="text-[11px] capitalize text-p-ink3">{{ $page.props.auth.user?.role }}</div>
-        </div>
+          <div class="min-w-0 flex-1">
+            <div class="truncate text-[12.5px] font-semibold text-p-ink">
+              {{ $page.props.auth.user?.nickname }}
+            </div>
+            <div class="text-[11px] capitalize text-p-ink3">{{ $page.props.auth.user?.role }}</div>
+          </div>
+        </Link>
         <!--
           Gerçek form: admin.logout /login'e (düz Blade sayfası) yönlendiriyor.
           Inertia POST'u bu 302'yi izleyip HTML alır ve hata verir.

@@ -16,6 +16,9 @@ import ApexChart from '../../components/ApexChart.vue';
  */
 const props = defineProps({
   configured: { type: Boolean, default: false },
+  // 'ok' | 'not_configured' | 'error' — yapılandırılmamış olmakla Google
+  // isteğinin patlaması ayrı şeyler; ekran ikisini ayrı anlatır.
+  status: { type: String, default: 'ok' },
   dateRange: { type: String, default: '' },
   performance: { type: [Object, Array], default: () => ({}) },
   keywords: { type: Array, default: () => [] },
@@ -163,7 +166,13 @@ function positionClass(position) {
       </button>
     </div>
 
-    <div v-if="!configured" class="p-card p-4 text-[12.5px] leading-relaxed text-p-ink2">
+    <div v-if="status === 'error'" class="p-card p-4 text-[12.5px] leading-relaxed text-p-ink2">
+      <i class="fa-solid fa-triangle-exclamation mr-1.5 text-p-danger"></i>
+      {{ __('dashboard.data_fetch_failed') }}
+      <div class="mt-1 text-p-ink3">{{ __('dashboard.data_fetch_failed_hint') }}</div>
+    </div>
+
+    <div v-else-if="!configured" class="p-card p-4 text-[12.5px] leading-relaxed text-p-ink2">
       <i class="fa-solid fa-circle-info mr-1.5 text-p-accent"></i>
       Search Console entegrasyonu yapılandırılmamış.
       <code class="rounded bg-p-panel2 px-1">storage/app/analytics/service-account-credentials.json</code>

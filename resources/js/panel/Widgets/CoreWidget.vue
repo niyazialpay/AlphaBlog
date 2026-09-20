@@ -96,6 +96,62 @@ const topPagesChart = computed(() => ({
   },
 }));
 
+/*
+ * Widget'in hangi veri kaynagina bagli oldugu — bos durum mesaji buna gore
+ * secilir. `site_*` widget'lari (yorumlar, firewall) hicbir dis servise
+ * bagli degil; onlarda bos = gercekten kayit yok.
+ */
+const family = computed(() => {
+  if (props.config.kind === 'gsc-metric') {
+    return 'gsc';
+  }
+
+  const source = String(props.config.source || '');
+
+  if (source.startsWith('ga4.')) {
+    return 'ga4';
+  }
+
+  return source.startsWith('gsc.') ? 'gsc' : null;
+});
+
+const hasContent = computed(() => {
+  if (props.config.kind === 'metric') {
+    return metric.value !== null && metric.value !== undefined;
+  }
+
+  if (props.config.kind === 'gsc-metric') {
+    return gscMetric.value !== null;
+  }
+
+  return rows.value.length > 0;
+});
+
+/*
+ * Boş durum ARTIK TEK BİR MESAJ DEĞİL.
+ *
+ * Eskiden beş dalın hepsi `general.not_available` ("Bu servis şu an
+ * kullanılamıyor.") gösteriyordu; entegrasyonun hiç kurulmamış olması,
+ * Google isteğinin patlaması ve tarih aralığında gerçekten satır olmaması
+ * ayırt edilemiyordu. Durum sunucudan `widgetData.status` ile geliyor.
+ */
+const fallback = computed(() => {
+  const status = family.value ? props.data?.status?.[family.value] : null;
+
+  if (status === 'not_configured') {
+    return {
+      text: __(`dashboard.${family.value}_not_configured`),
+      link: family.value === 'gsc' ? props.data?.settingsUrl || null : null,
+    };
+  }
+
+  if (status === 'error') {
+    return { text: __('dashboard.data_fetch_failed'), link: null };
+  }
+
+  return { text: __('general.no_records'), link: null };
+});
+
 function positionClass(position) {
   if (position <= 3) {
     return '!bg-p-ok !text-white';
@@ -121,76 +177,66 @@ function positionClass(position) {
       </Link>
     </div>
 
+    <!-- Ayırt edilebilir boş durum: yapılandırılmamış / istek patladı / kayıt yok -->
+    <div v-if="!hasContent" class="flex min-h-0 flex-1 flex-col justify-center gap-1 px-3 pb-3">
+      <div class="text-[12px] leading-snug text-p-ink3">{{ fallback.text }}</div>
+      <a
+        v-if="fallback.link"
+        :href="fallback.link"
+        class="w-max text-[11px] text-p-accent underline"
+      >
+        {{ __('general.settings') }} →
+      </a>
+    </div>
+
     <!-- Metrik kartları -->
-    <div v-if="config.kind === 'metric'" class="flex flex-1 flex-col justify-center px-3 pb-3">
-      <template v-if="metric">
-        <div class="font-display text-[24px] font-bold tabular-nums">
-          {{ typeof metric.value === 'number' ? metric.value.toLocaleString() : metric.value }}
-        </div>
-        <span
-          v-if="metric.change !== null && metric.change !== undefined"
-          class="p-chip mt-1 w-max"
-          :class="metric.change >= 0 ? '!bg-p-ok !text-white' : '!bg-p-danger !text-white'"
-        >
-          {{ metric.change >= 0 ? '▲' : '▼' }} {{ Math.abs(metric.change) }}%
-        </span>
-      </template>
-      <div v-else class="text-[12px] text-p-ink3">{{ __('general.not_available') }}</div>
+    <div v-else-if="config.kind === 'metric'" class="flex flex-1 flex-col justify-center px-3 pb-3">
+      <div class="font-display text-[24px] font-bold tabular-nums">
+        {{ typeof metric.value === 'number' ? metric.value.toLocaleString() : metric.value }}
+      </div>
+      <span
+        v-if="metric.change !== null && metric.change !== undefined"
+        class="p-chip mt-1 w-max"
+        :class="metric.change >= 0 ? '!bg-p-ok !text-white' : '!bg-p-danger !text-white'"
+      >
+        {{ metric.change >= 0 ? '▲' : '▼' }} {{ Math.abs(metric.change) }}%
+      </span>
     </div>
 
     <div v-else-if="config.kind === 'gsc-metric'" class="flex flex-1 flex-col justify-center px-3 pb-3">
-      <template v-if="gscMetric">
-        <div class="font-display text-[24px] font-bold tabular-nums">
-          {{ gscMetric.value }}{{ config.suffix || '' }}
-        </div>
-        <span
-          v-if="gscMetric.change !== null"
-          class="p-chip mt-1 w-max"
-          :class="gscMetric.positive ? '!bg-p-ok !text-white' : '!bg-p-danger !text-white'"
-        >
-          {{ gscMetric.positive ? '▲' : '▼' }} {{ Math.abs(gscMetric.change) }}%
-        </span>
-      </template>
-      <div v-else class="text-[12px] text-p-ink3">{{ __('general.not_available') }}</div>
+      <div class="font-display text-[24px] font-bold tabular-nums">
+        {{ gscMetric.value }}{{ config.suffix || '' }}
+      </div>
+      <span
+        v-if="gscMetric.change !== null"
+        class="p-chip mt-1 w-max"
+        :class="gscMetric.positive ? '!bg-p-ok !text-white' : '!bg-p-danger !text-white'"
+      >
+        {{ gscMetric.positive ? '▲' : '▼' }} {{ Math.abs(gscMetric.change) }}%
+      </span>
     </div>
 
     <!-- Grafikler -->
     <div v-else-if="config.kind === 'pie'" class="min-h-0 flex-1 p-2">
-      <ApexChart
-        v-if="rows.length"
-        type="pie"
-        height="100%"
-        :series="pieChart.series"
-        :options="pieChart.options"
-      />
-      <div v-else class="p-2 text-[12px] text-p-ink3">{{ __('general.not_available') }}</div>
+      <ApexChart type="pie" height="100%" :series="pieChart.series" :options="pieChart.options" />
     </div>
 
     <div v-else-if="config.kind === 'trend'" class="min-h-0 flex-1 p-2">
-      <ApexChart
-        v-if="rows.length"
-        type="line"
-        height="100%"
-        :series="trendChart.series"
-        :options="trendChart.options"
-      />
-      <div v-else class="p-2 text-[12px] text-p-ink3">{{ __('general.not_available') }}</div>
+      <ApexChart type="line" height="100%" :series="trendChart.series" :options="trendChart.options" />
     </div>
 
     <div v-else-if="config.kind === 'top-pages'" class="min-h-0 flex-1 p-2">
       <ApexChart
-        v-if="rows.length"
         type="bar"
         height="100%"
         :series="topPagesChart.series"
         :options="topPagesChart.options"
       />
-      <div v-else class="p-2 text-[12px] text-p-ink3">{{ __('general.not_available') }}</div>
     </div>
 
     <!-- Tablolar -->
     <div v-else class="min-h-0 flex-1 overflow-auto px-1 pb-2">
-      <table v-if="rows.length" class="w-full border-collapse text-[11px]">
+      <table class="w-full border-collapse text-[11px]">
         <tbody>
           <tr v-for="(row, index) in rows" :key="row.id ?? index" class="border-t border-p-line2">
             <template v-if="config.kind === 'keywords'">
@@ -227,7 +273,6 @@ function positionClass(position) {
           </tr>
         </tbody>
       </table>
-      <div v-else class="p-3 text-[12px] text-p-ink3">{{ __('general.no_records') }}</div>
     </div>
   </div>
 </template>

@@ -21,6 +21,12 @@ use Throwable;
  */
 final class PanelMenu
 {
+    /** @var list<string>|null */
+    private static ?array $ledger = null;
+
+    /** @var array<string, string|null> */
+    private static array $modulePageDirs = [];
+
     /**
      * @return list<array<string, mixed>>
      */
@@ -266,7 +272,7 @@ final class PanelMenu
             return false;
         }
 
-        $patterns = (array) config('panel_inertia_routes', []);
+        $patterns = self::ledger();
 
         return $patterns !== [] && Str::is($patterns, $routeName);
     }
@@ -278,7 +284,71 @@ final class PanelMenu
      */
     public static function inertiaRoutePatterns(): array
     {
-        return array_values((array) config('panel_inertia_routes', []));
+        return self::ledger();
+    }
+
+    /**
+     * Defter, O KURULUMDA gercekten var olan ekranlara indirgenmis hali.
+     *
+     * Modul panel kodu site-yereldir (`/Modules` gitignore'lu). Bir modulun Vue
+     * sayfalari deploy edilmemisse defterdeki `panel.<modul>.*` desenleri
+     * yalan soyler: sidebar `router.visit()` yapar, sunucu Inertia olmayan bir
+     * yanit doner ve kullanici ya bos ekran ya da "plain HTML response" hatasi
+     * gorur. Sayfalari olmayan modulun desenleri dusurulur; o modul ekranlari
+     * eski Blade kabuguyla tam sayfa yuklemesi olarak acilir (kill switch'in
+     * amaci zaten bu). PanelResponse ayni kontrolu sunucu tarafinda yapar.
+     *
+     * @return list<string>
+     */
+    private static function ledger(): array
+    {
+        if (self::$ledger !== null) {
+            return self::$ledger;
+        }
+
+        $patterns = array_values((array) config('panel_inertia_routes', []));
+
+        return self::$ledger = array_values(array_filter($patterns, static function (string $pattern): bool {
+            if (! Str::startsWith($pattern, 'panel.')) {
+                return true;
+            }
+
+            $segment = Str::before(Str::after($pattern, 'panel.'), '.');
+
+            // Route oneki her zaman modul adiyla birebir degil
+            // (ör. XSayfaMuhasebe -> `panel.xsayfa.muhasebe.*`). Bilinen bir
+            // module denk gelmiyorsa dokunma.
+            return ! self::isKnownModule($segment) || self::modulePagesPresent($segment);
+        }));
+    }
+
+    private static function isKnownModule(string $lowerName): bool
+    {
+        return self::modulePagesDir($lowerName) !== null;
+    }
+
+    private static function modulePagesPresent(string $lowerName): bool
+    {
+        $dir = self::modulePagesDir($lowerName);
+
+        return $dir !== null && (glob($dir.'/*') ?: []) !== [];
+    }
+
+    private static function modulePagesDir(string $lowerName): ?string
+    {
+        if (array_key_exists($lowerName, self::$modulePageDirs)) {
+            return self::$modulePageDirs[$lowerName];
+        }
+
+        $needle = '/modules/'.$lowerName.'/';
+
+        foreach (glob(base_path('Modules/*'), GLOB_ONLYDIR) ?: [] as $moduleDir) {
+            if (str_contains(strtolower(str_replace('\\', '/', $moduleDir)).'/', $needle)) {
+                return self::$modulePageDirs[$lowerName] = $moduleDir.'/resources/js/panel/Pages';
+            }
+        }
+
+        return self::$modulePageDirs[$lowerName] = null;
     }
 
     public static function aiEnabled(): bool

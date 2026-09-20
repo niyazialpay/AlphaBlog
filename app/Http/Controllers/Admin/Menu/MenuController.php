@@ -30,7 +30,13 @@ class MenuController extends Controller
                     'language' => $item->language,
                     'items_count' => $item->menuItems()->count(),
                 ])->values(),
-                'menu' => $menu->id ? [
+                /*
+                 * `menu` DEGIL, `menuRecord` - bkz. MenuItemsController::show().
+                 * Paylasilan `menu` prop'u sidebar bolumleridir; ayni adli sayfa
+                 * prop'u onu ezip sol menuyu yok ediyordu (burada null olunca
+                 * sessizce bos, duzenleme modunda ise TypeError ile komple).
+                 */
+                'menuRecord' => $menu->id ? [
                     'id' => $menu->id,
                     'title' => $menu->title,
                     'menu_position' => $menu->menu_position,

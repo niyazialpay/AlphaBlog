@@ -24,4 +24,11 @@ return [
     'back_to_dashboard' => 'Back to Dashboard',
     'analytics' => 'Google Analytics Data',
     'filter' => 'Filter',
+
+    'ga4_not_configured' => 'Google Analytics is not configured.',
+    'ga4_not_configured_hint' => 'Make sure storage/app/analytics/service-account-credentials.json is in place and ANALYTICS_PROPERTY_ID is set in .env.',
+    'gsc_not_configured' => 'Search Console is not configured.',
+    'gsc_not_configured_hint' => 'Upload the credentials file and set the site URL under the Google Indexing settings.',
+    'data_fetch_failed' => 'Could not load data.',
+    'data_fetch_failed_hint' => 'The Google request failed. Check the system logs for details.',
 ];

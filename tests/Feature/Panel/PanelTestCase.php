@@ -9,10 +9,12 @@ use App\Models\Languages;
 use App\Models\Settings\GeneralSettings;
 use App\Models\Settings\SeoSettings;
 use App\Models\User;
+use App\Support\Panel\PanelMenu;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 use Inertia\Inertia;
+use ReflectionProperty;
 use Tests\TestCase;
 
 /**
@@ -163,5 +165,17 @@ abstract class PanelTestCase extends TestCase
         config()->set('panel_inertia_routes', $routeNames);
         config()->set('settings.panel_ui', 'vue');
         config()->set('settings.panel_ui_screens', '');
+
+        /*
+         * `PanelMenu::$ledger` defteri SUREC OMRU boyunca memoize ediyor (uretimde
+         * istek basina bir kez okunsun diye). Statik olduğu icin testler arasinda
+         * da yasiyor: config'i degistirmek tek basina yetmiyordu ve defteri ilk
+         * dolduran test butun sureci kilitliyordu. Sonuc siralamaya bagliydi —
+         * tam suit calisirken gercek config once yuklendigi icin her sey
+         * gecerken, `--filter` ile calisan bir alt kume ilk daraltmaya takilip
+         * Inertia yerine Blade yanitlari aliyordu.
+         */
+        $ledger = new ReflectionProperty(PanelMenu::class, 'ledger');
+        $ledger->setValue(null, null);
     }
 }

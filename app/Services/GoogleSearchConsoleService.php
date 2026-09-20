@@ -34,6 +34,20 @@ class GoogleSearchConsoleService
         }
     }
 
+    /**
+     * "Yapilandirilmamis" ile "istek basarisiz" ayrimi icin.
+     *
+     * Kimlik dosyasi `storage/app/analytics` altinda ve bu dizin gitignore'lu;
+     * yani her kurulumda elle yerlestirilir. Site URL'si ise panelden girilen
+     * bir ayar. Ikisinden biri eksikse ekran bunu ACIKCA soylemeli, "veri yok"
+     * ya da genel bir "servis kullanilamiyor" mesaji vermemeli.
+     */
+    public function isConfigured(): bool
+    {
+        return file_exists(storage_path('app/analytics/service-account-credentials.json'))
+            && $this->getSiteUrl() !== null;
+    }
+
     private function getSiteUrl(): ?string
     {
         try {

@@ -44,6 +44,14 @@ class DashboardController extends Controller
                 'widgetData' => [
                     'ga4' => $widgetData['ga4'],
                     'gsc' => $widgetData['gsc'],
+                    /*
+                     * Widget'in "veri yok" ile "yapilandirilmamis" / "istek
+                     * patladi" arasini ayirabilmesi icin kaynak basina durum;
+                     * `settingsUrl` de yapilandirilmamis GSC widget'inin
+                     * kullaniciyi dogru sekmeye yollamasi icin.
+                     */
+                    'status' => $widgetData['status'],
+                    'settingsUrl' => route('admin.settings', ['tab' => 'seo']),
                     'comments' => collect($widgetData['comments'])->map(fn ($comment) => [
                         'id' => $comment->id,
                         'author' => $comment->user?->name ?? 'Anonim',

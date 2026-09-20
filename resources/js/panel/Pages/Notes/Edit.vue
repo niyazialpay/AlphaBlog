@@ -110,7 +110,6 @@ function submit() {
       v-model="form.content"
       :upload-url="uploadUrl"
       :language="$page.props.currentLanguage?.code || 'tr'"
-      :height="600"
       :ai-enabled="false"
       :upload-meta="uploadMeta"
       @uploaded="onUploaded"

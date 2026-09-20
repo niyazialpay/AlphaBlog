@@ -49,9 +49,12 @@ class HistoryController extends Controller
         $posts->load('history');
         $textDiff = new TextDiff;
 
-        $title = $textDiff::render($posts->title, $history->title);
-        $slug = $textDiff::render($posts->slug, $history->slug);
-        $content = $textDiff::render($posts->content, $history->content);
+        // history = eski (kaydedilen) durum, posts = güncel durum. Sol=eski,
+        // sağ=yeni olacak şekilde bu sırada render edilmeli; aksi halde
+        // eklenen/silinen renklendirmesi ve sütun sırası ters döner.
+        $title = $textDiff::render($history->title, $posts->title);
+        $slug = $textDiff::render($history->slug, $posts->slug);
+        $content = $textDiff::render($history->content, $posts->content);
 
         return PanelResponse::render(
             'Posts/History/Show',

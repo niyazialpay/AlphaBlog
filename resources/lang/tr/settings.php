@@ -52,6 +52,20 @@ return [
 
     'notifications' => 'Bildirimler',
 
+    'analytics_ga_measurement_id' => 'Google Analytics 4 — Ölçüm Kimliği',
+    'analytics_ga_measurement_id_help' => 'Doldurulduğunda gtag.js otomatik kurulur (yazı okuma, kaydırma ve e-dergi olayları dâhil). Boş bırakılırsa Google Analytics pasif kalır.',
+    'analytics_ga_api_secret' => 'Measurement Protocol API Anahtarı',
+    'analytics_ga_api_secret_help' => 'GA4 → Yönetici → Veri Akışları → Measurement Protocol API secrets. Sunucu taraflı page_view (hibrit ölçüm) için zorunludur.',
+    'analytics_google_analytics' => 'Google Analytics — Ek/Özel Kod (opsiyonel)',
+    'analytics_google_analytics_help' => 'Yalnızca özel bir koda ihtiyacınız varsa kullanın. Yukarıdaki Ölçüm Kimliği doluyken buraya ikinci bir gtag kodu yapıştırmayın; mükerrer yükleme olur.',
+    'analytics_yandex_metrica' => 'Yandex Metrica',
+    'analytics_fb_pixel' => 'Facebook Pixel',
+    'analytics_log_rocket' => 'LogRocket',
+
+    'onesignal_app_id' => 'OneSignal App ID',
+    'onesignal_auth_key' => 'OneSignal Auth Key',
+    'onesignal_safari_web_id' => 'Safari Web ID',
+    'onesignal_user_segmentation' => 'Kullanıcı segmentasyonu',
     'onesignal_string' => 'OneSignal takip kodu bir metin olmalıdır',
     'onesignal_success' => 'OneSignal takip kodu başarıyla kaydedildi',
     'management' => 'Yönetim',

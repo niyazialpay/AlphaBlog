@@ -79,6 +79,125 @@ const form = useForm({
   image: null,
 });
 
+/**
+ * Sunucunun gerçek hata mesajını çıkarır.
+ *
+ * Eski ekranlar `xhr.responseJSON.message` basıyordu; Vue portunda tüm hatalar
+ * tek bir `general.error` metnine düşüyordu ve kullanıcı ekranda sebebi
+ * göremiyordu (403 yetki, 419 oturum, 422 doğrulama, 500 sunucu — hepsi aynı).
+ * HTML hata sayfaları toast'a basılmaz, yerine durum kodu gösterilir.
+ */
+function serverMessage(error) {
+  const response = error?.response;
+  const data = response?.data;
+
+  if (data?.message) {
+    return data.message;
+  }
+
+  const errors = data?.errors ? Object.values(data.errors).flat() : [];
+
+  if (errors.length) {
+    return String(errors[0]);
+  }
+
+  if (typeof data === 'string' && data.trim() !== '' && ! data.trim().startsWith('<')) {
+    return data.trim().slice(0, 300);
+  }
+
+  if (response?.status) {
+    return `${__('general.error')} (HTTP ${response.status})`;
+  }
+
+  return error?.message || __('general.error');
+}
+
+/*
+ * Başlıktan URL (slug) üretimi — add-edit.blade.php:470-473 karşılığı:
+ *
+ *     $("#title").keyup(function () { $("#slug").val(ToSeoUrl($(this).val())); });
+ *
+ * `ToSeoUrl` panel kabuğunun yüklediği public/themes/panel/js/custom.js
+ * içinde tanımlı (base.blade.php:245 — MIN SÜRÜM DEĞİL, ikisi farklı). Vue
+ * portunda bu bağ hiç kurulmamıştı: başlık yazılırken URL alanı boş kalıyordu.
+ *
+ * Fonksiyon BİREBİR taşındı; başka bir slugify kullanmak mevcut URL'leri
+ * değiştirirdi. Korunan tuhaflıklar:
+ *  - boşluk ÖNCE tireye çevrilir, kalan noktalama SİLİNİR (tireye değil),
+ *  - `’ £ #` desenlerinde eski kodda /g YOK: yalnız ilk geçiş silinir,
+ *  - `/|/` boş alternasyon: fiilen no-op, sırayı bozmamak için duruyor,
+ *  - ardışık tireler birleştirilmez, baş/son tire kırpılmaz,
+ *  - sonda locale'siz toLowerCase(); `İ I ı` zaten öncesinde `i`ye çevrildiği
+ *    için Türkçe sonuç doğru çıkar.
+ */
+function toSeoUrl(textString) {
+  textString = textString.replace(/ /g, '-');
+  textString = textString.replace(/</g, '');
+  textString = textString.replace(/>/g, '');
+  textString = textString.replace(/"/g, '');
+  textString = textString.replace(/é/g, '');
+  textString = textString.replace(/!/g, '');
+  textString = textString.replace(/’/, '');
+  textString = textString.replace(/£/, '');
+  textString = textString.replace(/#/, '');
+  textString = textString.replace(/\$/g, '');
+  textString = textString.replace(/\+/g, '');
+  textString = textString.replace(/%/g, '');
+  textString = textString.replace(/½/g, '');
+  textString = textString.replace(/&/g, '');
+  textString = textString.replace(/\//g, '');
+  textString = textString.replace(/{/g, '');
+  textString = textString.replace(/\(/g, '');
+  textString = textString.replace(/\[/g, '');
+  textString = textString.replace(/\)/g, '');
+  textString = textString.replace(/]/g, '');
+  textString = textString.replace(/=/g, '');
+  textString = textString.replace(/}/g, '');
+  textString = textString.replace(/\?/g, '');
+  textString = textString.replace(/\*/g, '');
+  textString = textString.replace(/@/g, '');
+  textString = textString.replace(/€/g, '');
+  textString = textString.replace(/~/g, '');
+  textString = textString.replace(/æ/g, '');
+  textString = textString.replace(/ß/g, '');
+  textString = textString.replace(/;/g, '');
+  textString = textString.replace(/,/g, '');
+  textString = textString.replace(/`/g, '');
+  textString = textString.replace(/|/g, '');
+  textString = textString.replace(/\./g, '');
+  textString = textString.replace(/:/g, '');
+  textString = textString.replace(/İ/g, 'i');
+  textString = textString.replace(/I/g, 'i');
+  textString = textString.replace(/ı/g, 'i');
+  textString = textString.replace(/ğ/g, 'g');
+  textString = textString.replace(/Ğ/g, 'g');
+  textString = textString.replace(/ü/g, 'u');
+  textString = textString.replace(/Ü/g, 'u');
+  textString = textString.replace(/ş/g, 's');
+  textString = textString.replace(/Ş/g, 's');
+  textString = textString.replace(/ö/g, 'o');
+  textString = textString.replace(/Ö/g, 'o');
+  textString = textString.replace(/ç/g, 'c');
+  textString = textString.replace(/Ç/g, 'c');
+  textString = textString.replace(/–/g, '-');
+  textString = textString.replace(/—/g, '-');
+  textString = textString.replace(/—-/g, '-');
+  textString = textString.replace(/—-/g, '-');
+
+  return textString.toLowerCase();
+}
+
+/*
+ * Eski ekran `keyup`a bağlıydı ve slug'ı KOŞULSUZ eziyordu: kayıtlı yazıda da,
+ * kullanıcı slug'ı elle düzenledikten sonra da. Davranış aynen korundu; tek
+ * fark `input` olayı (fare ile yapıştırma ve IME girişini de kapsar, keyup
+ * kapsamıyordu).
+ */
+function onTitleInput(event) {
+  form.title = event.target.value;
+  form.slug = toSeoUrl(form.title);
+}
+
 /*
  * Kategoriler DİLE BAĞLI. Eski blade dil değişiminde `admin.categories.list`
  * ucuna AJAX atıp seçenekleri yeniliyordu (add-edit.blade.php:475-495); Vue
@@ -93,29 +212,57 @@ const categoryOptions = ref(
   props.categories.map((item) => ({ value: String(item.id), label: categoryLabel(item) })),
 );
 
+/*
+ * Hızlı dil değiştirmede geç dönen bir yanıtın yeni listeyi ezmesini engeller:
+ * yalnız SON isteğin sonucu uygulanır.
+ */
+let categoryRequest = 0;
+
 watch(
   () => form.language,
   async (code, previous) => {
-    if (!code || code === previous) {
+    // Eski blade bu bağı `@if($post->post_type=='post')` içine alıyordu:
+    // sayfalarda (pages) kategori alanı hiç yok, uç boşuna çağrılmamalı.
+    if (isPages.value || !code || code === previous) {
       return;
     }
+
+    const token = ++categoryRequest;
+
+    /*
+     * Blade önce listeyi BOŞALTIYORDU (`$('#category_id').html('')`), bu da
+     * select2 seçimlerini düşürüyordu. Aynısı burada: aksi halde istek
+     * yavaşsa/başarısızsa ekranda önceki dilin kategorileri duruyor ve
+     * kaydetme anında başka dilin kategorileri post_categories'e yazılıyor.
+     */
+    const previousSelection = [...form.category_id];
+
+    categoryOptions.value = [];
+    form.category_id = [];
+
+    let data;
 
     try {
-      const { data } = await axios.post(route('admin.categories.list'), { language: code });
-
-      categoryOptions.value = (Array.isArray(data) ? data : []).map((item) => ({
-        value: String(item.id),
-        label: categoryLabel(item),
-      }));
+      ({ data } = await axios.post(route('admin.categories.list'), { language: code }));
     } catch (error) {
-      pushToast(error.response?.data?.message || __('general.error'), 'error');
+      if (token === categoryRequest) {
+        pushToast(serverMessage(error), 'error');
+      }
 
       return;
     }
 
-    // Hedef dilde bulunmayan seçimler düşer: aksi halde kaydetme anında başka
-    // dilin kategorileri post_categories'e yazılıyordu.
-    form.category_id = form.category_id.filter((id) =>
+    if (token !== categoryRequest) {
+      return;
+    }
+
+    categoryOptions.value = (Array.isArray(data) ? data : []).map((item) => ({
+      value: String(item.id),
+      label: categoryLabel(item),
+    }));
+
+    // Hedef dilde de var olan seçimler geri gelir; olmayanlar düşer.
+    form.category_id = previousSelection.filter((id) =>
       categoryOptions.value.some((option) => option.value === String(id)),
     );
   },
@@ -129,8 +276,24 @@ watch(
  */
 const qrBusy = ref(false);
 
+/*
+ * Kart KAYITLI yazıya bağlı: `props.post.id` + `post_type == 'post'`, yani
+ * blade'deki `@if($post->id && $post->post_type == 'post')` ile birebir.
+ *
+ * Yerel `postId` ref'ine bağlanmıştı; o ref TinyMCE ilk görsel yüklemesiyle
+ * oluşan TASLAK id'sini de tutuyor ve kart `/{type}/create` adresinde
+ * açılabiliyordu. Orada generateQr()'ın ardındaki `router.reload` yine
+ * `/create`i istiyor; PostController::create() boş bir `Posts` enjekte ettiği
+ * için editorPost() `qr_link: null` döndürüyor ve kart "oluşturulmamış"a
+ * geri düşüyordu: QR veritabanına yazılıyor ama ekranda hiç görünmüyor,
+ * üstelik her tekrar tıklama 64 karakterlik anahtarı yeniden üretip önceki
+ * bağlantıyı sessizce geçersiz kılıyordu (`props.post.qr_link` hep null
+ * olduğu için onay kutusu da hiç çıkmıyordu).
+ */
+const qrVisible = computed(() => Boolean(props.post.id) && props.post.post_type === 'post');
+
 async function generateQr() {
-  if (qrBusy.value || !postId.value) {
+  if (qrBusy.value || !qrVisible.value) {
     return;
   }
 
@@ -148,16 +311,20 @@ async function generateQr() {
 
   try {
     const { data } = await axios.post(
-      route('admin.post.qr.generate', { type: props.type, post: postId.value }),
+      route('admin.post.qr.generate', { type: props.type, post: props.post.id }),
     );
 
     if (data?.status === 'success') {
       pushToast(__('general.saved'), 'success');
       // Yeni bağlantının SVG'si sunucuda üretiliyor: yalnız `post` prop'u tazelenir.
+      // Kart yalnız düzenleme adresinde göründüğü için bu istek doğru kayda gider.
       router.reload({ only: ['post'], preserveScroll: true, preserveState: true });
+    } else {
+      // Sessiz başarısızlık yok: sunucu 200 + status!=='success' dönerse de bildir.
+      pushToast(data?.message || __('general.error'), 'error');
     }
   } catch (error) {
-    pushToast(error.response?.data?.message || __('general.error'), 'error');
+    pushToast(serverMessage(error), 'error');
   } finally {
     qrBusy.value = false;
   }
@@ -237,8 +404,9 @@ function removeImage() {
     <!-- Editör -->
     <div class="flex min-w-0 flex-1 flex-col gap-3.5 p-[22px]">
       <input
-        v-model="form.title"
+        :value="form.title"
         :placeholder="__('post.title')"
+        @input="onTitleInput"
         class="w-full border-0 bg-transparent font-display text-[30px] font-extrabold text-p-ink outline-none placeholder:text-p-ink3"
       />
       <div v-if="form.errors.title" class="text-[11px] font-semibold text-p-danger">
@@ -389,7 +557,7 @@ function removeImage() {
         </div>
 
         <!-- QR Kod -->
-        <div v-if="postId && !isPages" class="border-t border-p-line2 pt-3">
+        <div v-if="qrVisible" class="border-t border-p-line2 pt-3">
           <div class="mb-2 flex items-center gap-2">
             <label class="p-label !mb-0">
               <i class="fa-solid fa-qrcode text-[11px]"></i> {{ __('post.qr_code') }}

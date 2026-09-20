@@ -6,6 +6,7 @@ return [
     'github_username' => 'Github Username',
     'instagram_username' => 'Instagram Username',
     'x_username' => 'X Username',
+    'bluesky_username' => 'Bluesky Username',
     'facebook_username' => 'Facebook Username',
     'devto_username' => 'Dev.to Username',
     'medium_username' => 'Medium Username',

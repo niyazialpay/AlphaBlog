@@ -8,7 +8,7 @@
  * (public/themes/panel/js/tinymce). npm paketine geçirmeyin — lisans gpl + yüklü dil
  * paketleri ve mevcut yükleme yolu bozulur.
  */
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { theme as panelTheme } from '../composables/useTheme';
 
 const props = defineProps({
@@ -17,7 +17,13 @@ const props = defineProps({
   // blade'de de images_upload_url tanimli degildi).
   uploadUrl: { type: String, default: '' },      // route('admin.post.editor.image.upload', [...])
   language: { type: String, default: 'tr' },     // session('language')
-  height: { type: Number, default: 750 },
+  /**
+   * Sayi => piksel, metin => ham CSS degeri, null => ekranin altina kadar uzayan
+   * `dvh` tabanli varsayilan (asagidaki nota bakiniz).
+   */
+  height: { type: [Number, String], default: null },
+  /** Kisa pencerede editor kullanilabilir kalsin diye taban yukseklik. */
+  minHeight: { type: Number, default: 320 },
   aiEnabled: { type: Boolean, default: true },
   /** Yükleme isteğine eklenecek ek alanlar (title, slug, meta_keywords, language) */
   uploadMeta: { type: Function, default: () => ({}) },
@@ -25,7 +31,62 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'ai', 'uploaded']);
 
 const el = ref(null);
+const wrap = ref(null);
 let editor = null;
+
+/*
+ * YÜKSEKLİK
+ *
+ * Editör gövdesi sayfanın altına kadar uzar ve ölçü birimi `dvh`'dir: `vh`
+ * mobil tarayıcılarda katlanan adres/araç çubuğunu hesaba katmaz, bu yüzden
+ * editörün alt kenarı ekranın dışında kalır. `dvh` görünür alanla birlikte
+ * daralıp genişler.
+ *
+ * Yukarıdan düşülecek pay (panel üst çubuğu + sayfanın kendi başlık/araç
+ * satırları + kenar boşluğu) ekrandan ekrana değiştiği için SABİT YAZILMAZ:
+ * sarmalayıcının viewport'a göre üst konumu ölçülür ve yükseklik
+ * `calc(100dvh - <ölçülen>px)` olur. Böylece yazı, sayfa ve kişisel not
+ * editörleri kendi bileşenlerine dokunulmadan doğru yüksekliği alır.
+ */
+const FALLBACK_OFFSET = 200;
+const BOTTOM_GAP = 22; // sayfa kabuğundaki p-[22px] alt boşluğu
+
+const offset = ref(FALLBACK_OFFSET);
+
+function measure() {
+  const top = wrap.value?.getBoundingClientRect().top;
+
+  offset.value = Number.isFinite(top) && top > 0
+    ? Math.round(top) + BOTTOM_GAP
+    : FALLBACK_OFFSET;
+}
+
+const resolvedHeight = computed(() => {
+  if (typeof props.height === 'number') {
+    return `${props.height}px`;
+  }
+
+  if (typeof props.height === 'string' && props.height !== '') {
+    return props.height;
+  }
+
+  return `calc(100dvh - ${offset.value}px)`;
+});
+
+/*
+ * TinyMCE'nin kendi `height` secenegi yalnizca ILK cizimde bos bir kutu
+ * gorunmesin diye piksel olarak verilir; nihai yukseklik her durumda asagidaki
+ * `.tox-tinymce { height: 100% !important }` kuralindan gelir.
+ */
+function initialPixelHeight() {
+  if (typeof props.height === 'number') {
+    return props.height;
+  }
+
+  const available = (window.innerHeight || 0) - offset.value;
+
+  return Math.max(props.minHeight, Math.round(available) || props.minHeight);
+}
 
 const AI_ACTIONS = [
   { value: 'titles', text: 'Başlık önerileri' },
@@ -72,7 +133,7 @@ function settings() {
     language: props.language,
     branding: false,
     license_key: 'gpl',
-    height: props.height,
+    height: initialPixelHeight(),
     plugins: [
       'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor', 'pagebreak',
       'searchreplace', 'wordcount', 'visualblocks', 'visualchars', 'code', 'fullscreen', 'insertdatetime',
@@ -125,6 +186,7 @@ function settings() {
 }
 
 async function mount() {
+  measure();
   await window.tinymce.init(settings());
   editor = window.tinymce.get(el.value.id);
   editor?.setContent(props.modelValue || '');
@@ -134,8 +196,18 @@ function destroy() {
   editor = null;
 }
 
-onMounted(mount);
-onBeforeUnmount(destroy);
+onMounted(async () => {
+  await mount();
+  // Editor kurulduktan sonra ust konum kesinlesir (arac satirlari yerine oturur).
+  await nextTick();
+  measure();
+  window.addEventListener('resize', measure, { passive: true });
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', measure);
+  destroy();
+});
 
 // Tema değişince editörü yeniden kur (AdminLTE'deki dark-mode-switcher davranışının karşılığı).
 watch(panelTheme, async () => {
@@ -158,7 +230,29 @@ defineExpose({
 </script>
 
 <template>
-  <div class="overflow-hidden rounded-2xl border border-p-line bg-p-panel shadow-panel">
+  <div
+    ref="wrap"
+    class="tinymce-shell overflow-hidden rounded-2xl border border-p-line bg-p-panel shadow-panel"
+    :style="{ '--tinymce-height': resolvedHeight, '--tinymce-min-height': `${minHeight}px` }"
+  >
     <textarea :id="`tinymce-${$.uid}`" ref="el"></textarea>
   </div>
 </template>
+
+<style scoped>
+.tinymce-shell {
+  height: var(--tinymce-height);
+  min-height: var(--tinymce-min-height);
+}
+
+/*
+ * TinyMCE dis kabuga SATIR ICI `height` basar; satir ici stili yalnizca
+ * `!important` yener. Boylece tek yukseklik kaynagi sarmalayici olur ve
+ * pencere/`dvh` degistiginde editor onunla birlikte buyuyup kuculur.
+ */
+.tinymce-shell :deep(.tox-tinymce) {
+  height: 100% !important;
+  max-height: 100% !important;
+  min-height: 0 !important;
+}
+</style>

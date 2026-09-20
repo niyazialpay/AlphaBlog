@@ -7,9 +7,13 @@ import FormField from '../../components/FormField.vue';
 import ConfirmDialog from '../../components/ConfirmDialog.vue';
 
 /* panel/menu/index.blade.php karşılığı. */
+/*
+ * `menu` DEĞİL, `menuRecord`: paylaşılan `menu` prop'u sidebar bölümleridir ve
+ * aynı adlı sayfa prop'u onu ezerek sol menüyü yok ediyordu (bkz. MenuController).
+ */
 const props = defineProps({
   menus: { type: Array, default: () => [] },
-  menu: { type: Object, default: null },
+  menuRecord: { type: Object, default: null },
   languages: { type: Array, default: () => [] },
 });
 
@@ -21,15 +25,15 @@ usePageHeader(__('menu.menu'), [
 const confirm = ref(null);
 
 const form = useForm({
-  title: props.menu?.title || '',
+  title: props.menuRecord?.title || '',
   // MenuRequest: in:header,footer
-  menu_position: props.menu?.menu_position || 'header',
-  language: props.menu?.language || props.languages[0]?.code,
+  menu_position: props.menuRecord?.menu_position || 'header',
+  language: props.menuRecord?.language || props.languages[0]?.code,
 });
 
 function submit() {
-  const url = props.menu
-    ? route('admin.menu.save', { menu: props.menu.id })
+  const url = props.menuRecord
+    ? route('admin.menu.save', { menu: props.menuRecord.id })
     : route('admin.menu.save');
 
   form.post(url, { preserveScroll: true, onSuccess: () => form.reset() });
@@ -92,9 +96,9 @@ async function destroy(item) {
     <div class="p-card h-max p-4">
       <div class="mb-3 flex items-center gap-2">
         <div class="flex-1 font-display text-[13.5px] font-bold">
-          {{ menu ? __('general.edit') : __('general.new') }}
+          {{ menuRecord ? __('general.edit') : __('general.new') }}
         </div>
-        <Link v-if="menu" :href="route('admin.menu.index')" class="p-icon-btn">
+        <Link v-if="menuRecord" :href="route('admin.menu.index')" class="p-icon-btn">
           <i class="fa-solid fa-xmark"></i>
         </Link>
       </div>
@@ -121,7 +125,7 @@ async function destroy(item) {
 
         <button class="p-btn-primary justify-center" :disabled="form.processing" @click="submit">
           <i class="fa-solid fa-floppy-disk text-xs"></i>
-          {{ menu ? __('general.update') : __('general.create') }}
+          {{ menuRecord ? __('general.update') : __('general.create') }}
         </button>
       </div>
     </div>

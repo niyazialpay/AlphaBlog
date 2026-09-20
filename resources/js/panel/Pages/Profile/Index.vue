@@ -347,7 +347,7 @@ function deleteAvatar() {
           v-for="field in SOCIAL_FIELDS"
           :key="field"
           v-model="socialForm[field]"
-          :label="field"
+          :label="__(field === 'website' ? 'social.website' : `social.${field}_username`)"
           :error="socialForm.errors[field]"
         />
       </div>
@@ -369,7 +369,8 @@ function deleteAvatar() {
             v-if="isSelf"
             v-model="passwordForm.old_password"
             type="password"
-            :label="__('profile.old_password')"
+            :label="__('profile.old_password.text')"
+            :placeholder="__('profile.old_password.placeholder')"
             :error="passwordForm.errors.old_password"
           />
           <FormField

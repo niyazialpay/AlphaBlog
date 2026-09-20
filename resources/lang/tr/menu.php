@@ -45,5 +45,6 @@ return [
     'custom_link' => 'Özel Bağlantı',
     'indent' => 'Alt menü yap',
     'outdent' => 'Üst seviyeye çıkar',
+    'builder_hint' => 'Sıralamak için satırı sürükleyin. Bir öğeyi üstündekinin alt menüsü yapmak için girinti, bir seviye yukarı çıkarmak için çıkıntı düğmesini kullanın; derinlik sınırı yoktur.',
     'menu_delete_error' => 'Menü silinirken bir hata oluştu',
 ];

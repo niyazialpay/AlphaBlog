@@ -24,7 +24,18 @@ class MenuItemsController extends Controller
             'Menu/Items',
             'panel.menu.show',
             [
-                'menu' => [
+                /*
+                 * `menu` DEGIL, `menuRecord`.
+                 *
+                 * B6: HandlePanelInertiaRequests `menu` adiyla SIDEBAR bolumlerini
+                 * paylasiyor (PanelMenu::build). Inertia'da sayfa prop'lari ayni
+                 * adli paylasilan prop'u EZER; bu ekran `menu` gonderdiginde
+                 * PanelLayout'taki `sections` bir dizi yerine bu nesneyi aliyor,
+                 * `sections.find(...)` TypeError firlatiyor ve Vue tum layout alt
+                 * agacini bos bir yorum dugumune dusuruyordu - sol menu komple
+                 * kayboluyordu. Ad cakismasi cozuldu; PanelLayout'a dokunulmadi.
+                 */
+                'menuRecord' => [
                     'id' => $menu->id,
                     'title' => $menu->title,
                     'language' => $menu->language,
@@ -183,7 +194,14 @@ class MenuItemsController extends Controller
     private function menuTree($menu_id, $parent_id = null): string
     {
         $items = '';
-        $query = MenuItems::where('parent_id', $parent_id)->where('menu_id', $menu_id)->orderBy('id', 'ASC');
+        // B4 (Blade kabugu): `order` yok sayilip yalnizca `id`'ye gore
+        // siralaniyordu. Satirlar her kayitta silinip dizi sirasinda yeniden
+        // yaratildigi icin kazara calisiyordu; tek bir kismi yazma sirayi
+        // bozuyordu. itemTree() ile ayni siralama.
+        $query = MenuItems::where('parent_id', $parent_id)
+            ->where('menu_id', $menu_id)
+            ->orderBy('order')
+            ->orderBy('id');
         if ($query->count() > 0) {
             $items .= '<ol class="dd-list">';
             foreach ($query->get() as $row) {

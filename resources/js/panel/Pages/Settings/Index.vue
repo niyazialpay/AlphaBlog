@@ -66,6 +66,34 @@ const SOCIAL_FIELDS = [
   'telegram', 'discord',
 ];
 
+/*
+ * Analitik / reklam / sosyal sekmeleri DB kolonları üzerinde döner; eski blade
+ * her alanı elle yazdığı için kolon adı ile çeviri anahtarı arasında haritaya
+ * ihtiyaç var. Haritada olmayan bir kolon eklendiğinde `__()` anahtarın kendisini
+ * döndürür — ekran bozulmaz, eksik çeviri anahtar olarak görünür ve ne
+ * ekleneceğini kendisi söyler.
+ */
+const ANALYTICS_LABELS = {
+  ga_measurement_id: 'settings.analytics_ga_measurement_id',
+  ga_api_secret: 'settings.analytics_ga_api_secret',
+  google_analytics: 'settings.analytics_google_analytics',
+  yandex_metrica: 'settings.analytics_yandex_metrica',
+  fb_pixel: 'settings.analytics_fb_pixel',
+  log_rocket: 'settings.analytics_log_rocket',
+};
+
+// Yalnızca üç alanın blade karşılığında yardım metni vardı.
+const ANALYTICS_HELP = {
+  ga_measurement_id: 'settings.analytics_ga_measurement_id_help',
+  ga_api_secret: 'settings.analytics_ga_api_secret_help',
+  google_analytics: 'settings.analytics_google_analytics_help',
+};
+
+const analyticsLabelKey = (key) => ANALYTICS_LABELS[key] || `settings.analytics_${key}`;
+const advertiseLabelKey = (key) => `advertise.${key}`;
+// `website` tek istisna: diğer ağların tümü kullanıcı adı ile tutuluyor.
+const socialLabelKey = (field) => (field === 'website' ? 'social.website' : `social.${field}_username`);
+
 const generalForm = useForm({
   ...props.general,
   site_logo_light: null,
@@ -219,7 +247,7 @@ function uploadTheme() {
         <FormField
           v-model="generalForm.contact_email"
           type="email"
-          :label="__('contact.email')"
+          :label="__('settings.contact_email')"
           :error="generalForm.errors.contact_email"
         />
         <FormField v-model="generalForm.sharethis" label="ShareThis" />
@@ -227,11 +255,13 @@ function uploadTheme() {
           v-model="generalForm.homepage_featured_count"
           type="number"
           :label="__('settings.homepage_featured_count')"
+          :help="__('settings.homepage_featured_count_help')"
         />
         <FormField
           v-model="generalForm.homepage_recent_count"
           type="number"
           :label="__('settings.homepage_recent_count')"
+          :help="__('settings.homepage_recent_count_help')"
         />
       </div>
 
@@ -244,7 +274,7 @@ function uploadTheme() {
           ]"
           :key="item.key"
         >
-          <label class="p-label">{{ item.key }}</label>
+          <label class="p-label">{{ __(`settings.${item.key}`) }}</label>
           <img
             v-if="item.url"
             :src="item.url"
@@ -295,14 +325,14 @@ function uploadTheme() {
       <div class="p-card p-4">
         <div class="grid gap-3 sm:grid-cols-2">
           <FormField v-model="seoForm.site_name" :label="__('settings.site_name')" />
-          <FormField v-model="seoForm.title" :label="__('post.title')" />
-          <FormField v-model="seoForm.author" :label="__('post.author')" />
-          <FormField v-model="seoForm.robots" label="robots" />
-          <FormField v-model="seoForm.keywords" :label="__('post.meta_keywords')" full />
+          <FormField v-model="seoForm.title" :label="__('settings.site_title')" />
+          <FormField v-model="seoForm.author" :label="__('settings.site_author')" />
+          <FormField v-model="seoForm.robots" :label="__('settings.robots')" />
+          <FormField v-model="seoForm.keywords" :label="__('settings.site_keywords')" full />
           <FormField
             v-model="seoForm.description"
             type="textarea"
-            :label="__('post.meta_description')"
+            :label="__('settings.site_description')"
             full
           />
         </div>
@@ -319,7 +349,7 @@ function uploadTheme() {
       </div>
 
       <div class="p-card p-4">
-        <label class="p-label">robots.txt</label>
+        <label class="p-label">{{ __('settings.robots_txt') }}</label>
         <textarea v-model="robotsForm.robots_txt" class="p-textarea h-48 font-mono"></textarea>
         <div class="mt-3 flex justify-end">
           <button
@@ -333,12 +363,19 @@ function uploadTheme() {
       </div>
 
       <div class="p-card p-4">
+        <label class="p-label">{{ __('settings.llms_txt') }}</label>
         <div class="grid gap-3">
-          <FormField v-model="generalForm.llms_txt_intro" type="textarea" label="llms.txt intro" />
+          <FormField
+            v-model="generalForm.llms_txt_intro"
+            type="textarea"
+            :label="__('settings.llms_txt_intro')"
+            :placeholder="__('settings.llms_txt_intro_placeholder')"
+          />
           <FormField
             v-model="generalForm.llms_txt_instructions"
             type="textarea"
-            label="llms.txt instructions"
+            :label="__('settings.llms_txt_instructions')"
+            :placeholder="__('settings.llms_txt_instructions_placeholder')"
           />
         </div>
         <div class="mt-3 flex justify-end gap-2">
@@ -392,7 +429,8 @@ function uploadTheme() {
           v-for="(value, key) in analytics"
           :key="key"
           v-model="analyticsForm[key]"
-          :label="key"
+          :label="__(analyticsLabelKey(key))"
+          :help="ANALYTICS_HELP[key] ? __(ANALYTICS_HELP[key]) : undefined"
           :error="analyticsForm.errors[key]"
         />
       </div>
@@ -415,7 +453,7 @@ function uploadTheme() {
           :key="key"
           v-model="advertiseForm[key]"
           type="textarea"
-          :label="key"
+          :label="__(advertiseLabelKey(key))"
           :error="advertiseForm.errors[key]"
         />
       </div>
@@ -438,7 +476,7 @@ function uploadTheme() {
             v-for="field in SOCIAL_FIELDS"
             :key="field"
             v-model="socialForm[field]"
-            :label="field"
+            :label="__(socialLabelKey(field))"
           />
         </div>
         <div class="mt-4 flex justify-end">
@@ -556,19 +594,22 @@ function uploadTheme() {
       <div class="grid gap-3 sm:grid-cols-2">
         <FormField
           v-model="notificationsForm.app_id"
-          :label="`OneSignal App ID${notifications.has_app_id ? ' ✓' : ''}`"
+          :label="`${__('settings.onesignal_app_id')}${notifications.has_app_id ? ' ✓' : ''}`"
           :help="__('settings.leave_blank_to_keep')"
         />
         <FormField
           v-model="notificationsForm.auth_key"
           type="password"
-          :label="`OneSignal Auth Key${notifications.has_auth_key ? ' ✓' : ''}`"
+          :label="`${__('settings.onesignal_auth_key')}${notifications.has_auth_key ? ' ✓' : ''}`"
           :help="__('settings.leave_blank_to_keep')"
         />
-        <FormField v-model="notificationsForm.safari_web_id" label="Safari Web ID" />
+        <FormField
+          v-model="notificationsForm.safari_web_id"
+          :label="__('settings.onesignal_safari_web_id')"
+        />
         <label class="flex items-center gap-2.5 text-[12.5px]">
           <input v-model="notificationsForm.user_segmentation" type="checkbox" />
-          user_segmentation
+          {{ __('settings.onesignal_user_segmentation') }}
         </label>
       </div>
       <div class="mt-4 flex justify-end">
@@ -588,18 +629,18 @@ function uploadTheme() {
         <FormField
           v-model="cloudflareForm.cf_email"
           type="email"
-          label="Cloudflare e-mail"
+          :label="__('cloudflare.email')"
           :error="cloudflareForm.errors.cf_email"
         />
         <FormField
           v-model="cloudflareForm.cf_domain"
-          label="Domain"
+          :label="__('cloudflare.domain')"
           :error="cloudflareForm.errors.cf_domain"
         />
         <FormField
           v-model="cloudflareForm.cf_key"
           type="password"
-          :label="`API Key${cloudflare.has_key ? ' ✓' : ''}`"
+          :label="`${__('cloudflare.api_key')}${cloudflare.has_key ? ' ✓' : ''}`"
           :help="__('settings.leave_blank_to_keep')"
           :error="cloudflareForm.errors.cf_key"
         />
@@ -634,10 +675,10 @@ function uploadTheme() {
         />
         <FormField v-model="languageForm.flag" :label="__('language.flag')" />
         <label class="flex items-center gap-2.5 text-[12.5px]">
-          <input v-model="languageForm.is_active" type="checkbox" /> is_active
+          <input v-model="languageForm.is_active" type="checkbox" /> {{ __('language.status') }}
         </label>
         <label class="flex items-center gap-2.5 text-[12.5px]">
-          <input v-model="languageForm.is_default" type="checkbox" /> is_default
+          <input v-model="languageForm.is_default" type="checkbox" /> {{ __('language.default') }}
         </label>
       </div>
     </Modal>

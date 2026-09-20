@@ -24,4 +24,17 @@ return [
     'back_to_dashboard' => 'Kontrol Paneline Geri Dön',
     'analytics' => 'Google Analytics Verileri',
     'filter' => 'Filtrele',
+
+    /*
+     * Widget'lar ve rapor ekranları için AYIRT EDİLEBİLİR boş durumlar.
+     * Daha önce hepsi general.not_available ("Bu servis şu an kullanılamıyor.")
+     * ile gösteriliyordu; kurulmamış entegrasyon, patlamış istek ve gerçekten
+     * boş bir tarih aralığı aynı mesajı veriyordu.
+     */
+    'ga4_not_configured' => 'Google Analytics bağlantısı yapılandırılmamış.',
+    'ga4_not_configured_hint' => 'storage/app/analytics/service-account-credentials.json dosyasının yüklü olduğundan ve .env içindeki ANALYTICS_PROPERTY_ID değerinin dolu olduğundan emin olun.',
+    'gsc_not_configured' => 'Search Console bağlantısı yapılandırılmamış.',
+    'gsc_not_configured_hint' => 'Kimlik dosyasını yükleyin ve Google Indexing ayarlarından site adresini girin.',
+    'data_fetch_failed' => 'Veri alınamadı.',
+    'data_fetch_failed_hint' => 'Google isteği başarısız oldu. Ayrıntı için sistem günlüklerine bakın.',
 ];

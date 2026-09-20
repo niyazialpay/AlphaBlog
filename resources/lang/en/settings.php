@@ -52,6 +52,20 @@ return [
 
     'notifications' => 'Notifications',
 
+    'analytics_ga_measurement_id' => 'Google Analytics 4 — Measurement ID',
+    'analytics_ga_measurement_id_help' => 'When this is filled in, gtag.js is installed automatically (including post read, scroll and e-magazine events). Leave it empty to keep Google Analytics disabled.',
+    'analytics_ga_api_secret' => 'Measurement Protocol API Secret',
+    'analytics_ga_api_secret_help' => 'GA4 → Admin → Data Streams → Measurement Protocol API secrets. Required for server-side page_view (hybrid) tracking.',
+    'analytics_google_analytics' => 'Google Analytics — Extra/Custom Snippet (optional)',
+    'analytics_google_analytics_help' => 'Use this only if you need custom code. Do not paste a second gtag snippet here while the Measurement ID above is set, or it will load twice.',
+    'analytics_yandex_metrica' => 'Yandex Metrica',
+    'analytics_fb_pixel' => 'Facebook Pixel',
+    'analytics_log_rocket' => 'LogRocket',
+
+    'onesignal_app_id' => 'OneSignal App ID',
+    'onesignal_auth_key' => 'OneSignal Auth Key',
+    'onesignal_safari_web_id' => 'Safari Web ID',
+    'onesignal_user_segmentation' => 'User segmentation',
     'onesignal_string' => 'OneSignal tracking code must be a string',
     'onesignal_success' => 'OneSignal tracking code saved successfully',
     'management' => 'Management',
