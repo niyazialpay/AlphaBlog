@@ -1,0 +1,101 @@
+@config "../../tailwind.panel.cjs";
+
+/* AlphaBlog Panel — Tailwind entry
+ * Vite girişi: resources/js/panel/app.js içinden import edilir.
+ * Tokenlar CSS değişkeni olarak tanımlı; Tailwind sınıfları bunları okur (tailwind.panel.cjs).
+ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root,
+  html[data-panel-theme='light'] {
+    --p-bg: 245 246 249;
+    --p-panel: 255 255 255;
+    --p-panel2: 251 251 253;
+    --p-rail: 14 16 22;
+    --p-railink: 139 147 166;
+    --p-ink: 17 19 26;
+    --p-ink2: 93 100 115;
+    --p-ink3: 135 142 157;
+    --p-line: 230 232 238;
+    --p-line2: 238 240 245;
+    --p-accent: 79 70 229;
+    --p-accent-ink: 255 255 255;
+    --p-soft: 238 240 255;
+    --p-cyan: 8 145 178;
+    --p-ok: 4 120 87;
+    --p-warn: 180 83 9;
+    --p-danger: 190 18 60;
+    --p-chip: 242 244 248;
+  }
+
+  html[data-panel-theme='dark'] {
+    --p-bg: 10 12 17;
+    --p-panel: 18 21 28;
+    --p-panel2: 22 26 34;
+    --p-rail: 8 10 14;
+    --p-railink: 124 132 151;
+    --p-ink: 233 235 241;
+    --p-ink2: 162 169 184;
+    --p-ink3: 123 130 147;
+    --p-line: 35 39 51;
+    --p-line2: 27 31 40;
+    --p-accent: 124 124 248;
+    --p-accent-ink: 10 12 17;
+    --p-soft: 29 32 56;
+    --p-cyan: 34 211 238;
+    --p-ok: 52 211 153;
+    --p-warn: 251 191 36;
+    --p-danger: 251 113 133;
+    --p-chip: 26 30 39;
+  }
+
+  html { color-scheme: light; }
+  html[data-panel-theme='dark'] { color-scheme: dark; }
+
+  body {
+    @apply bg-p-bg text-p-ink antialiased;
+    font-family: 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  a { @apply text-p-accent no-underline; }
+  a:hover { @apply text-p-cyan; }
+
+  ::placeholder { @apply text-p-ink3; }
+}
+
+@layer components {
+  .p-card { @apply bg-p-panel border border-p-line rounded-2xl shadow-panel; }
+  .p-input {
+    @apply w-full h-9 px-2.5 rounded-[9px] border border-p-line bg-p-panel2 text-p-ink text-[12.5px]
+           outline-none focus:border-p-accent transition-colors;
+  }
+  .p-textarea { @apply p-input h-24 py-2 leading-relaxed resize-y; }
+  .p-label { @apply block text-[11.5px] font-semibold text-p-ink2 mb-1.5; }
+  .p-btn {
+    @apply inline-flex items-center gap-1.5 h-8 px-3 rounded-[9px] text-[12.5px] cursor-pointer
+           border border-p-line bg-p-panel text-p-ink2 hover:text-p-ink transition-colors;
+  }
+  .p-btn-primary {
+    @apply inline-flex items-center gap-1.5 h-8 px-3 rounded-[9px] text-[12.5px] font-semibold cursor-pointer
+           border-0 bg-p-accent text-p-accent-ink hover:opacity-90 transition-opacity;
+  }
+  .p-icon-btn {
+    @apply grid place-items-center w-7 h-7 rounded-lg border border-p-line bg-p-panel text-p-ink2
+           text-[11px] cursor-pointer hover:border-p-accent hover:text-p-accent transition-colors;
+  }
+  .p-chip { @apply inline-block px-2.5 py-[3px] rounded-full text-[11px] font-bold bg-p-chip text-p-ink2; }
+  .p-chip-accent { @apply bg-p-soft text-p-accent; }
+  .p-tab {
+    @apply h-8 px-3 rounded-[9px] text-xs font-semibold cursor-pointer border border-p-line
+           bg-p-panel text-p-ink2 transition-colors;
+  }
+  .p-tab-active { @apply border-transparent bg-p-soft text-p-accent; }
+}

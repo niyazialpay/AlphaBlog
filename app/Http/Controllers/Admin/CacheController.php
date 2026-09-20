@@ -6,7 +6,6 @@ use App\Actions\CacheClear;
 use App\Http\Controllers\Controller;
 use Cloudflare\API\Endpoints\EndpointException;
 
-
 class CacheController extends Controller
 {
     /**

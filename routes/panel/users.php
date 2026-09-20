@@ -45,6 +45,18 @@ Route::get('/{user_id}/secret-login', [UserController::class, 'userSecretLogin']
     ->can('admin', 'App\Models\User')
     ->name('admin.user.secret-login');
 
+/*
+ * POST alias — KULLANICI TAKLIDI.
+ *
+ * Inertia v2 `<Link prefetch>` hover'da gercek GET atiyor; bu ucun GET olarak
+ * bir gezinme baglantisina dusmesi, sadece fareyi uzerine getirerek baska bir
+ * kullaniciya gecilmesi demekti. Eski GET geriye donuk uyumluluk icin kalir,
+ * Vue yalnizca bu POST'u cagirir.
+ */
+Route::post('/{user_id}/secret-login', [UserController::class, 'userSecretLogin'])
+    ->can('owner', 'App\Models\User')
+    ->name('admin.user.secret-login.post');
+
 Route::get('/{user_id}/edit', [UserController::class, 'userEdit'])
     ->can('admin', 'App\Models\User')
     ->name('admin.user.edit');

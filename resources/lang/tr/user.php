@@ -59,4 +59,5 @@ return [
     'logout_all_devices' => 'Tüm cihazlardan çıkış yap',
     'all_sessions_ended' => 'Tüm oturumlar sonlandırıldı!',
     'email_verification_failed' => 'Kullanıcı oluşturuldu ancak doğrulama e-postası gönderilemedi.',
+    'secret_login' => 'Gizli giriş',
 ];

@@ -11,9 +11,19 @@ export default defineConfig(({ mode }) => {
     const cssEntry = env.THEME_CSS_ENTRY || 'resources/css/app.css';
     const jsEntry = env.THEME_JS_ENTRY || 'resources/js/app.js';
 
-    const inputEntries = ['resources/js/panel.js', cssEntry, jsEntry]
-        .filter((entry) => typeof entry === 'string' && entry.length > 0);
+    const inputEntries = [
+        // Eski AdminLTE kabugu. Henuz tasinmamis cekirdek ekranlar ve 7 modulun
+        // panel blade'leri buna bagli - son modul tasinana kadar KALMALI.
+        'resources/js/panel.js',
+        // Yeni Inertia paneli. resources/css/panel.css'i kendisi import eder,
+        // o yuzden ayri bir CSS girisi gerekmez.
+        'resources/js/panel/app.js',
+        cssEntry,
+        jsEntry,
+    ].filter((entry) => typeof entry === 'string' && entry.length > 0);
 
+    // Panel SSR build'ine ASLA girmez: laravel-vite-plugin --ssr calisirken `input`
+    // yok sayilir ve panel girisi localStorage/matchMedia kullaniyor.
     const ssrEntry = env.THEME_SSR_ENTRY || null;
 
     return {
@@ -28,6 +38,9 @@ export default defineConfig(({ mode }) => {
         resolve: {
             alias: {
                 '@': path.resolve(__dirname, 'resources/js'),
+                // Modul panel sayfalari cekirdek SDK'sini bu alias ile import eder:
+                //   import DataTable from '~panel/components/DataTable.vue'
+                '~panel': path.resolve(__dirname, 'resources/js/panel'),
                 // qs ve side-channel aliaslarını KALDIR
             },
         },

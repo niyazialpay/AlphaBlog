@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Cloudflare\API\Endpoints\Zones;
 use Illuminate\Database\Eloquent\Model;
 
 class Cloudflare extends Model
@@ -15,11 +14,14 @@ class Cloudflare extends Model
         'domain',
     ];
 
-    public static string $zoneID;
-
-    public static Zones $zones;
-
-    public static string $domain;
+    /**
+     * Zone ID çözümü canlı bir Cloudflare API çağrısı; her istekte tekrarlanmamalı.
+     * Anahtar burada tanımlı ki controller'lar ve ayar kaydetme aynı anahtarı kullansın.
+     */
+    public static function zoneCacheKey(string $domain): string
+    {
+        return config('cache.prefix').'cf_zone_id_'.$domain;
+    }
 
     protected function casts(): array
     {

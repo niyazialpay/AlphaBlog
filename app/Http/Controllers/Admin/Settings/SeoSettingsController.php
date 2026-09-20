@@ -30,11 +30,21 @@ class SeoSettingsController extends Controller
             }
             DB::commit();
 
-            return response()->json(['status' => 'success', 'message' => __('settings.seo_settings_saved')]);
+            return request()->inertia()
+                ? back()->with('success', __('settings.seo_settings_saved'))
+                : response()->json([
+                    'status' => 'success',
+                    'message' => __('settings.seo_settings_saved'),
+                ]);
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+            return request()->inertia()
+                ? back()->with('error', $e->getMessage())
+                : response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                ]);
         }
     }
 
@@ -42,21 +52,33 @@ class SeoSettingsController extends Controller
     {
         file_put_contents(public_path('robots.txt'), $request->post('robots_txt'));
 
-        return response()->json(['status' => 'success', 'message' => __('settings.robots_txt_saved')]);
+        return request()->inertia()
+                ? back()->with('success', __('settings.robots_txt_saved'))
+                : response()->json([
+                    'status' => 'success',
+                    'message' => __('settings.robots_txt_saved'),
+                ]);
     }
 
     public function saveLlms(Request $request): JsonResponse
     {
-        GeneralSettings::first()->update([
+        // first() satir yoksa null doner ve ->update() fatal verirdi (temiz kurulum).
+        $settings = GeneralSettings::first() ?? new GeneralSettings;
+        $settings->fill([
             'llms_txt_intro' => $request->post('llms_txt_intro'),
             'llms_txt_instructions' => $request->post('llms_txt_instructions'),
-        ]);
+        ])->save();
 
         Cache::forget(config('cache.prefix').'general_settings');
         Cache::forget('llms_txt_content');
         Cache::forget('llms_full_txt_content');
 
-        return response()->json(['status' => 'success', 'message' => __('settings.llms_txt_saved')]);
+        return request()->inertia()
+                ? back()->with('success', __('settings.llms_txt_saved'))
+                : response()->json([
+                    'status' => 'success',
+                    'message' => __('settings.llms_txt_saved'),
+                ]);
     }
 
     public function clearLlmsCache(): JsonResponse
@@ -64,7 +86,12 @@ class SeoSettingsController extends Controller
         Cache::forget('llms_txt_content');
         Cache::forget('llms_full_txt_content');
 
-        return response()->json(['status' => 'success', 'message' => __('settings.llms_txt_cache_cleared')]);
+        return request()->inertia()
+                ? back()->with('success', __('settings.llms_txt_cache_cleared'))
+                : response()->json([
+                    'status' => 'success',
+                    'message' => __('settings.llms_txt_cache_cleared'),
+                ]);
     }
 
     public function saveGoogleIndexing(Request $request): JsonResponse
@@ -75,9 +102,15 @@ class SeoSettingsController extends Controller
             'google_indexing_site_url' => $request->post('google_indexing_site_url') ?: null,
         ];
 
-        GeneralSettings::first()->update($updateData);
+        $settings = GeneralSettings::first() ?? new GeneralSettings;
+        $settings->fill($updateData)->save();
         Cache::forget(config('cache.prefix').'general_settings');
 
-        return response()->json(['status' => 'success', 'message' => __('settings.google_indexing_saved')]);
+        return request()->inertia()
+                ? back()->with('success', __('settings.google_indexing_saved'))
+                : response()->json([
+                    'status' => 'success',
+                    'message' => __('settings.google_indexing_saved'),
+                ]);
     }
 }

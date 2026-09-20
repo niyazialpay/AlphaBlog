@@ -112,4 +112,9 @@ return [
     'views' => 'Views',
 
     'new_post' => 'New Post',
+    'published' => 'Published',
+    'trashed' => 'Trash',
+    'send_to_google' => 'Submit to Google',
+    'index_bulk_result' => ':queued queued, :skipped skipped',
+    'draft_created' => 'Draft created',
 ];

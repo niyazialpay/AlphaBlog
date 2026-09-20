@@ -40,4 +40,5 @@ return [
         'meta_description_string' => 'Meta description must be a string.',
         'meta_keywords_string' => 'Meta keywords must be a string.',
     ],
+    'category' => 'Category',
 ];

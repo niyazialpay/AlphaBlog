@@ -4,15 +4,88 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Logs;
+use App\Support\Panel\PanelResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
 
 class LogsController extends Controller
 {
-    public function index()
+    /**
+     * Sunucu tarafli tablo artik AYRI bir JSON beslemesi degil, Inertia prop'u.
+     *
+     * Gerekcesi:
+     *   - assertInertia ile test edilebilir (JSON beslemesi degildi),
+     *   - versiyonlama / ?format= bayragi / kopya metot gerekmez,
+     *   - Vue tarafi kismi yeniden yukleme (only: ['logs','filters']) kullandigi
+     *     icin URL durumu paylasilabilir ve geri tusu dogru calisir.
+     *
+     * Eski `admin.system-logs.data` ucu DOKUNULMADAN duruyor: henuz tasinmamis
+     * Blade ekrani ve olasi dis cagiranlar icin.
+     */
+    public function index(Request $request): Response
     {
-        return view('panel.logs.index');
+        $perPage = self::perPage($request);
+        $search = trim((string) $request->get('search'));
+        $sort = self::sortColumn($request);
+        $direction = $request->get('dir') === 'asc' ? 'asc' : 'desc';
+
+        $logs = Logs::with('user')
+            ->when($search !== '', fn ($query) => $query->where(function ($q) use ($search) {
+                foreach (['ip', 'user_agent', 'model', 'action', 'old_data', 'new_data'] as $column) {
+                    $q->orWhere($column, 'like', '%'.$search.'%');
+                }
+            }))
+            ->orderBy($sort, $direction)
+            ->paginate($perPage)
+            ->withQueryString();
+
+        return PanelResponse::render(
+            'Logs/Index',
+            'panel.logs.index',
+            [
+                'logs' => PanelResponse::rows($logs, fn (Logs $log) => [
+                    'id' => $log->id,
+                    'ip' => $log->ip,
+                    'user_agent' => $log->user_agent,
+                    'model' => $log->model,
+                    // HAM anahtar gonderiliyor, cevrilmis metin degil:
+                    // boylece eyleme gore arama da dogru calisir.
+                    'action' => $log->action,
+                    // Gercek nesne; eski uc '<pre>'.htmlspecialchars(...) basiyordu.
+                    'old_data' => json_decode((string) $log->old_data, true),
+                    'new_data' => json_decode((string) $log->new_data, true),
+                    'user' => $log->user ? ['id' => $log->user->id, 'nickname' => $log->user->nickname] : null,
+                    'createdAt' => $log->created_at?->toIso8601String(),
+                ]),
+                'filters' => [
+                    'search' => $search !== '' ? $search : null,
+                    'sort' => $sort,
+                    'dir' => $direction,
+                    'per_page' => $perPage,
+                ],
+            ],
+            [],
+        );
+    }
+
+    /**
+     * Sayfa boyu, eski tablolarin paylastigi session anahtari yerine acik bir
+     * query parametresi. jQuery DataTables'in lengthMenu degerleriyle sinirli.
+     */
+    private static function perPage(Request $request): int
+    {
+        $perPage = (int) $request->get('per_page', 10);
+
+        return in_array($perPage, [10, 25, 50, 75, 100], true) ? $perPage : 10;
+    }
+
+    private static function sortColumn(Request $request): string
+    {
+        $sort = (string) $request->get('sort', 'created_at');
+
+        return Schema::hasColumn((new Logs)->getTable(), $sort) ? $sort : 'created_at';
     }
 
     public function logsData(Request $request)

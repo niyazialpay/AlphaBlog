@@ -8,29 +8,96 @@ use App\Models\Menu\Menu;
 use App\Models\Menu\MenuItems;
 use App\Models\Post\Categories;
 use App\Models\Post\Posts;
+use App\Support\Panel\PanelResponse;
 use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
 
 class MenuItemsController extends Controller
 {
-    public function show(Menu $menu)
+    public function show(Menu $menu): Response
     {
         $posts = Posts::class;
 
-        return view('panel.menu.show', [
-            'categories' => Categories::where('language', $menu->language)->get(),
+        return PanelResponse::render(
+            'Menu/Items',
+            'panel.menu.show',
+            [
+                'menu' => [
+                    'id' => $menu->id,
+                    'title' => $menu->title,
+                    'language' => $menu->language,
+                    'menu_position' => $menu->menu_position,
+                ],
+                /*
+                 * `html_menu` yerine JSON agaci.
+                 *
+                 * Eski ekran sunucuda uretilmis bir <ol class="dd-list"> string'i
+                 * aliyordu (jquery.nestable icin). Vue tarafi ayni veriyi agac
+                 * olarak alir ve KAYDEDERKEN yine ayni JSON string'ini uretir -
+                 * MenuItemsController::save() sozlesmesi degismedi.
+                 */
+                'tree' => $this->itemTree($menu->id),
+                'categories' => Categories::where('language', $menu->language)
+                    ->get(['id', 'name', 'slug'])
+                    ->map(fn (Categories $item) => ['id' => $item->id, 'name' => $item->name, 'slug' => $item->slug])
+                    ->values(),
+                'pages' => $posts::where('post_type', 'page')
+                    ->where('language', $menu->language)
+                    ->get(['id', 'title', 'slug'])
+                    ->map(fn (Posts $item) => ['id' => $item->id, 'title' => $item->title, 'slug' => $item->slug])
+                    ->values(),
+                'posts' => $posts::where('post_type', 'post')
+                    ->where('language', $menu->language)
+                    ->get(['id', 'title', 'slug'])
+                    ->map(fn (Posts $item) => ['id' => $item->id, 'title' => $item->title, 'slug' => $item->slug])
+                    ->values(),
+            ],
+            [
+                'categories' => Categories::where('language', $menu->language)->get(),
+                'pages' => $posts::where('post_type', 'page')->where('language', $menu->language)->get(),
+                'posts' => $posts::where('post_type', 'post')->where('language', $menu->language)->get(),
+                'menu' => $menu,
+                'html_menu' => $this->menuTree($menu->id),
+            ],
+        );
+    }
 
-            'pages' => $posts::where('post_type', 'page')
-                ->where('language', $menu->language)->get(),
-
-            'posts' => $posts::where('post_type', 'post')
-                ->where('language', $menu->language)->get(),
-
-            'menu' => $menu,
-
-            'html_menu' => $this->menuTree($menu->id),
-        ]);
+    /**
+     * Menu ogeleri agaci.
+     *
+     * ANAHTAR ADLARI SUNUCU SOZLESMESIYLE AYNI OLMAK ZORUNDA: updateMenu()
+     * `title`, `url`, `language`, `icon`, `nav_target`, `menu_type` ve `children`
+     * okuyor; ilk dordu KORUMASIZ okunuyor, eksik olan biri transaction'i
+     * rollback'e dusurup jenerik bir hata uretir.
+     *
+     * DB kolonu `target`, payload anahtari `nav_target` - karistirilmamali.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function itemTree(int $menuId, ?int $parentId = null): array
+    {
+        return MenuItems::where('menu_id', $menuId)
+            ->where('parent_id', $parentId)
+            // B4: eskiden yalnizca id'ye gore siralaniyordu. Satirlar her kayitta
+            // silinip dizi sirasinda yeniden yaratildigi icin kazara calisiyordu.
+            ->orderBy('order')
+            ->orderBy('id')
+            ->get()
+            ->map(fn (MenuItems $row) => [
+                'id' => $row->id,
+                'title' => $row->title,
+                'url' => $row->url,
+                'language' => $row->language,
+                'nav_target' => $row->target ?: '_self',
+                'icon' => $row->icon ?? '',
+                'menu_id' => $row->menu_id,
+                'menu_type' => $row->menu_type ?? 'standard',
+                'children' => $this->itemTree($menuId, $row->id),
+            ])
+            ->values()
+            ->all();
     }
 
     public function save(MenuItemRequest $request)
@@ -43,24 +110,23 @@ class MenuItemsController extends Controller
             $this->updateMenu($request->post('menu_id'), $array_menu);
             DB::commit();
 
-            return response()->json([
-                'message' => __('menu.menu_saved'),
-                'status' => 'success',
-            ]);
+            return request()->inertia()
+                ? back()->with('success', __('menu.menu_saved'))
+                : response()->json([
+                    'message' => __('menu.menu_saved'),
+                    'status' => 'success',
+                ]);
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'message' => __('menu.menu_save_error'),
-                'status' => 'error',
-            ]);
+            return request()->inertia()
+                ? back()->with('error', __('menu.menu_save_error'))
+                : response()->json([
+                    'message' => __('menu.menu_save_error'),
+                    'status' => 'error',
+                ]);
         }
-        // DB::commit();
-
-        return response()->json([
-            'message' => __('menu.menu_saved'),
-            'status' => 'success',
-        ]);
+        // B5: burada `return`'den sonra erisilemez kod vardi; kaldirildi.
     }
 
     private function updateMenu($menu_id, $menu, $parent = null, bool $clearCache = true): void

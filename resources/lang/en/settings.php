@@ -62,4 +62,8 @@ return [
     'homepage_recent_count_help' => 'Additional posts shown after featured ones. Total = featured + this number.',
     'homepage_articles_count' => 'Homepage Total Article Count',
     'homepage_articles_count_help' => 'Maximum number of articles shown in the "All Posts" section.',
+    'advertise_tab' => 'Advertisement',
+    'social_header' => 'Show in header',
+    'social_footer' => 'Show in footer',
+    'leave_blank_to_keep' => 'Leave blank to keep the current value',
 ];

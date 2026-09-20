@@ -1,0 +1,1550 @@
+{
+    "admin.about": {
+        "uri": "admin/about",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.analytics": {
+        "uri": "admin/analytics",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.analytics.fetch": {
+        "uri": "admin/analytics",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.categories": {
+        "uri": "admin/blogs/categories/{category?}",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:category,App\\Models\\Post\\Categories"
+        ]
+    },
+    "admin.categories.delete": {
+        "uri": "admin/blogs/categories/delete",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:category,App\\Models\\Post\\Categories"
+        ]
+    },
+    "admin.categories.image.delete": {
+        "uri": "admin/blogs/categories/delete-image",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:category,App\\Models\\Post\\Categories"
+        ]
+    },
+    "admin.categories.list": {
+        "uri": "admin/blogs/categories/list",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:category,App\\Models\\Post\\Categories"
+        ]
+    },
+    "admin.change_language": {
+        "uri": "admin/change-language/{language}",
+        "methods": [
+            "GET"
+        ],
+        "gates": []
+    },
+    "admin.change_language.post": {
+        "uri": "admin/change-language/{language}",
+        "methods": [
+            "POST"
+        ],
+        "gates": []
+    },
+    "admin.clear_cache": {
+        "uri": "admin/clear-cache",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.clear_cache.post": {
+        "uri": "admin/clear-cache",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.cloudflare.cache.clear": {
+        "uri": "admin/cloudflare/cache-clear",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:cloudflare,App\\Models\\User"
+        ]
+    },
+    "admin.cloudflare.toggle.development": {
+        "uri": "admin/cloudflare/toggle-development",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:cloudflare,App\\Models\\User"
+        ]
+    },
+    "admin.contact_messages": {
+        "uri": "admin/contact/messages",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.contact_page": {
+        "uri": "admin/contact",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.dashboard.widgets.save": {
+        "uri": "admin/dashboard/widgets",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.firewall": {
+        "uri": "admin/firewall",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.firewall.delete": {
+        "uri": "admin/firewall/delete",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.firewall.logs": {
+        "uri": "admin/firewall/logs",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.firewall.logs.data": {
+        "uri": "admin/firewall/logs/data",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.firewall.save": {
+        "uri": "admin/firewall",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.firewall.whitelist": {
+        "uri": "admin/firewall/whitelist",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.index": {
+        "uri": "admin",
+        "methods": [
+            "GET"
+        ],
+        "gates": []
+    },
+    "admin.ip-filter": {
+        "uri": "admin/ip-filter",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.ip-filter.create": {
+        "uri": "admin/ip-filter/create",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.ip-filter.delete": {
+        "uri": "admin/ip-filter/delete",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.ip-filter.ips.bulk": {
+        "uri": "admin/ip-filter/{ip_filter}/ips/bulk",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.ip-filter.ips.destroy": {
+        "uri": "admin/ip-filter/{ip_filter}/ips/{ip_list}",
+        "methods": [
+            "DELETE"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.ip-filter.save": {
+        "uri": "admin/ip-filter/save/{ip_filter?}",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.ip-filter.show": {
+        "uri": "admin/ip-filter/{ip_filter}",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.ip-filter.toggle-status": {
+        "uri": "admin/ip-filter/toggle/status",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.logout": {
+        "uri": "admin/logout",
+        "methods": [
+            "POST"
+        ],
+        "gates": []
+    },
+    "admin.menu-item.save": {
+        "uri": "admin/menu/menu-item/save",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.menu.delete": {
+        "uri": "admin/menu/delete",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.menu.index": {
+        "uri": "admin/menu/{menu?}",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.menu.save": {
+        "uri": "admin/menu/save/{menu?}",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.menu.show": {
+        "uri": "admin/menu/show/{menu}",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.monitoring.horizon": {
+        "uri": "admin/monitoring/horizon",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:viewHorizon"
+        ]
+    },
+    "admin.monitoring.logs": {
+        "uri": "admin/monitoring/logs",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:viewPulse"
+        ]
+    },
+    "admin.monitoring.pulse": {
+        "uri": "admin/monitoring/pulse",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:viewPulse"
+        ]
+    },
+    "admin.monitoring.telescope": {
+        "uri": "admin/monitoring/telescope",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:viewTelescope"
+        ]
+    },
+    "admin.notes": {
+        "uri": "admin/notes",
+        "methods": [
+            "GET"
+        ],
+        "gates": []
+    },
+    "admin.notes.categories": {
+        "uri": "admin/notes/categories",
+        "methods": [
+            "GET"
+        ],
+        "gates": []
+    },
+    "admin.notes.categories.create": {
+        "uri": "admin/notes/categories",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:create,App\\Models\\PersonalNotes\\PersonalNoteCategories"
+        ]
+    },
+    "admin.notes.categories.delete": {
+        "uri": "admin/notes/categories/delete/{category?}",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:own,category"
+        ]
+    },
+    "admin.notes.categories.update": {
+        "uri": "admin/notes/categories/{category}",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:own,category"
+        ]
+    },
+    "admin.notes.category": {
+        "uri": "admin/notes/categories/{category}",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:own,category"
+        ]
+    },
+    "admin.notes.create": {
+        "uri": "admin/notes/create",
+        "methods": [
+            "GET"
+        ],
+        "gates": []
+    },
+    "admin.notes.delete": {
+        "uri": "admin/notes/delete/{note}",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:own,note"
+        ]
+    },
+    "admin.notes.edit": {
+        "uri": "admin/notes/show/{note}/edit",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:own,note"
+        ]
+    },
+    "admin.notes.edit.save": {
+        "uri": "admin/notes/save/{note}",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:own,note"
+        ]
+    },
+    "admin.notes.editor.image.upload": {
+        "uri": "admin/notes/editor/image/upload",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:create,App\\Models\\PersonalNotes\\PersonalNotes"
+        ]
+    },
+    "admin.notes.encryption": {
+        "uri": "admin/notes/encryption",
+        "methods": [
+            "POST"
+        ],
+        "gates": []
+    },
+    "admin.notes.media": {
+        "uri": "admin/notes/{note}/media",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:own,note"
+        ]
+    },
+    "admin.notes.media.delete": {
+        "uri": "admin/notes/{note}/image/delete",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:own,note"
+        ]
+    },
+    "admin.notes.save": {
+        "uri": "admin/notes/save",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:create,App\\Models\\PersonalNotes\\PersonalNotes"
+        ]
+    },
+    "admin.notes.show": {
+        "uri": "admin/notes/show/{note}",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:own,note"
+        ]
+    },
+    "admin.post.category": {
+        "uri": "admin/{type}/category/{category}",
+        "methods": [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "OPTIONS"
+        ],
+        "gates": []
+    },
+    "admin.post.comments": {
+        "uri": "admin/blogs/comments",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:view,App\\Models\\Post\\Comments"
+        ]
+    },
+    "admin.post.comments.approve": {
+        "uri": "admin/blogs/comments/{comment}/approve",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:edit,comment"
+        ]
+    },
+    "admin.post.comments.create": {
+        "uri": "admin/blogs/comments/save",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:create,App\\Models\\Post\\Comments"
+        ]
+    },
+    "admin.post.comments.delete": {
+        "uri": "admin/blogs/comments/{comment}/delete",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:delete,comment"
+        ]
+    },
+    "admin.post.comments.disapprove": {
+        "uri": "admin/blogs/comments/{comment}/disapprove",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:edit,comment"
+        ]
+    },
+    "admin.post.comments.edit": {
+        "uri": "admin/blogs/comments/{comment}/edit",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:edit,comment"
+        ]
+    },
+    "admin.post.comments.force-delete": {
+        "uri": "admin/blogs/comments/{comment}/delete/permanent",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:delete,comment"
+        ]
+    },
+    "admin.post.comments.restore": {
+        "uri": "admin/blogs/comments/{comment}/restore",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:edit,comment"
+        ]
+    },
+    "admin.post.comments.update": {
+        "uri": "admin/blogs/comments/save/{comment}",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:edit,comment"
+        ]
+    },
+    "admin.post.create": {
+        "uri": "admin/{type}/create",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:create,App\\Models\\Post\\Posts"
+        ]
+    },
+    "admin.post.delete": {
+        "uri": "admin/{type}/{post}/delete",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:delete,post"
+        ]
+    },
+    "admin.post.delete.permanent": {
+        "uri": "admin/{type}/{post}/delete/permanent",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.post.edit": {
+        "uri": "admin/{type}/{post?}/edit",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:edit,post"
+        ]
+    },
+    "admin.post.editor.image.upload": {
+        "uri": "admin/{type}/editor/image/upload/{post?}",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:edit,post"
+        ]
+    },
+    "admin.post.history": {
+        "uri": "admin/{type}/history/{posts}",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:view,posts"
+        ]
+    },
+    "admin.post.history.delete": {
+        "uri": "admin/{type}/history/{posts}/{history}/delete",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:delete,posts"
+        ]
+    },
+    "admin.post.history.revert": {
+        "uri": "admin/{type}/history/{posts}/{history}/revert",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:revert,posts"
+        ]
+    },
+    "admin.post.history.show": {
+        "uri": "admin/{type}/history/{posts}/{history}",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:view,posts"
+        ]
+    },
+    "admin.post.image.delete": {
+        "uri": "admin/{type}/image/delete/{post?}",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:delete,post"
+        ]
+    },
+    "admin.post.index.bulk": {
+        "uri": "admin/{type}/index/bulk",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:edit,App\\Models\\Post\\Posts"
+        ]
+    },
+    "admin.post.index.history": {
+        "uri": "admin/{type}/{post}/index/history",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:edit,post"
+        ]
+    },
+    "admin.post.index.single": {
+        "uri": "admin/{type}/{post}/index",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:edit,post"
+        ]
+    },
+    "admin.post.index.status": {
+        "uri": "admin/{type}/{post}/index/status",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:edit,post"
+        ]
+    },
+    "admin.post.media": {
+        "uri": "admin/{type}/{post}/media",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:edit,post"
+        ]
+    },
+    "admin.post.media.delete": {
+        "uri": "admin/{type}/editor/image/delete/{post}",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:delete,post"
+        ]
+    },
+    "admin.post.qr.generate": {
+        "uri": "admin/{type}/{post}/qr/generate",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:edit,post"
+        ]
+    },
+    "admin.post.restore": {
+        "uri": "admin/{type}/{post}/restore",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.post.save": {
+        "uri": "admin/{type}/save",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:create,App\\Models\\Post\\Posts"
+        ]
+    },
+    "admin.post.update": {
+        "uri": "admin/{type}/save/{post}",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:edit,post"
+        ]
+    },
+    "admin.posts": {
+        "uri": "admin/{type}",
+        "methods": [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "OPTIONS"
+        ],
+        "gates": []
+    },
+    "admin.profile.email": {
+        "uri": "admin/profile/email-change",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:own,App\\Models\\User"
+        ]
+    },
+    "admin.profile.index": {
+        "uri": "admin/profile",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:own,App\\Models\\User"
+        ]
+    },
+    "admin.profile.password": {
+        "uri": "admin/profile/password/change",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:own,App\\Models\\User"
+        ]
+    },
+    "admin.profile.privacy": {
+        "uri": "admin/profile/privacy",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:own,App\\Models\\User"
+        ]
+    },
+    "admin.profile.save": {
+        "uri": "admin/profile/save",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:own,App\\Models\\WebAuthnCredential"
+        ]
+    },
+    "admin.profile.social.save": {
+        "uri": "admin/profile/social-save",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:own,App\\Models\\User"
+        ]
+    },
+    "admin.search-console": {
+        "uri": "admin/search-console",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.search-console.fetch": {
+        "uri": "admin/search-console/fetch",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.search.check": {
+        "uri": "admin/search",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.search.delete": {
+        "uri": "admin/search/think/delete/{search?}",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.search.delete.all": {
+        "uri": "admin/search/think/delete-all",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.search.delete.not-interested": {
+        "uri": "admin/search/think/delete-not-interested",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.search.index": {
+        "uri": "admin/search",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.search.think": {
+        "uri": "admin/search/think/{search?}",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings": {
+        "uri": "admin/settings",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings.advertisement.save": {
+        "uri": "admin/settings/advertise/save",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings.analytics.save": {
+        "uri": "admin/settings/analytics/save",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings.general.app_icon.delete": {
+        "uri": "admin/settings/general/app_icon/delete",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings.general.favicon.delete": {
+        "uri": "admin/settings/general/favicon/delete",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings.general.logo.delete": {
+        "uri": "admin/settings/general/logo/delete/{type}",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings.general.save": {
+        "uri": "admin/settings/general/save",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings.languages.delete": {
+        "uri": "admin/settings/languages/delete",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings.languages.save": {
+        "uri": "admin/settings/languages/save/{language?}",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings.languages.show": {
+        "uri": "admin/settings/languages/show",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings.notifications.save": {
+        "uri": "admin/settings/notification/save",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings.seo.google-indexing.save": {
+        "uri": "admin/settings/seo/google-indexing/save",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings.seo.llms.clear-cache": {
+        "uri": "admin/settings/seo/llms/clear-cache",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings.seo.llms.save": {
+        "uri": "admin/settings/seo/llms/save",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings.seo.robots.save": {
+        "uri": "admin/settings/seo/robots/save",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings.seo.save": {
+        "uri": "admin/settings/seo/save",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings.social.header.save": {
+        "uri": "admin/settings/social/header/save",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings.social.save": {
+        "uri": "admin/settings/social/save",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings.themes.activate": {
+        "uri": "admin/settings/theme/activate/{theme}",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings.themes.default": {
+        "uri": "admin/settings/theme/activate/{theme}",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings.themes.delete": {
+        "uri": "admin/settings/themes/delete",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.settings.themes.upload": {
+        "uri": "admin/settings/theme/upload",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.system-logs": {
+        "uri": "admin/system-logs",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.system-logs.data": {
+        "uri": "admin/system-logs",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.user.create": {
+        "uri": "admin/users/create",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.user.delete": {
+        "uri": "admin/users/delete",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.user.edit": {
+        "uri": "admin/users/{user_id}/edit",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.user.email": {
+        "uri": "admin/users/{user_id}/email-change",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.user.password": {
+        "uri": "admin/users/{user_id}/password",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.user.profile-image": {
+        "uri": "admin/users/user/profile-image",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:ownAdmin,App\\Models\\User"
+        ]
+    },
+    "admin.user.profile-image-delete": {
+        "uri": "admin/users/user/delete-profile-image",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:ownAdmin,App\\Models\\User"
+        ]
+    },
+    "admin.user.secret-login": {
+        "uri": "admin/users/{user_id}/secret-login",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.user.secret-login.post": {
+        "uri": "admin/users/{user_id}/secret-login",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:owner,App\\Models\\User"
+        ]
+    },
+    "admin.user.secret-logout": {
+        "uri": "admin/users/secret-logout",
+        "methods": [
+            "GET"
+        ],
+        "gates": []
+    },
+    "admin.user.social.save": {
+        "uri": "admin/users/{user_id}/social",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "admin.user.webauthn": {
+        "uri": "admin/users/{user_id}/webauthn",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\WebAuthnCredential"
+        ]
+    },
+    "admin.user.webauthn.delete": {
+        "uri": "admin/users/{user_id}/webauthn/delete",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\WebAuthnCredential"
+        ]
+    },
+    "admin.user.webauthn.rename": {
+        "uri": "admin/users/{user_id}/webauthn/rename",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\WebAuthnCredential"
+        ]
+    },
+    "admin.users": {
+        "uri": "admin/users",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "adminRouteSave": {
+        "uri": "admin/routes/save/{route?}",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "adminRoutes": {
+        "uri": "admin/routes",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "adminRoutesDelete": {
+        "uri": "admin/routes/delete",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "adminRoutesShow": {
+        "uri": "admin/routes/{route?}",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "cf.dashboard": {
+        "uri": "admin/cloudflare",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:cloudflare,App\\Models\\User"
+        ]
+    },
+    "cf.dns": {
+        "uri": "admin/cloudflare/dns",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:cloudflare,App\\Models\\User"
+        ]
+    },
+    "cf.dns.delete": {
+        "uri": "admin/cloudflare/dns/delete",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:cloudflare,App\\Models\\User"
+        ]
+    },
+    "cf.dns.save": {
+        "uri": "admin/cloudflare/dns/save",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:cloudflare,App\\Models\\User"
+        ]
+    },
+    "cf.update.api.settings": {
+        "uri": "admin/cloudflare/settings/cloudflare",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:cloudflare,App\\Models\\User"
+        ]
+    },
+    "chatbot": {
+        "uri": "admin/ai-chatbot",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "chatbot.conversation": {
+        "uri": "admin/ai-chatbot/conversations/{conversationId}",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "chatbot.conversations": {
+        "uri": "admin/ai-chatbot/conversations",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "chatbot.message": {
+        "uri": "admin/ai-chatbot/messages",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "general.search": {
+        "uri": "admin/search/general",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:admin,App\\Models\\User"
+        ]
+    },
+    "lockscreen": {
+        "uri": "admin/lock-screen",
+        "methods": [
+            "GET"
+        ],
+        "gates": []
+    },
+    "manifest.panel": {
+        "uri": "admin/manifest.json",
+        "methods": [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "OPTIONS"
+        ],
+        "gates": []
+    },
+    "notifications.destroy": {
+        "uri": "admin/notifications/delete",
+        "methods": [
+            "DELETE"
+        ],
+        "gates": []
+    },
+    "notifications.destroyAll": {
+        "uri": "admin/notifications/delete-all",
+        "methods": [
+            "DELETE"
+        ],
+        "gates": []
+    },
+    "notifications.index": {
+        "uri": "admin/notifications",
+        "methods": [
+            "GET"
+        ],
+        "gates": []
+    },
+    "notifications.markAllAsRead": {
+        "uri": "admin/notifications/mark-all-as-read",
+        "methods": [
+            "GET"
+        ],
+        "gates": []
+    },
+    "notifications.markAllAsRead.post": {
+        "uri": "admin/notifications/mark-all-as-read",
+        "methods": [
+            "POST"
+        ],
+        "gates": []
+    },
+    "notifications.markAsRead": {
+        "uri": "admin/notifications/mark-as-read/{id}",
+        "methods": [
+            "GET"
+        ],
+        "gates": []
+    },
+    "notifications.markAsRead.post": {
+        "uri": "admin/notifications/mark-as-read/{id}",
+        "methods": [
+            "POST"
+        ],
+        "gates": []
+    },
+    "notifications.readAndRedirect": {
+        "uri": "admin/notifications/read-and-redirect/{id}",
+        "methods": [
+            "GET"
+        ],
+        "gates": []
+    },
+    "two-factor.confirm": {
+        "uri": "admin/profile/2fa-confirm",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:own,App\\Models\\User"
+        ]
+    },
+    "two-factor.disable": {
+        "uri": "admin/profile/2fa-disable",
+        "methods": [
+            "DELETE"
+        ],
+        "gates": [
+            "can:own,App\\Models\\User"
+        ]
+    },
+    "two-factor.enable": {
+        "uri": "admin/profile/2fa-enable",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:own,App\\Models\\User"
+        ]
+    },
+    "user.security.webauthn": {
+        "uri": "admin/profile/webauthn",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:own,App\\Models\\WebAuthnCredential"
+        ]
+    },
+    "user.security.webauthn.delete": {
+        "uri": "admin/profile/webauthn/delete",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:own,App\\Models\\WebAuthnCredential"
+        ]
+    },
+    "user.security.webauthn.rename": {
+        "uri": "admin/profile/webauthn/rename",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:own,App\\Models\\WebAuthnCredential"
+        ]
+    },
+    "user.session.logout": {
+        "uri": "admin/users/user/session/kill",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:ownAdmin,App\\Models\\User"
+        ]
+    },
+    "user.session.logout-all": {
+        "uri": "admin/users/user/session/kill-all",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:ownAdmin,App\\Models\\User"
+        ]
+    },
+    "webauthn.register": {
+        "uri": "admin/profile/webauthn/register",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:own,App\\Models\\WebAuthnCredential"
+        ]
+    },
+    "webauthn.register.options": {
+        "uri": "admin/profile/webauthn/register/options",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:own,App\\Models\\WebAuthnCredential"
+        ]
+    }
+}

@@ -22,6 +22,7 @@ use Laravel\Octane\Listeners\FlushUploadedFiles;
 use Laravel\Octane\Listeners\ReportException;
 use Laravel\Octane\Listeners\StopWorkerIfNecessary;
 use Laravel\Octane\Octane;
+use Laravel\Scout\EngineManager;
 
 return [
 
@@ -135,7 +136,7 @@ return [
     ],
 
     'flush' => [
-        \Laravel\Scout\EngineManager::class,
+        EngineManager::class,
     ],
 
     /*

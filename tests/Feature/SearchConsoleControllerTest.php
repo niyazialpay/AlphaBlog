@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
+use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
 
 class SearchConsoleControllerTest extends TestCase
@@ -48,12 +49,20 @@ class SearchConsoleControllerTest extends TestCase
         $response->assertRedirect();
     }
 
-    public function test_index_returns_view_when_not_configured(): void
+    /**
+     * Ekran Vue'ya tasindi: artik `panel.search-console` blade'i yerine
+     * `SearchConsole/Index` Inertia bileseni render ediliyor. Iddia edilen sey
+     * ayni: kimlik dosyasi yokken ekran 200 doner ve `configured` false'tur.
+     */
+    public function test_index_renders_inertia_component_when_not_configured(): void
     {
         $response = $this->actingAs($this->admin)->get(route('admin.search-console'));
         $response->assertOk();
-        $response->assertViewIs('panel.search-console');
-        $response->assertViewHas('configured', false);
+        $response->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->component('SearchConsole/Index')
+                ->where('configured', false)
+        );
     }
 
     public function test_fetch_returns_json(): void

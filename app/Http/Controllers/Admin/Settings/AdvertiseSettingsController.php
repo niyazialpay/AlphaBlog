@@ -21,17 +21,21 @@ class AdvertiseSettingsController extends Controller
             Cache::forget(config('cache.prefix').'advertise_settings');
             DB::commit();
 
-            return response()->json([
-                'status' => 'success',
-                'message' => __('settings.advertise_save_success'),
-            ], 200);
+            return request()->inertia()
+                ? back()->with('success', __('settings.advertise_save_success'))
+                : response()->json([
+                    'status' => 'success',
+                    'message' => __('settings.advertise_save_success'),
+                ], 200);
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-            ], 500);
+            return request()->inertia()
+                ? back()->with('error', $e->getMessage())
+                : response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                ], 500);
         }
     }
 }

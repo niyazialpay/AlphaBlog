@@ -62,4 +62,8 @@ return [
     'homepage_recent_count_help' => 'Öne çıkanların ardından gösterilecek ek yazı sayısı. Toplam = öne çıkan + bu sayı.',
     'homepage_articles_count' => 'Anasayfa Toplam Yazı Sayısı',
     'homepage_articles_count_help' => '"Bütün yazılar" bölümünde gösterilecek maksimum yazı sayısı.',
+    'advertise_tab' => 'Reklam',
+    'social_header' => 'Üst menüde göster',
+    'social_footer' => 'Alt menüde göster',
+    'leave_blank_to_keep' => 'Değiştirmek istemiyorsanız boş bırakın',
 ];

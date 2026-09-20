@@ -38,6 +38,22 @@ Route::get('/clear-cache', [CacheController::class, 'clearCache'])
     ->can('admin', 'App\Models\User')
     ->name('admin.clear_cache');
 
+/*
+ * POST alias'lari.
+ *
+ * Inertia v2 `<Link prefetch>` fare uzerine gelindiginde GERCEK bir GET atiyor.
+ * Asagidaki uclar durum degistiriyor (onbellek temizleme, dil degistirme,
+ * KULLANICI TAKLIDI) — bir gezinme baglantisi olarak render edilirlerse hover
+ * bile onlari tetikleyebilir. Eski GET'ler eski panel ve kayitli baglantilar
+ * icin AYNEN KALIR; Vue yalnizca POST'lari cagirir.
+ */
+Route::post('/clear-cache', [CacheController::class, 'clearCache'])
+    ->can('admin', 'App\Models\User')
+    ->name('admin.clear_cache.post');
+
+Route::post('/change-language/{language}', [DashboardController::class, 'changeLanguage'])
+    ->name('admin.change_language.post');
+
 Route::get('/ai-chatbot', [AiChatbotController::class, 'index'])->can('admin', 'App\Models\User')->name('chatbot');
 Route::get('/ai-chatbot/conversations', [AiChatbotController::class, 'conversations'])->can('admin', 'App\Models\User')->name('chatbot.conversations');
 Route::get('/ai-chatbot/conversations/{conversationId}', [AiChatbotController::class, 'conversation'])->can('admin', 'App\Models\User')->name('chatbot.conversation')->whereUuid('conversationId');

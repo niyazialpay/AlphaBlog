@@ -20,5 +20,5 @@ return [
     'mark_all_as_read' => 'Tümünü Okundu Olarak İşaretle',
     'delete_all' => 'Tümünü Sil',
     'notifications_deleted' => 'Bildirimler başarıyla silindi.',
-    'delete_all_warning'
+    'no_notifications' => 'Bildiriminiz yok',
 ];

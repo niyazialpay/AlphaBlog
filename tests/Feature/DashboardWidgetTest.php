@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
+use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
 
 class DashboardWidgetTest extends TestCase
@@ -109,13 +110,22 @@ class DashboardWidgetTest extends TestCase
             ->assertUnauthorized();
     }
 
+    /**
+     * Ekran Vue'ya tasindi: `panel.dashboard` blade'i yerine `Dashboard/Index`
+     * Inertia bileseni render ediliyor. Iddia edilen prop'lar ayni
+     * (widgets / widgetData / widgetGroups) — kayitli duzenlerin bozulmadigini
+     * dogrulamak icin en onemli test bu.
+     */
     public function test_dashboard_index_loads_for_admin(): void
     {
         $response = $this->actingAs($this->admin)->get(route('admin.index'));
         $response->assertOk();
-        $response->assertViewIs('panel.dashboard');
-        $response->assertViewHas('widgets');
-        $response->assertViewHas('widgetData');
-        $response->assertViewHas('widgetGroups');
+        $response->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->component('Dashboard/Index')
+                ->has('widgets')
+                ->has('widgetData')
+                ->has('widgetGroups')
+        );
     }
 }

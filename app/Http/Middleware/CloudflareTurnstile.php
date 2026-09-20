@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,7 +22,7 @@ class CloudflareTurnstile
     public function handle(Request $request, Closure $next): Response
     {
         if ($request->method() !== 'GET' && ! $request->is($this->except)) {
-            $client = new \GuzzleHttp\Client([
+            $client = new Client([
                 'base_uri' => 'https://challenges.cloudflare.com/turnstile/v0/',
             ]);
             $response = $client->request('POST', 'siteverify', [

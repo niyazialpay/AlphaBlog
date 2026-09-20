@@ -5,40 +5,84 @@ namespace App\Http\Controllers\Admin\Post;
 use App\Http\Controllers\Controller;
 use App\Models\Post\PostHistory;
 use App\Models\Post\Posts;
+use App\Support\Panel\PanelResponse;
 use Qazd\TextDiff;
+use Symfony\Component\HttpFoundation\Response;
 
 class HistoryController extends Controller
 {
-    public function history($type, Posts $posts)
+    public function history($type, Posts $posts): Response
     {
-        return view('panel.post.history.index', [
-            'posts' => $posts->load('history'),
-            'type' => $type,
-        ]);
+        $posts->load('history');
+
+        return PanelResponse::render(
+            'Posts/History/Index',
+            'panel.post.history.index',
+            [
+                'type' => $type,
+                'post' => ['id' => $posts->id, 'title' => $posts->title],
+                'history' => $posts->history
+                    ->sortByDesc('created_at')
+                    ->map(fn (PostHistory $item) => [
+                        'id' => $item->id,
+                        'title' => $item->title,
+                        'slug' => $item->slug,
+                        'createdAt' => $item->created_at?->toIso8601String(),
+                    ])
+                    ->values(),
+            ],
+            ['posts' => $posts, 'type' => $type],
+        );
     }
 
     public function delete($type, Posts $posts, PostHistory $history)
     {
         $history->forceDelete();
 
-        return response()->json([
-            'status' => 'success',
-        ]);
+        return request()->inertia()
+            ? back()->with('success', __('general.deleted'))
+            : response()->json(['status' => 'success']);
     }
 
-    public function show($type, Posts $posts, PostHistory $history)
+    public function show($type, Posts $posts, PostHistory $history): Response
     {
         $posts->load('history');
         $textDiff = new TextDiff;
 
-        return view('panel.post.history.show', [
-            'posts' => $posts,
-            'type' => $type,
-            'history' => $history,
-            'title' => $textDiff::render($posts->title, $history->title),
-            'slug' => $textDiff::render($posts->slug, $history->slug),
-            'content' => $textDiff::render($posts->content, $history->content),
-        ]);
+        $title = $textDiff::render($posts->title, $history->title);
+        $slug = $textDiff::render($posts->slug, $history->slug);
+        $content = $textDiff::render($posts->content, $history->content);
+
+        return PanelResponse::render(
+            'Posts/History/Show',
+            'panel.post.history.show',
+            [
+                'type' => $type,
+                'post' => ['id' => $posts->id, 'title' => $posts->title],
+                'history' => [
+                    'id' => $history->id,
+                    'createdAt' => $history->created_at?->toIso8601String(),
+                ],
+                /*
+                 * Panelde HTML tasiyan TEK prop.
+                 *
+                 * TextDiff <ins>/<del> isaretlemesi uretir; bunu Vue'da yeniden
+                 * yazmak port degil yeniden yazim olurdu. Tek bir <DiffHtml>
+                 * bileseninden v-html ile basilir - panelde baska v-html yok.
+                 * Icerik zaten Blade'de de {!! !!} ile basiliyordu, yeni bir
+                 * acik degil.
+                 */
+                'diff' => ['title' => $title, 'slug' => $slug, 'content' => $content],
+            ],
+            [
+                'posts' => $posts,
+                'type' => $type,
+                'history' => $history,
+                'title' => $title,
+                'slug' => $slug,
+                'content' => $content,
+            ],
+        );
     }
 
     public function revert($type, Posts $posts, PostHistory $history)
@@ -49,8 +93,8 @@ class HistoryController extends Controller
             'content' => $history->content,
         ]);
 
-        return response()->json([
-            'status' => 'success',
-        ]);
+        return request()->inertia()
+            ? back()->with('success', __('post.revert_success'))
+            : response()->json(['status' => 'success']);
     }
 }

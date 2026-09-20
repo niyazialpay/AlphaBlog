@@ -10,4 +10,5 @@ return [
     'session_id' => 'Oturum ID',
     'last_activity' => 'Son Etkinlik',
     'active_sessions' => 'Aktif Oturumlar',
+    'sessions_tab' => 'Oturumlar',
 ];

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Panel\Panel;
 use App\Support\ThemeData;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -20,6 +21,17 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        /*
+         * Panel yuzeyi kendi middleware'inde (HandlePanelInertiaRequests) paylasiliyor.
+         * Bu middleware tum `web` grubunda calistigi icin panel isteklerinde de
+         * devreye giriyor ve ThemeData::{site,theme,languages,social,headerMenu,
+         * footerMenu,navigationCategories,translations,ads,analytics} EAGER olarak
+         * uretiliyordu: panelin hic kullanmadigi 10 cagri, her istekte.
+         */
+        if (Panel::isPanelRequest($request)) {
+            return parent::share($request);
+        }
+
         $user = $request->user();
 
         return array_merge(parent::share($request), [

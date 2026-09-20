@@ -10,4 +10,5 @@ return [
     'session_id' => 'Session ID',
     'last_activity' => 'Last Activity',
     'active_sessions' => 'Active Sessions',
+    'sessions_tab' => 'Sessions',
 ];

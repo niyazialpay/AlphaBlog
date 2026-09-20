@@ -71,18 +71,22 @@ class LanguagesController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'status' => 'success',
-                'message' => __('language.save_success'),
-            ]);
+            return request()->inertia()
+                ? back()->with('success', __('language.save_success'))
+                : response()->json([
+                    'status' => 'success',
+                    'message' => __('language.save_success'),
+                ]);
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => 'error',
-                'message' => __('language.save_error'),
-                'error' => $e->getMessage(),
-            ]);
+            return request()->inertia()
+                ? back()->with('error', __('language.save_error'))
+                : response()->json([
+                    'status' => 'error',
+                    'message' => __('language.save_error'),
+                    'error' => $e->getMessage(),
+                ]);
         }
 
     }

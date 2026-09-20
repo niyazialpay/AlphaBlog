@@ -5,10 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RouteRequest;
 use App\Models\RouteRedirects;
+use App\Support\Panel\PanelResponse;
 use Exception;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -16,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 class RouteRedirectsController extends Controller
 {
@@ -23,16 +22,30 @@ class RouteRedirectsController extends Controller
      * @throws NotFoundExceptionInterface
      * @throws ContainerExceptionInterface
      */
-
-    public function index(): Application|Factory|View
+    public function index(): Response
     {
-        $routes = RouteRedirects::where(function($query){
-            if(request()->has('search') && request()->get('search') != null){
+        $routes = RouteRedirects::where(function ($query) {
+            if (request()->has('search') && request()->get('search') != null) {
                 $query->where('old_url', 'LIKE', '%'.request()->get('search').'%');
                 $query->orWhere('new_url', 'LIKE', '%'.request()->get('search').'%');
             }
-        })->orderBy('created_at', 'DESC')->paginate(10);
-        return view('panel/redirects', ['routes' => $routes]);
+        })->orderBy('created_at', 'DESC')->paginate(10)->withQueryString();
+
+        return PanelResponse::render(
+            'Redirects/Index',
+            'panel/redirects',
+            [
+                'routes' => PanelResponse::rows($routes, fn (RouteRedirects $route) => [
+                    'id' => $route->id,
+                    'old_url' => $route->old_url,
+                    'new_url' => $route->new_url,
+                    'redirect_code' => (int) $route->redirect_code,
+                    'createdAt' => $route->created_at?->toIso8601String(),
+                ]),
+                'filters' => ['search' => request()->get('search')],
+            ],
+            ['routes' => $routes],
+        );
     }
 
     public function show(RouteRedirects $route): JsonResponse
@@ -49,11 +62,16 @@ class RouteRedirectsController extends Controller
             $route->delete();
             DB::commit();
 
-            return response()->json(['success' => true]);
+            // R2: Inertia yonlendirme alir; jQuery cagiranlar ayni JSON'u almaya devam eder.
+            return $request->inertia()
+                ? back()->with('success', __('general.deleted'))
+                : response()->json(['success' => true]);
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json(['success' => false]);
+            return $request->inertia()
+                ? back()->with('error', __('general.error'))
+                : response()->json(['success' => false]);
         }
     }
 
@@ -68,11 +86,15 @@ class RouteRedirectsController extends Controller
             Cache::forget(config('cache.prefix').'routes_'.Str::slug($route->old_url));
             DB::commit();
 
-            return response()->json(['success' => true]);
+            return $request->inertia()
+                ? back()->with('success', __('general.saved'))
+                : response()->json(['success' => true]);
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json(['success' => false]);
+            return $request->inertia()
+                ? back()->with('error', __('general.error'))
+                : response()->json(['success' => false]);
         }
     }
 }

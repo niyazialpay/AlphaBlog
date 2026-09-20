@@ -8,24 +8,50 @@ use App\Models\Post\Categories;
 use App\Models\Post\Posts;
 use App\Models\Search;
 use App\Models\User;
+use App\Support\Panel\PanelResponse;
 use Exception;
 use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
 
 class SearchController extends Controller
 {
-    public function index(Search $search, Request $request)
+    public function index(Search $search, Request $request): Response
     {
-        return view('panel.search', [
-            'search' => $search::where('search', 'like', '%'.$request->search.'%')
-                ->orderBy('think', 'desc')
-                ->orderBy('created_at', 'desc')
-                ->paginate(20),
-            'browser' => new Browser,
-        ]);
+        $words = $search::where('search', 'like', '%'.$request->search.'%')
+            ->orderBy('think', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20)
+            ->withQueryString();
+
+        return PanelResponse::render(
+            'SearchWords/Index',
+            'panel.search',
+            [
+                /*
+                 * Blade'e `new Browser` ornegi gecirilip iceride statik olarak
+                 * cagriliyordu ($browser::platformName(...)). Servis nesnesi
+                 * JSON'a serilestirilemez; cozumleme burada yapilip string
+                 * gonderiliyor.
+                 */
+                'words' => PanelResponse::rows($words, fn (Search $item) => [
+                    'id' => $item->id,
+                    'search' => $item->search,
+                    'checked' => (bool) $item->checked,
+                    'think' => (bool) $item->think,
+                    'ip' => $item->ip,
+                    'platform' => Browser::platformName($item->user_agent),
+                    'browser' => Browser::browserName($item->user_agent),
+                    'createdAt' => $item->created_at?->toIso8601String(),
+                ]),
+                'filters' => ['search' => $request->search],
+                'total' => $words->total(),
+            ],
+            ['search' => $words, 'browser' => new Browser],
+        );
     }
 
     public function check(Search $search, Request $request)
@@ -47,94 +73,102 @@ class SearchController extends Controller
         ]);
     }
 
-    public function delete(Search $search)
+    public function delete(Search $search, Request $request)
     {
         try {
             DB::beginTransaction();
             if ($search->delete()) {
                 DB::commit();
 
-                return response()->json([
-                    'status' => true,
-                ]);
-            } else {
-                return response()->json([
-                    'status' => false,
-                ]);
+                // R2: Inertia yonlendirme alir; diger cagiranlar icin sekil degismez.
+                return $request->inertia()
+                    ? back()->with('success', __('search.delete.success'))
+                    : response()->json(['status' => true]);
             }
+
+            return $request->inertia()
+                ? back()->with('error', __('search.delete.error'))
+                : response()->json(['status' => false]);
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => false,
-            ]);
+            return $request->inertia()
+                ? back()->with('error', __('search.delete.error'))
+                : response()->json(['status' => false]);
         }
     }
 
-    public function think(Search $search)
+    public function think(Search $search, Request $request)
     {
         $search->update([
             'think' => ! $search->think,
         ]);
+
         if ($search->save()) {
-            return response()->json([
-                'status' => true,
-                'think' => $search->think,
-                'message' => __('search.think.updated'),
-            ]);
-        } else {
-            return response()->json([
+            return $request->inertia()
+                ? back()->with('success', __('search.think.updated'))
+                : response()->json([
+                    'status' => true,
+                    'think' => $search->think,
+                    'message' => __('search.think.updated'),
+                ]);
+        }
+
+        return $request->inertia()
+            ? back()->with('error', __('search.think.error'))
+            : response()->json([
                 'status' => false,
                 'message' => __('search.think.error'),
             ]);
-        }
     }
 
-    public function deleteAll()
+    public function deleteAll(Request $request)
     {
         try {
             DB::beginTransaction();
             if (Search::truncate()) {
                 DB::commit();
 
-                return response()->json([
-                    'status' => true,
-                ]);
-            } else {
-                return response()->json([
-                    'status' => false,
-                ]);
+                // R2: Inertia yonlendirme alir; diger cagiranlar icin sekil degismez.
+                return $request->inertia()
+                    ? back()->with('success', __('search.delete.success'))
+                    : response()->json(['status' => true]);
             }
+
+            return $request->inertia()
+                ? back()->with('error', __('search.delete.error'))
+                : response()->json(['status' => false]);
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => false,
-            ]);
+            return $request->inertia()
+                ? back()->with('error', __('search.delete.error'))
+                : response()->json(['status' => false]);
         }
     }
 
-    public function deleteNotThink()
+    public function deleteNotThink(Request $request)
     {
         try {
             DB::beginTransaction();
             if (Search::where('think', false)->delete()) {
                 DB::commit();
 
-                return response()->json([
-                    'status' => true,
-                ]);
-            } else {
-                return response()->json([
-                    'status' => false,
-                ]);
+                // R2: Inertia yonlendirme alir; diger cagiranlar icin sekil degismez.
+                return $request->inertia()
+                    ? back()->with('success', __('search.delete.success'))
+                    : response()->json(['status' => true]);
             }
+
+            return $request->inertia()
+                ? back()->with('error', __('search.delete.error'))
+                : response()->json(['status' => false]);
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => false,
-            ]);
+            return $request->inertia()
+                ? back()->with('error', __('search.delete.error'))
+                : response()->json(['status' => false]);
         }
     }
 
@@ -151,11 +185,10 @@ class SearchController extends Controller
         $results['users'] = User::search($query)->orderBy('created_at', 'desc')->take($paginate)->get();
         if (request()->cookie('encryption_key')) {
             $personal_notes = new PersonalNotes;
-            try{
+            try {
                 $personal_notes::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
                 $results['personal_notes'] = $personal_notes->search($query)->orderBy('created_at', 'desc')->take($paginate)->get();
-            }
-            catch (Exception $e) {
+            } catch (Exception $e) {
                 $results['personal_notes'] = [];
             }
         } else {

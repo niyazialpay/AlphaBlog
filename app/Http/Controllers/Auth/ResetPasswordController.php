@@ -4,13 +4,17 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Notifications\ResetPassword;
 use App\Providers\RouteServiceProvider;
+use App\Support\Panel\Panel;
+use App\Support\Panel\PanelResponse;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class ResetPasswordController extends Controller
 {
@@ -38,14 +42,28 @@ class ResetPasswordController extends Controller
         $login = request()->input('login');
         $fieldType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
         $user = User::where($fieldType, $login)->first();
-        $user?->notify(new \App\Notifications\ResetPassword($this->broker()->createToken($user).'?user='.urlencode($login)));
+        $user?->notify(new ResetPassword($this->broker()->createToken($user).'?user='.urlencode($login)));
 
         return response()->json(['status' => true, 'message' => __('auth.reset_password.reset_password_send')]);
     }
 
-    public function showResetForm($token)
+    public function showResetForm($token): SymfonyResponse
     {
-        return view('panel.auth.passwords.reset-form', ['token' => $token]);
+        return PanelResponse::render(
+            'Auth/Passwords/Reset',
+            'panel.auth.passwords.reset-form',
+            [
+                'token' => $token,
+                // Blade `request()->get('user')` okuyordu; sozlesme korunur.
+                'user' => (string) request()->get('user'),
+                'honeypot' => Panel::honeypot(),
+                'routes' => [
+                    'passwordUpdate' => route('password.update'),
+                    'dashboard' => route('admin.index'),
+                ],
+            ],
+            ['token' => $token],
+        );
     }
 
     public function reset(Request $request)
@@ -59,7 +77,7 @@ class ResetPasswordController extends Controller
         $login = request()->input('user');
         $fieldType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
         $request->merge([$fieldType => $login]);
-        //$user = User::where($fieldType, $login)->first();
+        // $user = User::where($fieldType, $login)->first();
 
         $response = Password::reset(
             $request->only($fieldType, 'password', 'password_confirmation', 'token'),
@@ -83,8 +101,18 @@ class ResetPasswordController extends Controller
         return response()->json(['status' => $status, 'message' => __($response)]);
     }
 
-    public function forgotPassword()
+    public function forgotPassword(): SymfonyResponse
     {
-        return view('panel.auth.passwords.reset');
+        return PanelResponse::render(
+            'Auth/Passwords/Email',
+            'panel.auth.passwords.reset',
+            [
+                'honeypot' => Panel::honeypot(),
+                'routes' => [
+                    'forgotPassword' => route('forgot-password'),
+                    'login' => route('login'),
+                ],
+            ],
+        );
     }
 }

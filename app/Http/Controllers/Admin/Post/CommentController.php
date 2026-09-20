@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Post\CommentRequest;
 use App\Models\Post\Comments;
 use App\Models\User;
+use App\Support\Panel\PanelResponse;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
@@ -22,11 +23,45 @@ class CommentController extends Controller
             }
         }
 
-        return view('panel.post.comments.index', [
-            'comments' => $comments->orderBy('created_at', 'DESC')->paginate(10),
-            'users' => User::all(),
-            'type' => 'blogs',
-        ]);
+        $paginator = $comments->orderBy('created_at', 'DESC')->paginate(10)->withQueryString();
+
+        return PanelResponse::render(
+            'Comments/Index',
+            'panel.post.comments.index',
+            [
+                'type' => 'blogs',
+                'comments' => PanelResponse::rows($paginator, fn (Comments $comment) => [
+                    'id' => $comment->id,
+                    'name' => $comment->name,
+                    'email' => $comment->email,
+                    'comment' => $comment->comment,
+                    'is_approved' => (bool) $comment->is_approved,
+                    'ip' => $comment->ip_address,
+                    'user' => $comment->user ? ['id' => $comment->user->id, 'nickname' => $comment->user->nickname] : null,
+                    'post' => $comment->post ? [
+                        'id' => $comment->post->id,
+                        'title' => $comment->post->title,
+                        'type' => $comment->post->post_type === 'page' ? 'pages' : 'blogs',
+                    ] : null,
+                    'deleted_at' => $comment->deleted_at?->toIso8601String(),
+                    'createdAt' => $comment->created_at?->toIso8601String(),
+                ]),
+                'users' => User::query()
+                    ->orderBy('nickname')
+                    ->get(['id', 'nickname'])
+                    ->map(fn (User $user) => ['id' => (string) $user->id, 'nickname' => $user->nickname])
+                    ->values(),
+                'filters' => [
+                    'search' => $request->get('search'),
+                    'tab' => GetPost($request->get('tab')) === 'trashed' ? 'trashed' : 'all',
+                ],
+            ],
+            [
+                'comments' => $paginator,
+                'users' => User::all(),
+                'type' => 'blogs',
+            ],
+        );
     }
 
     public function edit(Comments $comment)
@@ -38,48 +73,68 @@ class CommentController extends Controller
     {
         $comment->is_approved = true;
         if ($comment->save()) {
-            return response()->json(['status' => 'success', 'message' => __('comments.success_approve')]);
-        } else {
-            return response()->json(['status' => 'error', 'message' => __('comments.error_approve')]);
+            return request()->inertia()
+                ? back()->with('success', __('comments.success_approve'))
+                : response()->json(['status' => 'success', 'message' => __('comments.success_approve')]);
         }
+
+        return request()->inertia()
+            ? back()->with('error', __('comments.error_approve'))
+            : response()->json(['status' => 'error', 'message' => __('comments.error_approve')]);
     }
 
     public function disapprove(Comments $comment)
     {
         $comment->is_approved = false;
         if ($comment->save()) {
-            return response()->json(['status' => 'success', 'message' => __('comments.success_disapprove')]);
-        } else {
-            return response()->json(['status' => 'error', 'message' => __('comments.error_disapprove')]);
+            return request()->inertia()
+                ? back()->with('success', __('comments.success_disapprove'))
+                : response()->json(['status' => 'success', 'message' => __('comments.success_disapprove')]);
         }
+
+        return request()->inertia()
+            ? back()->with('error', __('comments.error_disapprove'))
+            : response()->json(['status' => 'error', 'message' => __('comments.error_disapprove')]);
     }
 
     public function delete(Comments $comment)
     {
         if ($comment->delete()) {
-            return response()->json(['status' => 'success', 'message' => __('comments.success_delete')]);
-        } else {
-            return response()->json(['status' => 'error', 'message' => __('comments.error_delete')]);
+            return request()->inertia()
+                ? back()->with('success', __('comments.success_delete'))
+                : response()->json(['status' => 'success', 'message' => __('comments.success_delete')]);
         }
+
+        return request()->inertia()
+            ? back()->with('error', __('comments.error_delete'))
+            : response()->json(['status' => 'error', 'message' => __('comments.error_delete')]);
     }
 
     public function restore(Comments $comment)
     {
         $comment->trashed();
         if ($comment->restore()) {
-            return response()->json(['status' => 'success', 'message' => __('comments.success_restore')]);
-        } else {
-            return response()->json(['status' => 'error', 'message' => __('comments.error_restore')]);
+            return request()->inertia()
+                ? back()->with('success', __('comments.success_restore'))
+                : response()->json(['status' => 'success', 'message' => __('comments.success_restore')]);
         }
+
+        return request()->inertia()
+            ? back()->with('error', __('comments.error_restore'))
+            : response()->json(['status' => 'error', 'message' => __('comments.error_restore')]);
     }
 
     public function forceDelete(Comments $comment)
     {
         if ($comment->forceDelete()) {
-            return response()->json(['status' => 'success', 'message' => __('comments.success_force_delete')]);
-        } else {
-            return response()->json(['status' => 'error', 'message' => __('comments.error_force_delete')]);
+            return request()->inertia()
+                ? back()->with('success', __('comments.success_force_delete'))
+                : response()->json(['status' => 'success', 'message' => __('comments.success_force_delete')]);
         }
+
+        return request()->inertia()
+            ? back()->with('error', __('comments.error_force_delete'))
+            : response()->json(['status' => 'error', 'message' => __('comments.error_force_delete')]);
     }
 
     public function save(Comments $comment, CommentRequest $request)
@@ -102,9 +157,13 @@ class CommentController extends Controller
         $comment->created_at = dateformat($request->post('created_date'), 'Y-m-d H:i:s', config('app.timezone'));
         $comment->post_id = GetPost($request->post_id);
         if ($comment->save()) {
-            return response()->json(['status' => 'success', 'message' => __('comments.success_save')]);
-        } else {
-            return response()->json(['status' => 'error', 'message' => __('comments.error_save')]);
+            return request()->inertia()
+                ? back()->with('success', __('comments.success_save'))
+                : response()->json(['status' => 'success', 'message' => __('comments.success_save')]);
         }
+
+        return request()->inertia()
+            ? back()->with('error', __('comments.error_save'))
+            : response()->json(['status' => 'error', 'message' => __('comments.error_save')]);
     }
 }

@@ -24,6 +24,7 @@ yarn-error.log
 /storage/debugbar/
 /storage/framework/*
 config/debugbar.php
+config/panel_menu.local.php
 /resources/views/themes
 /public/themes/fontawesome
 /public/robots.txt
@@ -33,7 +34,10 @@ app-ads.txt
 modules_statuses.json
 *~
 public/acusensor.php
-/resources/js/
+/resources/js/*
+!/resources/js/panel/
+!/resources/js/panel.js
+/resources/js/panel/node_modules/
 
 /tema
 
@@ -53,3 +57,4 @@ docs
 .playwright-mcp
 security-audit
 bootstrap/ssr
+design_handoff_admin_panel

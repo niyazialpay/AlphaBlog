@@ -112,4 +112,9 @@ return [
     'views' => 'Görüntülenme',
 
     'new_post' => 'Yeni Yazı',
+    'published' => 'Yayında',
+    'trashed' => 'Çöp Kutusu',
+    'send_to_google' => 'Google Index',
+    'index_bulk_result' => ':queued gönderildi, :skipped atlandı',
+    'draft_created' => 'Taslak oluşturuldu',
 ];

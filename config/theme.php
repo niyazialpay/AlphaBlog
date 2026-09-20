@@ -7,7 +7,7 @@ $packageDirEnv = env('THEME_PACKAGE_DIR');
 $normalizedThemeAssetDir = null;
 
 if (is_string($themeAssetDir) && $themeAssetDir !== '') {
-    $trimmed = rtrim($themeAssetDir, "/\\");
+    $trimmed = rtrim($themeAssetDir, '/\\');
     $normalizedThemeAssetDir = $trimmed === '' ? $themeAssetDir : $trimmed;
 }
 
@@ -17,7 +17,7 @@ $themeAssetPath = static function (string $file, string $fallback) use ($themeAs
     }
 
     $root = $normalizedThemeAssetDir ?? $themeAssetDir;
-    $normalizedFile = ltrim($file, "/\\");
+    $normalizedFile = ltrim($file, '/\\');
 
     if ($root === '/' || $root === '\\') {
         return $root.$normalizedFile;

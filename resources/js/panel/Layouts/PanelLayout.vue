@@ -1,0 +1,320 @@
+<script setup>
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { router, usePage } from '@inertiajs/vue3';
+import axios from 'axios';
+import { useTheme } from '../composables/useTheme';
+import { __ } from '../composables/useLang';
+import CommandPalette from '../components/CommandPalette.vue';
+import NotificationBell from '../components/NotificationBell.vue';
+import FlashToast from '../components/FlashToast.vue';
+import { pageHeader } from '../composables/usePageHeader';
+
+const page = usePage();
+const { theme, toggleTheme } = useTheme();
+
+const paletteOpen = ref(false);
+const languageOpen = ref(false);
+const activeSection = ref(null);
+const mobileNavOpen = ref(false);
+
+// Çıkış gerçek bir form POST'u; token kabuktaki meta etiketinden okunur.
+const csrfToken = document.head.querySelector('meta[name="csrf-token"]')?.content || '';
+
+/*
+ * Menü SUNUCUDAN gelir (App\Support\Panel\PanelMenu): çekirdek bölümler
+ * config/panel_menu.php'den, modül bölümleri her modülün kendi yayınından.
+ * Böylece yetkiler tek yerde (@can'lerle birebir) değerlendirilir ve modül
+ * menüleri istemciye gömülü liste olmadan görünür.
+ */
+const sections = computed(() => page.props.menu || []);
+
+const current = computed(
+  () =>
+    sections.value.find((s) => s.key === activeSection.value) ||
+    sections.value.find((s) => s.items.some((i) => i.active)) ||
+    sections.value[0] || { key: null, label: '', items: [] },
+);
+
+/** Sidebar içindeki alt başlıklar (ör. Cloudflare) için gruplanmış liste. */
+const grouped = computed(() => {
+  const out = [];
+
+  for (const item of current.value.items) {
+    const last = out[out.length - 1];
+
+    if (item.group && (!last || last.group !== item.group)) {
+      out.push({ group: item.group, items: [item] });
+    } else if (item.group && last) {
+      last.items.push(item);
+    } else {
+      out.push({ group: null, items: [item] });
+    }
+  }
+
+  return out;
+});
+
+function open(item) {
+  mobileNavOpen.value = false;
+
+  if (item.action === 'clear-cache') {
+    return clearCache();
+  }
+
+  if (!item.url) {
+    return;
+  }
+
+  /*
+   * `inertia: false` => ekran hâlâ eski AdminLTE kabuğunda. Inertia ziyareti
+   * yapılamaz: yanıtta X-Inertia başlığı yok, client hata verir. Tam sayfa yükle.
+   */
+  if (item.inertia) {
+    router.visit(item.url);
+  } else {
+    window.location.href = item.url;
+  }
+}
+
+/**
+ * Önbellek temizleme JSON döndürüyor (backend değişmiyor), bu yüzden Inertia
+ * ziyareti değil axios çağrısı yapılır.
+ *
+ * POST alias'ı kullanılır: eski uç GET ve durum değiştiriyor; Inertia v2
+ * prefetch'i bir gezinme bağlantısında hover'da tetikleyebilirdi.
+ */
+function clearCache() {
+  axios
+    .post(route('admin.clear_cache.post'))
+    .then(() => router.reload({ only: ['flash'] }))
+    .catch(() => {});
+}
+
+function onKey(e) {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    paletteOpen.value = !paletteOpen.value;
+  }
+
+  if (e.key === 'Escape') {
+    languageOpen.value = false;
+    paletteOpen.value = false;
+    mobileNavOpen.value = false;
+  }
+}
+
+onMounted(() => window.addEventListener('keydown', onKey));
+onUnmounted(() => window.removeEventListener('keydown', onKey));
+</script>
+
+<template>
+  <div class="flex min-h-screen bg-p-bg">
+    <!-- İkon rail -->
+    <nav
+      class="sticky top-0 z-20 flex h-screen w-[68px] shrink-0 flex-col items-center gap-1.5 bg-p-rail py-3.5"
+    >
+      <Link
+        :href="route('admin.index')"
+        class="mb-3 grid h-9 w-9 place-items-center rounded-xl bg-p-accent font-display text-base font-extrabold text-white"
+        >{{ ($page.props.siteName || 'A').charAt(0).toUpperCase() }}</Link
+      >
+
+      <button
+        v-for="s in sections"
+        :key="s.key"
+        :title="s.label"
+        class="grid h-11 w-11 place-items-center rounded-xl border-0 text-base transition-colors"
+        :class="
+          current.key === s.key
+            ? 'bg-white/10 text-white'
+            : 'bg-transparent text-p-railink hover:bg-white/10'
+        "
+        @click="
+          activeSection = s.key;
+          mobileNavOpen = true;
+        "
+      >
+        <i :class="s.icon"></i>
+      </button>
+
+      <div class="flex-1"></div>
+
+      <button
+        :title="__('general.theme')"
+        class="grid h-11 w-11 place-items-center rounded-xl border-0 bg-transparent text-p-railink hover:bg-white/10 hover:text-white"
+        @click="toggleTheme"
+      >
+        <i :class="theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon'"></i>
+      </button>
+      <button
+        title="⌘K"
+        class="grid h-11 w-11 place-items-center rounded-xl border-0 bg-transparent text-p-railink hover:bg-white/10 hover:text-white"
+        @click="paletteOpen = true"
+      >
+        <i class="fa-solid fa-terminal"></i>
+      </button>
+    </nav>
+
+    <!-- Bağlam paneli -->
+    <aside
+      class="sticky top-0 z-20 h-screen w-[252px] shrink-0 flex-col border-r border-p-line bg-p-panel"
+      :class="mobileNavOpen ? 'fixed left-[68px] flex shadow-pop' : 'hidden lg:flex'"
+    >
+      <div class="border-b border-p-line2 px-[18px] pb-3.5 pt-[18px]">
+        <div class="font-display text-[15px] font-extrabold">{{ $page.props.siteName }}</div>
+        <div class="mt-0.5 text-[11.5px] text-p-ink3">{{ $page.props.siteDomain }}</div>
+      </div>
+
+      <div
+        class="px-3.5 pb-1 pt-3 text-[10.5px] font-bold uppercase tracking-[.09em] text-p-ink3"
+      >
+        {{ current.label }}
+      </div>
+
+      <div class="flex flex-1 flex-col gap-px overflow-auto px-2.5 pb-4">
+        <template v-for="(block, index) in grouped" :key="index">
+          <div
+            v-if="block.group"
+            class="px-2.5 pb-1 pt-3 text-[10.5px] font-bold uppercase tracking-[.09em] text-p-ink3"
+          >
+            {{ block.group }}
+          </div>
+          <a
+            v-for="item in block.items"
+            :key="item.label + (item.url || item.action)"
+            :href="item.url || 'javascript:void(0)'"
+            class="flex items-center gap-2.5 rounded-[9px] px-2.5 py-2 text-[12.8px] no-underline"
+            :class="
+              item.active ? 'bg-p-soft font-semibold text-p-accent' : 'text-p-ink2 hover:bg-p-panel2'
+            "
+            @click.prevent="open(item)"
+          >
+            <i :class="item.icon" class="w-[17px] text-center text-[13.5px] opacity-85"></i>
+            <span class="flex-1">{{ item.label }}</span>
+            <span
+              v-if="item.badge"
+              class="grid h-[18px] min-w-[19px] place-items-center rounded-[9px] bg-p-danger px-1.5 text-[10px] font-bold text-white"
+            >
+              {{ item.badge > 99 ? '99+' : item.badge }}
+            </span>
+          </a>
+        </template>
+      </div>
+
+      <div class="flex items-center gap-2.5 border-t border-p-line2 px-3.5 py-3">
+        <div
+          class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-p-soft text-xs font-bold text-p-accent"
+        >
+          {{ $page.props.auth.user?.initials }}
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="truncate text-[12.5px] font-semibold">
+            {{ $page.props.auth.user?.nickname }}
+          </div>
+          <div class="text-[11px] capitalize text-p-ink3">{{ $page.props.auth.user?.role }}</div>
+        </div>
+        <!--
+          Gerçek form: admin.logout /login'e (düz Blade sayfası) yönlendiriyor.
+          Inertia POST'u bu 302'yi izleyip HTML alır ve hata verir.
+        -->
+        <form :action="route('admin.logout')" method="post">
+          <input type="hidden" name="_token" :value="csrfToken" />
+          <button
+            type="submit"
+            :title="__('user.logout')"
+            class="border-0 bg-transparent text-[13px] text-p-ink3 hover:text-p-ink"
+          >
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+        </form>
+      </div>
+    </aside>
+
+    <!-- İçerik -->
+    <main class="flex min-w-0 flex-1 flex-col">
+      <header
+        class="sticky top-0 z-[5] flex min-h-[58px] flex-wrap items-center gap-3.5 border-b border-p-line bg-p-panel px-5 py-2"
+      >
+        <button
+          class="p-icon-btn lg:hidden"
+          :title="current.label"
+          @click="mobileNavOpen = !mobileNavOpen"
+        >
+          <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <div class="whitespace-nowrap font-display text-[15px] font-bold">
+          {{ pageHeader.title }}
+        </div>
+        <div class="hidden truncate whitespace-nowrap text-xs text-p-ink3 md:block">
+          <template v-for="(crumb, index) in pageHeader.crumbs" :key="index">
+            <Link v-if="crumb.route" :href="route(crumb.route)" class="text-p-ink3 hover:text-p-accent">{{ crumb.label }}</Link>
+            <span v-else>{{ crumb.label }}</span>
+            <span v-if="index < pageHeader.crumbs.length - 1" class="px-1.5">/</span>
+          </template>
+        </div>
+        <div class="flex-1"></div>
+
+        <button
+          class="hidden h-[34px] items-center gap-2 rounded-[9px] border border-p-line bg-p-panel2 pl-3 pr-2.5 text-[12.5px] text-p-ink3 hover:border-p-accent hover:text-p-ink sm:flex"
+          @click="paletteOpen = true"
+        >
+          <i class="fa-solid fa-magnifying-glass text-[11px]"></i>
+          <span class="whitespace-nowrap">{{ __('general.search') }}</span>
+          <kbd class="rounded-[5px] border border-p-line bg-p-panel px-1.5 text-[10.5px]">⌘K</kbd>
+        </button>
+
+        <!--
+          Panel içerik dili.
+
+          Eski AdminLTE navbar'ındaki seçicinin karşılığı. BİLEREK düz `<a>`:
+            - `admin.change_language` oturumu değiştiriyor ve `window.__panelLang`
+              kök blade'de basıldığı için tam sayfa yüklemesi ŞART;
+            - `<Link>` olsaydı Inertia v2 prefetch'i hover'da dili değiştirebilirdi.
+        -->
+        <div v-if="($page.props.languages || []).length > 1" class="relative">
+          <button
+            class="flex h-[34px] items-center gap-1.5 rounded-[9px] border border-p-line bg-p-panel2 px-2.5 text-[12px] text-p-ink2 hover:border-p-accent hover:text-p-ink"
+            :title="__('general.language')"
+            @click="languageOpen = !languageOpen"
+          >
+            <i class="fa-solid fa-language text-[12px]"></i>
+            <span class="uppercase">{{ $page.props.currentLanguage?.code }}</span>
+          </button>
+
+          <div
+            v-if="languageOpen"
+            class="absolute right-0 top-[38px] z-50 min-w-[150px] overflow-hidden rounded-xl border border-p-line bg-p-panel shadow-pop"
+          >
+            <a
+              v-for="language in $page.props.languages"
+              :key="language.code"
+              :href="route('admin.change_language', { language: language.code })"
+              class="flex items-center gap-2 px-3 py-2 text-[12.5px] text-p-ink2 no-underline hover:bg-p-panel2 hover:text-p-ink"
+              :class="language.code === $page.props.currentLanguage?.code && 'bg-p-soft text-p-accent'"
+            >
+              <span class="uppercase text-[10.5px] text-p-ink3">{{ language.code }}</span>
+              {{ language.name }}
+            </a>
+          </div>
+        </div>
+
+        <NotificationBell />
+
+        <Link
+          v-if="$page.props.can?.createPost"
+          :href="route('admin.post.create', { type: 'blogs' })"
+          class="p-btn-primary"
+        >
+          <i class="fa-solid fa-feather text-xs"></i>
+          <span class="hidden sm:inline">{{ __('general.new') }}</span>
+        </Link>
+      </header>
+
+      <slot />
+    </main>
+
+    <CommandPalette v-model:open="paletteOpen" :sections="sections" @navigate="open" />
+    <FlashToast />
+  </div>
+</template>

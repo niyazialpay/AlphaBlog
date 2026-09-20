@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Alpha Blog (Niyazi.Net)** — A multi-language blogging/CMS platform built with Laravel 12, PHP 8.2+, MySQL, Vue 3 + Inertia.js, and Tailwind CSS. Features include AI chatbots (Gemini/ChatGPT), WebAuthn/2FA authentication, Meilisearch full-text search, modular architecture via nwidart/laravel-modules, and a configurable admin panel.
+**Alpha Blog (Niyazi.Net)** — A multi-language blogging/CMS platform built with Laravel 13, PHP 8.4+, MySQL, Vue 3 + Inertia.js, and Tailwind CSS. Features include AI chatbots (Gemini/ChatGPT), WebAuthn/2FA authentication, Meilisearch full-text search, modular architecture via nwidart/laravel-modules, and a configurable admin panel.
 
 ## Common Commands
 
@@ -18,7 +18,6 @@ npm run build                              # Production build
 php artisan test                           # Run all tests
 php artisan test --filter=ClassName        # Run specific test
 ./vendor/bin/pint                          # PHP code formatting (PSR-12)
-npm run lint                               # ESLint
 
 # Database & Search
 php artisan migrate                        # Run migrations
@@ -46,6 +45,79 @@ Routes (`routes/web.php`, `routes/api.php`, `routes/panel/`) → Middleware pipe
 
 ### Admin Panel
 The admin panel path is configurable via `ADMIN_PANEL_PATH` env var (default: `/admin`). Panel routes are organized in `routes/panel/` as separate files.
+
+The panel is **Vue 3 + Inertia + Tailwind**, not AdminLTE/Blade. It is a second
+Inertia surface, entirely separate from the front-end themes:
+
+| | Panel | Front-end themes |
+|---|---|---|
+| Root view | `resources/views/panel/app.blade.php` | `resources/views/app.blade.php` |
+| Entry | `resources/js/panel/app.js` | `config('theme.assets.*')` |
+| Middleware | `HandlePanelInertiaRequests` | `HandleInertiaRequests` |
+| Tailwind config | `tailwind.panel.cjs` (via `@config` in `resources/css/panel.css`) | `tailwind.config.js` + theme override |
+| Dark mode | `[data-panel-theme="dark"]` | `[data-theme="dark"]` |
+
+Key pieces:
+
+- `app/Support/Panel/PanelResponse::render($component, $bladeView, $props, $viewData)`
+  is the **single render point**. Every panel controller goes through it. When
+  `PANEL_UI=blade` it falls back to the legacy Blade view, so there is a
+  build-free rollback path.
+- `config/panel_inertia_routes.php` is the **single migration ledger**. A route
+  name listed there is served (and navigated to) via Inertia; anything else is
+  still legacy Blade and must be reached with a full page load. Both the server
+  (`PanelMenu::isInertia`) and the client (`inertiaRoutes` shared prop) read it.
+- `PANEL_UI=vue|blade` plus `PANEL_UI_SCREENS` (CSV allowlist) are the kill switches.
+- Panel detection is **path-based** (`config('settings.admin_panel_path')` prefix),
+  which covers the core panel and every module panel with one middleware.
+- Auth screens (login, OTP, password reset, e-mail verification) live outside the
+  panel prefix and are allowlisted by **route name** in `App\Support\Panel\Panel`.
+
+Panel source lives in `resources/js/panel/**` and **is tracked in git** (the
+`.gitignore` excludes the rest of `resources/js/`). Front-end themes are not.
+
+### Module panel SDK
+Modules publish their panel UI through a fixed contract; the core never names a
+module.
+
+| Blade world | Vue equivalent |
+|---|---|
+| `@extends('panel.base')` | `Modules/<X>/resources/js/panel/Pages/**` + auto-assigned `PanelLayout` |
+| `view('<x>::panel.a.b', $d)` | `PanelResponse::render('<x>::A/B', '<x>::panel.a.b', $props, $d)` |
+| `@includeIf('<x>::panel.menu')` | `Modules/<X>/config/panel_menu.php` (data, not markup) |
+| `@include('panel.partials.x')` | `import X from '~panel/components/X.vue'` |
+| `config('dashboard_widgets')` `::` Blade view | `Modules/<X>/resources/js/panel/Widgets/*.vue` |
+
+- `~panel` is a Vite alias for `resources/js/panel`. Modules import core
+  components from it — one copy, one CSS bundle, instant core↔module navigation.
+- Single build: the root Vite config globs `Modules/*/resources/js/panel/Pages/**`
+  and `.../Widgets/*`. A missing module simply yields an empty glob.
+- Module panel code is **not** tracked in the core repo (`/Modules` stays in
+  `.gitignore`); it is per-site. Only the contract is shared.
+- `App\Support\Panel\PanelModuleMenu` resolves a module's menu in three tiers:
+  the module's own `config/panel_menu.php`, then `config/panel_menu.local.php`,
+  then route-table auto-discovery as a transition fallback.
+
+**Module front-ends are out of scope.** Several modules render Blade views for the
+public site (`Modules/<X>/resources/views/{front,layouts,components}/**`,
+`resources/assets/**`, `routes/front.php`). Those must not be touched.
+
+### Panel conventions
+- Form actions redirect (`back()->with('success', ...)`); data endpoints stay JSON
+  and are called with `axios` (search, cascade feeds, editor callbacks, chat turns).
+- Endpoints that still feed both worlds are content-negotiated, never rewritten:
+  `$request->inertia() ? back()->with(...) : response()->json(...)`.
+- Props must be JSON-serialisable: no Eloquent models, no `RouteCollection`, no
+  service objects, no pre-rendered HTML. Dates are ISO-8601 and formatted client
+  side (the app timezone is passed explicitly as a shared prop).
+- Tables are Inertia prop paginators with `only: [...]` partial reloads, not
+  DataTables JSON feeds.
+- TinyMCE stays self-hosted at `public/themes/panel/js/tinymce`; do not move it to
+  npm. Use `~panel/components/TinyMceEditor.vue`.
+- A `$request->ajax()` branch also catches Inertia XHR. Guard DataTables feeds with
+  `$request->ajax() && ! $request->inertia() && $request->has('draw')`.
+- Inertia v2 `<Link prefetch>` fires real GETs on hover. State-changing GET routes
+  need a POST alias; the Vue side calls only the POST.
 
 ### Authentication Stack
 Multi-layered: email/password → optional 2FA (TOTP via Fortify) → optional WebAuthn (FIDO2 via laragear/webauthn). IP-based filtering (blacklist/whitelist) via `FirewallMiddleware`. Cloudflare Turnstile for CAPTCHA on public forms.
@@ -91,10 +163,10 @@ The Laravel Boost guidelines are specifically curated by Laravel maintainers for
 
 This application is a Laravel application and its main Laravel ecosystems package & versions are below. You are an expert with them all. Ensure you abide by these specific packages & versions.
 
-- php - 8.5.2
+- php - 8.5
 - inertiajs/inertia-laravel (INERTIA) - v2
 - laravel/fortify (FORTIFY) - v1
-- laravel/framework (LARAVEL) - v12
+- laravel/framework (LARAVEL) - v13
 - laravel/horizon (HORIZON) - v5
 - laravel/octane (OCTANE) - v2
 - laravel/prompts (PROMPTS) - v0
@@ -107,8 +179,8 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - laravel/mcp (MCP) - v0
 - laravel/pint (PINT) - v1
 - laravel/sail (SAIL) - v1
-- phpunit/phpunit (PHPUNIT) - v11
-- @inertiajs/vue3 (INERTIA) - v1
+- phpunit/phpunit (PHPUNIT) - v12
+- @inertiajs/vue3 (INERTIA) - v2
 - vue (VUE) - v3
 - laravel-echo (ECHO) - v2
 - tailwindcss (TAILWINDCSS) - v3
@@ -296,14 +368,14 @@ protected function isAccessible(User $user, ?string $path = null): bool
 
 === laravel/v12 rules ===
 
-# Laravel 12
+# Laravel 13
 
 - CRITICAL: ALWAYS use `search-docs` tool for version-specific Laravel documentation and updated code examples.
 - Since Laravel 11, Laravel has a new streamlined file structure which this project uses.
 
-## Laravel 12 Structure
+## Laravel 13 Structure
 
-- In Laravel 12, middleware are no longer registered in `app/Http/Kernel.php`.
+- Since Laravel 11, middleware are no longer registered in `app/Http/Kernel.php`.
 - Middleware are configured declaratively in `bootstrap/app.php` using `Application::configure()->withMiddleware()`.
 - `bootstrap/app.php` is the file to register middleware, exceptions, and routing files.
 - `bootstrap/providers.php` contains application specific service providers.
@@ -313,7 +385,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
 ## Database
 
 - When modifying a column, the migration must include all of the attributes that were previously defined on the column. Otherwise, they will be dropped and lost.
-- Laravel 12 allows limiting eagerly loaded records natively, without external packages: `$query->latest()->limit(10);`.
+- Laravel 11+ allows limiting eagerly loaded records natively, without external packages: `$query->latest()->limit(10);`.
 
 ### Models
 
@@ -330,7 +402,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
 
 # PHPUnit
 
-- This application uses PHPUnit for testing. All tests must be written as PHPUnit classes. Use `php artisan make:test --phpunit {name}` to create a new test.
+- This application uses PHPUnit 12 for testing. All tests must be written as PHPUnit classes. Use `php artisan make:test --phpunit {name}` to create a new test.
 - If you see a test using "Pest", convert it to PHPUnit.
 - Every time a test has been updated, run that singular test.
 - When the tests relating to your feature are passing, ask the user if they would like to also run the entire test suite to make sure everything is still passing.

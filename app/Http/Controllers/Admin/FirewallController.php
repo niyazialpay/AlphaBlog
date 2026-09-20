@@ -9,26 +9,41 @@ use App\Models\Firewall\FirewallLogs;
 use App\Models\IPFilter\IPFilter;
 use App\Models\IPFilter\IPList;
 use App\Support\AiChatModelCatalog;
+use App\Support\Panel\PanelResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Yajra\DataTables\Facades\DataTables;
 
 class FirewallController extends Controller
 {
     public function __construct(protected AiChatModelCatalog $modelCatalog) {}
 
-    public function index(): View
+    public function index(): SymfonyResponse
     {
         $firewall = Firewall::query()->firstOrFail();
+        $filters = IPFilter::query()->get();
 
-        return view('panel.firewall.index', [
-            'ipFilters' => IPFilter::query()->get(),
-            'firewall' => $firewall,
-            'chatProviders' => $this->modelCatalog->getAvailableTextProviders(),
-        ]);
+        return PanelResponse::render(
+            'Firewall/Index',
+            'panel.firewall.index',
+            [
+                'firewall' => $firewall->only($firewall->getFillable()),
+                'ipFilters' => $filters->map(fn (IPFilter $filter) => [
+                    'id' => $filter->id,
+                    'name' => $filter->name,
+                    'list_type' => $filter->list_type,
+                ])->values(),
+                'chatProviders' => $this->modelCatalog->getAvailableTextProviders(),
+            ],
+            [
+                'ipFilters' => $filters,
+                'firewall' => $firewall,
+                'chatProviders' => $this->modelCatalog->getAvailableTextProviders(),
+            ],
+        );
     }
 
     public function save(FirewallSettingsRequest $request): RedirectResponse
@@ -71,9 +86,44 @@ class FirewallController extends Controller
         return redirect()->route('admin.firewall')->with('success', __('firewall.saved_success'));
     }
 
-    public function logs(): View
+    public function logs(Request $request): SymfonyResponse
     {
-        return view('panel.firewall.logs');
+        $perPage = (int) $request->get('per_page', 10);
+        $perPage = in_array($perPage, [10, 25, 50, 75, 100], true) ? $perPage : 10;
+        $search = trim((string) $request->get('search'));
+
+        $logs = FirewallLogs::with('ipFilter', 'ipList')
+            ->when($search !== '', fn ($query) => $query->where(function ($q) use ($search) {
+                foreach (['ip', 'url', 'user_agent', 'reason'] as $column) {
+                    $q->orWhere($column, 'like', '%'.$search.'%');
+                }
+            }))
+            ->orderByDesc('created_at')
+            ->paginate($perPage)
+            ->withQueryString();
+
+        return PanelResponse::render(
+            'Firewall/Logs',
+            'panel.firewall.logs',
+            [
+                'logs' => PanelResponse::rows($logs, fn ($log) => [
+                    'id' => $log->id,
+                    'ip' => $log->ip,
+                    'url' => $log->url,
+                    'user_agent' => $log->user_agent,
+                    'reason' => $log->reason,
+                    // Gercek nesne; eski uc '<pre>'.htmlspecialchars(...) basiyordu.
+                    'request_data' => json_decode((string) $log->request_data, true),
+                    'ip_filter' => $log->ipFilter ? ['id' => $log->ipFilter->id, 'name' => $log->ipFilter->name] : null,
+                    // Satir aksiyonlarini surer: blade partial'i bu kosulu isliyordu.
+                    'is_blacklisted' => $log->ipList && $log->ipList->ip === $log->ip
+                        && $log->ipFilter?->list_type === 'blacklist',
+                    'createdAt' => $log->created_at?->toIso8601String(),
+                ]),
+                'filters' => ['search' => $search !== '' ? $search : null, 'per_page' => $perPage],
+            ],
+            [],
+        );
     }
 
     /**
@@ -118,7 +168,7 @@ class FirewallController extends Controller
             ->make(true);
     }
 
-    public function whitelist(Request $request): JsonResponse
+    public function whitelist(Request $request): SymfonyResponse
     {
         $firewall = Firewall::query()->firstOrFail();
 
@@ -132,13 +182,17 @@ class FirewallController extends Controller
             ]
         );
 
-        return response()->json(['success' => true]);
+        return $request->inertia()
+            ? back()->with('success', __('firewall.added_to_whitelist'))
+            : response()->json(['success' => true]);
     }
 
-    public function delete(Request $request): JsonResponse
+    public function delete(Request $request): SymfonyResponse
     {
         IPList::where('ip', $request->ip)->delete();
 
-        return response()->json(['success' => true]);
+        return $request->inertia()
+            ? back()->with('success', __('general.deleted'))
+            : response()->json(['success' => true]);
     }
 }

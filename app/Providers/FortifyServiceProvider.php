@@ -6,13 +6,13 @@ use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
+use App\Support\Panel\PanelResponse;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
-use Laravel\Fortify\Contracts\VerifyEmailViewResponse;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -25,10 +25,6 @@ class FortifyServiceProvider extends ServiceProvider
         // Fortify default routes must be disabled before providers boot.
         Fortify::ignoreRoutes();
 
-        $this->app->singleton(
-            VerifyEmailViewResponse::class,
-            \App\Http\Responses\VerifyEmailViewResponse::class
-        );
     }
 
     /**
@@ -62,7 +58,11 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         Fortify::verifyEmailView(function () {
-            return view('panel.auth.verify');
+            return PanelResponse::render(
+                'Auth/Verify',
+                'panel.auth.verify',
+                ['routes' => ['resend' => route('verification.send')]],
+            );
         });
     }
 }

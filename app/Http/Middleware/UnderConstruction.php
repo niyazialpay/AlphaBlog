@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\IPFilter\IPFilter;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\IpUtils;
@@ -21,7 +22,7 @@ class UnderConstruction
     public function handle(Request $request, Closure $next): Response
     {
         if (config('app.debug')) {
-            $filter = \App\Models\IPFilter\IPFilter::where('is_active', true)->where('list_type', 'whitelist')->get();
+            $filter = IPFilter::where('is_active', true)->where('list_type', 'whitelist')->get();
             if ($filter->count() > 0) {
                 $status = false;
                 foreach ($filter as $filter_item) {

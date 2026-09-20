@@ -693,7 +693,7 @@ class FirewallMiddleware
             return $this->checkIpInList($clientIp, $filter['ips'] ?? []);
         }
 
-        $allIps = IpList::where('filter_id', $filterId)->pluck('ip')->toArray();
+        $allIps = IPList::where('filter_id', $filterId)->pluck('ip')->toArray();
 
         return $this->checkIpInList($clientIp, $allIps);
     }

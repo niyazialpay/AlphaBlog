@@ -3,25 +3,38 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Support\Panel\PanelResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Spatie\Analytics\Facades\Analytics;
 use Spatie\Analytics\Period;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class AnalyticsController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): SymfonyResponse
     {
-        if ($request->has('date_range')) {
-            $date_range = explode(' - ', $request->date_range);
-            $start_date = Carbon::createFromDate($date_range[0]);
-            $end_date = Carbon::createFromDate($date_range[1]);
-        } else {
-            $end_date = Carbon::now();
-            $start_date = Carbon::now()->subDays(7);
-        }
+        // B10: burada hesaplanan $start_date/$end_date kullanilmadan atiliyordu;
+        // tarih araligini zaten extracted() kendi icinde cozuyor.
+        $data = $this->extracted($request);
 
-        return view('panel.analytics', $this->extracted($request));
+        return PanelResponse::render(
+            'Analytics/Index',
+            'panel.analytics',
+            [
+                'configured' => file_exists(storage_path().'/app/analytics/service-account-credentials.json'),
+                'dateRange' => $data['date_range'],
+                'overview' => $data['overview'],
+                'trend' => $data['trend'],
+                'topBrowsers' => $data['topBrowsers'],
+                'topCountries' => $data['topCountries'],
+                'operatingSystem' => $data['operatingSystem'],
+                'userTypes' => $data['user_types'],
+                'totalVisitorsAndPageViews' => $data['TotalVisitorsAndPageViews'],
+                'viewData' => $data['viewData'],
+            ],
+            $data,
+        );
     }
 
     public function fetchAnalytics(Request $request)

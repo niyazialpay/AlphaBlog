@@ -9,4 +9,5 @@ return [
     'show_skills' => 'Show skills',
     'show_about' => 'Show about',
     'show_social_links' => 'Show social links',
+    'privacy_tab' => 'Privacy',
 ];

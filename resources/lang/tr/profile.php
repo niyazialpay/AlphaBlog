@@ -111,4 +111,7 @@ return [
     'profile_image_delete_warning' => 'Profil resmini silmek istediğinizden emin misiniz?',
     'profile_image_gravatar_activated' => 'Profil resmi başarıyla silindi ve Gravatar aktif edildi',
 
+    'about_me_tab' => 'Hakkımda',
+    'about_text' => 'Hakkımda',
+    'change_image_label' => 'Görseli değiştir',
 ];

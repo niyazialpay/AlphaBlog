@@ -20,4 +20,5 @@ return [
     'mark_all_as_read' => 'Mark All as Read',
     'delete_all' => 'Delete All',
     'notifications_deleted' => 'Notifications deleted successfully.',
+    'no_notifications' => 'You have no notifications',
 ];

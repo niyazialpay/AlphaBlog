@@ -111,4 +111,7 @@ return [
     'profile_image_delete_warning' => 'Are you sure you want to delete your profile image?',
     'profile_image_gravatar_activated' => 'Profile image removed successfully and Gravatar activated',
 
+    'about_me_tab' => 'About me',
+    'about_text' => 'About',
+    'change_image_label' => 'Change image',
 ];

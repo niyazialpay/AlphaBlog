@@ -6,19 +6,20 @@ use App\Ai\AdminPanelChatAgent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\AiChatbotMessageRequest;
 use App\Support\AiChatModelCatalog;
+use App\Support\Panel\PanelResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Throwable;
 
 class AiChatbotController extends Controller
 {
     public function __construct(protected AiChatModelCatalog $modelCatalog) {}
 
-    public function index(Request $request): View
+    public function index(Request $request): SymfonyResponse
     {
         $providers = $this->modelCatalog->getAvailableTextProviders();
         $conversations = $this->getConversationList($request->user()->id);
@@ -43,7 +44,7 @@ class AiChatbotController extends Controller
         $defaultProvider = $this->modelCatalog->getDefaultProviderName($providers);
         $defaultModel = $this->modelCatalog->getDefaultModelName($providers, $defaultProvider);
 
-        return view('panel.Chat.index', [
+        $props = [
             'chatProviders' => $providers,
             'conversations' => $conversations,
             'initialConversation' => $initialConversation ? $this->transformConversation($initialConversation) : null,
@@ -51,7 +52,11 @@ class AiChatbotController extends Controller
             'defaultProvider' => $defaultProvider,
             'defaultModel' => $defaultModel,
             'hasAvailableProvider' => $providers !== [],
-        ]);
+        ];
+
+        // Sohbet uclari (conversations / conversation / message) zaten temiz bir
+        // JSON API; R1 geregi oyle kalir, yalniz index() Inertia'ya doner.
+        return PanelResponse::render('Chat/Index', 'panel.Chat.index', $props, $props);
     }
 
     public function conversations(Request $request): JsonResponse

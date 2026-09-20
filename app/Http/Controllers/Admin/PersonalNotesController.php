@@ -6,19 +6,58 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PersonalNotes\PersonalNotesRequest;
 use App\Models\PersonalNotes\PersonalNoteCategories;
 use App\Models\PersonalNotes\PersonalNotes;
+use App\Support\Panel\PanelResponse;
 use Exception;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
 
 class PersonalNotesController extends Controller
 {
+    /**
+     * Sifreleme kapisi.
+     *
+     * Notlar, kullanicinin kendi anahtariyla (cookie'de tutulan) sifreleniyor.
+     * Anahtar yoksa ya da yanlissa ekran yerine kapi gosterilir.
+     *
+     * PAYLASILAN PROP YAPILMADI: her panel isteginde hesaplanir ve "bu
+     * kullanicinin notlari acik" bilgisini her sayfanin yukune sizdirirdi.
+     * Ayri bir sayfa olarak sunulur.
+     *
+     * 200 doner, 302 degil - bugunku davranisin aynisi ve Inertia 200 + X-Inertia
+     * yanitinda bileseni dogru sekilde takas eder.
+     */
+    private function encryptionGate(): ?Response
+    {
+        if (request()->cookie('encryption_key')) {
+            return null;
+        }
+
+        return PanelResponse::render(
+            'Notes/Encryption',
+            'panel.personal_notes.encryption-form',
+            ['intended' => request()->fullUrl()],
+            [],
+        );
+    }
+
+    private function invalidKeyGate(): Response
+    {
+        return PanelResponse::render(
+            'Notes/Encryption',
+            'panel.personal_notes.encryption-form',
+            ['intended' => request()->fullUrl(), 'invalid' => true],
+            [],
+        );
+    }
+
     public function index(Request $request, PersonalNotes $notes)
     {
-        if (! request()->cookie('encryption_key')) {
-            return view('panel.personal_notes.encryption-form');
+        if ($gate = $this->encryptionGate()) {
+            return $gate;
         }
         $notes::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
 
@@ -40,19 +79,35 @@ class PersonalNotesController extends Controller
                 $item->content;
             }
         } catch (Exception $e) {
-            return view('panel.personal_notes.encryption-form');
+            return $this->invalidKeyGate();
         }
 
-        return view('panel.personal_notes.index', [
-            'notes' => $notes,
-            'categories' => auth()->user()->noteCategories,
-        ]);
+        return PanelResponse::render(
+            'Notes/Index',
+            'panel.personal_notes.index',
+            [
+                'notes' => PanelResponse::rows($notes, fn (PersonalNotes $item) => [
+                    'id' => $item->id,
+                    'title' => $item->title,
+                    'category' => $item->category ? ['id' => $item->category->id, 'name' => $item->category->name] : null,
+                    'createdAt' => $item->created_at?->toIso8601String(),
+                ]),
+                'categories' => auth()->user()->noteCategories
+                    ->map(fn ($category) => ['id' => (string) $category->id, 'name' => $category->name])
+                    ->values(),
+                'filters' => [
+                    'search' => $request->input('search'),
+                    'category' => $request->get('category'),
+                ],
+            ],
+            ['notes' => $notes, 'categories' => auth()->user()->noteCategories],
+        );
     }
 
     public function show(PersonalNotes $note)
     {
-        if (! request()->cookie('encryption_key')) {
-            return view('panel.personal_notes.encryption-form');
+        if ($gate = $this->encryptionGate()) {
+            return $gate;
         }
         $note::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
         try {
@@ -66,18 +121,36 @@ class PersonalNotesController extends Controller
         try {
             $note->content;
         } catch (Exception $e) {
-            return view('panel.personal_notes.encryption-form');
+            return $this->invalidKeyGate();
         }
 
-        return view('panel.personal_notes.show', [
-            'note' => $note,
-        ]);
+        return PanelResponse::render(
+            'Notes/Show',
+            'panel.personal_notes.show',
+            ['note' => $this->noteProps($note)],
+            ['note' => $note],
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function noteProps(PersonalNotes $note): array
+    {
+        return [
+            'id' => $note->id,
+            'title' => $note->title,
+            'content' => $note->content,
+            'category_id' => $note->category_id ? (string) $note->category_id : '',
+            'category' => $note->category ? ['id' => $note->category->id, 'name' => $note->category->name] : null,
+            'createdAt' => $note->created_at?->toIso8601String(),
+        ];
     }
 
     public function create(PersonalNotes $note)
     {
-        if (! request()->cookie('encryption_key')) {
-            return view('panel.personal_notes.encryption-form');
+        if ($gate = $this->encryptionGate()) {
+            return $gate;
         }
         $note::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
         try {
@@ -86,10 +159,17 @@ class PersonalNotesController extends Controller
             abort(403, __('notes.encryption_key_invalid'));
         }
 
-        return view('panel.personal_notes.add-edit', [
-            'note' => $note,
-            'categories' => auth()->user()->noteCategories,
-        ]);
+        return PanelResponse::render(
+            'Notes/Edit',
+            'panel.personal_notes.add-edit',
+            [
+                'note' => $this->noteProps($note),
+                'categories' => auth()->user()->noteCategories
+                    ->map(fn ($category) => ['id' => (string) $category->id, 'name' => $category->name])
+                    ->values(),
+            ],
+            ['note' => $note, 'categories' => auth()->user()->noteCategories],
+        );
     }
 
     public function save(PersonalNotesRequest $request, PersonalNotes $note)
@@ -177,9 +257,23 @@ class PersonalNotesController extends Controller
 
     public function media(PersonalNotes $note)
     {
-        return view('panel.personal_notes.media', [
-            'note' => $note,
-        ]);
+        return PanelResponse::render(
+            'Notes/Media',
+            'panel.personal_notes.media',
+            [
+                'note' => ['id' => $note->id, 'title' => $note->title],
+                'media' => $note->getMedia('note_images')
+                    ->map(fn ($item) => [
+                        'id' => $item->id,
+                        'name' => $item->file_name,
+                        'size' => $item->size,
+                        'url' => $item->getFullUrl(),
+                        'thumb' => $item->getFullUrl('resized') ?: $item->getFullUrl(),
+                    ])
+                    ->values(),
+            ],
+            ['note' => $note],
+        );
     }
 
     public function delete(PersonalNotes $note)
@@ -207,10 +301,15 @@ class PersonalNotesController extends Controller
             'remember_time' => 'required|integer|in:1,30,90,180,365',
         ]);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => __('personal_notes.encryption_key_saved'),
-        ])->withCookie(cookie('encryption_key',
+        $response = $request->inertia()
+            ? back()->with('success', __('personal_notes.encryption_key_saved'))
+            : response()->json([
+                'status' => 'success',
+                'message' => __('personal_notes.encryption_key_saved'),
+            ]);
+
+        // Cookie yonlendirme yanitina eklenir ve Inertia yonlendirmeyi izlerken korunur.
+        return $response->withCookie(cookie('encryption_key',
             md5($request->post('encryption_key')),
             1440 * $request->post('remember_time'),
             null,
@@ -221,24 +320,39 @@ class PersonalNotesController extends Controller
 
     public function categories(PersonalNoteCategories $category)
     {
-        if (! request()->cookie('encryption_key')) {
-            return view('panel.personal_notes.encryption-form');
+        if ($gate = $this->encryptionGate()) {
+            return $gate;
         }
         $category::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
 
-        return view('panel.personal_notes.categories.index', [
-            'categories' => auth()->user()->noteCategories->load('notes'),
-            'category' => $category,
-        ]);
+        $categories = auth()->user()->noteCategories->load('notes');
+
+        return PanelResponse::render(
+            'Notes/Categories',
+            'panel.personal_notes.categories.index',
+            [
+                'categories' => $categories->map(fn ($item) => [
+                    'id' => (string) $item->id,
+                    'name' => $item->name,
+                    'notes_count' => $item->notes->count(),
+                ])->values(),
+                'category' => $category->id ? ['id' => (string) $category->id, 'name' => $category->name] : null,
+            ],
+            ['categories' => $categories, 'category' => $category],
+        );
     }
 
     public function categorySave(Request $request, PersonalNoteCategories $category)
     {
+        // B6: kapi transaction'dan ONCE. Eskiden acik bir transaction icinden
+        // view() donuluyordu: jQuery cagiran JSON bekliyordu, HTML aliyordu ve
+        // transaction commit/rollback edilmeden sizyordu.
+        if ($gate = $this->encryptionGate()) {
+            return $gate;
+        }
+
         try {
             DB::beginTransaction();
-            if (! request()->cookie('encryption_key')) {
-                return view('panel.personal_notes.encryption-form');
-            }
             $category::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
 
             $request->validate([

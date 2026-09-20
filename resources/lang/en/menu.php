@@ -41,4 +41,8 @@ return [
 
     'menu_required' => 'Menu is required',
     'menu_id_required' => 'Menu ID is required',
+    'menu_items' => 'Menu Items',
+    'custom_link' => 'Custom Link',
+    'indent' => 'Make sub-item',
+    'outdent' => 'Move up a level',
 ];

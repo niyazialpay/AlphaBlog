@@ -3,49 +3,67 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\View\View;
+use App\Support\Panel\PanelResponse;
+use Illuminate\Support\Facades\Route;
+use Symfony\Component\HttpFoundation\Response;
 
 class MonitoringController extends Controller
 {
-    public function showPulse(): Application|View|Factory|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\View
+    /**
+     * Pulse/Telescope kendi env bayraklariyla kapatilabiliyor; kapaliyken route
+     * hic kaydolmaz ve route('telescope') RouteNotFoundException firlatip ekrani
+     * 500'e dusururdu. Yok ise null donup arayuz "kullanilamiyor" gosterir.
+     */
+    private static function namedRoute(string $name): ?string
+    {
+        return Route::has($name) ? route($name) : null;
+    }
+
+    public function showPulse(): Response
     {
         abort_unless(auth()->user()?->can('viewPulse'), 403);
 
-        return view('panel.monitoring', [
-            'iframe_url' => route('pulse'),
-            'title' => 'Pulse Monitoring',
-        ]);
+        return PanelResponse::render(
+            'Monitoring/Index',
+            'panel.monitoring',
+            ['iframeUrl' => self::namedRoute('pulse'), 'title' => 'Pulse Monitoring'],
+            ['iframe_url' => self::namedRoute('pulse'), 'title' => 'Pulse Monitoring'],
+        );
     }
 
-    public function showLogs(): Application|View|Factory|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\View
+    public function showLogs(): Response
     {
         abort_unless(auth()->user()?->can('viewPulse'), 403);
 
-        return view('panel.monitoring', [
-            'iframe_url' => config('app.url').config('log-viewer.route_path'),
-            'title' => 'Logs',
-        ]);
+        return PanelResponse::render(
+            'Monitoring/Index',
+            'panel.monitoring',
+            ['iframeUrl' => config('app.url').config('log-viewer.route_path'), 'title' => 'Logs'],
+            ['iframe_url' => config('app.url').config('log-viewer.route_path'), 'title' => 'Logs'],
+        );
     }
 
-    public function showTelescope(): Application|View|Factory|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\View
+    public function showTelescope(): Response
     {
         abort_unless(auth()->user()?->can('viewTelescope'), 403);
 
-        return view('panel.monitoring', [
-            'iframe_url' => route('telescope'),
-            'title' => 'Telescope Monitoring',
-        ]);
+        return PanelResponse::render(
+            'Monitoring/Index',
+            'panel.monitoring',
+            ['iframeUrl' => self::namedRoute('telescope'), 'title' => 'Telescope Monitoring'],
+            ['iframe_url' => self::namedRoute('telescope'), 'title' => 'Telescope Monitoring'],
+        );
     }
 
-    public function showHorizon(): Application|View|Factory|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\View
+    public function showHorizon(): Response
     {
         abort_unless(auth()->user()?->can('viewHorizon'), 403);
 
-        return view('panel.monitoring', [
-            'iframe_url' => config('app.url').'/'.config('horizon.path'),
-            'title' => 'Horizon Monitoring',
-        ]);
+        return PanelResponse::render(
+            'Monitoring/Index',
+            'panel.monitoring',
+            ['iframeUrl' => config('app.url').'/'.config('horizon.path'), 'title' => 'Horizon Monitoring'],
+            ['iframe_url' => config('app.url').'/'.config('horizon.path'), 'title' => 'Horizon Monitoring'],
+        );
     }
 }

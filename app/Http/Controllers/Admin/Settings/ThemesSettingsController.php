@@ -38,10 +38,12 @@ class ThemesSettingsController extends Controller
             unlink(base_path('theme.json'));
             DB::commit();
 
-            return response()->json([
-                'status' => 'success',
-                'message' => __('themes.theme_save_success'),
-            ]);
+            return request()->inertia()
+                ? back()->with('success', __('themes.theme_save_success'))
+                : response()->json([
+                    'status' => 'success',
+                    'message' => __('themes.theme_save_success'),
+                ]);
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -58,10 +60,12 @@ class ThemesSettingsController extends Controller
         try {
             $theme = $themes::where('id', $request->post('id'))->first();
             if ($theme->is_default) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => __('themes.theme_has_default'),
-                ]);
+                return request()->inertia()
+                    ? back()->with('error', __('themes.theme_has_default'))
+                    : response()->json([
+                        'status' => 'error',
+                        'message' => __('themes.theme_has_default'),
+                    ]);
             }
             $theme_public_path = public_path('theme/'.$theme->name);
             $theme_resource_path = resource_path('views/themes/'.$theme->name);
@@ -73,10 +77,12 @@ class ThemesSettingsController extends Controller
             }
             $theme->delete();
 
-            return response()->json([
-                'status' => 'success',
-                'message' => __('themes.delete_success'),
-            ]);
+            return request()->inertia()
+                ? back()->with('success', __('themes.delete_success'))
+                : response()->json([
+                    'status' => 'success',
+                    'message' => __('themes.delete_success'),
+                ]);
         } catch (Exception $e) {
             return response()->json([
                 'status' => 'error',

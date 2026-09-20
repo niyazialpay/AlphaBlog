@@ -9,4 +9,5 @@ return [
     'show_skills' => 'Yetenekleri Göster',
     'show_about' => 'Hakkında Yazısını Göster',
     'show_social_links' => 'Sosyal Bağlantıları Göster',
+    'privacy_tab' => 'Gizlilik',
 ];

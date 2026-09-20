@@ -41,4 +41,8 @@ return [
 
     'menu_required' => 'Menü zorunludur',
     'menu_id_required' => 'Menü ID zorunludur',
+    'menu_items' => 'Menü Öğeleri',
+    'custom_link' => 'Özel Bağlantı',
+    'indent' => 'Alt menü yap',
+    'outdent' => 'Üst seviyeye çıkar',
 ];

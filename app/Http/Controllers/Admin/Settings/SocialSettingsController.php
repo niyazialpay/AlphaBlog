@@ -18,21 +18,27 @@ class SocialSettingsController extends Controller
             if (SocialNetworkSaveAction::execute($request, 'website')) {
                 Cache::forget(config('cache.prefix').'social_networks');
 
-                return response()->json([
-                    'status' => 'success',
-                    'message' => __('profile.save_success'),
-                ], 200);
+                return request()->inertia()
+                    ? back()->with('success', __('profile.save_success'))
+                    : response()->json([
+                        'status' => 'success',
+                        'message' => __('profile.save_success'),
+                    ], 200);
             } else {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => __('profile.save_error'),
-                ], 422);
+                return request()->inertia()
+                    ? back()->with('error', __('profile.save_error'))
+                    : response()->json([
+                        'status' => 'error',
+                        'message' => __('profile.save_error'),
+                    ], 422);
             }
         } catch (Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-            ], 500);
+            return request()->inertia()
+                ? back()->with('error', $e->getMessage())
+                : response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                ], 500);
         }
     }
 
@@ -54,10 +60,12 @@ class SocialSettingsController extends Controller
             Cache::forget(config('cache.prefix').'social_settings');
             DB::commit();
 
-            return response()->json([
-                'status' => 'success',
-                'message' => __('profile.save_success'),
-            ], 200);
+            return request()->inertia()
+                ? back()->with('success', __('profile.save_success'))
+                : response()->json([
+                    'status' => 'success',
+                    'message' => __('profile.save_success'),
+                ], 200);
         } catch (Exception $e) {
             DB::rollBack();
 

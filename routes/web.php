@@ -201,11 +201,11 @@ Route::domain(config('app.url'))->group(function () {
         ]);
 
     Route::get('/reset-password/{token}',
-        [LoginController::class, 'showResetForm'])
+        [ResetPasswordController::class, 'showResetForm'])
         ->middleware('guest')->name('password.reset');
 
     Route::post('/reset-password',
-        [LoginController::class, 'reset'])
+        [ResetPasswordController::class, 'reset'])
         ->middleware([
             'guest',
             ProtectAgainstSpam::class,

@@ -9,10 +9,8 @@ use App\Models\Post\Categories;
 use App\Models\Post\Comments;
 use App\Models\Post\Posts;
 use App\Models\User;
+use App\Support\Panel\PanelResponse;
 use Exception;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,13 +21,28 @@ use Psr\Container\NotFoundExceptionInterface;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\MediaCannotBeDeleted;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Yajra\DataTables\Facades\DataTables;
 
 class PostController extends Controller
 {
     /**
+     * Inertia her XHR ziyaretinde X-Requested-With: XMLHttpRequest gonderir ve
+     * Request::ajax() tam olarak bunu kontrol eder. Salt ajax() ile dallanmak,
+     * sidebar uzerinden yapilan her Inertia gezinmesine sayfa yerine DataTables
+     * JSON'u dondururdu. jQuery DataTables her zaman `draw` gonderdigi icin bu
+     * ek kosul eski davranis acisindan notrdur.
+     */
+    private function wantsDataTable(Request $request): bool
+    {
+        return $request->ajax()
+            && ! $request->inertia()
+            && $request->has('draw');
+    }
+
+    /**
      * @param  null  $category
-     * @return \Illuminate\Contracts\Foundation\Application|Factory|View|Application|JsonResponse|\Illuminate\View\View
+     * @return SymfonyResponse
      *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -61,7 +74,7 @@ class PostController extends Controller
             $posts = $posts->where('user_id', auth()->user()->id);
         }
 
-        if ($request->ajax()) {
+        if ($this->wantsDataTable($request)) {
             session()->remove('post_datatable_length');
             session()->put('post_datatable_length', $request->input('length'));
 
@@ -127,20 +140,134 @@ class PostController extends Controller
             $datatable_url = route('admin.posts', ['type' => $type]).'?tab='.request()->get('tab').'&language='.request()->get('language');
         }
 
-        return view('panel.post.index', [
-            'trashed' => $post::onlyTrashed()->where('language', GetPost($request->get('language')))
-                ->orderBy('created_at', 'desc')
-                ->paginate(10),
-            'type' => $type,
-            'datatable_url' => $datatable_url,
-        ]);
+        $language = GetPost($request->get('language'));
+        $tab = $request->get('tab') === 'trashed' ? 'trashed' : 'published';
+
+        $trashed = $post::onlyTrashed()->where('language', $language)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10, ['*'], 'trashed_page')
+            ->withQueryString();
+
+        return PanelResponse::render(
+            'Posts/Index',
+            'panel.post.index',
+            [
+                'type' => $type,
+                'category' => $category,
+                'rows' => $this->rows($request, clone $posts, $language),
+                'trashed' => PanelResponse::rows($trashed, fn (Posts $item) => $this->row($item)),
+                'filters' => [
+                    'search' => $request->get('search'),
+                    'language' => $language,
+                    'tab' => $tab,
+                    'sort' => $this->sortColumn($request),
+                    'dir' => $request->get('dir') === 'asc' ? 'asc' : 'desc',
+                    'per_page' => $this->perPage($request),
+                ],
+            ],
+            ['trashed' => $trashed, 'type' => $type, 'datatable_url' => $datatable_url],
+        );
+    }
+
+    /**
+     * Inertia sayfasi icin satirlar.
+     *
+     * Eski jQuery DataTables ucu (admin.posts + `draw`) DOKUNULMADAN duruyor:
+     * henuz tasinmamis Blade ekrani ve dis cagiranlar icin. Burasi ayni veriyi
+     * HAM ALANLAR halinde dondurur; HTML kolonlari (checkbox/title/categories/
+     * media/action) Vue tarafinda uretilir.
+     */
+    private function rows(Request $request, $query, ?string $language)
+    {
+        $search = trim((string) $request->get('search'));
+        $perPage = $this->perPage($request);
+
+        if ($search !== '') {
+            /*
+             * Scout aramasi ilgi sirasi dondurur; orderBy yok sayilir, bu yuzden
+             * arama etkinken sıralama UI'i kapatilir (yajra da boyle davraniyordu).
+             *
+             * DIKKAT: `where('language', ...)` Meilisearch tarafinda bir FILTRE'ye
+             * cevrilir; `language` filterableAttributes icinde degilse sessizce
+             * etkisiz kalir. phpunit SCOUT_DRIVER=null oldugu icin bunu hicbir test
+             * yakalamaz - canli indekse karsi elle dogrulanmali.
+             */
+            $results = Posts::search($search)
+                ->query(fn ($builder) => $builder->withCount('qrScans')->with(['user', 'categories', 'comments']))
+                ->where('language', $language)
+                ->paginate($perPage)
+                ->withQueryString();
+
+            return $results->through(fn (Posts $item) => $this->row($item));
+        }
+
+        $sort = $this->sortColumn($request);
+        $dir = $request->get('dir') === 'asc' ? 'asc' : 'desc';
+
+        return $query->where('language', $language)
+            ->orderBy($sort, $dir)
+            ->paginate($perPage)
+            ->withQueryString()
+            ->through(fn (Posts $item) => $this->row($item));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function row(Posts $item): array
+    {
+        $user = auth()->user();
+
+        return [
+            'id' => $item->id,
+            'title' => $item->title,
+            'slug' => $item->slug,
+            'language' => $item->language,
+            'post_type' => $item->post_type,
+            'is_published' => (bool) $item->is_published,
+            'views' => (int) $item->views,
+            'qr_scans_count' => (int) ($item->qr_scans_count ?? 0),
+            'comments_count' => $item->relationLoaded('comments') ? $item->comments->count() : 0,
+            'categories' => $item->relationLoaded('categories')
+                ? $item->categories->map(fn ($category) => ['id' => $category->id, 'name' => $category->name])->values()
+                : [],
+            'author' => $item->user ? ['id' => $item->user->id, 'nickname' => $item->user->nickname] : null,
+            'thumbnail' => $item->getFirstMediaUrl('posts', 'resized') ?: null,
+            // ISO-8601: eski uc created_at icin 'Y-m-d H:i:s', updated_at icin
+            // 'd.m.Y H:i:s' basiyordu (tutarsiz). Bicimlendirme artik istemcide.
+            'created_at' => $item->created_at?->toIso8601String(),
+            'updated_at' => $item->updated_at?->toIso8601String(),
+            'deleted_at' => $item->deleted_at?->toIso8601String(),
+            'can' => [
+                'edit' => $user?->can('edit', $item) ?? false,
+                'delete' => $user?->can('delete', $item) ?? false,
+            ],
+        ];
+    }
+
+    /**
+     * Sayfa boyu artik session('post_datatable_length') degil acik bir query
+     * parametresi. Eski session yazimi, onu okuyan son Blade tablosu da
+     * tasinana kadar yerinde birakildi.
+     */
+    private function perPage(Request $request): int
+    {
+        $perPage = (int) $request->get('per_page', 10);
+
+        return in_array($perPage, [10, 25, 50, 75, 100], true) ? $perPage : 10;
+    }
+
+    private function sortColumn(Request $request): string
+    {
+        $sort = (string) $request->get('sort', 'created_at');
+
+        return Schema::hasColumn((new Posts)->getTable(), $sort) ? $sort : 'created_at';
     }
 
     public function create(
         $type,
         Posts $post,
-
-    ): View|Application|Factory|\Illuminate\Contracts\Foundation\Application {
+    ): SymfonyResponse {
         if (! ($type == 'pages' || $type == 'blogs')) {
             abort(404);
         }
@@ -157,12 +284,81 @@ class PostController extends Controller
             $categories = Categories::where('language', session('language'))->get();
         }
 
-        return view('panel.post.add-edit', [
-            'post' => $post,
-            'categories' => $categories,
-            'users' => User::all(),
-            'type' => $type,
-        ]);
+        return PanelResponse::render(
+            'Posts/Edit',
+            'panel.post.add-edit',
+            [
+                'type' => $type,
+                'post' => $this->editorPost($post),
+                'categories' => $categories->map(fn (Categories $category) => [
+                    'id' => (string) $category->id,
+                    'name' => $category->name,
+                ])->values(),
+                /*
+                 * User::all() sinirsiz (bkz. B9). Davranisi degistirmemek icin
+                 * liste aynen doner, yalniz yuk azaltildi: tum model yerine
+                 * id + nickname.
+                 */
+                'users' => User::query()
+                    ->orderBy('nickname')
+                    ->get(['id', 'nickname'])
+                    ->map(fn (User $user) => ['id' => (string) $user->id, 'nickname' => $user->nickname])
+                    ->values(),
+                'languages' => collect(app('languages'))
+                    ->map(fn ($language) => ['code' => $language->code, 'name' => $language->name])
+                    ->values(),
+                'sessionLanguage' => session('language'),
+            ],
+            [
+                'post' => $post,
+                'categories' => $categories,
+                'users' => User::all(),
+                'type' => $type,
+            ],
+        );
+    }
+
+    /**
+     * Editor icin post prop'u.
+     *
+     * DIKKAT - `language_code` BILEREK gonderilmiyor.
+     * PostRequest slug benzersizligini `$this->input('language_code')` ile
+     * scope'luyor ama eski form bu alani HIC gondermiyordu; kural fiilen
+     * `where language is null` olarak calisiyor ve benzersizlik uygulanmiyor.
+     * Bu davranisi korumak icin alan eklenmedi; duzeltmek dogrulama davranisini
+     * degistirir ve ayri bir karar gerektirir.
+     *
+     * @return array<string, mixed>
+     */
+    private function editorPost(Posts $post): array
+    {
+        $hreflang = $post->href_lang ? (json_decode($post->href_lang, true) ?: []) : [];
+
+        return [
+            'id' => $post->id,
+            'title' => $post->title,
+            'slug' => $post->slug,
+            'content' => $post->content,
+            'meta_keywords' => $post->meta_keywords,
+            'meta_description' => $post->meta_description,
+            'language' => $post->language,
+            'post_type' => $post->post_type,
+            'is_published' => (bool) $post->is_published,
+            'user_id' => $post->user_id ? (string) $post->user_id : (string) auth()->id(),
+            'category_ids' => $post->relationLoaded('categories')
+                ? $post->categories->pluck('id')->map(fn ($id) => (string) $id)->values()
+                : [],
+            'hreflang' => $hreflang,
+            'image' => $post->getFirstMediaUrl('posts', 'resized') ?: null,
+            'qr_link' => $post->qr_link ?? null,
+            'qr_scans_count' => (int) ($post->qr_scans_count ?? 0),
+            'history_count' => $post->relationLoaded('history') ? $post->history->count() : 0,
+            'comments_count' => $post->relationLoaded('comments') ? $post->comments->count() : 0,
+            // datetime-local girdisi icin saniyesiz yerel bicim.
+            'published_at' => $post->created_at
+                ? $post->created_at->timezone(config('app.timezone'))->format('Y-m-d\TH:i')
+                : now()->timezone(config('app.timezone'))->format('Y-m-d\TH:i'),
+        ];
     }
 
     public function save(
@@ -225,14 +421,25 @@ class PostController extends Controller
                 DB::commit();
                 CacheClear::cacheClear();
 
-                return response()->json(['status' => 'success', 'message' => $message, 'id' => $post->id]);
-            } else {
-                return response()->json(['status' => 'error', 'message' => __('post.error')])->setStatusCode(500);
+                /*
+                 * R2: Inertia yonlendirme alir, jQuery cagiranlar ayni JSON'u.
+                 * Donen `id` yeni kayitta yuk tasiyor (eski ekran ona gore
+                 * .../{id}/edit adresine gidiyordu); yonlendirme ayni hedefe gider.
+                 */
+                return $request->inertia()
+                    ? to_route('admin.post.edit', ['type' => $type, 'post' => $post->id])->with('success', $message)
+                    : response()->json(['status' => 'success', 'message' => $message, 'id' => $post->id]);
             }
+
+            return $request->inertia()
+                ? back()->with('error', __('post.error'))
+                : response()->json(['status' => 'error', 'message' => __('post.error')])->setStatusCode(500);
         } catch (Exception $exception) {
             DB::rollBack();
 
-            return response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
+            return $request->inertia()
+                ? back()->with('error', $exception->getMessage())
+                : response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
         }
     }
 
@@ -248,14 +455,20 @@ class PostController extends Controller
                 DB::commit();
                 CacheClear::cacheClear();
 
-                return response()->json(['status' => 'success', 'message' => __('post.success_delete')]);
-            } else {
-                return response()->json(['status' => 'error', 'message' => __('post.post.error_delete')]);
+                return request()->inertia()
+                    ? back()->with('success', __('post.success_delete'))
+                    : response()->json(['status' => 'success', 'message' => __('post.success_delete')]);
             }
+
+            return request()->inertia()
+                ? back()->with('error', __('post.post.error_delete'))
+                : response()->json(['status' => 'error', 'message' => __('post.post.error_delete')]);
         } catch (Exception $exception) {
             DB::rollBack();
 
-            return response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
+            return request()->inertia()
+                ? back()->with('error', $exception->getMessage())
+                : response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
         }
     }
 
@@ -275,14 +488,20 @@ class PostController extends Controller
                 DB::commit();
                 CacheClear::cacheClear();
 
-                return response()->json(['status' => 'success', 'message' => __('post.post.success_force_delete')]);
-            } else {
-                return response()->json(['status' => 'error', 'message' => __('post.post.error_force_delete')]);
+                return request()->inertia()
+                    ? back()->with('success', __('post.post.success_force_delete'))
+                    : response()->json(['status' => 'success', 'message' => __('post.post.success_force_delete')]);
             }
+
+            return request()->inertia()
+                ? back()->with('error', __('post.post.error_force_delete'))
+                : response()->json(['status' => 'error', 'message' => __('post.post.error_force_delete')]);
         } catch (Exception $exception) {
             DB::rollBack();
 
-            return response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
+            return request()->inertia()
+                ? back()->with('error', $exception->getMessage())
+                : response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
         }
     }
 
@@ -298,14 +517,20 @@ class PostController extends Controller
                 DB::commit();
                 CacheClear::cacheClear();
 
-                return response()->json(['status' => 'success', 'message' => __('post.post.success_restore')]);
-            } else {
-                return response()->json(['status' => 'error', 'message' => __('post.post.error_restore')]);
+                return request()->inertia()
+                    ? back()->with('success', __('post.post.success_restore'))
+                    : response()->json(['status' => 'success', 'message' => __('post.post.success_restore')]);
             }
+
+            return request()->inertia()
+                ? back()->with('error', __('post.post.error_restore'))
+                : response()->json(['status' => 'error', 'message' => __('post.post.error_restore')]);
         } catch (Exception $exception) {
             DB::rollBack();
 
-            return response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
+            return request()->inertia()
+                ? back()->with('error', $exception->getMessage())
+                : response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
         }
     }
 
@@ -319,12 +544,27 @@ class PostController extends Controller
         return response()->json(['status' => true, 'message' => __('post.success_image_delete')]);
     }
 
-    public function media($type, Posts $post)
+    public function media($type, Posts $post): SymfonyResponse
     {
-        return view('panel.post.media', [
-            'post' => $post,
-            'type' => $type,
-        ]);
+        return PanelResponse::render(
+            'Posts/Media',
+            'panel.post.media',
+            [
+                'type' => $type,
+                'post' => ['id' => $post->id, 'title' => $post->title],
+                'media' => $post->getMedia('content_images')
+                    ->map(fn ($item) => [
+                        'id' => $item->id,
+                        'name' => $item->file_name,
+                        'size' => $item->size,
+                        'url' => $item->getFullUrl(),
+                        'thumb' => $item->getFullUrl('resized') ?: $item->getFullUrl(),
+                        'createdAt' => $item->created_at?->toIso8601String(),
+                    ])
+                    ->values(),
+            ],
+            ['post' => $post, 'type' => $type],
+        );
     }
 
     /**

@@ -4,18 +4,38 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ContactPage;
+use App\Support\Panel\PanelResponse;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class ContactController extends Controller
 {
-    public function index()
+    public function index(): SymfonyResponse
     {
-        return view('panel.contact', [
-            'contactPage' => new ContactPage,
-        ]);
+        /*
+         * Blade'e bos bir model (`new ContactPage`) gecirilip icinde
+         * `$contactPage->where(...)->first()` cagriliyordu; yani model bir
+         * sorgu kolu olarak kullaniliyordu. Inertia prop'u serilestirilebilir
+         * olmak zorunda: dil koduna gore anahtarlanmis duz diziye cevrilir.
+         */
+        $pages = ContactPage::all()->keyBy('language');
+
+        return PanelResponse::render(
+            'Contact/Page',
+            'panel.contact',
+            [
+                'pages' => $pages->map(fn (ContactPage $page) => [
+                    'description' => $page->description,
+                    'meta_description' => $page->meta_description,
+                    'meta_keywords' => $page->meta_keywords,
+                ]),
+                'maps' => $pages->first()?->maps,
+            ],
+            ['contactPage' => new ContactPage],
+        );
     }
 
     public function save(Request $request)

@@ -2,14 +2,41 @@
 
 namespace Tests\Feature;
 
+use App\Models\Languages;
 use App\Models\Post\Posts;
 use App\Models\Settings\GeneralSettings;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class LlmsTxtTest extends TestCase
 {
+    // Migrasyonlar calismadigi icin tum DB'ye dokunan testler
+    // "no such table: users" ile patliyordu.
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        /*
+         * GlobalVariableServiceProvider bu singleton'lari uygulama ACILIRKEN
+         * baglar; test veritabani o andan sonra migrate edildigi icin baglanmaz
+         * ve app('default_language') "Class does not exist" ile 500 verir.
+         */
+        DB::table('languages')->insert([
+            'name' => 'Türkçe', 'code' => 'tr', 'flag' => 'tr',
+            'is_active' => true, 'is_default' => true,
+            'created_at' => now(), 'updated_at' => now(),
+        ]);
+
+        $language = Languages::first();
+        app()->instance('default_language', $language);
+        app()->instance('languages', collect([$language]));
+    }
+
     public function test_general_settings_has_llms_txt_intro_column(): void
     {
         $this->assertTrue(

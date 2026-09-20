@@ -15,56 +15,87 @@ use App\Models\User;
 use App\Models\UserSessions;
 use App\Models\WebAuthnCredential;
 use App\Observers\UserObserver;
+use App\Support\Panel\Panel;
+use App\Support\Panel\PanelResponse;
 use Exception;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
 use LaravelIdea\Helper\App\Models\_IH_User_C;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class UserController extends Controller
 {
-    public function login()
+    public function login(): SymfonyResponse
     {
         if (auth()->check()) {
             return redirect()->route('admin.index');
         }
 
-        return view('panel.auth.login');
+        return PanelResponse::render(
+            'Auth/Login',
+            'panel.auth.login',
+            [
+                // Blade'deki `@honeypot` direktifinin prop karsiligi.
+                'honeypot' => Panel::honeypot(),
+                /*
+                 * Iki asamali giris XHR kalir (R1), dolayisiyla uc URL'leri
+                 * prop olarak verilir; Ziggy auth ekranlarinda da yuklu ama
+                 * bunlari tek yerde toplamak akisi okunur kiliyor.
+                 */
+                'routes' => [
+                    'firstStep' => route('login.first_step'),
+                    'login' => route('login'),
+                    'forgotPassword' => route('forgot-password'),
+                    'dashboard' => route('admin.index'),
+                    'webauthnOptions' => route('webauthn.login.options'),
+                    'webauthnLogin' => route('webauthn.login'),
+                ],
+            ],
+        );
     }
 
-    public function index()
+    public function index(): SymfonyResponse
     {
-        return view('panel.profile.index', [
-            'user' => auth()->user(),
-            'sessions' => auth()->user()
-                ->sessions()
-                ->join('sessions', 'user_sessions.session_id', '=', 'sessions.id')
-                ->orderBy('sessions.last_activity', 'DESC')
-                ->select('user_sessions.*', 'sessions.last_activity')
-                ->paginate(10),
-        ]);
+        $user = auth()->user();
+        $sessions = $user->sessions()
+            ->join('sessions', 'user_sessions.session_id', '=', 'sessions.id')
+            ->orderBy('sessions.last_activity', 'DESC')
+            ->select('user_sessions.*', 'sessions.last_activity')
+            ->paginate(10);
+
+        return $this->profileResponse($user, $sessions, true);
     }
 
     public function changePassword(PasswordRequest $request)
     {
         $user = auth()->user();
         if (! Hash::check($request->old_password, $user->password)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => __('profile.old_password_incorrect'),
-            ], 422);
+            /*
+             * DAVRANIS DEGISIKLIGI: eskiden 422 JSON donuyordu ve bu bir
+             * ValidationException olmadigi icin Inertia form.errors'a dusmuyordu.
+             * Artik alan hatasi olarak firlatiliyor; jQuery cagiranlar da 422
+             * almaya devam eder (Laravel JSON isteklerine 422 + errors doner).
+             */
+            throw ValidationException::withMessages([
+                'old_password' => __('profile.old_password_incorrect'),
+            ]);
         }
         UserAction::changePassword($request, $user);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => __('profile.password_change_success'),
-        ], 200);
+        return $request->inertia()
+            ? back()->with('success', __('profile.password_change_success'))
+            : response()->json([
+                'status' => 'success',
+                'message' => __('profile.password_change_success'),
+            ], 200);
     }
 
     public function userPasswordChange(Request $request, User $user_id)
@@ -85,16 +116,20 @@ class UserController extends Controller
     private function socialProfileSave($request, $user_id)
     {
         if (SocialNetworkSaveAction::execute($request, 'user', $user_id)) {
-            return response()->json([
-                'status' => 'success',
-                'message' => __('profile.save_success'),
-            ], 200);
-        } else {
-            return response()->json([
+            return $request->inertia()
+                ? back()->with('success', __('profile.save_success'))
+                : response()->json([
+                    'status' => 'success',
+                    'message' => __('profile.save_success'),
+                ], 200);
+        }
+
+        return $request->inertia()
+            ? back()->with('error', __('profile.save_error'))
+            : response()->json([
                 'status' => 'error',
                 'message' => __('profile.save_error'),
             ], 422);
-        }
     }
 
     public function socialSave(Request $request)
@@ -121,18 +156,116 @@ class UserController extends Controller
             });
         }
 
-        return view('panel.user.index', [
-            'users' => $query->orderBy('created_at', 'DESC')->paginate(10),
-        ]);
+        $users = $query->orderBy('created_at', 'DESC')->paginate(10)->withQueryString();
+
+        return PanelResponse::render(
+            'Users/Index',
+            'panel.user.index',
+            [
+                'users' => PanelResponse::rows($users, fn (User $item) => [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'surname' => $item->surname,
+                    'nickname' => $item->nickname,
+                    'username' => $item->username,
+                    'email' => $item->email,
+                    'role' => $item->role,
+                    'avatar' => replaceCDN($item->profile_image),
+                    'createdAt' => $item->created_at?->toIso8601String(),
+                ]),
+                'filters' => ['search' => $request->get('search')],
+                // Rol hiyerarsisi sunucuda; arayuz atanamayacak rolu hic gostermez.
+                'assignableRoles' => array_values(array_filter(
+                    array_keys($this->roleRanks()),
+                    fn (string $role) => $this->canAssignRole(auth()->user(), $role),
+                )),
+            ],
+            ['users' => $users],
+        );
     }
 
-    public function userEdit(User $user_id)
+    public function userEdit(User $user_id): SymfonyResponse
     {
-        return view('panel.profile.index', [
-            'user' => $user_id,
-            'sessions' => $user_id->sessions()->orderBy('created_at', 'DESC')->paginate(10),
-        ]);
+        $sessions = $user_id->sessions()->orderBy('created_at', 'DESC')->paginate(10);
+
+        return $this->profileResponse($user_id, $sessions, false);
     }
+
+    /**
+     * Profil ekrani.
+     *
+     * `admin.profile.index` ve `admin.user.edit` AYNI bileseni kullanir - eski
+     * Blade de oyleydi. `isSelf` hangi eylemlerin gorunecegini surer.
+     *
+     * @param  LengthAwarePaginator  $sessions
+     */
+    private function profileResponse(User $user, $sessions, bool $isSelf): SymfonyResponse
+    {
+        $social = $user->social;
+
+        return PanelResponse::render(
+            'Profile/Index',
+            'panel.profile.index',
+            [
+                'isSelf' => $isSelf,
+                'profile' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'surname' => $user->surname,
+                    'nickname' => $user->nickname,
+                    'username' => $user->username,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'location' => $user->location,
+                    'about' => $user->about,
+                    'education' => $user->education,
+                    'job_title' => $user->job_title,
+                    'skills' => $user->skills,
+                    'avatar' => replaceCDN($user->profile_image),
+                    'otp' => (bool) $user->getAttributeValue('otp'),
+                    'webauthn' => (bool) $user->getAttributeValue('webauthn'),
+                    'two_factor_confirmed' => (bool) $user->two_factor_confirmed_at,
+                ],
+                'social' => collect(self::SOCIAL_FIELDS)
+                    ->mapWithKeys(fn (string $field) => [$field => $social->{$field} ?? ''])
+                    ->all(),
+                'privacy' => collect(self::PRIVACY_FIELDS)
+                    ->mapWithKeys(fn (string $field) => [$field => (bool) ($user->privacy->{$field} ?? false)])
+                    ->all(),
+                'sessions' => PanelResponse::rows($sessions, fn ($session) => [
+                    'id' => $session->id,
+                    'ip' => $session->ip_address ?? null,
+                    'user_agent' => $session->user_agent ?? null,
+                    'lastActivity' => isset($session->last_activity)
+                        ? now()->setTimestamp((int) $session->last_activity)->toIso8601String()
+                        : null,
+                    'createdAt' => $session->created_at?->toIso8601String(),
+                ]),
+                'assignableRoles' => array_values(array_filter(
+                    array_keys($this->roleRanks()),
+                    fn (string $role) => $this->canAssignRole(auth()->user(), $role),
+                )),
+            ],
+            ['user' => $user, 'sessions' => $sessions],
+        );
+    }
+
+    /**
+     * @var list<string>
+     */
+    private const SOCIAL_FIELDS = [
+        'linkedin', 'facebook', 'x', 'bluesky', 'instagram', 'github', 'devto',
+        'medium', 'youtube', 'reddit', 'xbox', 'deviantart', 'website', 'twitch',
+        'telegram', 'discord',
+    ];
+
+    /**
+     * @var list<string>
+     */
+    private const PRIVACY_FIELDS = [
+        'show_name', 'show_surname', 'show_location', 'show_education',
+        'show_job_title', 'show_skills', 'show_about', 'show_social_links',
+    ];
 
     public function userUpdate(Request $request, User $user_id)
     {
@@ -178,9 +311,19 @@ class UserController extends Controller
         return $ranks[$targetRole] < ($ranks[$actor->role] ?? -1);
     }
 
-    public function create()
+    public function create(): SymfonyResponse
     {
-        return view('panel.user.create');
+        return PanelResponse::render(
+            'Users/Create',
+            'panel.user.create',
+            [
+                'assignableRoles' => array_values(array_filter(
+                    array_keys($this->roleRanks()),
+                    fn (string $role) => $this->canAssignRole(auth()->user(), $role),
+                )),
+            ],
+            [],
+        );
     }
 
     public function store(UserCreateRequest $request, User $user)
@@ -212,6 +355,12 @@ class UserController extends Controller
             $warning = UserObserver::$emailFailed
                 ? __('user.email_verification_failed')
                 : null;
+
+            if ($request->inertia()) {
+                return to_route('admin.users')
+                    ->with('success', __('profile.save_success'))
+                    ->with('warning', $warning);
+            }
 
             return response()->json([
                 'status' => 'success',

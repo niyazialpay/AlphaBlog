@@ -5,17 +5,32 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Settings\GeneralSettings;
 use App\Services\GoogleSearchConsoleService;
-use Illuminate\Contracts\View\View;
+use App\Support\Panel\PanelResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class SearchConsoleController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): SymfonyResponse
     {
-        return view('panel.search-console', $this->getData($request));
+        $data = $this->getData($request);
+
+        return PanelResponse::render(
+            'SearchConsole/Index',
+            'panel.search-console',
+            [
+                'configured' => $data['configured'],
+                'dateRange' => $data['date_range'],
+                'performance' => $data['performance'],
+                'keywords' => $data['keywords'],
+                'trend' => $data['trend'],
+                'settingsUrl' => route('admin.settings', ['tab' => 'seo']),
+            ],
+            $data,
+        );
     }
 
     public function fetch(Request $request): JsonResponse

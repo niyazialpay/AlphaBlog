@@ -9,27 +9,84 @@ use App\Models\IPFilter\IPFilter;
 use App\Models\IPFilter\IPList;
 use App\Models\IPFilter\RouteList;
 use App\Support\IPFilterCache;
+use App\Support\Panel\PanelResponse;
 use App\Support\TrustedBots;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class IPFilterController extends Controller
 {
-    public function index()
+    public function index(): SymfonyResponse
     {
-        $IPFilter = IPFilter::class;
-        $IPFilter = $IPFilter::with('ipList', 'routeList')->get();
+        $filters = IPFilter::with('ipList', 'routeList')->get();
 
-        return view('panel.ip_filter.index', compact('IPFilter'));
+        return PanelResponse::render(
+            'IpFilter/Index',
+            'panel.ip_filter.index',
+            [
+                'filters' => $filters->map(fn (IPFilter $filter) => [
+                    'id' => $filter->id,
+                    'name' => $filter->name,
+                    'list_type' => $filter->list_type,
+                    'route_type' => $filter->route_type,
+                    'code' => $filter->code,
+                    'is_active' => (bool) $filter->is_active,
+                    'ip_count' => $filter->ipList->count(),
+                    'route_count' => $filter->routeList->count(),
+                ])->values(),
+            ],
+            ['IPFilter' => $filters],
+        );
     }
 
-    public function show(IPFilter $ip_filter)
+    public function show(IPFilter $ip_filter): SymfonyResponse
     {
-        return view('panel.ip_filter.show', [
-            'ip_filter' => $ip_filter,
-            'route_list' => \Illuminate\Support\Facades\Route::getRoutes(),
-        ]);
+        return PanelResponse::render(
+            'IpFilter/Show',
+            'panel.ip_filter.show',
+            [
+                /*
+                 * `show()` hem admin.ip-filter.create (parametresiz -> bos model)
+                 * hem admin.ip-filter.show icin calisiyor; savunmaci serilestirilir
+                 * ve Vue null'da "yeni kayit" moduna duser.
+                 */
+                'filter' => $ip_filter->id ? [
+                    'id' => $ip_filter->id,
+                    'name' => $ip_filter->name,
+                    'list_type' => $ip_filter->list_type,
+                    'route_type' => $ip_filter->route_type,
+                    'code' => $ip_filter->code,
+                    'is_active' => (bool) $ip_filter->is_active,
+                    'ips' => $ip_filter->ipList->map(fn ($item) => [
+                        'id' => $item->id,
+                        'ip' => $item->ip,
+                    ])->values(),
+                    'routes' => $ip_filter->routeList->pluck('route')->values(),
+                ] : null,
+                /*
+                 * Blade'e `Route::getRoutes()` (RouteCollection) gecirilip icinde
+                 * $item->uri() / methods() cagriliyordu. Nesne JSON'a
+                 * serilestirilemez; burada duz listeye cevrilir.
+                 *
+                 * ~400 kayit ve her istekte ayni: Inertia::optional ile yalniz
+                 * istendiginde gonderilir.
+                 */
+                'routeList' => Inertia::optional(fn () => collect(Route::getRoutes()->getRoutes())
+                    ->map(fn ($route) => [
+                        'uri' => $route->uri(),
+                        'method' => $route->methods()[0] ?? 'GET',
+                        'name' => $route->getName(),
+                    ])
+                    ->unique('uri')
+                    ->sortBy('uri')
+                    ->values()),
+            ],
+            ['ip_filter' => $ip_filter, 'route_list' => Route::getRoutes()],
+        );
     }
 
     public function save(IPFilter $ip_filter, IPFilterRequest $request)
@@ -82,6 +139,10 @@ class IPFilterController extends Controller
             $this->cacheRefresh();
             DB::commit();
 
+            if ($request->inertia()) {
+                return to_route('admin.ip-filter')->with('success', $message);
+            }
+
             return response()->json([
                 'status' => true,
                 'message' => $message,
@@ -89,6 +150,10 @@ class IPFilterController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
+
+            if ($request->inertia()) {
+                return back()->with('error', $e->getMessage());
+            }
 
             return response()->json([
                 'status' => false,
@@ -106,12 +171,20 @@ class IPFilterController extends Controller
             $this->cacheRefresh();
             DB::commit();
 
+            if ($request->inertia()) {
+                return back()->with('success', __('ip_filter.success_delete'));
+            }
+
             return response()->json([
                 'status' => true,
                 'message' => __('ip_filter.success_delete'),
             ]);
         } catch (Exception $e) {
             DB::rollBack();
+
+            if ($request->inertia()) {
+                return back()->with('error', $e->getMessage());
+            }
 
             return response()->json([
                 'status' => false,
@@ -130,6 +203,10 @@ class IPFilterController extends Controller
             $this->cacheRefresh();
             DB::commit();
 
+            if ($request->inertia()) {
+                return back()->with('success', __('ip_filter.success_update'));
+            }
+
             return response()->json([
                 'status' => true,
                 'rule' => $ip->is_active,
@@ -137,6 +214,10 @@ class IPFilterController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
+
+            if ($request->inertia()) {
+                return back()->with('error', $e->getMessage());
+            }
 
             return response()->json([
                 'status' => false,
@@ -211,6 +292,13 @@ class IPFilterController extends Controller
             $this->cacheRefresh();
             DB::commit();
 
+            if ($request->inertia()) {
+                return back()->with(
+                    'success',
+                    __('ip_filter.ip_added_success', ['count' => $created->count()])
+                );
+            }
+
             return response()->json([
                 'status' => true,
                 'added' => $created->map(fn (IPList $model) => [
@@ -243,6 +331,10 @@ class IPFilterController extends Controller
             $ip_list->delete();
             $this->cacheRefresh();
             DB::commit();
+
+            if (request()->inertia()) {
+                return back()->with('success', __('general.deleted'));
+            }
 
             return response()->json([
                 'status' => true,

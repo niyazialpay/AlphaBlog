@@ -1,0 +1,546 @@
+<script setup>
+import { computed, ref } from 'vue';
+import { router, useForm } from '@inertiajs/vue3';
+import { __ } from '../../composables/useLang';
+import { usePageHeader } from '../../composables/usePageHeader';
+import Tabs from '../../components/Tabs.vue';
+import FormField from '../../components/FormField.vue';
+import ConfirmDialog from '../../components/ConfirmDialog.vue';
+import Modal from '../../components/Modal.vue';
+
+/*
+ * panel/settings/index.blade.php karşılığı (1469 satır, 9 sekme).
+ *
+ * Aktif sekme bir URL SÖZLEŞMESİ: Cloudflare controller'ları geçersiz kimlik
+ * bilgisinde `?tab=cloudflare` ile buraya yönlendiriyor — `Tabs` bileşenine
+ * `queryKey` verilerek korunuyor.
+ *
+ * Şifreli alanlar (Cloudflare API anahtarı, OneSignal app_id/auth_key) arayüze
+ * HİÇ gönderilmez; yalnızca "tanımlı mı" bilgisi taşınır ve boş bırakılırsa
+ * sunucuda değişmez.
+ */
+const props = defineProps({
+  tab: { type: String, default: 'general' },
+  seo: { type: Object, default: () => ({}) },
+  general: { type: Object, default: () => ({}) },
+  logos: { type: Object, default: () => ({}) },
+  advertise: { type: Object, default: () => ({}) },
+  analytics: { type: Object, default: () => ({}) },
+  social: { type: Object, default: () => ({}) },
+  socialDisplay: { type: Object, default: () => ({}) },
+  languages: { type: Array, default: () => [] },
+  themes: { type: Array, default: () => [] },
+  notifications: { type: Object, default: () => ({}) },
+  cloudflare: { type: Object, default: () => ({}) },
+  robots: { type: String, default: null },
+});
+
+usePageHeader(__('settings.settings'), [
+  { label: __('dashboard.dashboard'), route: 'admin.index' },
+  { label: __('settings.settings') },
+]);
+
+const activeTab = ref(props.tab);
+const seoLanguage = ref(props.languages[0]?.code || null);
+const confirm = ref(null);
+const languageModal = ref(false);
+const editingLanguage = ref(null);
+
+const tabs = computed(() => [
+  { value: 'general', label: __('general.general'), icon: 'fa-solid fa-gear' },
+  { value: 'seo', label: 'SEO', icon: 'fa-solid fa-magnifying-glass-chart' },
+  { value: 'analytics', label: __('dashboard.analytics'), icon: 'fa-solid fa-chart-line' },
+  { value: 'advertisement', label: __('settings.advertise_tab'), icon: 'fa-solid fa-rectangle-ad' },
+  { value: 'social-networks', label: __('social.social_networks'), icon: 'fa-solid fa-share-nodes' },
+  { value: 'themes', label: __('themes.theme'), icon: 'fa-solid fa-palette' },
+  { value: 'languages', label: __('language.language'), icon: 'fa-solid fa-language' },
+  { value: 'notifications', label: __('notifications.notifications'), icon: 'fa-solid fa-bell' },
+  { value: 'cloudflare', label: 'Cloudflare', icon: 'fa-brands fa-cloudflare' },
+]);
+
+const SOCIAL_FIELDS = [
+  'website', 'linkedin', 'facebook', 'x', 'bluesky', 'instagram', 'github',
+  'devto', 'medium', 'youtube', 'reddit', 'xbox', 'deviantart', 'twitch',
+  'telegram', 'discord',
+];
+
+const generalForm = useForm({ ...props.general, site_logo_light: null, site_logo_dark: null, site_favicon: null, app_icon: null });
+const seoForm = useForm({ ...(props.seo[seoLanguage.value] || {}), language: seoLanguage.value });
+const robotsForm = useForm({ robots_txt: props.robots || '' });
+const analyticsForm = useForm({ ...props.analytics });
+const advertiseForm = useForm({ ...props.advertise });
+const socialForm = useForm({ ...props.social });
+const socialDisplayForm = useForm({ ...props.socialDisplay });
+const notificationsForm = useForm({
+  safari_web_id: props.notifications.safari_web_id || '',
+  user_segmentation: !!props.notifications.user_segmentation,
+  app_id: '',
+  auth_key: '',
+});
+const cloudflareForm = useForm({
+  cf_email: props.cloudflare.cf_email || '',
+  cf_domain: props.cloudflare.domain || '',
+  cf_key: '',
+});
+const languageForm = useForm({ name: '', code: '', flag: '', is_active: true, is_default: false });
+
+function selectSeoLanguage(code) {
+  seoLanguage.value = code;
+  const data = props.seo[code] || {};
+  seoForm.defaults({ ...data, language: code });
+  seoForm.reset();
+}
+
+function post(form, routeName, params = {}) {
+  form.post(route(routeName, params), { preserveScroll: true, forceFormData: true });
+}
+
+function pickLogo(field, event) {
+  generalForm[field] = event.target.files?.[0] || null;
+}
+
+async function deleteLogo(type) {
+  if (!(await confirm.value.ask({ body: __('general.you_wont_be_able_to_revert_this') }))) {
+    return;
+  }
+
+  router.post(route('admin.settings.general.logo.delete', { type }), {}, { preserveScroll: true });
+}
+
+function openLanguage(language = null) {
+  editingLanguage.value = language;
+  languageForm.defaults({
+    name: language?.name || '',
+    code: language?.code || '',
+    flag: language?.flag || '',
+    is_active: language ? language.is_active : true,
+    is_default: language ? language.is_default : false,
+  });
+  languageForm.reset();
+  languageForm.clearErrors();
+  languageModal.value = true;
+}
+
+function saveLanguage() {
+  const url = editingLanguage.value
+    ? route('admin.settings.languages.save', { language: editingLanguage.value.id })
+    : route('admin.settings.languages.save');
+
+  languageForm.post(url, {
+    preserveScroll: true,
+    onSuccess: () => {
+      languageModal.value = false;
+    },
+  });
+}
+
+async function deleteLanguage(language) {
+  if (!(await confirm.value.ask({ body: __('general.you_wont_be_able_to_revert_this') }))) {
+    return;
+  }
+
+  router.post(
+    route('admin.settings.languages.delete'),
+    { id: language.id },
+    { preserveScroll: true },
+  );
+}
+
+function activateTheme(theme) {
+  // Durum degistiren GET yerine POST alias'i (v2 prefetch tuzagi).
+  router.post(route('admin.settings.themes.activate', { theme: theme.name }), {}, { preserveScroll: true });
+}
+
+async function deleteTheme(theme) {
+  if (!(await confirm.value.ask({ body: __('general.you_wont_be_able_to_revert_this') }))) {
+    return;
+  }
+
+  router.post(route('admin.settings.themes.delete'), { id: theme.id }, { preserveScroll: true });
+}
+</script>
+
+<template>
+  <Head :title="__('settings.settings')" />
+
+  <div class="flex flex-col gap-3.5 p-[22px]">
+    <Tabs v-model="activeTab" :tabs="tabs" query-key="tab" />
+
+    <!-- Genel -->
+    <div v-if="activeTab === 'general'" class="p-card p-4">
+      <div class="grid gap-3 sm:grid-cols-2">
+        <FormField
+          v-model="generalForm.contact_email"
+          type="email"
+          :label="__('contact.email')"
+          :error="generalForm.errors.contact_email"
+        />
+        <FormField v-model="generalForm.sharethis" label="ShareThis" />
+        <FormField
+          v-model="generalForm.homepage_featured_count"
+          type="number"
+          :label="__('settings.homepage_featured_count')"
+        />
+        <FormField
+          v-model="generalForm.homepage_recent_count"
+          type="number"
+          :label="__('settings.homepage_recent_count')"
+        />
+      </div>
+
+      <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div v-for="item in [
+            { key: 'site_logo_light', url: logos.light, type: 'light' },
+            { key: 'site_logo_dark', url: logos.dark, type: 'dark' },
+            { key: 'site_favicon', url: logos.favicon, type: null },
+            { key: 'app_icon', url: logos.app_icon, type: null },
+          ]"
+          :key="item.key"
+        >
+          <label class="p-label">{{ item.key }}</label>
+          <img
+            v-if="item.url"
+            :src="item.url"
+            alt=""
+            class="mb-2 h-16 w-full rounded-xl border border-p-line bg-p-panel2 object-contain p-2"
+          />
+          <input
+            type="file"
+            accept="image/*"
+            class="p-input h-auto py-1.5"
+            @change="pickLogo(item.key, $event)"
+          />
+          <button
+            v-if="item.url && item.type"
+            class="p-btn mt-1.5 !text-p-danger"
+            @click="deleteLogo(item.type)"
+          >
+            <i class="fa-solid fa-trash text-[11px]"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-4 flex justify-end">
+        <button
+          class="p-btn-primary"
+          :disabled="generalForm.processing"
+          @click="post(generalForm, 'admin.settings.general.save')"
+        >
+          <i class="fa-solid fa-floppy-disk text-xs"></i> {{ __('general.save') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- SEO -->
+    <div v-else-if="activeTab === 'seo'" class="flex flex-col gap-3.5">
+      <div class="flex flex-wrap gap-1.5">
+        <button
+          v-for="language in languages"
+          :key="language.code"
+          class="p-tab"
+          :class="seoLanguage === language.code && 'p-tab-active'"
+          @click="selectSeoLanguage(language.code)"
+        >
+          {{ language.name }}
+        </button>
+      </div>
+
+      <div class="p-card p-4">
+        <div class="grid gap-3 sm:grid-cols-2">
+          <FormField v-model="seoForm.site_name" :label="__('settings.site_name')" />
+          <FormField v-model="seoForm.title" :label="__('post.title')" />
+          <FormField v-model="seoForm.author" :label="__('post.author')" />
+          <FormField v-model="seoForm.robots" label="robots" />
+          <FormField v-model="seoForm.keywords" :label="__('post.meta_keywords')" full />
+          <FormField
+            v-model="seoForm.description"
+            type="textarea"
+            :label="__('post.meta_description')"
+            full
+          />
+        </div>
+
+        <div class="mt-4 flex justify-end">
+          <button
+            class="p-btn-primary"
+            :disabled="seoForm.processing"
+            @click="post(seoForm, 'admin.settings.seo.save')"
+          >
+            <i class="fa-solid fa-floppy-disk text-xs"></i> {{ __('general.save') }}
+          </button>
+        </div>
+      </div>
+
+      <div class="p-card p-4">
+        <label class="p-label">robots.txt</label>
+        <textarea v-model="robotsForm.robots_txt" class="p-textarea h-48 font-mono"></textarea>
+        <div class="mt-3 flex justify-end">
+          <button
+            class="p-btn-primary"
+            :disabled="robotsForm.processing"
+            @click="post(robotsForm, 'admin.settings.seo.robots.save')"
+          >
+            {{ __('general.save') }}
+          </button>
+        </div>
+      </div>
+
+      <div class="p-card p-4">
+        <div class="grid gap-3">
+          <FormField v-model="generalForm.llms_txt_intro" type="textarea" label="llms.txt intro" />
+          <FormField
+            v-model="generalForm.llms_txt_instructions"
+            type="textarea"
+            label="llms.txt instructions"
+          />
+        </div>
+        <div class="mt-3 flex justify-end gap-2">
+          <button class="p-btn" @click="router.post(route('admin.settings.seo.llms.clear-cache'), {}, { preserveScroll: true })">
+            <i class="fa-solid fa-broom text-[11px]"></i> {{ __('cache.clear_cache') }}
+          </button>
+          <button class="p-btn-primary" @click="post(generalForm, 'admin.settings.seo.llms.save')">
+            {{ __('general.save') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analitik -->
+    <div v-else-if="activeTab === 'analytics'" class="p-card p-4">
+      <div class="grid gap-3 sm:grid-cols-2">
+        <FormField
+          v-for="(value, key) in analytics"
+          :key="key"
+          v-model="analyticsForm[key]"
+          :label="key"
+          :error="analyticsForm.errors[key]"
+        />
+      </div>
+      <div class="mt-4 flex justify-end">
+        <button
+          class="p-btn-primary"
+          :disabled="analyticsForm.processing"
+          @click="post(analyticsForm, 'admin.settings.analytics.save')"
+        >
+          {{ __('general.save') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Reklam -->
+    <div v-else-if="activeTab === 'advertisement'" class="p-card p-4">
+      <div class="grid gap-3">
+        <FormField
+          v-for="(value, key) in advertise"
+          :key="key"
+          v-model="advertiseForm[key]"
+          type="textarea"
+          :label="key"
+          :error="advertiseForm.errors[key]"
+        />
+      </div>
+      <div class="mt-4 flex justify-end">
+        <button
+          class="p-btn-primary"
+          :disabled="advertiseForm.processing"
+          @click="post(advertiseForm, 'admin.settings.advertisement.save')"
+        >
+          {{ __('general.save') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Sosyal ağlar -->
+    <div v-else-if="activeTab === 'social-networks'" class="flex flex-col gap-3.5">
+      <div class="p-card p-4">
+        <div class="grid gap-3 sm:grid-cols-2">
+          <FormField
+            v-for="field in SOCIAL_FIELDS"
+            :key="field"
+            v-model="socialForm[field]"
+            :label="field"
+          />
+        </div>
+        <div class="mt-4 flex justify-end">
+          <button
+            class="p-btn-primary"
+            :disabled="socialForm.processing"
+            @click="post(socialForm, 'admin.settings.social.save')"
+          >
+            {{ __('general.save') }}
+          </button>
+        </div>
+      </div>
+
+      <div class="p-card p-4">
+        <div class="flex flex-col gap-2">
+          <label class="flex items-center gap-2.5 text-[12.5px]">
+            <input v-model="socialDisplayForm.social_networks_header" type="checkbox" />
+            {{ __('settings.social_header') }}
+          </label>
+          <label class="flex items-center gap-2.5 text-[12.5px]">
+            <input v-model="socialDisplayForm.social_networks_footer" type="checkbox" />
+            {{ __('settings.social_footer') }}
+          </label>
+        </div>
+        <div class="mt-3 flex justify-end">
+          <button
+            class="p-btn-primary"
+            @click="post(socialDisplayForm, 'admin.settings.social.header.save')"
+          >
+            {{ __('general.save') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Temalar -->
+    <div v-else-if="activeTab === 'themes'" class="p-card divide-y divide-p-line2">
+      <div v-for="theme in themes" :key="theme.id" class="flex items-center gap-3 px-4 py-3">
+        <span class="flex-1 text-[12.5px] font-semibold">{{ theme.name }}</span>
+        <span v-if="theme.is_default" class="p-chip p-chip-accent">{{ __('language.default') }}</span>
+        <button v-else class="p-btn" @click="activateTheme(theme)">
+          {{ __('themes.make_default') }}
+        </button>
+        <button
+          v-if="!theme.is_default"
+          class="p-icon-btn hover:!border-p-danger hover:!text-p-danger"
+          @click="deleteTheme(theme)"
+        >
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+      <div v-if="!themes.length" class="px-4 py-10 text-center text-p-ink3">
+        {{ __('general.no_records') }}
+      </div>
+    </div>
+
+    <!-- Diller -->
+    <div v-else-if="activeTab === 'languages'" class="flex flex-col gap-3.5">
+      <div class="flex justify-end">
+        <button class="p-btn-primary" @click="openLanguage()">
+          <i class="fa-solid fa-plus text-xs"></i> {{ __('general.new') }}
+        </button>
+      </div>
+
+      <div class="p-card divide-y divide-p-line2">
+        <div
+          v-for="language in languages"
+          :key="language.id"
+          class="flex items-center gap-3 px-4 py-3"
+        >
+          <span class="flex-1 text-[12.5px] font-semibold">{{ language.name }}</span>
+          <span class="p-chip">{{ language.code }}</span>
+          <span v-if="language.is_default" class="p-chip p-chip-accent">
+            {{ __('language.default') }}
+          </span>
+          <span v-if="!language.is_active" class="p-chip">{{ __('post.draft') }}</span>
+
+          <button class="p-icon-btn" @click="openLanguage(language)">
+            <i class="fa-solid fa-pen"></i>
+          </button>
+          <button
+            v-if="!language.is_default"
+            class="p-icon-btn hover:!border-p-danger hover:!text-p-danger"
+            @click="deleteLanguage(language)"
+          >
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bildirimler -->
+    <div v-else-if="activeTab === 'notifications'" class="p-card p-4">
+      <div class="grid gap-3 sm:grid-cols-2">
+        <FormField
+          v-model="notificationsForm.app_id"
+          :label="`OneSignal App ID${notifications.has_app_id ? ' ✓' : ''}`"
+          :help="__('settings.leave_blank_to_keep')"
+        />
+        <FormField
+          v-model="notificationsForm.auth_key"
+          type="password"
+          :label="`OneSignal Auth Key${notifications.has_auth_key ? ' ✓' : ''}`"
+          :help="__('settings.leave_blank_to_keep')"
+        />
+        <FormField v-model="notificationsForm.safari_web_id" label="Safari Web ID" />
+        <label class="flex items-center gap-2.5 text-[12.5px]">
+          <input v-model="notificationsForm.user_segmentation" type="checkbox" />
+          user_segmentation
+        </label>
+      </div>
+      <div class="mt-4 flex justify-end">
+        <button
+          class="p-btn-primary"
+          :disabled="notificationsForm.processing"
+          @click="post(notificationsForm, 'admin.settings.notifications.save')"
+        >
+          {{ __('general.save') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Cloudflare -->
+    <div v-else class="p-card p-4">
+      <div class="grid gap-3 sm:grid-cols-2">
+        <FormField
+          v-model="cloudflareForm.cf_email"
+          type="email"
+          label="Cloudflare e-mail"
+          :error="cloudflareForm.errors.cf_email"
+        />
+        <FormField
+          v-model="cloudflareForm.cf_domain"
+          label="Domain"
+          :error="cloudflareForm.errors.cf_domain"
+        />
+        <FormField
+          v-model="cloudflareForm.cf_key"
+          type="password"
+          :label="`API Key${cloudflare.has_key ? ' ✓' : ''}`"
+          :help="__('settings.leave_blank_to_keep')"
+          :error="cloudflareForm.errors.cf_key"
+        />
+      </div>
+      <div class="mt-4 flex justify-end">
+        <button
+          class="p-btn-primary"
+          :disabled="cloudflareForm.processing"
+          @click="post(cloudflareForm, 'cf.update.api.settings')"
+        >
+          {{ __('general.save') }}
+        </button>
+      </div>
+    </div>
+
+    <Modal
+      v-model:open="languageModal"
+      :title="editingLanguage ? __('general.edit') : __('general.new')"
+      icon="fa-solid fa-language"
+      @confirm="saveLanguage"
+    >
+      <div class="grid gap-3">
+        <FormField
+          v-model="languageForm.name"
+          :label="__('language.language')"
+          :error="languageForm.errors.name"
+        />
+        <FormField
+          v-model="languageForm.code"
+          :label="__('language.code')"
+          :error="languageForm.errors.code"
+        />
+        <FormField v-model="languageForm.flag" :label="__('language.flag')" />
+        <label class="flex items-center gap-2.5 text-[12.5px]">
+          <input v-model="languageForm.is_active" type="checkbox" /> is_active
+        </label>
+        <label class="flex items-center gap-2.5 text-[12.5px]">
+          <input v-model="languageForm.is_default" type="checkbox" /> is_default
+        </label>
+      </div>
+    </Modal>
+
+    <ConfirmDialog ref="confirm" />
+  </div>
+</template>
