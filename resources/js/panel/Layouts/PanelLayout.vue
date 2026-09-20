@@ -7,12 +7,36 @@ import { __ } from '../composables/useLang';
 import CommandPalette from '../components/CommandPalette.vue';
 import NotificationBell from '../components/NotificationBell.vue';
 import FlashToast from '../components/FlashToast.vue';
+import ConfirmDialog from '../components/ConfirmDialog.vue';
 import { pageHeader } from '../composables/usePageHeader';
 import { pushToast } from '../composables/useToast';
 
 const page = usePage();
 const { theme, toggleTheme } = useTheme();
 const cacheClearing = ref(false);
+const logoutForm = ref(null);
+const logoutConfirm = ref(null);
+
+/*
+ * Cikis onay ister: dugme kullanici blogunun hemen yaninda ve yanlislikla
+ * tiklanabiliyordu.
+ *
+ * Onaydan sonra GERCEK form gonderilir, `router.post` DEGIL: `admin.logout`
+ * duz Blade olan /login'e 302 doner, Inertia o yoniendirmeyi izleyip HTML alir
+ * ve "plain HTML response" hatasi verir.
+ */
+async function confirmLogout() {
+  const approved = await logoutConfirm.value?.ask({
+    title: __('user.logout'),
+    body: __('user.logout_confirm'),
+    icon: 'fa-solid fa-right-from-bracket',
+    confirmLabel: __('user.logout'),
+  });
+
+  if (approved) {
+    logoutForm.value?.submit();
+  }
+}
 
 const paletteOpen = ref(false);
 const languageOpen = ref(false);
@@ -303,12 +327,13 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
           Gerçek form: admin.logout /login'e (düz Blade sayfası) yönlendiriyor.
           Inertia POST'u bu 302'yi izleyip HTML alır ve hata verir.
         -->
-        <form :action="route('admin.logout')" method="post">
+        <form ref="logoutForm" :action="route('admin.logout')" method="post">
           <input type="hidden" name="_token" :value="csrfToken" />
           <button
-            type="submit"
+            type="button"
             :title="__('user.logout')"
             class="border-0 bg-transparent text-[13px] text-p-ink3 hover:text-p-ink"
+            @click="confirmLogout"
           >
             <i class="fa-solid fa-right-from-bracket"></i>
           </button>
@@ -397,7 +422,17 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
           :disabled="cacheClearing"
           @click="clearCache"
         >
-          <i :class="cacheClearing ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-broom'"></i>
+          <!--
+            `!text-inherit`: ikon rengini HER ZAMAN dugmeden alir. Font Awesome
+            setleri (ozellikle Pro duotone) kendi glif renklerini tanimlayabiliyor
+            ve o kural `text-p-ink2` / `hover:text-p-ink`'i eziyordu — ikon zemine
+            uymayan yesil/turkuaz kaliyordu. `!important` ile hangi kaynaktan
+            gelirse gelsin bastirilir.
+          -->
+          <i
+            class="!text-inherit"
+            :class="cacheClearing ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-broom'"
+          ></i>
         </button>
 
         <NotificationBell />
@@ -417,5 +452,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
 
     <CommandPalette v-model:open="paletteOpen" :sections="sections" @navigate="open" />
     <FlashToast />
+    <ConfirmDialog ref="logoutConfirm" />
   </div>
 </template>

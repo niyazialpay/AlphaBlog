@@ -60,4 +60,5 @@ return [
     'all_sessions_ended' => 'Tüm oturumlar sonlandırıldı!',
     'email_verification_failed' => 'Kullanıcı oluşturuldu ancak doğrulama e-postası gönderilemedi.',
     'secret_login' => 'Gizli giriş',
+    'logout_confirm' => 'Oturumu kapatmak istediğinize emin misiniz?',
 ];
