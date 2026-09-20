@@ -28,6 +28,20 @@ const openId = ref(null);
 const dragIndex = ref(null);
 const dropIndex = ref(null);
 
+/*
+ * YATAY SURUKLEME ile girintileme — jquery.nestable'in asil davranisi.
+ *
+ * Suruklerken imlecin YATAY yer degistirmesi hedef derinligi belirler: bir
+ * `INDENT_STEP` saga = bir seviye alt menu, sola = bir seviye yukari. Dikey
+ * konum sirayi, yatay konum derinligi verir; ikisi tek birakmada uygulanir.
+ * Girinti/cikinti dugmeleri ayni islemin klavye/dokunmatik karsiligi olarak
+ * duruyor.
+ */
+const INDENT_STEP = 22;
+const dragStartX = ref(0);
+const dragDepth = ref(0);
+const dropDepth = ref(0);
+
 const TARGETS = [
   { value: '_self', label: () => __('menu.same_tab') },
   { value: '_blank', label: () => __('menu.new_tab') },
@@ -139,8 +153,18 @@ function outdent(index) {
   commit(list);
 }
 
-function onDragStart(index) {
+function onDragStart(index, event) {
   dragIndex.value = index;
+  dragStartX.value = event.clientX;
+  dragDepth.value = rows.value[index].depth;
+  dropIndex.value = index;
+  dropDepth.value = rows.value[index].depth;
+
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move';
+    // Firefox surukleme baslatmak icin bir veri yuku sart kosuyor.
+    event.dataTransfer.setData('text/plain', String(index));
+  }
 }
 
 function onDragEnd() {
@@ -155,32 +179,86 @@ function onDragLeave(index) {
 }
 
 /**
- * Sürüklenen öğe alt ağacıyla birlikte taşınır. Derinlik korunur; hedef konumda
- * geçersizse (bir üstteki satırın çocuğu olamayacak kadar derinse) kırpılır.
+ * Blogu `from`'dan cikarip `target`'a yerlestirdikten sonraki konum bilgisi.
+ *
+ * Derinlik sinirini hesaplamak icin blok LISTEDEN CIKARILMIS olmali: aksi halde
+ * ogenin kendi eski komsulari "onceki satir" sayilir ve sinir yanlis cikar.
+ * Bir oge ancak kendisinden onceki satirin cocugu olabilir.
  */
-function onDrop(target) {
+function placement(target) {
   const from = dragIndex.value;
-
-  onDragEnd();
-
-  if (from === null || from === target) {
-    return;
-  }
-
   const list = [...rows.value];
   const size = subtreeSize(list, from) + 1;
 
   // Bir öğe kendi alt ağacının içine bırakılamaz.
   if (target > from && target < from + size) {
-    return;
+    return null;
   }
 
   const block = list.splice(from, size);
   const insertAt = target > from ? target - size + 1 : target;
-  const maxDepth = insertAt > 0 ? list[insertAt - 1].depth + 1 : 0;
-  const delta = Math.min(block[0].depth, maxDepth) - block[0].depth;
 
-  list.splice(insertAt, 0, ...shift(block, delta));
+  return {
+    list,
+    block,
+    insertAt,
+    maxDepth: insertAt > 0 ? list[insertAt - 1].depth + 1 : 0,
+  };
+}
+
+/** Imlecin yatay kaymasindan hedef derinlik. */
+function depthFor(target, clientX) {
+  const spot = placement(target);
+
+  if (spot === null) {
+    return dropDepth.value;
+  }
+
+  const steps = Math.round((clientX - dragStartX.value) / INDENT_STEP);
+
+  return Math.min(Math.max(dragDepth.value + steps, 0), spot.maxDepth);
+}
+
+function onDragOver(index, event) {
+  if (dragIndex.value === null) {
+    return;
+  }
+
+  dropIndex.value = index;
+  dropDepth.value = depthFor(index, event.clientX);
+}
+
+/**
+ * Sürüklenen öğe alt ağacıyla birlikte taşınır. Yeni derinlik yatay kaymadan
+ * gelir; hedef konumda geçersizse (bir üstteki satırın çocuğu olamayacak kadar
+ * derinse) kırpılır.
+ */
+function onDrop(target, event) {
+  const from = dragIndex.value;
+
+  if (from === null) {
+    onDragEnd();
+
+    return;
+  }
+
+  const depth = depthFor(target, event.clientX);
+  const spot = placement(target);
+
+  onDragEnd();
+
+  if (spot === null) {
+    return;
+  }
+
+  // Ayni satira, ayni derinlige birakmak islemsizdir.
+  if (from === target && depth === spot.block[0].depth) {
+    return;
+  }
+
+  const { list, block, insertAt } = spot;
+
+  list.splice(insertAt, 0, ...shift(block, depth - block[0].depth));
   commit(list);
 }
 
@@ -202,9 +280,25 @@ function remove(index) {
 
 <template>
   <div class="flex flex-col gap-1">
-    <div v-for="(item, index) in rows" :key="item.id ?? index" :style="{ marginLeft: `${item.depth * 22}px` }">
+    <div v-for="(item, index) in rows" :key="item.id ?? index" class="relative">
+      <!--
+        Hedef derinlik gostergesi: WordPress'teki gibi, birakilacak seviyeyi
+        surukleme sirasinda gosterir. Sol bosluk hedef derinlikle ayni adimi
+        (INDENT_STEP) kullanir, yani cizgi tam olarak ogenin inecegi yeri isaret eder.
+
+        MUTLAK konumlu ve `pointer-events-none`: akista yer kaplasaydi belirip
+        kaybolurken satirlari 2px oynatir, bu da dragover/dragleave'i tetikleyip
+        gostergeyi titretirdi.
+      -->
+      <div
+        v-if="dragIndex !== null && dropIndex === index"
+        class="pointer-events-none absolute -top-1 left-0 right-0 h-0.5 rounded-full bg-p-accent"
+        :style="{ marginLeft: `${dropDepth * 22}px` }"
+      ></div>
+
       <div
         class="rounded-xl border bg-p-panel2 transition-colors"
+        :style="{ marginLeft: `${item.depth * 22}px` }"
         :class="[
           dropIndex === index ? 'border-p-accent' : 'border-p-line',
           dragIndex === index ? 'opacity-50' : '',
@@ -213,10 +307,10 @@ function remove(index) {
         <div
           class="flex items-center gap-2 px-2.5 py-2"
           draggable="true"
-          @dragstart="onDragStart(index)"
-          @dragover.prevent="dropIndex = index"
+          @dragstart="onDragStart(index, $event)"
+          @dragover.prevent="onDragOver(index, $event)"
           @dragleave="onDragLeave(index)"
-          @drop.prevent="onDrop(index)"
+          @drop.prevent="onDrop(index, $event)"
           @dragend="onDragEnd"
         >
           <i class="fa-solid fa-grip-vertical cursor-grab text-[11px] text-p-ink3"></i>

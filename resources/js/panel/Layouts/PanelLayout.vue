@@ -28,6 +28,17 @@ const csrfToken = document.head.querySelector('meta[name="csrf-token"]')?.conten
  */
 const sections = computed(() => page.props.menu || []);
 
+/*
+ * Panel temasina gore logo. Site iki logo tasiyor (aydinlik/karanlik); sunucu
+ * ikisini de gonderiyor, secim burada yapiliyor cunku tema istemcide degisiyor.
+ * Yalnizca biri yuklenmisse o kullanilir.
+ */
+const brandLogo = computed(() => {
+  const logo = page.props.siteLogo || {};
+
+  return (theme.value === 'dark' ? logo.dark || logo.light : logo.light || logo.dark) || null;
+});
+
 const current = computed(
   () =>
     sections.value.find((s) => s.key === activeSection.value) ||
@@ -139,19 +150,10 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
     <nav
       class="sticky top-0 z-20 flex h-screen w-[68px] shrink-0 flex-col items-center gap-1.5 bg-p-rail py-3.5"
     >
-      <Link
-        :href="route('admin.index')"
-        class="mb-3 grid h-9 w-9 place-items-center overflow-hidden rounded-xl bg-p-accent font-display text-base font-extrabold text-white"
-      >
-        <img
-          v-if="$page.props.favicon"
-          :src="$page.props.favicon"
-          :alt="$page.props.siteName"
-          class="h-full w-full object-cover"
-        />
-        <template v-else>{{ ($page.props.siteName || 'A').charAt(0).toUpperCase() }}</template>
-      </Link>
-
+      <!--
+        Ray'da marka isareti YOK: bolum ikonlari en uste alindi. Logo yandaki
+        genis kolonda, tema moduna gore.
+      -->
       <button
         v-for="s in sections"
         :key="s.key"
@@ -193,16 +195,22 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
       class="sticky top-0 z-20 h-screen w-[252px] shrink-0 flex-col border-r border-p-line bg-p-panel"
       :class="mobileNavOpen ? 'fixed left-[68px] flex shadow-pop' : 'hidden lg:flex'"
     >
-      <!--
-        Genis kolonda LOGO YOK: marka isareti dar ray'daki favicon, burasi ad +
-        alan adi. Ikisini birden basmak ayni markayi iki kez gosteriyordu.
-      -->
-      <div class="flex items-center gap-2.5 border-b border-p-line2 px-[18px] pb-3.5 pt-[18px]">
-        <div class="min-w-0">
-          <div class="truncate font-display text-[15px] font-extrabold">{{ $page.props.siteName }}</div>
-          <div class="mt-0.5 truncate text-[11.5px] text-p-ink3">{{ $page.props.siteDomain }}</div>
+      <Link
+        :href="route('admin.index')"
+        class="block border-b border-p-line2 px-[18px] pb-3.5 pt-[18px] no-underline"
+      >
+        <!-- Logo varsa site adi YAZILMAZ; ayni markayi iki kez gostermis olur. -->
+        <img
+          v-if="brandLogo"
+          :src="brandLogo"
+          :alt="$page.props.siteName"
+          class="h-8 max-w-full object-contain object-left"
+        />
+        <div v-else class="truncate font-display text-[15px] font-extrabold text-p-ink">
+          {{ $page.props.siteName }}
         </div>
-      </div>
+        <div class="mt-1 truncate text-[11.5px] text-p-ink3">{{ $page.props.siteDomain }}</div>
+      </Link>
 
       <div
         class="px-3.5 pb-1 pt-3 text-[10.5px] font-bold uppercase tracking-[.09em] text-p-ink3"

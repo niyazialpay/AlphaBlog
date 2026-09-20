@@ -45,6 +45,6 @@ return [
     'custom_link' => 'Custom Link',
     'indent' => 'Make sub-item',
     'outdent' => 'Move up a level',
-    'builder_hint' => 'Drag a row to reorder it. Use indent to make an item a sub-item of the one above it and outdent to move it up a level; there is no depth limit.',
+    'builder_hint' => 'Drag a row up or down to reorder it. While dragging, move right to nest it under the row above and left to move it up a level; the guide line shows the level it will land on. The indent and outdent buttons do the same thing. There is no depth limit.',
     'menu_delete_error' => 'An error occurred while deleting the menu',
 ];

@@ -66,7 +66,7 @@ final class HandlePanelInertiaRequests extends Middleware
             'siteName' => fn () => self::siteName(),
             'siteDomain' => parse_url((string) config('app.url'), PHP_URL_HOST),
             'favicon' => fn () => self::favicon(),
-            // Auth kabugu (panel/auth/layouts/app.blade.php) acik temali logoyu basiyordu.
+            // Auth kabugu da ayni logoyu basiyor; tema secimi istemcide.
             'siteLogo' => fn () => self::siteLogo(),
             // <x-turnstile /> bilesen karsiligi: anahtar prop olarak gecer.
             'turnstileSiteKey' => fn () => config('cloudflare.turnstile_site_key'),
@@ -193,12 +193,27 @@ final class HandlePanelInertiaRequests extends Middleware
         }
     }
 
-    private static function siteLogo(): ?string
+    /**
+     * Aydinlik ve karanlik logo birlikte gonderilir.
+     *
+     * Site iki ayri logo tasiyor (`site_logo_light` / `site_logo_dark`); panel
+     * kabugunun temasi istemcide `data-panel-theme` ile degistigi icin dogru
+     * olani SUNUCU secemez — ikisi de gonderilir, secim istemcide yapilir.
+     * Yalnizca biri yuklenmisse digerinin yerine o kullanilir.
+     *
+     * @return array{light: string|null, dark: string|null}
+     */
+    private static function siteLogo(): array
     {
         try {
-            return app('general_settings')?->getFirstMediaUrl('site_logo_light') ?: null;
+            $settings = app('general_settings');
+
+            return [
+                'light' => $settings?->getFirstMediaUrl('site_logo_light') ?: null,
+                'dark' => $settings?->getFirstMediaUrl('site_logo_dark') ?: null,
+            ];
         } catch (Throwable) {
-            return null;
+            return ['light' => null, 'dark' => null];
         }
     }
 
