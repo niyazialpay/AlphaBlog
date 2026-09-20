@@ -3,12 +3,13 @@
 namespace App\Actions;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UserAction
 {
-    public static function userSave($request, $user): JsonResponse
+    public static function userSave($request, $user): JsonResponse|RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -26,17 +27,21 @@ class UserAction
             $user->save();
             DB::commit();
 
-            return response()->json([
-                'status' => 'success',
-                'message' => __('profile.save_success'),
-            ], 200);
+            return $request->inertia()
+                ? back()->with('success', __('profile.save_success'))
+                : response()->json([
+                    'status' => 'success',
+                    'message' => __('profile.save_success'),
+                ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => 'error',
-                'message' => __('profile.save_error'),
-            ], 422);
+            return $request->inertia()
+                ? back()->with('error', __('profile.save_error'))
+                : response()->json([
+                    'status' => 'error',
+                    'message' => __('profile.save_error'),
+                ], 422);
         }
     }
 

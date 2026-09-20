@@ -10,8 +10,13 @@ use App\Models\Post\Comments;
 use App\Models\Post\Posts;
 use App\Models\User;
 use App\Support\Panel\PanelResponse;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -22,6 +27,7 @@ use Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig;
 use Spatie\MediaLibrary\MediaCollections\Exceptions\MediaCannotBeDeleted;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
+use Throwable;
 use Yajra\DataTables\Facades\DataTables;
 
 class PostController extends Controller
@@ -279,6 +285,9 @@ class PostController extends Controller
                 'comments.user',
                 'history',
             ]);
+            // QR okuma sayaci: index()/search yolunda withCount var, editorde YOKTU;
+            // bu yuzden editorPost() rozeti her zaman 0 gosteriyordu.
+            $post->loadCount('qrScans');
             $categories = Categories::where('language', $post?->language)->get();
         } else {
             $categories = Categories::where('language', session('language'))->get();
@@ -293,6 +302,8 @@ class PostController extends Controller
                 'categories' => $categories->map(fn (Categories $category) => [
                     'id' => (string) $category->id,
                     'name' => $category->name,
+                    // Eski blade secenek etiketine dil sonekini basiyordu.
+                    'language' => $category->language,
                 ])->values(),
                 /*
                  * User::all() sinirsiz (bkz. B9). Davranisi degistirmemek icin
@@ -352,6 +363,11 @@ class PostController extends Controller
             'image' => $post->getFirstMediaUrl('posts', 'resized') ?: null,
             'qr_link' => $post->qr_link ?? null,
             'qr_scans_count' => (int) ($post->qr_scans_count ?? 0),
+            // Eski blade QR'i CDN'den yuklenen qrcodejs ile ciziyordu. Yeni
+            // bagimlilik eklemek yerine sunucuda SVG uretilir (Fortify 2FA
+            // ekraninda zaten kullanilan bacon/bacon-qr-code ile, ayni data-URI
+            // deseninde).
+            'qr_image' => self::qrImage($post->qr_link ?? null),
             'history_count' => $post->relationLoaded('history') ? $post->history->count() : 0,
             'comments_count' => $post->relationLoaded('comments') ? $post->comments->count() : 0,
             // datetime-local girdisi icin saniyesiz yerel bicim.
@@ -361,11 +377,32 @@ class PostController extends Controller
         ];
     }
 
+    /**
+     * QR baglantisini data-URI SVG'ye cevirir; baglanti yoksa ya da uretici
+     * kullanilamiyorsa null doner (editor ekrani bu yuzden asla patlamaz).
+     */
+    private static function qrImage(?string $link): ?string
+    {
+        if (! $link) {
+            return null;
+        }
+
+        try {
+            $svg = (new Writer(
+                new ImageRenderer(new RendererStyle(220, 0), new SvgImageBackEnd)
+            ))->writeString($link);
+
+            return 'data:image/svg+xml;base64,'.base64_encode($svg);
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
     public function save(
         $type,
         PostRequest $request,
         Posts $post
-    ): JsonResponse {
+    ): JsonResponse|RedirectResponse {
         try {
             DB::beginTransaction();
             $isNewPost = ! $post->id;
@@ -403,7 +440,17 @@ class PostController extends Controller
             $post->created_at = dateformat($request->post('published_at'), 'Y-m-d H:i:s', config('app.timezone'));
 
             $hreflang = [];
-            foreach ($request->hreflang_url as $key => $value) {
+            /*
+             * `hreflang_url` GONDERILMEYEBILIR.
+             *
+             * Vue formu bunu bos nesne olarak baslatiyor; Inertia'nin
+             * objectToFormData'si bos nesne icin SIFIR alan ekliyor, yani
+             * anahtar govdede hic yer almiyor. Korumasiz foreach null uzerinde
+             * ErrorException firlatiyordu -> yeni yazi/sayfa/kategori
+             * kaydedilemiyor, mevcut kayitta hreflang bos ise duzenleme de
+             * kaydedilemiyor.
+             */
+            foreach ((array) $request->input('hreflang_url', []) as $key => $value) {
                 if ($value != null) {
                     $hreflang[$key] = GetPost($value);
                 }
@@ -537,11 +584,13 @@ class PostController extends Controller
     /**
      * @throws MediaCannotBeDeleted
      */
-    public function imageDelete($type, Posts $post)
+    public function imageDelete($type, Posts $post, Request $request)
     {
         $post->deleteMedia($post->getFirstMedia('posts'));
 
-        return response()->json(['status' => true, 'message' => __('post.success_image_delete')]);
+        return $request->inertia()
+            ? back()->with('success', __('post.success_image_delete'))
+            : response()->json(['status' => true, 'message' => __('post.success_image_delete')]);
     }
 
     public function media($type, Posts $post): SymfonyResponse
@@ -615,8 +664,10 @@ class PostController extends Controller
     {
         $post->deleteMedia($request->post('media_id'));
 
-        return response()->json([
-            'success' => true,
-        ]);
+        return $request->inertia()
+            ? back()->with('success', __('post.success_image_delete'))
+            : response()->json([
+                'success' => true,
+            ]);
     }
 }

@@ -7,16 +7,27 @@ import { __ } from '../composables/useLang';
 const page = usePage();
 const open = ref(false);
 const root = ref(null);
+const loaded = ref(false);
 
 function outside(e) { if (root.value && !root.value.contains(e.target)) open.value = false; }
 onMounted(() => document.addEventListener('click', outside));
 onUnmounted(() => document.removeEventListener('click', outside));
 
 /*
- * notifications.markAllAsRead durum degistiren bir GET route'u ve henuz Blade
- * ekranina yonlendiriyor. Inertia ziyareti yerine axios ile cagirilip yalnizca
- * sayaclar tazelenir.
+ * `notifications` paylasilan prop'u Inertia::optional() ile tanimli - ilk
+ * yuklemede HIC gonderilmiyor. Dropdown acilana kadar hicbir zaman istenmedigi
+ * icin liste daima bos gorunuyordu; burada acilista bir kereligine `only`
+ * reload ile cekiliyor (`loaded` bayragi tekrar tekrar istek atmayi engeller).
  */
+function toggle() {
+  open.value = !open.value;
+
+  if (open.value && !loaded.value) {
+    loaded.value = true;
+    router.reload({ only: ['notifications'] });
+  }
+}
+
 function markAll() {
   axios
     .get(route('notifications.markAllAsRead'))
@@ -29,7 +40,7 @@ function markAll() {
   <div ref="root" class="relative">
     <button :title="__('notifications.notifications')"
             class="relative grid h-[34px] w-[34px] place-items-center rounded-[9px] border border-p-line bg-p-panel2 text-p-ink2 hover:text-p-ink"
-            @click="open = !open">
+            @click="toggle">
       <i class="fa-solid fa-bell text-[13px]"></i>
       <span v-if="page.props.counts?.unreadNotifications"
             class="absolute -right-1 -top-1 grid h-4 min-w-[16px] place-items-center rounded-lg bg-p-danger px-1 text-[9.5px] font-bold text-white">

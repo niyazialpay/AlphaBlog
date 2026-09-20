@@ -90,6 +90,32 @@ function clearCache() {
     .catch(() => {});
 }
 
+/**
+ * Breadcrumb bağlantısının URL'i.
+ *
+ * İki şey yapar:
+ *  1. `crumb.params` destekler. Bazı panel route'ları ZORUNLU segment taşıyor
+ *     (ör. `admin.posts` → `{panel}/{type}`); parametresiz `route()` çağrısı
+ *     ziggy-js'te "'type' parameter is required" fırlatır.
+ *  2. Fırlatmayı yutar. Breadcrumb render'ı sırasında atılan bir hata Vue'nun
+ *     renderComponentRoot'u tarafından yakalanır ve TÜM PanelLayout alt ağacı
+ *     boş bir Comment düğümüne düşer — yani tek bir eksik parametre koca ekranı
+ *     öldürür. Çözülemeyen crumb bağlantı yerine düz metin olur.
+ */
+function crumbHref(crumb) {
+  if (!crumb.route) {
+    return null;
+  }
+
+  try {
+    return route(crumb.route, crumb.params ?? undefined);
+  } catch (error) {
+    console.error('[panel] breadcrumb route cozulemedi:', crumb.route, error);
+
+    return null;
+  }
+}
+
 function onKey(e) {
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
     e.preventDefault();
@@ -248,7 +274,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
         </div>
         <div class="hidden truncate whitespace-nowrap text-xs text-p-ink3 md:block">
           <template v-for="(crumb, index) in pageHeader.crumbs" :key="index">
-            <Link v-if="crumb.route" :href="route(crumb.route)" class="text-p-ink3 hover:text-p-accent">{{ crumb.label }}</Link>
+            <Link v-if="crumbHref(crumb)" :href="crumbHref(crumb)" class="text-p-ink3 hover:text-p-accent">{{ crumb.label }}</Link>
             <span v-else>{{ crumb.label }}</span>
             <span v-if="index < pageHeader.crumbs.length - 1" class="px-1.5">/</span>
           </template>

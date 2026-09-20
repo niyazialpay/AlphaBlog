@@ -117,4 +117,12 @@ return [
     'send_to_google' => 'Google Index',
     'index_bulk_result' => ':queued gönderildi, :skipped atlandı',
     'draft_created' => 'Taslak oluşturuldu',
+
+    'qr_code' => 'QR Kod',
+    'qr_create' => 'QR Kod Oluştur',
+    'qr_regenerate' => 'Yeniden Oluştur',
+    'qr_regenerate_confirm' => 'Mevcut QR kod geçersiz olacak!',
+    'qr_download' => 'İndir',
+    'qr_not_created' => 'Bu yazı için henüz QR kod oluşturulmamış.',
+    'qr_scans' => ':count okuma',
 ];

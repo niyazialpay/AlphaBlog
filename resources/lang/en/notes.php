@@ -30,4 +30,8 @@ return [
     'remember_time_1_day' => '1 day',
     'remember_time_month' => '{1} 1 month|[2,Inf]:n months',
     'remember_time_1_year' => '1 year',
+    'success_save' => 'Saved successfully',
+    'media_deleted' => 'Image deleted successfully',
+    'delete_error' => 'An error occurred while deleting',
+    'content_string' => 'Content must be a string',
 ];

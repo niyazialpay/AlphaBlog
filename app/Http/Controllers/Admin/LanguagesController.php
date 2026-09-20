@@ -15,6 +15,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class LanguagesController extends Controller
 {
@@ -77,7 +78,7 @@ class LanguagesController extends Controller
                     'status' => 'success',
                     'message' => __('language.save_success'),
                 ]);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             DB::rollBack();
 
             return request()->inertia()
@@ -96,6 +97,20 @@ class LanguagesController extends Controller
         try {
             DB::beginTransaction();
             $language = $languages::where('id', GetPost($request->post('id')))->first();
+
+            /*
+             * `first()` null donebiliyor; asagidaki `$language->code` erisimi
+             * `Error` firlatir ve `catch (Exception)` onu YAKALAMAZ — sonuc
+             * 500 + acik kalan transaction (istek boyunca kilit).
+             */
+            if (! $language) {
+                DB::rollBack();
+
+                return $request->inertia()
+                    ? back()->with('error', __('language.delete_error'))
+                    : response()->json(['status' => false, 'message' => __('language.delete_error')], 404);
+            }
+
             if (Posts::where('language', $language->code)->count() > 0) {
                 $error_message = __('language.has_posts');
             }
@@ -112,10 +127,15 @@ class LanguagesController extends Controller
                 $error_message = __('language.delete_default');
             }
             if (isset($error_message)) {
-                return response()->json([
-                    'status' => false,
-                    'message' => $error_message,
-                ]);
+                // Bu yol commit GORMUYOR: transaction acik kalirdi.
+                DB::rollBack();
+
+                return $request->inertia()
+                    ? back()->with('error', $error_message)
+                    : response()->json([
+                        'status' => false,
+                        'message' => $error_message,
+                    ]);
             }
             SeoSettings::where('language', $language->code)->delete();
             $language->delete();
@@ -124,18 +144,22 @@ class LanguagesController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'status' => true,
-                'message' => __('language.delete_success'),
-            ]);
-        } catch (Exception $e) {
+            return $request->inertia()
+                ? back()->with('success', __('language.delete_success'))
+                : response()->json([
+                    'status' => true,
+                    'message' => __('language.delete_success'),
+                ]);
+        } catch (Throwable $e) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => false,
-                'message' => __('language.delete_error'),
-                'error' => $e->getMessage(),
-            ]);
+            return $request->inertia()
+                ? back()->with('error', __('language.delete_error'))
+                : response()->json([
+                    'status' => false,
+                    'message' => __('language.delete_error'),
+                    'error' => $e->getMessage(),
+                ]);
         }
     }
 }

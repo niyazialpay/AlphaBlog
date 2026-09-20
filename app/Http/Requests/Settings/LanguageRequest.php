@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Settings;
 
+use App\Models\Languages;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -23,25 +24,18 @@ class LanguageRequest extends FormRequest
      */
     public function rules(): array
     {
-        if ($this->id) {
-            $code_unique = Rule::unique('languages', 'code')
-                ->where('code', $this->input('code'))
-                ->whereNot('id', $this->input('id'));
-
-            $name_unique = Rule::unique('languages', 'name')
-                ->where('name', $this->input('name'))
-                ->whereNot('id', $this->input('id'));
-        } else {
-            $code_unique = Rule::unique('languages', 'code')
-                ->where('code', $this->input('code'));
-
-            $name_unique = Rule::unique('languages', 'name')
-                ->where('name', $this->input('name'));
-        }
+        /*
+         * `$this->id` govdede olmayan bir alana bakiyordu (Vue formu `id`
+         * gondermiyor); route'a bagli modelden okunmali. Aksi halde duzenleme
+         * modu hic tetiklenmiyor ve name/code ayni birakildiginda (tipik
+         * duzenleme senaryosu) unique kurali kendi kaydini dislayamiyordu.
+         */
+        $language = $this->route('language');
+        $languageId = $language instanceof Languages ? $language->id : $language;
 
         return [
-            'name' => ['required', 'string', $name_unique],
-            'code' => ['required', 'string', $code_unique],
+            'name' => ['required', 'string', Rule::unique('languages', 'name')->ignore($languageId)],
+            'code' => ['required', 'string', Rule::unique('languages', 'code')->ignore($languageId)],
             'flag' => ['required', 'string'],
             'default' => ['integer', 'in:0,1'],
             'status' => ['integer', 'in:0,1'],

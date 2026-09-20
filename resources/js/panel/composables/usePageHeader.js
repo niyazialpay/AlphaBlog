@@ -9,6 +9,11 @@ import { onUnmounted, ref } from 'vue';
  *
  * Her sayfa setup içinde çağırır:
  *   usePageHeader(__('general.about'), [{ label: __('dashboard.dashboard'), route: 'admin.index' }])
+ *
+ * Zorunlu segment taşıyan route'lar için `params` verilmeli:
+ *   { label: __('post.blogs'), route: 'admin.posts', params: { type: 'blogs' } }
+ * Aksi halde ziggy-js fırlatır ve breadcrumb'ı render eden PanelLayout alt ağacı
+ * komple boş ekrana düşer (PanelLayout.crumbHref bunu ayrıca yakalar).
  */
 export const pageHeader = ref({ title: '', crumbs: [] });
 

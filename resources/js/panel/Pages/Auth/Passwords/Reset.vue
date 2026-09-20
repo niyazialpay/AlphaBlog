@@ -41,6 +41,7 @@ async function submit() {
     password: password.value,
     password_confirmation: passwordConfirmation.value,
     _token: document.head.querySelector('meta[name="csrf-token"]')?.content || '',
+    'cf-turnstile-response': turnstile.value?.getResponse(),
   };
 
   if (props.honeypot.enabled) {

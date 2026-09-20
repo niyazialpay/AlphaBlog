@@ -32,7 +32,7 @@ class CloudflareTurnstile
                 ],
                 'body' => json_encode([
                     'secret' => config('cloudflare.turnstile_secret_key'),
-                    'response' => $request->post('cf-turnstile-response'),
+                    'response' => $request->input('cf-turnstile-response'),
                     'remoteip' => $request->ip(),
                 ]),
 

@@ -8,6 +8,7 @@ return [
     'thinking' => 'Düşünüyorum',
     'think.updated' => 'Düşünme durumu güncellendi',
     'think.error' => 'Düşünme durumu güncellenirken bir hata oluştu',
+    'check.success' => 'Görüntülenen kelimeler incelendi olarak işaretlendi',
     'delete' => [
         'warning' => 'Kelimeyi silmek istediğinize emin misiniz?',
         'success' => 'Kelime başarıyla silindi',

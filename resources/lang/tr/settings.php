@@ -43,6 +43,7 @@ return [
     'general_settings_saved' => 'Ayarlar başarıyla güncellendi',
     'logo_deleted_successfully' => 'Logo başarıyla silindi',
     'favicon_deleted_successfully' => 'Favicon başarıyla silindi',
+    'app_icon_deleted_successfully' => 'Uygulama ikonu başarıyla silindi',
 
     'analytics_save_success' => 'Analitik ayarları başarıyla kaydedildi',
     'advertise_save_success' => 'Reklam ayarları başarıyla kaydedildi',
@@ -66,4 +67,14 @@ return [
     'social_header' => 'Üst menüde göster',
     'social_footer' => 'Alt menüde göster',
     'leave_blank_to_keep' => 'Değiştirmek istemiyorsanız boş bırakın',
+
+    'google_indexing_title' => 'Google Indexing API',
+    'google_indexing_saved' => 'Google Indexing ayarları kaydedildi',
+    'google_indexing_enabled' => 'Otomatik indexlemeyi etkinleştir',
+    'google_indexing_daily_limit' => 'Günlük limit',
+    'google_indexing_daily_limit_help' => "Google varsayılan günlük kotası 200 URL'dir.",
+    'google_indexing_site_url' => 'Search Console Site URL',
+    'google_indexing_site_url_help' => "Search Console'daki property URL'si. URL-prefix property için https://site.com/, domain property için sc-domain:site.com girin. URL durum sorgusu için zorunludur.",
+    'google_indexing_credentials_help' => 'Servis hesabı kimlik bilgileri storage/app/analytics/service-account-credentials.json dosyasından okunmaktadır.',
+    'notifications_success' => 'Bildirim ayarları başarıyla kaydedildi',
 ];

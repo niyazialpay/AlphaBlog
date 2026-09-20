@@ -87,6 +87,13 @@ return [
     'active_2fa' => 'Active 2FA',
     'deactivate_2fa' => 'Deactivate 2FA',
     'validate_2fa' => 'Validate 2FA',
+    'two_fa_tab' => 'Two-Factor Authentication',
+    'two_fa_scan_qr' => 'Scan this QR code with your authenticator app',
+    'two_fa_secret_key' => "Can't scan? Enter this key manually",
+    'two_fa_otp_code' => 'Verification Code',
+    'two_fa_enabled_message' => 'Two-factor authentication is enabled',
+    'recovery_codes' => 'Recovery Codes',
+    'recovery_codes_hint' => 'Store these codes in a secure place. You can use them to access your account if you lose your device.',
 
     'switch_to_password' => 'Switch to password',
     'switch_to_webauthn' => 'Switch to WebAuthn',
@@ -114,4 +121,6 @@ return [
     'about_me_tab' => 'About me',
     'about_text' => 'About',
     'change_image_label' => 'Change image',
+    'delete_success' => 'Deleted successfully',
+    'delete_error' => 'An error occurred while deleting',
 ];

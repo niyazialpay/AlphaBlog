@@ -39,4 +39,12 @@ return [
     'comment_error' => 'An error occurred while saving the comment.',
 
     'new_comment_notification' => 'A new comment has been made!',
+    'success_save' => 'Comment saved successfully',
+    'error_save' => 'An error occurred while saving the comment',
+    'success_delete' => 'Comment deleted successfully',
+    'error_delete' => 'An error occurred while deleting the comment',
+    'success_restore' => 'Comment restored successfully',
+    'error_restore' => 'An error occurred while restoring the comment',
+    'success_force_delete' => 'Comment permanently deleted',
+    'error_force_delete' => 'An error occurred while permanently deleting the comment',
 ];

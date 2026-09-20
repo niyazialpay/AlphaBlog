@@ -7,6 +7,7 @@ use App\Models\Languages;
 use App\Models\Settings\GeneralSettings;
 use App\Models\Settings\SeoSettings;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -17,17 +18,45 @@ class SeoSettingsController extends Controller
     {
         try {
             DB::beginTransaction();
-            foreach (Languages::all() as $language) {
-                $seo = $seo_settings->where('language', $language->code)->first();
-                $seo->site_name = $request->post('site_name_'.$language->code);
-                $seo->title = $request->post('site_title_'.$language->code);
-                $seo->description = $request->post('site_description_'.$language->code);
-                $seo->keywords = $request->post('site_keywords_'.$language->code);
-                $seo->author = $request->post('site_author_'.$language->code);
-                $seo->robots = $request->post('robots_'.$language->code);
+
+            /*
+             * DIL KAPSAMI.
+             *
+             * Eski Blade formu TUM dilleri tek gonderimde, dil ekli adlarla
+             * yolluyordu (`site_name_tr`, `site_name_en`, ...). Vue formu ise
+             * sekme basina YALNIZCA aktif dilin duz alanlarini yolluyor
+             * (`site_name`, `title`, ... + `language`).
+             *
+             * Ikisi ayirt edilmezse Vue gonderimi her dil icin dil ekli anahtari
+             * arar, hepsini null bulur ve TUM dillerin SEO satirlarini NULL'lar.
+             * Kolonlar nullable oldugu icin DB reddetmez, commit gecer, cache
+             * temizlenir ve kullanici "kaydedildi" mesaji gorur. Sessiz ve geri
+             * alinamaz veri kaybi.
+             */
+            $scoped = $request->filled('language');
+
+            $languages = $scoped
+                ? Languages::where('code', $request->post('language'))->get()
+                : Languages::all();
+
+            foreach ($languages as $language) {
+                $suffix = $scoped ? '' : '_'.$language->code;
+
+                // Bir dil icin satir yoksa `first()` null doner ve sonraki
+                // ozellik atamasi `Error` firlatir (Exception DEGIL).
+                $seo = $seo_settings->newQuery()->firstOrNew(['language' => $language->code]);
+
+                $seo->site_name = $request->post($scoped ? 'site_name' : 'site_name'.$suffix);
+                $seo->title = $request->post($scoped ? 'title' : 'site_title'.$suffix);
+                $seo->description = $request->post($scoped ? 'description' : 'site_description'.$suffix);
+                $seo->keywords = $request->post($scoped ? 'keywords' : 'site_keywords'.$suffix);
+                $seo->author = $request->post($scoped ? 'author' : 'site_author'.$suffix);
+                $seo->robots = $request->post($scoped ? 'robots' : 'robots'.$suffix);
+
                 Cache::forget(config('cache.prefix').'seo_settings_'.$language->code);
                 $seo->save();
             }
+
             DB::commit();
 
             return request()->inertia()
@@ -36,7 +65,7 @@ class SeoSettingsController extends Controller
                     'status' => 'success',
                     'message' => __('settings.seo_settings_saved'),
                 ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
 
             return request()->inertia()
@@ -60,7 +89,7 @@ class SeoSettingsController extends Controller
                 ]);
     }
 
-    public function saveLlms(Request $request): JsonResponse
+    public function saveLlms(Request $request): JsonResponse|RedirectResponse
     {
         // first() satir yoksa null doner ve ->update() fatal verirdi (temiz kurulum).
         $settings = GeneralSettings::first() ?? new GeneralSettings;
@@ -81,7 +110,7 @@ class SeoSettingsController extends Controller
                 ]);
     }
 
-    public function clearLlmsCache(): JsonResponse
+    public function clearLlmsCache(): JsonResponse|RedirectResponse
     {
         Cache::forget('llms_txt_content');
         Cache::forget('llms_full_txt_content');
@@ -94,7 +123,7 @@ class SeoSettingsController extends Controller
                 ]);
     }
 
-    public function saveGoogleIndexing(Request $request): JsonResponse
+    public function saveGoogleIndexing(Request $request): JsonResponse|RedirectResponse
     {
         $updateData = [
             'google_indexing_enabled' => $request->boolean('google_indexing_enabled'),

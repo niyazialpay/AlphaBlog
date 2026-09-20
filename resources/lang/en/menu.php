@@ -45,4 +45,5 @@ return [
     'custom_link' => 'Custom Link',
     'indent' => 'Make sub-item',
     'outdent' => 'Move up a level',
+    'menu_delete_error' => 'An error occurred while deleting the menu',
 ];

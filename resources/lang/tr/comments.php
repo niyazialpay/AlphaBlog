@@ -39,4 +39,12 @@ return [
     'comment_error' => 'Yorum kaydedilirken bir hata oluştu.',
 
     'new_comment_notification' => 'Yeni bir yorum yapıldı!',
+    'success_save' => 'Yorum başarıyla kaydedildi',
+    'error_save' => 'Yorum kaydedilirken bir hata oluştu',
+    'success_delete' => 'Yorum başarıyla silindi',
+    'error_delete' => 'Yorum silinirken bir hata oluştu',
+    'success_restore' => 'Yorum başarıyla geri yüklendi',
+    'error_restore' => 'Yorum geri yüklenirken bir hata oluştu',
+    'success_force_delete' => 'Yorum kalıcı olarak silindi',
+    'error_force_delete' => 'Yorum kalıcı olarak silinirken bir hata oluştu',
 ];

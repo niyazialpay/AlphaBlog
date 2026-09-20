@@ -24,7 +24,9 @@ class CloudflareApiSettingsRequest extends FormRequest
     {
         return [
             'cf_email' => ['required', 'email'],
-            'cf_key' => ['required', 'string'],
+            // "Bos birak, korunur" tasarimi: anahtar arayuze hic geri gonderilmiyor
+            // (SettingsController::index -> 'has_key'), bu yuzden zorunlu olamaz.
+            'cf_key' => ['nullable', 'string'],
             'cf_domain' => ['required', 'string'],
         ];
     }

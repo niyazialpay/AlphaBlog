@@ -31,7 +31,7 @@ const open = ref(false);
 const editing = ref(null);
 const confirm = ref(null);
 
-const form = useForm({ old_url: '', new_url: '', redirect_code: 301 });
+const form = useForm({ route_id: '', old_url: '', new_url: '', redirect_code: 301 });
 
 let timer = null;
 watch(search, (value) => {
@@ -47,7 +47,7 @@ watch(search, (value) => {
 
 function create() {
   editing.value = null;
-  form.defaults({ old_url: '', new_url: '', redirect_code: 301 });
+  form.defaults({ route_id: '', old_url: '', new_url: '', redirect_code: 301 });
   form.reset();
   form.clearErrors();
   open.value = true;
@@ -55,6 +55,10 @@ function create() {
 
 function edit(row) {
   editing.value = row;
+  // RouteRequest'in unique kuralı `route_id` gövde alanını okuyor (eski
+  // redirects.blade.php'deki gizli input'un karşılığı) — route parametresi
+  // yeterli değil, aksi halde kayıt kendi old_url'ini unique ihlali sayar.
+  form.route_id = row.id;
   form.old_url = row.old_url;
   form.new_url = row.new_url;
   form.redirect_code = row.redirect_code;

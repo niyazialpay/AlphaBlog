@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Category;
 
+use App\Models\Post\Categories;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -23,20 +24,23 @@ class CategoryRequest extends FormRequest
      */
     public function rules(): array
     {
-        if ($this->input('id')) {
-            $slug_unique = Rule::unique('categories', 'slug')
-                ->where('language', $this->input('language'))
-                ->whereNot('id', $this->input('id'));
-        } else {
-            $slug_unique = Rule::unique('categories', 'slug')
-                ->where('language', $this->input('language'));
-        }
+        /*
+         * Duzenleme modu govdeden (`id`) DEGIL, route parametresinden okunur —
+         * Vue formu `id` alanini hic gondermiyor (route-model binding zaten
+         * kategoriyi URL'den cozuyor). Gövdeye bakmak, düzenleme sırasında
+         * unique kuralının kendi kaydını asla dışlayamamasına ve doğrulamanın
+         * komple reddedilmesine yol açıyordu.
+         */
+        $category = $this->route('category');
+        $categoryId = $category instanceof Categories ? $category->id : $category;
 
         return [
             'name' => ['required', 'string'],
             'slug' => [
                 'string',
-                $slug_unique,
+                Rule::unique('categories', 'slug')
+                    ->where('language', $this->input('language'))
+                    ->ignore($categoryId),
             ],
             'parent_id' => ['nullable', 'integer', 'exists:categories,id'],
             'image' => 'nullable|file|image|max:51200|mimes:jpeg,png,jpg,gif,webp',

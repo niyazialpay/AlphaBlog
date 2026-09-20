@@ -34,6 +34,7 @@ async function submit() {
   const body = {
     login: login.value,
     _token: document.head.querySelector('meta[name="csrf-token"]')?.content || '',
+    'cf-turnstile-response': turnstile.value?.getResponse(),
   };
 
   if (props.honeypot.enabled) {

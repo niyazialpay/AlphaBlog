@@ -43,6 +43,7 @@ return [
     'general_settings_saved' => 'Settings updated successfully',
     'logo_deleted_successfully' => 'Logo deleted successfully',
     'favicon_deleted_successfully' => 'Favicon deleted successfully',
+    'app_icon_deleted_successfully' => 'App icon deleted successfully',
 
     'analytics_save_success' => 'Analytics settings saved successfully',
     'advertise_save_success' => 'Advertisement settings saved successfully',
@@ -66,4 +67,14 @@ return [
     'social_header' => 'Show in header',
     'social_footer' => 'Show in footer',
     'leave_blank_to_keep' => 'Leave blank to keep the current value',
+
+    'google_indexing_title' => 'Google Indexing API',
+    'google_indexing_saved' => 'Google Indexing settings saved',
+    'google_indexing_enabled' => 'Enable automatic indexing',
+    'google_indexing_daily_limit' => 'Daily limit',
+    'google_indexing_daily_limit_help' => "Google's default daily quota is 200 URLs.",
+    'google_indexing_site_url' => 'Search Console Site URL',
+    'google_indexing_site_url_help' => 'The property URL in Search Console. Use https://site.com/ for a URL-prefix property, or sc-domain:site.com for a domain property. Required for URL status queries.',
+    'google_indexing_credentials_help' => 'Service account credentials are read from storage/app/analytics/service-account-credentials.json.',
+    'notifications_success' => 'Notification settings saved successfully',
 ];

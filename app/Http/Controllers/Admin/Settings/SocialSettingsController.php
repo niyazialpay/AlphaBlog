@@ -42,19 +42,56 @@ class SocialSettingsController extends Controller
         }
     }
 
+    /**
+     * Istekten gelen sosyal ag listesini gecerli anahtarlara indirger.
+     *
+     * Eski jQuery formu `social_networks_header[]` dizisi gonderiyordu; Inertia
+     * formu da dizi gonderir. Skaler/gecersiz her deger elenir.
+     *
+     * @return list<string>
+     */
+    private static function networkList(mixed $value): array
+    {
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+            $value = is_array($decoded) ? $decoded : [$value];
+        }
+
+        if (! is_array($value)) {
+            return [];
+        }
+
+        $allowed = array_keys(social_list());
+
+        return array_values(array_unique(array_filter(
+            $value,
+            fn ($item) => is_string($item) && in_array($item, $allowed, true),
+        )));
+    }
+
     public function saveHeader(Request $request)
     {
         try {
             DB::beginTransaction();
+            /*
+             * Bu iki kolon HANGI aglarin gosterilecegini tutan bir liste.
+             * Ham istek degeri dogrudan yazilirsa (ornegin bir checkbox'tan gelen
+             * "1"/"0") kolona skaler dusuyor ve Blade temalarinda
+             * `in_array(..., json_decode($show, true))` TypeError firlatiyor.
+             * Daima gecerli `social_list()` anahtarlarindan olusan bir listeye indirgenir.
+             */
+            $header = self::networkList($request->input('social_networks_header'));
+            $footer = self::networkList($request->input('social_networks_footer'));
+
             $socialSettings = SocialSettings::first();
             if ($socialSettings) {
-                $socialSettings->social_networks_header = $request->social_networks_header ? $request->social_networks_header : [];
-                $socialSettings->social_networks_footer = $request->social_networks_footer ? $request->social_networks_footer : [];
+                $socialSettings->social_networks_header = $header;
+                $socialSettings->social_networks_footer = $footer;
                 $socialSettings->save();
             } else {
                 SocialSettings::create([
-                    'social_networks_header' => $request->social_networks_header,
-                    'social_networks_footer' => $request->social_networks_footer,
+                    'social_networks_header' => $header,
+                    'social_networks_footer' => $footer,
                 ]);
             }
             Cache::forget(config('cache.prefix').'social_settings');
@@ -69,11 +106,13 @@ class SocialSettingsController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => 'error',
-                'message' => __('profile.save_error'),
-                'error' => $e->getMessage(),
-            ], 422);
+            return request()->inertia()
+                ? back()->with('error', __('profile.save_error'))
+                : response()->json([
+                    'status' => 'error',
+                    'message' => __('profile.save_error'),
+                    'error' => $e->getMessage(),
+                ], 422);
         }
     }
 }

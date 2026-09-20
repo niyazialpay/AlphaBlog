@@ -81,8 +81,40 @@ final class PanelLang
             $key = $module->getLowerName();
             $namespaces[] = $key.'::panel';
             $namespaces[] = $key.'::'.$key;
+
+            foreach (self::moduleLangGroups($module) as $group) {
+                $namespaces[] = $key.'::'.$group;
+            }
         }
 
-        return $namespaces;
+        return array_values(array_unique($namespaces));
+    }
+
+    /**
+     * Modülün lang/{locale} dizinlerinde fiilen var olan dosya adlarını (grup
+     * adlarını) döner. `panel` ve modül anahtarı yukarıda zaten eklendiği için
+     * burada tekrar gelmesi zararsızdır (array_unique ile sadeleşir). Böylece
+     * `valefix::ai` gibi ikinci bir dosyası olan her modül, elle listeye
+     * eklenmeye gerek kalmadan torbaya girer.
+     *
+     * @return list<string>
+     */
+    private static function moduleLangGroups(\Nwidart\Modules\Module $module): array
+    {
+        $langPath = $module->getPath().'/lang';
+
+        if (! is_dir($langPath)) {
+            return [];
+        }
+
+        $groups = [];
+
+        foreach (glob($langPath.'/*', GLOB_ONLYDIR) ?: [] as $localeDir) {
+            foreach (glob($localeDir.'/*.php') ?: [] as $file) {
+                $groups[] = pathinfo($file, PATHINFO_FILENAME);
+            }
+        }
+
+        return array_values(array_unique($groups));
     }
 }

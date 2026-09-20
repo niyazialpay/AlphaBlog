@@ -28,9 +28,33 @@ export function resolveModuleWidget(type) {
         return null;
     }
 
-    const [namespace, name] = type.split('::');
+    const [namespace, rest] = type.split('::');
 
-    return moduleLookup[`${namespace.toLowerCase()}::${name}`] || null;
+    /*
+     * Anahtarlar Blade doneminden kalma NAMESPACE'LI GORUNUM YOLLARI:
+     * `edergi::widgets.edergi_reads`. Bu anahtarlar DEGISTIRILEMEZ —
+     * `dashboard_widgets` tablosundaki `widget_type` degerleri bunlar, yani
+     * kullanicilarin kayitli dashboard duzenleri onlara bagli.
+     *
+     * Vue tarafinda karsiligi `Widgets/edergi_reads.vue`; bu yuzden bastaki
+     * `widgets.` segmenti soyulur. Hem soyulmus hem ham biçim denenir ki
+     * `widgets.` onekini kullanmayan moduller de calissin.
+     */
+    const candidates = [rest];
+
+    if (rest.startsWith('widgets.')) {
+        candidates.push(rest.slice('widgets.'.length));
+    }
+
+    for (const name of candidates) {
+        const hit = moduleLookup[`${namespace.toLowerCase()}::${name}`];
+
+        if (hit) {
+            return hit;
+        }
+    }
+
+    return null;
 }
 
 /* Çekirdek widget'ları üç jenerik şekle indirger: metric / chart / table. */

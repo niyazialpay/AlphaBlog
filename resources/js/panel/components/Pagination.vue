@@ -28,7 +28,7 @@ function label(link) {
 
 <template>
   <div
-    v-if="visible.length > 3"
+    v-if="visible.length > 1"
     class="flex flex-wrap items-center gap-2 text-xs text-p-ink3"
   >
     <span v-if="meta.total !== undefined" class="tabular-nums">

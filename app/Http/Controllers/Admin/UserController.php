@@ -6,6 +6,7 @@ use App\Actions\SocialNetworkSaveAction;
 use App\Actions\UserAction;
 use App\Actions\WebAuthnAction;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AdminPasswordRequest;
 use App\Http\Requests\PasswordRequest;
 use App\Http\Requests\ProfileImageRequest;
 use App\Http\Requests\UserCreateRequest;
@@ -98,14 +99,30 @@ class UserController extends Controller
             ], 200);
     }
 
-    public function userPasswordChange(Request $request, User $user_id)
+    /**
+     * Yoneticinin BASKA bir hesabin parolasini degistirmesi.
+     *
+     * SECURITY: rutbe tavani `userSecretLogin` ile AYNI — rutbesi esit ya da
+     * yuksek bir hesabin parolasi degistirilemez (admin -> owner devralma yolu).
+     * Kendi parolasi da buradan degistirilemez: arayuz zaten `admin.profile.password`
+     * ucunu kullaniyor ve orada eski parola dogrulamasi var; bu uc uzerinden
+     * gecilseydi politika baypas edilirdi.
+     */
+    public function userPasswordChange(AdminPasswordRequest $request, User $user_id)
     {
+        $ranks = $this->roleRanks();
+        $actorRank = $ranks[auth()->user()->role] ?? -1;
+        $targetRank = $ranks[$user_id->role] ?? PHP_INT_MAX;
+        abort_unless($targetRank < $actorRank, 403);
+
         UserAction::changePassword($request, $user_id);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => __('profile.password_change_success'),
-        ], 200);
+        return $request->inertia()
+            ? back()->with('success', __('profile.password_change_success'))
+            : response()->json([
+                'status' => 'success',
+                'message' => __('profile.password_change_success'),
+            ], 200);
     }
 
     public function save(UserRequest $request)
@@ -226,6 +243,27 @@ class UserController extends Controller
                     'webauthn' => (bool) $user->getAttributeValue('webauthn'),
                     'two_factor_confirmed' => (bool) $user->two_factor_confirmed_at,
                 ],
+                /*
+                 * panel.profile.partials.two-factor-authentication-tab karsiligi.
+                 * Eski partial de daima auth()->user() uzerinde calisiyordu (route
+                 * parametresindeki hedef kullaniciyi degil) - bu yuzden yalniz
+                 * isSelf'te doldurulur; admin baska birini duzenlerken sekme hic
+                 * gosterilmez (eskiden kafa karistirici sekilde adminin KENDI 2FA
+                 * durumunu gosteriyordu, bu Vue portunda tasinmadi).
+                 * QR SVG onceden render edilmis HTML prop olamaz (bkz. sozlesme)
+                 * - bu yuzden data-uri img src'i olarak gonderiliyor.
+                 */
+                'twoFactor' => $isSelf ? [
+                    'confirmed' => (bool) $user->two_factor_confirmed_at,
+                    'pending' => (bool) ($user->two_factor_secret && ! $user->two_factor_confirmed_at),
+                    'secretKey' => ($user->two_factor_secret && ! $user->two_factor_confirmed_at)
+                        ? decrypt($user->two_factor_secret)
+                        : null,
+                    'qrCodeSvg' => ($user->two_factor_secret && ! $user->two_factor_confirmed_at)
+                        ? 'data:image/svg+xml;base64,'.base64_encode($user->twoFactorQrCodeSvg())
+                        : null,
+                    'recoveryCodes' => $user->two_factor_confirmed_at ? $user->recoveryCodes() : [],
+                ] : null,
                 'social' => collect(self::SOCIAL_FIELDS)
                     ->mapWithKeys(fn (string $field) => [$field => $social->{$field} ?? ''])
                     ->all(),
@@ -271,10 +309,12 @@ class UserController extends Controller
     {
         if ($request->has('role') && $request->role !== $user_id->role) {
             if (! $this->canAssignRole(auth()->user(), $request->role)) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => __('profile.save_error'),
-                ], 403);
+                return $request->inertia()
+                    ? back()->with('error', __('profile.save_error'))
+                    : response()->json([
+                        'status' => 'error',
+                        'message' => __('profile.save_error'),
+                    ], 403);
             }
             $user_id->role = $request->role;
             $user_id->save();
@@ -329,10 +369,12 @@ class UserController extends Controller
     public function store(UserCreateRequest $request, User $user)
     {
         if (! $this->canAssignRole(auth()->user(), (string) $request->role)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => __('profile.save_error'),
-            ], 403);
+            return $request->inertia()
+                ? back()->with('error', __('profile.save_error'))
+                : response()->json([
+                    'status' => 'error',
+                    'message' => __('profile.save_error'),
+                ], 403);
         }
 
         try {
@@ -370,10 +412,12 @@ class UserController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => 'error',
-                'message' => __('profile.save_error'),
-            ], 422);
+            return $request->inertia()
+                ? back()->with('error', __('profile.save_error'))
+                : response()->json([
+                    'status' => 'error',
+                    'message' => __('profile.save_error'),
+                ], 422);
         }
     }
 
@@ -384,17 +428,21 @@ class UserController extends Controller
             $user::where('id', $request->user_id)->delete();
             DB::commit();
 
-            return response()->json([
-                'status' => 'success',
-                'message' => __('profile.delete_success'),
-            ], 200);
+            return $request->inertia()
+                ? back()->with('success', __('profile.delete_success'))
+                : response()->json([
+                    'status' => 'success',
+                    'message' => __('profile.delete_success'),
+                ], 200);
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => 'error',
-                'message' => __('profile.delete_error'),
-            ], 422);
+            return $request->inertia()
+                ? back()->with('error', __('profile.delete_error'))
+                : response()->json([
+                    'status' => 'error',
+                    'message' => __('profile.delete_error'),
+                ], 422);
         }
     }
 
@@ -416,15 +464,19 @@ class UserController extends Controller
     public function userEmailChange(Request $request, User $user_id)
     {
         if (UserAction::changeEmail($request, $user_id)) {
-            return response()->json([
-                'status' => 'success',
-                'message' => __('profile.save_success'),
-            ], 200);
+            return $request->inertia()
+                ? back()->with('success', __('profile.save_success'))
+                : response()->json([
+                    'status' => 'success',
+                    'message' => __('profile.save_success'),
+                ], 200);
         } else {
-            return response()->json([
-                'status' => 'error',
-                'message' => __('profile.save_error'),
-            ], 422);
+            return $request->inertia()
+                ? back()->with('error', __('profile.save_error'))
+                : response()->json([
+                    'status' => 'error',
+                    'message' => __('profile.save_error'),
+                ], 422);
 
         }
     }
@@ -432,15 +484,19 @@ class UserController extends Controller
     public function changeEmail(Request $request)
     {
         if (UserAction::changeEmail($request, auth()->user())) {
-            return response()->json([
-                'status' => 'success',
-                'message' => __('profile.save_success'),
-            ], 200);
+            return $request->inertia()
+                ? back()->with('success', __('profile.save_success'))
+                : response()->json([
+                    'status' => 'success',
+                    'message' => __('profile.save_success'),
+                ], 200);
         } else {
-            return response()->json([
-                'status' => 'error',
-                'message' => __('profile.save_error'),
-            ], 422);
+            return $request->inertia()
+                ? back()->with('error', __('profile.save_error'))
+                : response()->json([
+                    'status' => 'error',
+                    'message' => __('profile.save_error'),
+                ], 422);
         }
     }
 
@@ -517,10 +573,12 @@ class UserController extends Controller
             ]
         );
 
-        return response()->json([
-            'status' => 'success',
-            'message' => __('profile.save_success'),
-        ], 200);
+        return $request->inertia()
+            ? back()->with('success', __('profile.save_success'))
+            : response()->json([
+                'status' => 'success',
+                'message' => __('profile.save_success'),
+            ], 200);
     }
 
     public function userSecretLogin($user_id)
@@ -573,10 +631,12 @@ class UserController extends Controller
         $session->session()->delete();
         $session->delete();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => __('profile.delete_success'),
-        ], 200);
+        return $request->inertia()
+            ? back()->with('success', __('profile.delete_success'))
+            : response()->json([
+                'status' => 'success',
+                'message' => __('profile.delete_success'),
+            ], 200);
     }
 
     public function killAllSession(Request $request)

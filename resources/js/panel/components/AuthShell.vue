@@ -7,7 +7,13 @@
  * AdminLTE + Bootstrap + jQuery + toastr CDN'leri auth ekranlarından da düşer.
  */
 import { usePage } from '@inertiajs/vue3';
+import FlashToast from './FlashToast.vue';
 
+/*
+ * Toast kabı burada: auth sayfaları `layout: null` taşıdığı için PanelLayout —
+ * ve onun içindeki FlashToast — mount edilmiyor. Eski kabukta toastr sayfa
+ * başına yükleniyordu; giriş/parola geri bildirimi aksi halde sessiz kalır.
+ */
 defineProps({
   title: { type: String, default: '' },
 });
@@ -38,5 +44,7 @@ const page = usePage();
         <slot name="footer" />
       </div>
     </div>
+
+    <FlashToast />
   </div>
 </template>

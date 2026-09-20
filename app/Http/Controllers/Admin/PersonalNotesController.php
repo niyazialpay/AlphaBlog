@@ -29,11 +29,22 @@ class PersonalNotesController extends Controller
      *
      * 200 doner, 302 degil - bugunku davranisin aynisi ve Inertia 200 + X-Inertia
      * yanitinda bileseni dogru sekilde takas eder.
+     *
+     * TEK ISTISNA yazma istekleri: bir POST'a sayfa BILESENI donmek Inertia'nin
+     * redirect-after-POST sozlesmesine aykiri. Ustelik yazma uclari
+     * (`admin.notes.categories.create` / `.update`) `config/panel_inertia_routes.php`
+     * defterinde YOK; PanelResponse o durumda blade'e dusuyor ve Inertia XHR'ina
+     * ham AdminLTE HTML'i gidiyordu (200, sessiz). Yazmada sifre ekranina yonlendirilir.
      */
     private function encryptionGate(): ?Response
     {
         if (request()->cookie('encryption_key')) {
             return null;
+        }
+
+        if (request()->inertia() && ! request()->isMethodSafe()) {
+            return to_route('admin.notes.categories')
+                ->with('error', __('notes.encryption_key_required'));
         }
 
         return PanelResponse::render(
@@ -184,17 +195,22 @@ class PersonalNotesController extends Controller
             $note->save();
             DB::commit();
 
-            return response()->json([
-                'status' => 'success',
-                'id' => $note->id,
-            ]);
+            return $request->inertia()
+                ? redirect()->route('admin.notes.edit', ['note' => $note->id])
+                    ->with('success', __('notes.success_save'))
+                : response()->json([
+                    'status' => 'success',
+                    'id' => $note->id,
+                ]);
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-            ]);
+            return $request->inertia()
+                ? back()->with('error', $e->getMessage())
+                : response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                ]);
         }
     }
 
@@ -235,23 +251,31 @@ class PersonalNotesController extends Controller
         }
     }
 
-    public function postImageDelete(PersonalNotes $note, PersonalNotesRequest $request)
+    public function postImageDelete(PersonalNotes $note, Request $request)
     {
+        $request->validate([
+            'media_id' => 'required|integer',
+        ]);
+
         try {
             DB::beginTransaction();
             $note->deleteMedia($request->post('media_id'));
             DB::commit();
 
-            return response()->json([
-                'success' => true,
-            ]);
+            return $request->inertia()
+                ? back()->with('success', __('notes.media_deleted'))
+                : response()->json([
+                    'success' => true,
+                ]);
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ]);
+            return $request->inertia()
+                ? back()->with('error', $e->getMessage())
+                : response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ]);
         }
     }
 
@@ -276,21 +300,27 @@ class PersonalNotesController extends Controller
         );
     }
 
-    public function delete(PersonalNotes $note)
+    public function delete(PersonalNotes $note, Request $request)
     {
         try {
             DB::beginTransaction();
             if ($note->delete()) {
                 DB::commit();
 
-                return response()->json(['status' => 'success', 'message' => __('personal_notes.success_delete')]);
+                return $request->inertia()
+                    ? back()->with('success', __('notes.deleted'))
+                    : response()->json(['status' => 'success', 'message' => __('notes.deleted')]);
             } else {
-                return response()->json(['status' => 'error', 'message' => __('personal_notes.error_delete')]);
+                return $request->inertia()
+                    ? back()->with('error', __('notes.delete_error'))
+                    : response()->json(['status' => 'error', 'message' => __('notes.delete_error')]);
             }
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+            return $request->inertia()
+                ? back()->with('error', $e->getMessage())
+                : response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
 
@@ -302,10 +332,10 @@ class PersonalNotesController extends Controller
         ]);
 
         $response = $request->inertia()
-            ? back()->with('success', __('personal_notes.encryption_key_saved'))
+            ? back()->with('success', __('notes.encryption_key_saved'))
             : response()->json([
                 'status' => 'success',
-                'message' => __('personal_notes.encryption_key_saved'),
+                'message' => __('notes.encryption_key_saved'),
             ]);
 
         // Cookie yonlendirme yanitina eklenir ve Inertia yonlendirmeyi izlerken korunur.
@@ -363,38 +393,50 @@ class PersonalNotesController extends Controller
             $category->save();
             DB::commit();
 
-            return response()->json([
-                'status' => 'success',
-                'id' => $category->id,
-            ]);
+            return $request->inertia()
+                ? back()->with('success', __('notes.success_save'))
+                : response()->json([
+                    'status' => 'success',
+                    'id' => $category->id,
+                ]);
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-            ]);
+            return $request->inertia()
+                ? back()->with('error', $e->getMessage())
+                : response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                ]);
         }
     }
 
-    public function categoryDelete(PersonalNoteCategories $category)
+    public function categoryDelete(PersonalNoteCategories $category, Request $request)
     {
         try {
             if ($category->notes->count() > 0) {
-                return response()->json(['status' => false, 'message' => __('notes.error_delete_notes')]);
+                return $request->inertia()
+                    ? back()->with('error', __('notes.error_delete_notes'))
+                    : response()->json(['status' => false, 'message' => __('notes.error_delete_notes')]);
             }
             DB::beginTransaction();
             if ($category->delete()) {
                 DB::commit();
 
-                return response()->json(['status' => true, 'message' => __('notes.success_delete')]);
+                return $request->inertia()
+                    ? back()->with('success', __('notes.success_delete'))
+                    : response()->json(['status' => true, 'message' => __('notes.success_delete')]);
             } else {
-                return response()->json(['status' => false, 'message' => __('notes.error_delete')]);
+                return $request->inertia()
+                    ? back()->with('error', __('notes.error_delete'))
+                    : response()->json(['status' => false, 'message' => __('notes.error_delete')]);
             }
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+            return $request->inertia()
+                ? back()->with('error', $e->getMessage())
+                : response()->json(['status' => false, 'message' => $e->getMessage()]);
         }
     }
 }

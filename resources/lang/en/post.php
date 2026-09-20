@@ -117,4 +117,12 @@ return [
     'send_to_google' => 'Submit to Google',
     'index_bulk_result' => ':queued queued, :skipped skipped',
     'draft_created' => 'Draft created',
+
+    'qr_code' => 'QR Code',
+    'qr_create' => 'Generate QR Code',
+    'qr_regenerate' => 'Regenerate',
+    'qr_regenerate_confirm' => 'The current QR code will become invalid!',
+    'qr_download' => 'Download',
+    'qr_not_created' => 'No QR code has been generated for this post yet.',
+    'qr_scans' => ':count scans',
 ];

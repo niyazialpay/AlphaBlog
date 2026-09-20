@@ -11,4 +11,5 @@ return [
     'make_default' => 'Make Default',
     'upload_theme' => 'Upload Theme',
     'theme_default_success' => 'The theme has been set as the default theme',
+    'theme_upload_error' => 'An error occurred while uploading the theme',
 ];

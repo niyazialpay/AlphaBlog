@@ -7,6 +7,7 @@ import Tabs from '../../components/Tabs.vue';
 import FormField from '../../components/FormField.vue';
 import ConfirmDialog from '../../components/ConfirmDialog.vue';
 import Modal from '../../components/Modal.vue';
+import MultiSelect from '../../components/MultiSelect.vue';
 
 /*
  * panel/settings/index.blade.php karşılığı (1469 satır, 9 sekme).
@@ -28,6 +29,7 @@ const props = defineProps({
   analytics: { type: Object, default: () => ({}) },
   social: { type: Object, default: () => ({}) },
   socialDisplay: { type: Object, default: () => ({}) },
+  socialOptions: { type: Array, default: () => [] },
   languages: { type: Array, default: () => [] },
   themes: { type: Array, default: () => [] },
   notifications: { type: Object, default: () => ({}) },
@@ -64,13 +66,29 @@ const SOCIAL_FIELDS = [
   'telegram', 'discord',
 ];
 
-const generalForm = useForm({ ...props.general, site_logo_light: null, site_logo_dark: null, site_favicon: null, app_icon: null });
+const generalForm = useForm({
+  ...props.general,
+  site_logo_light: null,
+  site_logo_dark: null,
+  site_favicon: null,
+  app_icon: null,
+  // Eski blade ile ayni varsayilan (Google'in gunluk kotasi): satir bossa 200 gosterilir.
+  google_indexing_daily_limit: props.general.google_indexing_daily_limit ?? 200,
+});
 const seoForm = useForm({ ...(props.seo[seoLanguage.value] || {}), language: seoLanguage.value });
 const robotsForm = useForm({ robots_txt: props.robots || '' });
 const analyticsForm = useForm({ ...props.analytics });
 const advertiseForm = useForm({ ...props.advertise });
 const socialForm = useForm({ ...props.social });
-const socialDisplayForm = useForm({ ...props.socialDisplay });
+/*
+ * `social_networks_header` / `_footer` ÇOKLU SEÇİM listesidir (json kolon),
+ * boolean değil: sunucu düz dizi gönderir, düz dizi geri gider. `forceFormData`
+ * KULLANILMAZ — dizi değerler JSON gövdesinde korunur.
+ */
+const socialDisplayForm = useForm({
+  social_networks_header: [...(props.socialDisplay.social_networks_header || [])],
+  social_networks_footer: [...(props.socialDisplay.social_networks_footer || [])],
+});
 const notificationsForm = useForm({
   safari_web_id: props.notifications.safari_web_id || '',
   user_segmentation: !!props.notifications.user_segmentation,
@@ -83,6 +101,16 @@ const cloudflareForm = useForm({
   cf_key: '',
 });
 const languageForm = useForm({ name: '', code: '', flag: '', is_active: true, is_default: false });
+const themeUploadForm = useForm({ theme: null });
+const themeUploadModal = ref(false);
+
+// panel/settings/index.blade.php:1108-1119 karşılığı: alan başına ayrı silme route'u.
+const LOGO_DELETE_ROUTES = {
+  site_logo_light: () => route('admin.settings.general.logo.delete', { type: 'light' }),
+  site_logo_dark: () => route('admin.settings.general.logo.delete', { type: 'dark' }),
+  site_favicon: () => route('admin.settings.general.favicon.delete'),
+  app_icon: () => route('admin.settings.general.app_icon.delete'),
+};
 
 function selectSeoLanguage(code) {
   seoLanguage.value = code;
@@ -95,16 +123,20 @@ function post(form, routeName, params = {}) {
   form.post(route(routeName, params), { preserveScroll: true, forceFormData: true });
 }
 
+function saveSocialDisplay() {
+  socialDisplayForm.post(route('admin.settings.social.header.save'), { preserveScroll: true });
+}
+
 function pickLogo(field, event) {
   generalForm[field] = event.target.files?.[0] || null;
 }
 
-async function deleteLogo(type) {
+async function deleteLogo(key) {
   if (!(await confirm.value.ask({ body: __('general.you_wont_be_able_to_revert_this') }))) {
     return;
   }
 
-  router.post(route('admin.settings.general.logo.delete', { type }), {}, { preserveScroll: true });
+  router.post(LOGO_DELETE_ROUTES[key](), {}, { preserveScroll: true });
 }
 
 function openLanguage(language = null) {
@@ -158,6 +190,21 @@ async function deleteTheme(theme) {
 
   router.post(route('admin.settings.themes.delete'), { id: theme.id }, { preserveScroll: true });
 }
+
+function pickThemeFile(event) {
+  themeUploadForm.theme = event.target.files?.[0] || null;
+}
+
+function uploadTheme() {
+  themeUploadForm.post(route('admin.settings.themes.upload'), {
+    preserveScroll: true,
+    forceFormData: true,
+    onSuccess: () => {
+      themeUploadModal.value = false;
+      themeUploadForm.reset();
+    },
+  });
+}
 </script>
 
 <template>
@@ -190,10 +237,10 @@ async function deleteTheme(theme) {
 
       <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div v-for="item in [
-            { key: 'site_logo_light', url: logos.light, type: 'light' },
-            { key: 'site_logo_dark', url: logos.dark, type: 'dark' },
-            { key: 'site_favicon', url: logos.favicon, type: null },
-            { key: 'app_icon', url: logos.app_icon, type: null },
+            { key: 'site_logo_light', url: logos.light },
+            { key: 'site_logo_dark', url: logos.dark },
+            { key: 'site_favicon', url: logos.favicon },
+            { key: 'app_icon', url: logos.app_icon },
           ]"
           :key="item.key"
         >
@@ -211,9 +258,9 @@ async function deleteTheme(theme) {
             @change="pickLogo(item.key, $event)"
           />
           <button
-            v-if="item.url && item.type"
+            v-if="item.url"
             class="p-btn mt-1.5 !text-p-danger"
-            @click="deleteLogo(item.type)"
+            @click="deleteLogo(item.key)"
           >
             <i class="fa-solid fa-trash text-[11px]"></i>
           </button>
@@ -303,6 +350,39 @@ async function deleteTheme(theme) {
           </button>
         </div>
       </div>
+
+      <div class="p-card p-4">
+        <label class="p-label">{{ __('settings.google_indexing_title') }}</label>
+        <div class="grid gap-3">
+          <label class="flex items-center gap-2.5 text-[12.5px]">
+            <input v-model="generalForm.google_indexing_enabled" type="checkbox" />
+            {{ __('settings.google_indexing_enabled') }}
+          </label>
+          <div class="grid gap-3 sm:grid-cols-2">
+            <FormField
+              v-model="generalForm.google_indexing_daily_limit"
+              type="number"
+              :label="__('settings.google_indexing_daily_limit')"
+              :help="__('settings.google_indexing_daily_limit_help')"
+            />
+            <FormField
+              v-model="generalForm.google_indexing_site_url"
+              :label="__('settings.google_indexing_site_url')"
+              :help="__('settings.google_indexing_site_url_help')"
+            />
+          </div>
+          <div class="text-[11.5px] text-p-ink3">{{ __('settings.google_indexing_credentials_help') }}</div>
+        </div>
+        <div class="mt-3 flex justify-end">
+          <button
+            class="p-btn-primary"
+            :disabled="generalForm.processing"
+            @click="post(generalForm, 'admin.settings.seo.google-indexing.save')"
+          >
+            {{ __('general.save') }}
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Analitik -->
@@ -372,21 +452,34 @@ async function deleteTheme(theme) {
         </div>
       </div>
 
+      <!--
+        panel/settings/index.blade.php:545-569 karşılığı: iki ÇOKLU SEÇİM listesi.
+        Kolonlar hangi ağların üst/alt menüde görüneceğini tutar, boolean değil.
+      -->
       <div class="p-card p-4">
-        <div class="flex flex-col gap-2">
-          <label class="flex items-center gap-2.5 text-[12.5px]">
-            <input v-model="socialDisplayForm.social_networks_header" type="checkbox" />
-            {{ __('settings.social_header') }}
-          </label>
-          <label class="flex items-center gap-2.5 text-[12.5px]">
-            <input v-model="socialDisplayForm.social_networks_footer" type="checkbox" />
-            {{ __('settings.social_footer') }}
-          </label>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label class="p-label">{{ __('social.show_header') }}</label>
+            <MultiSelect
+              v-model="socialDisplayForm.social_networks_header"
+              :options="socialOptions"
+              :placeholder="__('social.social_networks')"
+            />
+          </div>
+          <div>
+            <label class="p-label">{{ __('social.show_footer') }}</label>
+            <MultiSelect
+              v-model="socialDisplayForm.social_networks_footer"
+              :options="socialOptions"
+              :placeholder="__('social.social_networks')"
+            />
+          </div>
         </div>
         <div class="mt-3 flex justify-end">
           <button
             class="p-btn-primary"
-            @click="post(socialDisplayForm, 'admin.settings.social.header.save')"
+            :disabled="socialDisplayForm.processing"
+            @click="saveSocialDisplay()"
           >
             {{ __('general.save') }}
           </button>
@@ -395,23 +488,31 @@ async function deleteTheme(theme) {
     </div>
 
     <!-- Temalar -->
-    <div v-else-if="activeTab === 'themes'" class="p-card divide-y divide-p-line2">
-      <div v-for="theme in themes" :key="theme.id" class="flex items-center gap-3 px-4 py-3">
-        <span class="flex-1 text-[12.5px] font-semibold">{{ theme.name }}</span>
-        <span v-if="theme.is_default" class="p-chip p-chip-accent">{{ __('language.default') }}</span>
-        <button v-else class="p-btn" @click="activateTheme(theme)">
-          {{ __('themes.make_default') }}
-        </button>
-        <button
-          v-if="!theme.is_default"
-          class="p-icon-btn hover:!border-p-danger hover:!text-p-danger"
-          @click="deleteTheme(theme)"
-        >
-          <i class="fa-solid fa-trash"></i>
+    <div v-else-if="activeTab === 'themes'" class="flex flex-col gap-3.5">
+      <div class="flex justify-end">
+        <button class="p-btn-primary" @click="themeUploadModal = true">
+          <i class="fa-solid fa-upload text-xs"></i> {{ __('themes.upload_theme') }}
         </button>
       </div>
-      <div v-if="!themes.length" class="px-4 py-10 text-center text-p-ink3">
-        {{ __('general.no_records') }}
+
+      <div class="p-card divide-y divide-p-line2">
+        <div v-for="theme in themes" :key="theme.id" class="flex items-center gap-3 px-4 py-3">
+          <span class="flex-1 text-[12.5px] font-semibold">{{ theme.name }}</span>
+          <span v-if="theme.is_default" class="p-chip p-chip-accent">{{ __('language.default') }}</span>
+          <button v-else class="p-btn" @click="activateTheme(theme)">
+            {{ __('themes.make_default') }}
+          </button>
+          <button
+            v-if="!theme.is_default"
+            class="p-icon-btn hover:!border-p-danger hover:!text-p-danger"
+            @click="deleteTheme(theme)"
+          >
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+        <div v-if="!themes.length" class="px-4 py-10 text-center text-p-ink3">
+          {{ __('general.no_records') }}
+        </div>
       </div>
     </div>
 
@@ -538,6 +639,25 @@ async function deleteTheme(theme) {
         <label class="flex items-center gap-2.5 text-[12.5px]">
           <input v-model="languageForm.is_default" type="checkbox" /> is_default
         </label>
+      </div>
+    </Modal>
+
+    <Modal
+      v-model:open="themeUploadModal"
+      :title="__('themes.upload_theme')"
+      icon="fa-solid fa-palette"
+      @confirm="uploadTheme"
+    >
+      <div class="grid gap-3">
+        <input
+          type="file"
+          accept=".zip"
+          class="p-input h-auto py-1.5"
+          @change="pickThemeFile"
+        />
+        <div v-if="themeUploadForm.errors.theme" class="text-[11.5px] text-p-danger">
+          {{ themeUploadForm.errors.theme }}
+        </div>
       </div>
     </Modal>
 

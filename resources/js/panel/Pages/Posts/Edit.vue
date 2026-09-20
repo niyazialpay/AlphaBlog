@@ -1,12 +1,14 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
+import axios from 'axios';
 import { __ } from '../../composables/useLang';
 import { usePageHeader } from '../../composables/usePageHeader';
 import { pushToast } from '../../composables/useToast';
 import TinyMceEditor from '../../components/TinyMceEditor.vue';
 import FormField from '../../components/FormField.vue';
 import MultiSelect from '../../components/MultiSelect.vue';
+import ConfirmDialog from '../../components/ConfirmDialog.vue';
 
 /*
  * panel/post/add-edit.blade.php karşılığı.
@@ -41,12 +43,19 @@ usePageHeader(title.value, [
   {
     label: isPages.value ? __('post.pages') : __('post.blogs'),
     route: 'admin.posts',
+    // `admin.posts` {panel}/{type} prefix'i altinda: `type` ZORUNLU segment.
+    // Parametresiz birakilirsa ziggy-js firlatir ve breadcrumb'i render eden
+    // PanelLayout alt agaci komple bos ekrana duser (olusturma + duzenleme).
+    // Gecerli degerler SADECE 'blogs' | 'pages' — PostController digerlerinde
+    // abort(404) yapiyor; props.type zaten dogru segmenti tasiyor.
+    params: { type: props.type },
   },
   { label: props.post.title || __('general.new') },
 ]);
 
 // Taslak id'si: ilk gorsel yuklemesinde sunucudan gelir.
 const postId = ref(props.post.id || null);
+const confirm = ref(null);
 const drawerOpen = ref(false);
 const imageFile = ref(null);
 const imagePreview = ref(props.post.image);
@@ -69,6 +78,90 @@ const form = useForm({
   hreflang_url: { ...(props.post.hreflang || {}) },
   image: null,
 });
+
+/*
+ * Kategoriler DİLE BAĞLI. Eski blade dil değişiminde `admin.categories.list`
+ * ucuna AJAX atıp seçenekleri yeniliyordu (add-edit.blade.php:475-495); Vue
+ * portunda bu kopmuştu ve başka dilin kategorileri yazıya bağlanabiliyordu.
+ * Uç veri döndürdüğü için JSON kalır ve axios ile çağrılır (R1).
+ */
+function categoryLabel(item) {
+  return item.language ? `${item.name} (${item.language})` : item.name;
+}
+
+const categoryOptions = ref(
+  props.categories.map((item) => ({ value: String(item.id), label: categoryLabel(item) })),
+);
+
+watch(
+  () => form.language,
+  async (code, previous) => {
+    if (!code || code === previous) {
+      return;
+    }
+
+    try {
+      const { data } = await axios.post(route('admin.categories.list'), { language: code });
+
+      categoryOptions.value = (Array.isArray(data) ? data : []).map((item) => ({
+        value: String(item.id),
+        label: categoryLabel(item),
+      }));
+    } catch (error) {
+      pushToast(error.response?.data?.message || __('general.error'), 'error');
+
+      return;
+    }
+
+    // Hedef dilde bulunmayan seçimler düşer: aksi halde kaydetme anında başka
+    // dilin kategorileri post_categories'e yazılıyordu.
+    form.category_id = form.category_id.filter((id) =>
+      categoryOptions.value.some((option) => option.value === String(id)),
+    );
+  },
+);
+
+/*
+ * QR kod paneli — add-edit.blade.php:224-248 + 670-748 karşılığı.
+ * Eski ekran QR'ı CDN'den yüklenen qrcodejs ile çiziyordu; yeni bağımlılık
+ * eklenmedi, SVG sunucuda üretilip `post.qr_image` data-URI'si olarak geliyor.
+ * `admin.post.qr.generate` veri ucu olduğu için JSON kalır (R1).
+ */
+const qrBusy = ref(false);
+
+async function generateQr() {
+  if (qrBusy.value || !postId.value) {
+    return;
+  }
+
+  if (
+    props.post.qr_link &&
+    !(await confirm.value.ask({
+      title: __('post.qr_regenerate'),
+      body: __('post.qr_regenerate_confirm'),
+    }))
+  ) {
+    return;
+  }
+
+  qrBusy.value = true;
+
+  try {
+    const { data } = await axios.post(
+      route('admin.post.qr.generate', { type: props.type, post: postId.value }),
+    );
+
+    if (data?.status === 'success') {
+      pushToast(__('general.saved'), 'success');
+      // Yeni bağlantının SVG'si sunucuda üretiliyor: yalnız `post` prop'u tazelenir.
+      router.reload({ only: ['post'], preserveScroll: true, preserveState: true });
+    }
+  } catch (error) {
+    pushToast(error.response?.data?.message || __('general.error'), 'error');
+  } finally {
+    qrBusy.value = false;
+  }
+}
 
 /** TinyMCE görsel yükleme isteğine eklenen alanlar — eski form ile birebir. */
 function uploadMeta() {
@@ -217,7 +310,7 @@ function removeImage() {
           <label class="p-label">{{ __('categories.categories') }}</label>
           <MultiSelect
             v-model="form.category_id"
-            :options="categories.map((c) => ({ value: c.id, label: c.name }))"
+            :options="categoryOptions"
             :placeholder="__('post.select_category')"
           />
           <div v-if="form.errors.category_id" class="mt-1.5 text-[11px] font-semibold text-p-danger">
@@ -295,6 +388,48 @@ function removeImage() {
           />
         </div>
 
+        <!-- QR Kod -->
+        <div v-if="postId && !isPages" class="border-t border-p-line2 pt-3">
+          <div class="mb-2 flex items-center gap-2">
+            <label class="p-label !mb-0">
+              <i class="fa-solid fa-qrcode text-[11px]"></i> {{ __('post.qr_code') }}
+            </label>
+            <span v-if="post.qr_link" class="p-chip ml-auto">
+              {{ __('post.qr_scans', { count: post.qr_scans_count }) }}
+            </span>
+          </div>
+
+          <template v-if="post.qr_link">
+            <img
+              v-if="post.qr_image"
+              :src="post.qr_image"
+              :alt="__('post.qr_code')"
+              class="mx-auto w-[180px] rounded-xl border border-p-line bg-white p-2"
+            />
+            <p class="mt-2 break-all text-[11px] text-p-ink3">{{ post.qr_link }}</p>
+            <div class="mt-2 flex flex-wrap gap-1.5">
+              <button class="p-btn" :disabled="qrBusy" @click="generateQr">
+                <i class="fa-solid fa-rotate text-[11px]"></i> {{ __('post.qr_regenerate') }}
+              </button>
+              <a
+                v-if="post.qr_image"
+                class="p-btn no-underline"
+                :href="post.qr_image"
+                :download="`${form.slug || 'qr'}-qr.svg`"
+              >
+                <i class="fa-solid fa-download text-[11px]"></i> {{ __('post.qr_download') }}
+              </a>
+            </div>
+          </template>
+
+          <template v-else>
+            <p class="text-[12px] text-p-ink3">{{ __('post.qr_not_created') }}</p>
+            <button class="p-btn-primary mt-2 w-full justify-center" :disabled="qrBusy" @click="generateQr">
+              <i class="fa-solid fa-qrcode text-xs"></i> {{ __('post.qr_create') }}
+            </button>
+          </template>
+        </div>
+
         <!-- Kayıtlı yazıya özel bağlantılar -->
         <div v-if="postId" class="flex flex-col gap-1.5 border-t border-p-line2 pt-3">
           <Link
@@ -328,5 +463,7 @@ function removeImage() {
     >
       <i class="fa-solid fa-sliders"></i>
     </button>
+
+    <ConfirmDialog ref="confirm" />
   </div>
 </template>

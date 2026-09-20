@@ -45,7 +45,7 @@ async function destroy(user) {
     return;
   }
 
-  router.post(route('admin.user.delete'), { id: user.id }, { preserveScroll: true });
+  router.post(route('admin.user.delete'), { user_id: user.id }, { preserveScroll: true });
 }
 
 function impersonate(user) {

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\GeneralSettingsRequest;
 use App\Models\Settings\GeneralSettings;
 use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -49,7 +51,7 @@ class GeneralSettingsController extends Controller
         }
     }
 
-    public function deleteLogo($type)
+    public function deleteLogo($type): JsonResponse|RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -58,15 +60,19 @@ class GeneralSettingsController extends Controller
             Cache::forget(config('cache.prefix').'general_settings');
             DB::commit();
 
-            return response()->json(['success' => __('settings.logo_deleted_successfully')]);
+            return request()->inertia()
+                ? back()->with('success', __('settings.logo_deleted_successfully'))
+                : response()->json(['success' => __('settings.logo_deleted_successfully')]);
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json(['error' => $e->getMessage()]);
+            return request()->inertia()
+                ? back()->with('error', $e->getMessage())
+                : response()->json(['error' => $e->getMessage()]);
         }
     }
 
-    public function deleteFavicon()
+    public function deleteFavicon(): JsonResponse|RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -75,15 +81,19 @@ class GeneralSettingsController extends Controller
             Cache::forget(config('cache.prefix').'general_settings');
             DB::commit();
 
-            return response()->json(['success' => __('settings.favicon_deleted_successfully')]);
+            return request()->inertia()
+                ? back()->with('success', __('settings.favicon_deleted_successfully'))
+                : response()->json(['success' => __('settings.favicon_deleted_successfully')]);
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json(['error' => $e->getMessage()]);
+            return request()->inertia()
+                ? back()->with('error', $e->getMessage())
+                : response()->json(['error' => $e->getMessage()]);
         }
     }
 
-    public function deleteAppIcon()
+    public function deleteAppIcon(): JsonResponse|RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -92,11 +102,15 @@ class GeneralSettingsController extends Controller
             Cache::forget(config('cache.prefix').'general_settings');
             DB::commit();
 
-            return response()->json(['success' => __('settings.favicon_deleted_successfully')]);
+            return request()->inertia()
+                ? back()->with('success', __('settings.app_icon_deleted_successfully'))
+                : response()->json(['success' => __('settings.app_icon_deleted_successfully')]);
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json(['error' => $e->getMessage()]);
+            return request()->inertia()
+                ? back()->with('error', $e->getMessage())
+                : response()->json(['error' => $e->getMessage()]);
         }
     }
 }

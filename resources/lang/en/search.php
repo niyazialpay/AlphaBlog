@@ -8,6 +8,7 @@ return [
     'thinking' => 'Thinking',
     'think.updated' => 'Think status updated',
     'think.error' => 'An error occurred while updating the think status',
+    'check.success' => 'Visible words marked as checked',
     'delete' => [
         'warning' => 'Are you sure you want to delete the word?',
         'success' => 'Word deleted successfully',

@@ -5,6 +5,7 @@ import Webpass from '@laragear/webpass';
 import { __ } from '../../composables/useLang';
 import { pushToast } from '../../composables/useToast';
 import HoneypotFields from '../../components/HoneypotFields.vue';
+import FlashToast from '../../components/FlashToast.vue';
 
 /*
  * OTP / kilit ekranı — panel/auth/otp.blade.php karşılığı.
@@ -133,5 +134,11 @@ async function loginWithDevice() {
         </button>
       </form>
     </div>
+
+    <!--
+      AuthShell kullanmayan tek auth ekranı bu: toast kabı burada ayrıca
+      mount edilmeli, yoksa OTP/WebAuthn hataları sessiz kalır.
+    -->
+    <FlashToast />
   </div>
 </template>

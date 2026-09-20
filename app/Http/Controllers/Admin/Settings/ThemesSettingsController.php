@@ -10,6 +10,7 @@ use File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 use ZipArchive;
 
 class ThemesSettingsController extends Controller
@@ -21,11 +22,13 @@ class ThemesSettingsController extends Controller
             $zip = new ZipArchive;
             $status = $zip->open($request->file('theme')->getRealPath());
             if ($status !== true) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => __('themes.theme_upload_error'),
-                    'error' => $status,
-                ]);
+                return request()->inertia()
+                    ? back()->with('error', __('themes.theme_upload_error'))
+                    : response()->json([
+                        'status' => 'error',
+                        'message' => __('themes.theme_upload_error'),
+                        'error' => $status,
+                    ]);
             } else {
                 $zip->extractTo(base_path());
                 $zip->close();
@@ -44,14 +47,16 @@ class ThemesSettingsController extends Controller
                     'status' => 'success',
                     'message' => __('themes.theme_save_success'),
                 ]);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => 'error',
-                'message' => __('themes.theme_save_error'),
-                'error' => $e->getMessage(),
-            ]);
+            return request()->inertia()
+                ? back()->with('error', __('themes.theme_save_error'))
+                : response()->json([
+                    'status' => 'error',
+                    'message' => __('themes.theme_save_error'),
+                    'error' => $e->getMessage(),
+                ]);
         }
     }
 
@@ -59,6 +64,17 @@ class ThemesSettingsController extends Controller
     {
         try {
             $theme = $themes::where('id', $request->post('id'))->first();
+
+            /*
+             * `first()` null donebiliyor; `$theme->is_default` erisimi `Error`
+             * firlatir ve `catch (Exception)` onu YAKALAMAZ -> 500.
+             */
+            if (! $theme) {
+                return request()->inertia()
+                    ? back()->with('error', __('themes.delete_error'))
+                    : response()->json(['status' => 'error', 'message' => __('themes.delete_error')], 404);
+            }
+
             if ($theme->is_default) {
                 return request()->inertia()
                     ? back()->with('error', __('themes.theme_has_default'))
@@ -83,12 +99,14 @@ class ThemesSettingsController extends Controller
                     'status' => 'success',
                     'message' => __('themes.delete_success'),
                 ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => __('themes.delete_error'),
-                'error' => $e->getMessage(),
-            ]);
+        } catch (Throwable $e) {
+            return request()->inertia()
+                ? back()->with('error', __('themes.delete_error'))
+                : response()->json([
+                    'status' => 'error',
+                    'message' => __('themes.delete_error'),
+                    'error' => $e->getMessage(),
+                ]);
         }
     }
 
@@ -101,7 +119,7 @@ class ThemesSettingsController extends Controller
             Cache::forget(config('cache.prefix').'theme');
 
             return back()->with('success', __('themes.theme_default_success'));
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             return back()->with('error', __('themes.theme_save_error').' '.$e->getMessage());
         }
     }

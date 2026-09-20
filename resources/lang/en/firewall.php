@@ -38,4 +38,5 @@ return [
     'ai_cache_ttl_seconds' => 'Decision cache duration (seconds)',
     'ai_timeout_seconds' => 'AI request timeout (seconds)',
     'ai_max_payload_chars' => 'Maximum request chars sent to AI',
+    'added_to_whitelist' => 'Added to the whitelist',
 ];

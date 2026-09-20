@@ -45,4 +45,5 @@ return [
     'custom_link' => 'Özel Bağlantı',
     'indent' => 'Alt menü yap',
     'outdent' => 'Üst seviyeye çıkar',
+    'menu_delete_error' => 'Menü silinirken bir hata oluştu',
 ];

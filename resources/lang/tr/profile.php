@@ -87,6 +87,13 @@ return [
     'active_2fa' => '2 Adımlı Doğrulamayı Etkinleştir',
     'deactivate_2fa' => '2 Adım Doğrulamayı Devre Dışı Bırak',
     'validate_2fa' => 'Doğrula',
+    'two_fa_tab' => '2 Adımlı Doğrulama',
+    'two_fa_scan_qr' => 'Kimlik doğrulama uygulamanızla bu QR kodu okutun',
+    'two_fa_secret_key' => 'Kodu okutamıyor musunuz? Bu anahtarı elle girin',
+    'two_fa_otp_code' => 'Doğrulama Kodu',
+    'two_fa_enabled_message' => 'İki adımlı doğrulama etkin',
+    'recovery_codes' => 'Kurtarma Kodları',
+    'recovery_codes_hint' => 'Bu kodları güvenli bir yerde saklayın. Cihazınızı kaybederseniz hesabınıza bu kodlarla erişebilirsiniz.',
 
     'switch_to_password' => 'Şifre ile giriş yap',
     'switch_to_webauthn' => 'WebAuthn ile giriş yap',
@@ -114,4 +121,6 @@ return [
     'about_me_tab' => 'Hakkımda',
     'about_text' => 'Hakkımda',
     'change_image_label' => 'Görseli değiştir',
+    'delete_success' => 'Başarıyla silindi',
+    'delete_error' => 'Silme sırasında bir hata oluştu',
 ];

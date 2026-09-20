@@ -237,10 +237,12 @@ class IPFilterController extends Controller
             ->filter(fn ($ip) => $ip !== '');
 
         if ($rawIps->isEmpty()) {
-            return response()->json([
-                'status' => false,
-                'message' => __('ip_filter.ip_range_required'),
-            ]);
+            return $request->inertia()
+                ? back()->with('error', __('ip_filter.ip_range_required'))
+                : response()->json([
+                    'status' => false,
+                    'message' => __('ip_filter.ip_range_required'),
+                ]);
         }
 
         $validIps = collect();
@@ -255,22 +257,26 @@ class IPFilterController extends Controller
         }
 
         if ($validIps->isEmpty()) {
-            return response()->json([
-                'status' => false,
-                'message' => __('ip_filter.no_valid_ip') ?? 'No valid IP address detected.',
-                'invalid' => $invalidIps->values(),
-            ]);
+            return $request->inertia()
+                ? back()->with('error', __('ip_filter.no_valid_ip') ?? 'No valid IP address detected.')
+                : response()->json([
+                    'status' => false,
+                    'message' => __('ip_filter.no_valid_ip') ?? 'No valid IP address detected.',
+                    'invalid' => $invalidIps->values(),
+                ]);
         }
 
         [$filteredIps, $trustedSkipped] = TrustedBots::filterOutTrusted($validIps->all());
         $validIps = collect($filteredIps);
 
         if ($validIps->isEmpty()) {
-            return response()->json([
-                'status' => false,
-                'message' => __('ip_filter.trusted_ip_not_allowed') ?? 'Trusted bot IPs cannot be filtered.',
-                'trusted_skipped' => $trustedSkipped,
-            ]);
+            return $request->inertia()
+                ? back()->with('error', __('ip_filter.trusted_ip_not_allowed') ?? 'Trusted bot IPs cannot be filtered.')
+                : response()->json([
+                    'status' => false,
+                    'message' => __('ip_filter.trusted_ip_not_allowed') ?? 'Trusted bot IPs cannot be filtered.',
+                    'trusted_skipped' => $trustedSkipped,
+                ]);
         }
 
         DB::beginTransaction();
@@ -312,10 +318,12 @@ class IPFilterController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage(),
-            ]);
+            return $request->inertia()
+                ? back()->with('error', $e->getMessage())
+                : response()->json([
+                    'status' => false,
+                    'message' => $e->getMessage(),
+                ]);
         }
     }
 

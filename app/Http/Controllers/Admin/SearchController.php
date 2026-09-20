@@ -9,13 +9,13 @@ use App\Models\Post\Posts;
 use App\Models\Search;
 use App\Models\User;
 use App\Support\Panel\PanelResponse;
-use Exception;
 use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 class SearchController extends Controller
 {
@@ -67,10 +67,9 @@ class SearchController extends Controller
             $item->save();
         }
 
-        return response()->json([
-            'status' => 'success',
-            'list' => $data,
-        ]);
+        // Tek cagiran resources/js/panel/Pages/SearchWords/Index.vue, router.post
+        // ile Inertia uzerinden cagiriyor - eski jQuery/axios tuketicisi yok.
+        return back()->with('success', __('search.check.success'));
     }
 
     public function delete(Search $search, Request $request)
@@ -86,10 +85,14 @@ class SearchController extends Controller
                     : response()->json(['status' => true]);
             }
 
+            // Bu yol commit GORMUYOR: transaction acik kalirsa baglanti
+            // istek boyunca kilit tutar.
+            DB::rollBack();
+
             return $request->inertia()
                 ? back()->with('error', __('search.delete.error'))
                 : response()->json(['status' => false]);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             DB::rollBack();
 
             return $request->inertia()
@@ -100,6 +103,15 @@ class SearchController extends Controller
 
     public function think(Search $search, Request $request)
     {
+        /*
+         * Korumasiz: bos/eslesmeyen bagli modelde `update()` var olmayan satira
+         * INSERT denemesi yapiyor ve firlatiyordu (500). Kayit yoksa 404 dogru
+         * yanittir.
+         */
+        if (! $search->exists) {
+            abort(404);
+        }
+
         $search->update([
             'think' => ! $search->think,
         ]);
@@ -135,10 +147,14 @@ class SearchController extends Controller
                     : response()->json(['status' => true]);
             }
 
+            // Bu yol commit GORMUYOR: transaction acik kalirdi.
+
+            DB::rollBack();
+
             return $request->inertia()
                 ? back()->with('error', __('search.delete.error'))
                 : response()->json(['status' => false]);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             DB::rollBack();
 
             return $request->inertia()
@@ -160,10 +176,14 @@ class SearchController extends Controller
                     : response()->json(['status' => true]);
             }
 
+            // Bu yol commit GORMUYOR: transaction acik kalirdi.
+
+            DB::rollBack();
+
             return $request->inertia()
                 ? back()->with('error', __('search.delete.error'))
                 : response()->json(['status' => false]);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             DB::rollBack();
 
             return $request->inertia()
@@ -188,7 +208,7 @@ class SearchController extends Controller
             try {
                 $personal_notes::encryptUsing(new Encrypter(request()->cookie('encryption_key'), Config::get('app.cipher')));
                 $results['personal_notes'] = $personal_notes->search($query)->orderBy('created_at', 'desc')->take($paginate)->get();
-            } catch (Exception $e) {
+            } catch (Throwable $e) {
                 $results['personal_notes'] = [];
             }
         } else {

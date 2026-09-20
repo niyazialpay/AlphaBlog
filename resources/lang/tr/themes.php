@@ -11,4 +11,5 @@ return [
     'make_default' => 'Varsayılan Yap',
     'upload_theme' => 'Tema Yükle',
     'theme_default_success' => 'Tema varsayılan tema olarak ayarlandı',
+    'theme_upload_error' => 'Tema yüklenirken bir hata oluştu',
 ];

@@ -10,6 +10,10 @@
  *
  * `reset()` dışarı verilir: blade akışı başarısız denemeden sonra
  * `turnstile.reset()` çağırıyordu, jeton tek kullanımlık.
+ *
+ * `getResponse()` dışarı verilir: çağıran sayfalar jetonu okuyup
+ * gövdeye `cf-turnstile-response` olarak eklemek zorunda — aksi halde
+ * CloudflareTurnstile middleware'i her isteği 403 ile reddediyor.
  */
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { usePage } from '@inertiajs/vue3';
@@ -76,7 +80,15 @@ function reset() {
   }
 }
 
-defineExpose({ reset });
+function getResponse() {
+  if (widgetId.value === null) {
+    return '';
+  }
+
+  return window.turnstile?.getResponse(widgetId.value) || '';
+}
+
+defineExpose({ reset, getResponse });
 </script>
 
 <template>

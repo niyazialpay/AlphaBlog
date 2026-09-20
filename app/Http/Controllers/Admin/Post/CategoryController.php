@@ -5,23 +5,33 @@ namespace App\Http\Controllers\Admin\Post;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Category\CategoryDeleteRequest;
 use App\Http\Requests\Category\CategoryRequest;
+use App\Models\Languages;
 use App\Models\Post\Categories;
 use App\Support\Panel\PanelResponse;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 class CategoryController extends Controller
 {
     public function index(Categories $category): Response
     {
+        /*
+         * `?tab=<dil kodu>` bir EKRAN SOZLESMESI: hem dil sekmeleri hem komut
+         * paleti bu parametreyle geliyor. Eski blade tum dilleri birden render
+         * edip goruneni `request()->get('tab')` ile seciyordu; Vue portu tek dil
+         * gonderdigi icin parametre sunucuda cozulmeli, yoksa sekmeler no-op olur.
+         * Bilinmeyen kod yok sayilir (oturum diline duser).
+         */
         if ($category->id) {
             $language = $category->language;
         } else {
-            $language = session('language');
+            $language = self::requestedLanguage(request()->query('tab')) ?? session('language');
         }
 
         $category->load('media', 'media.model');
@@ -56,6 +66,22 @@ class CategoryController extends Controller
                 'lng' => $language,
             ],
         );
+    }
+
+    /**
+     * `?tab` degerini yalnizca TANIMLI bir dil kodu ise kabul eder.
+     */
+    private static function requestedLanguage(mixed $tab): ?string
+    {
+        if (! is_string($tab) || $tab === '') {
+            return null;
+        }
+
+        $known = collect(app()->bound('languages') ? app('languages') : Languages::all())
+            ->pluck('code')
+            ->all();
+
+        return in_array($tab, $known, true) ? $tab : null;
     }
 
     /**
@@ -97,7 +123,7 @@ class CategoryController extends Controller
         ];
     }
 
-    public function store(CategoryRequest $request, Categories $category): JsonResponse
+    public function store(CategoryRequest $request, Categories $category): JsonResponse|RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -120,7 +146,17 @@ class CategoryController extends Controller
             $category->language = GetPost($request->language);
             $category->parent_id = GetPost($request->parent_id);
             $hreflang = [];
-            foreach ($request->hreflang_url as $key => $value) {
+            /*
+             * `hreflang_url` GONDERILMEYEBILIR.
+             *
+             * Vue formu bunu bos nesne olarak baslatiyor; Inertia'nin
+             * objectToFormData'si bos nesne icin SIFIR alan ekliyor, yani
+             * anahtar govdede hic yer almiyor. Korumasiz foreach null uzerinde
+             * ErrorException firlatiyordu -> yeni yazi/sayfa/kategori
+             * kaydedilemiyor, mevcut kayitta hreflang bos ise duzenleme de
+             * kaydedilemiyor.
+             */
+            foreach ((array) $request->input('hreflang_url', []) as $key => $value) {
                 if ($value != null) {
                     $hreflang[$key] = GetPost($value);
                 }
@@ -134,17 +170,22 @@ class CategoryController extends Controller
                     : response()->json(['status' => 'success', 'message' => $message]);
             }
 
+            // Bu yol commit GORMUYOR: transaction acik kalirdi.
+            DB::rollBack();
+
             return $request->inertia()
                 ? back()->with('error', __('categories.error'))
                 : response()->json(['status' => 'error', 'message' => __('categories.error')]);
-        } catch (Exception $exception) {
+        } catch (Throwable $exception) {
             DB::rollBack();
 
-            return response()->json(['status' => 'error', 'message' => $exception->getMessage()])->setStatusCode(500);
+            return $request->inertia()
+                ? back()->with('error', $exception->getMessage())
+                : response()->json(['status' => 'error', 'message' => $exception->getMessage()])->setStatusCode(500);
         }
     }
 
-    public function delete(CategoryDeleteRequest $request, Categories $category): JsonResponse
+    public function delete(CategoryDeleteRequest $request, Categories $category): JsonResponse|RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -159,10 +200,12 @@ class CategoryController extends Controller
             return $request->inertia()
                 ? back()->with('error', __('categories.error_delete'))
                 : response()->json(['status' => 'error', 'message' => __('categories.error_delete')]);
-        } catch (Exception $exception) {
+        } catch (Throwable $exception) {
             DB::rollBack();
 
-            return response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
+            return $request->inertia()
+                ? back()->with('error', $exception->getMessage())
+                : response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
         }
     }
 
@@ -171,16 +214,32 @@ class CategoryController extends Controller
         try {
             DB::beginTransaction();
             $image = Categories::find($request->post('id'));
+
+            /*
+             * `find()` null donebiliyor; ardindan gelen metot cagrisi `Error`
+             * firlatir ve asagidaki `catch (Exception)` onu YAKALAMAZ —
+             * sonuc: 500 + acik kalan transaction (istek boyunca kilit).
+             */
+            if (! $image) {
+                DB::rollBack();
+
+                return $request->inertia()
+                    ? back()->with('error', __('categories.error'))
+                    : response()->json(['status' => 'error'], 404);
+            }
+
             $image->deleteMedia($image->getFirstMedia('categories'));
             DB::commit();
 
             return $request->inertia()
                 ? back()->with('success', __('post.success_image_delete'))
                 : response()->json(['status' => 'success']);
-        } catch (Exception $exception) {
+        } catch (Throwable $exception) {
             DB::rollBack();
 
-            return response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
+            return $request->inertia()
+                ? back()->with('error', $exception->getMessage())
+                : response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
         }
     }
 

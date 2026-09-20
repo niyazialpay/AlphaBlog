@@ -8,6 +8,7 @@ use App\Models\Languages;
 use App\Services\DashboardWidgetService;
 use App\Support\Panel\PanelResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -61,7 +62,7 @@ class DashboardController extends Controller
         );
     }
 
-    public function saveWidgets(Request $request): JsonResponse
+    public function saveWidgets(Request $request): JsonResponse|RedirectResponse
     {
         $validated = $request->validate(['layout' => 'required|array']);
         $userId = Auth::id();

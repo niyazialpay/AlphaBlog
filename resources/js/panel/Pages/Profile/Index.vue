@@ -20,10 +20,20 @@ import Pagination from '../../components/Pagination.vue';
  *
  * WebAuthn kayıt akışı (`webauthn.register.options` → `webauthn.register`)
  * CSRF'siz ve Inertia dışı kalmalı: @laragear/webpass protokolü.
+ *
+ * DAVRANIŞ NOTU (2FA sekmesi): panel/profile/partials/two-factor-authentication-tab.blade.php
+ * karşılığı burada `security` sekmesine 4. alt sekme olarak taşındı. Eski
+ * partial route parametresindeki hedef kullanıcıyı değil DAİMA auth()->user()'ı
+ * gösteriyordu; bu Vue portu bu kafa karıştırıcı davranışı taşımıyor ve sekmeyi
+ * yalnızca `isSelf` iken gösteriyor. `two-factor.enable`/`.disable` Fortify'ın
+ * kendi yanıt sözleşmesini (Inertia isteğinde back()) döndürür; `two-factor.confirm`
+ * ise daima çıplak JSON döner (bkz. TwoFactorAuthController::confirm) — bu yüzden
+ * axios ile çağrılır, router/useForm ile DEĞİL.
  */
 const props = defineProps({
   isSelf: { type: Boolean, default: true },
   profile: { type: Object, required: true },
+  twoFactor: { type: Object, default: null },
   social: { type: Object, default: () => ({}) },
   privacy: { type: Object, default: () => ({}) },
   sessions: { type: Object, required: true },
@@ -51,6 +61,16 @@ const tabs = computed(() =>
   ].filter(Boolean),
 );
 
+const securityTabs = computed(() =>
+  [
+    { value: 'password', label: __('user.password') },
+    { value: 'email', label: __('user.email') },
+    // twoFactor yalnizca isSelf'te doldurulur (bkz. profileResponse).
+    props.isSelf && props.twoFactor ? { value: 'two-factor', label: __('profile.two_fa_tab') } : null,
+    { value: 'passkey', label: __('webauthn.register_device') },
+  ].filter(Boolean),
+);
+
 const SOCIAL_FIELDS = [
   'website', 'linkedin', 'facebook', 'x', 'bluesky', 'instagram', 'github',
   'devto', 'medium', 'youtube', 'reddit', 'xbox', 'deviantart', 'twitch',
@@ -66,7 +86,6 @@ const aboutForm = useForm({
   name: props.profile.name || '',
   surname: props.profile.surname || '',
   nickname: props.profile.nickname || '',
-  username: props.profile.username || '',
   location: props.profile.location || '',
   job_title: props.profile.job_title || '',
   education: props.profile.education || '',
@@ -132,6 +151,53 @@ function saveEmail() {
   emailForm.post(url, { preserveScroll: true });
 }
 
+/* ---- İki adımlı doğrulama (2FA) ---- */
+const enable2faForm = useForm({});
+const disable2faForm = useForm({});
+const otpCode = ref('');
+const otpBusy = ref(false);
+const otpError = ref('');
+
+function enableTwoFactor() {
+  // Fortify'ın TwoFactorEnabledResponse'u: Inertia isteğinde back() döner,
+  // bu yüzden useForm().post() ile normal bir form eylemi gibi çağrılır.
+  enable2faForm.post(route('two-factor.enable'), { preserveScroll: true });
+}
+
+async function confirmTwoFactor() {
+  if (otpBusy.value || !otpCode.value) {
+    return;
+  }
+
+  otpBusy.value = true;
+  otpError.value = '';
+
+  try {
+    // two-factor.confirm HER ZAMAN çıplak JSON döner (bkz.
+    // TwoFactorAuthController::confirm) — router/useForm ile çağrılırsa
+    // Inertia gecersiz-yanit modali acar, bu yuzden axios kalir.
+    const { data } = await axios.post(route('two-factor.confirm'), { code: otpCode.value });
+
+    if (data.status !== 'success') {
+      otpError.value = data.message || __('user.two_fa.invalid_code');
+
+      return;
+    }
+
+    otpCode.value = '';
+    pushToast(data.message, 'success');
+    router.reload({ only: ['twoFactor'] });
+  } catch (error) {
+    otpError.value = error.response?.data?.message || __('general.server_error');
+  } finally {
+    otpBusy.value = false;
+  }
+}
+
+function disableTwoFactor() {
+  disable2faForm.delete(route('two-factor.disable'), { preserveScroll: true });
+}
+
 /* ---- WebAuthn (passkey) ---- */
 async function loadCredentials() {
   const url = props.isSelf
@@ -177,7 +243,7 @@ async function killSession(session) {
     return;
   }
 
-  router.post(route('user.session.logout'), { id: session.id }, { preserveScroll: true });
+  router.post(route('user.session.logout'), { session_id: session.id }, { preserveScroll: true });
 }
 
 function killAllSessions() {
@@ -194,7 +260,7 @@ function uploadAvatar(event) {
 
   router.post(
     route('admin.user.profile-image'),
-    { image: file, user_id: props.profile.id },
+    { profile_image: file, user_id: props.profile.id },
     { forceFormData: true, preserveScroll: true },
   );
 }
@@ -252,11 +318,6 @@ function deleteAvatar() {
           :label="__('user.nickname')"
           :error="aboutForm.errors.nickname"
         />
-        <FormField
-          v-model="aboutForm.username"
-          :label="__('user.username')"
-          :error="aboutForm.errors.username"
-        />
         <FormField v-model="aboutForm.location" :label="__('profile.location')" />
         <FormField v-model="aboutForm.job_title" :label="__('profile.job_title')" />
         <FormField v-model="aboutForm.education" :label="__('profile.education')" />
@@ -300,14 +361,7 @@ function deleteAvatar() {
 
     <!-- Güvenlik -->
     <div v-else-if="tab === 'security'" class="flex flex-col gap-3.5">
-      <Tabs
-        v-model="securityTab"
-        :tabs="[
-          { value: 'password', label: __('user.password') },
-          { value: 'email', label: __('user.email') },
-          { value: 'passkey', label: __('webauthn.register_device') },
-        ]"
-      />
+      <Tabs v-model="securityTab" :tabs="securityTabs" />
 
       <div v-if="securityTab === 'password'" class="p-card p-4">
         <div class="grid max-w-md gap-3">
@@ -350,7 +404,75 @@ function deleteAvatar() {
         </div>
       </div>
 
-      <div v-else class="p-card p-4">
+      <div v-else-if="securityTab === 'two-factor' && twoFactor" class="p-card p-4">
+        <!-- Etkin ve onaylanmis -->
+        <div v-if="twoFactor.confirmed" class="flex flex-col gap-3">
+          <div class="text-[12.5px] font-semibold text-p-ok">
+            <i class="fa-solid fa-circle-check"></i> {{ __('profile.two_fa_enabled_message') }}
+          </div>
+
+          <div>
+            <div class="mb-1.5 text-[12.5px] font-semibold">{{ __('profile.recovery_codes') }}</div>
+            <div class="mb-2 text-[11.5px] text-p-ink3">{{ __('profile.recovery_codes_hint') }}</div>
+            <div class="grid gap-1.5 sm:grid-cols-2">
+              <div
+                v-for="code in twoFactor.recoveryCodes"
+                :key="code"
+                class="rounded-[9px] bg-p-panel2 px-2.5 py-1.5 text-center font-mono text-[12px]"
+              >
+                {{ code }}
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <button
+              class="p-btn !text-p-danger"
+              :disabled="disable2faForm.processing"
+              @click="disableTwoFactor"
+            >
+              <i class="fa-solid fa-shield-halved text-[11px]"></i> {{ __('profile.deactivate_2fa') }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Etkin ama onay bekliyor: QR + kod dogrulama -->
+        <div v-else-if="twoFactor.pending" class="grid gap-4 sm:grid-cols-2">
+          <div class="flex flex-col items-center gap-2">
+            <img
+              v-if="twoFactor.qrCodeSvg"
+              :src="twoFactor.qrCodeSvg"
+              :alt="__('profile.two_fa_tab')"
+              class="h-40 w-40 rounded-lg border border-p-line bg-white p-2"
+            />
+            <div class="text-center text-[11px] text-p-ink3">{{ __('profile.two_fa_scan_qr') }}</div>
+            <div v-if="twoFactor.secretKey" class="text-center text-[11px] text-p-ink3">
+              {{ __('profile.two_fa_secret_key') }}:
+              <span class="break-all font-mono text-p-ink2">{{ twoFactor.secretKey }}</span>
+            </div>
+          </div>
+
+          <div class="grid max-w-xs gap-3">
+            <FormField v-model="otpCode" :label="__('profile.two_fa_otp_code')" :error="otpError" />
+            <button class="p-btn-primary" :disabled="otpBusy" @click="confirmTwoFactor">
+              {{ __('profile.validate_2fa') }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Hic etkin degil -->
+        <div v-else>
+          <button
+            class="p-btn-primary"
+            :disabled="enable2faForm.processing"
+            @click="enableTwoFactor"
+          >
+            <i class="fa-solid fa-shield-halved text-[11px]"></i> {{ __('profile.active_2fa') }}
+          </button>
+        </div>
+      </div>
+
+      <div v-else-if="securityTab === 'passkey'" class="p-card p-4">
         <div class="mb-3 flex items-center gap-2">
           <div class="flex-1 text-[12.5px] text-p-ink2">{{ __('webauthn.register_device') }}</div>
           <button class="p-btn" @click="loadCredentials">

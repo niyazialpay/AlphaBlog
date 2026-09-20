@@ -38,4 +38,5 @@ return [
     'ai_cache_ttl_seconds' => 'Karar önbellek süresi (saniye)',
     'ai_timeout_seconds' => 'AI istek zaman aşımı (saniye)',
     'ai_max_payload_chars' => 'AI\'ye gönderilecek maksimum istek karakteri',
+    'added_to_whitelist' => 'Beyaz listeye eklendi',
 ];

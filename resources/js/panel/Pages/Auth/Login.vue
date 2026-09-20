@@ -110,7 +110,11 @@ async function submit() {
   try {
     const { data } = await axios.post(
       props.routes.login,
-      payload({ password: password.value, remember: remember.value ? 1 : 0 }),
+      payload({
+        password: password.value,
+        remember: remember.value ? 1 : 0,
+        'cf-turnstile-response': turnstile.value?.getResponse(),
+      }),
     );
 
     if (!data.status) {

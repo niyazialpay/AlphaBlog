@@ -30,4 +30,8 @@ return [
     'remember_time_1_day' => '1 gün',
     'remember_time_month' => '{1}1 ay|[2,Inf]:n ay',
     'remember_time_1_year' => '1 yıl',
+    'success_save' => 'Başarıyla kaydedildi',
+    'media_deleted' => 'Görsel başarıyla silindi',
+    'delete_error' => 'Silme sırasında bir hata oluştu',
+    'content_string' => 'İçerik alanı metin olmalıdır',
 ];

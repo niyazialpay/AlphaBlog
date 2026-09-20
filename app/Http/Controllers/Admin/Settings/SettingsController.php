@@ -16,6 +16,7 @@ use App\Models\SocialNetworks;
 use App\Models\Themes;
 use App\Support\Panel\PanelResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
@@ -92,9 +93,19 @@ class SettingsController extends Controller
                     'medium', 'youtube', 'reddit', 'xbox', 'deviantart', 'website', 'twitch',
                     'telegram', 'discord',
                 ]),
-                'socialDisplay' => self::attributes($socialSettings, [
-                    'social_networks_header', 'social_networks_footer',
-                ]),
+                /*
+                 * `social_networks_header` / `_footer` HANGI aglarin gosterilecegini
+                 * tutan bir LISTE (json kolon), boolean degil. Blade coklu secim
+                 * kutusu kullaniyordu; ham json string prop olarak gecirilirse
+                 * arayuz onu boolean sanip listeyi siliyordu. Sunucuda diziye cozulur.
+                 */
+                'socialDisplay' => [
+                    'social_networks_header' => self::socialList($socialSettings?->social_networks_header),
+                    'social_networks_footer' => self::socialList($socialSettings?->social_networks_footer),
+                ],
+                'socialOptions' => collect(social_list())
+                    ->map(fn (string $label, string $key) => ['value' => $key, 'label' => $label])
+                    ->values(),
 
                 'languages' => $languages->map(fn (Languages $item) => [
                     'id' => $item->id,
@@ -175,7 +186,34 @@ class SettingsController extends Controller
             ->all();
     }
 
-    public function updateApiSettings(CloudflareApiSettingsRequest $request): JsonResponse
+    /**
+     * Sosyal ag goruntuleme listesini normalize eder.
+     *
+     * Kolon `json` ama modelde cast yok: degeri ham string olarak gelir. Eski
+     * bozuk kayitlarda skaler (`1` / `"0"`) de bulunabilir; her durumda gecerli
+     * `social_list()` anahtarlarindan olusan duz bir listeye indirgenir.
+     *
+     * @return list<string>
+     */
+    private static function socialList(mixed $value): array
+    {
+        if (is_string($value)) {
+            $value = json_decode($value, true);
+        }
+
+        if (! is_array($value)) {
+            return [];
+        }
+
+        $allowed = array_keys(social_list());
+
+        return array_values(array_filter(
+            $value,
+            fn ($item) => is_string($item) && in_array($item, $allowed, true),
+        ));
+    }
+
+    public function updateApiSettings(CloudflareApiSettingsRequest $request): JsonResponse|RedirectResponse
     {
         $cf = Cloudflare::first();
         if (! $cf) {
@@ -183,7 +221,10 @@ class SettingsController extends Controller
         }
         $previousDomain = $cf->domain;
         $cf->cf_email = $request->post('cf_email');
-        $cf->cf_key = $request->post('cf_key');
+        // "Bos birak, korunur": alan doldurulmadiysa mevcut sifreli anahtar korunur.
+        if ($request->filled('cf_key')) {
+            $cf->cf_key = $request->post('cf_key');
+        }
         $cf->domain = $request->post('cf_domain');
         $cf->save();
 
