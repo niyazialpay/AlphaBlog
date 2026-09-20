@@ -392,7 +392,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
         -->
         <button
           v-if="$page.props.can?.admin"
-          class="grid h-[34px] w-[34px] place-items-center rounded-[9px] border border-p-line bg-p-panel2 text-[12px] text-p-ink2 hover:border-p-accent hover:text-p-ink disabled:opacity-50"
+          class="grid h-[34px] w-[34px] place-items-center rounded-[9px] border border-p-line bg-p-panel2 text-[12px] text-p-ink2 transition-colors hover:bg-p-chip hover:text-p-ink disabled:opacity-50"
           :title="__('cache.clear_cache')"
           :disabled="cacheClearing"
           @click="clearCache"
