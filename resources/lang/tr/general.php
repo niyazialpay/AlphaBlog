@@ -40,6 +40,7 @@ return [
     'active' => 'Aktif',
     'passive' => 'Pasif',
     'all' => 'Tümü',
+    'copied' => 'Panoya kopyalandı',
     'previous' => 'Önceki',
     'next' => 'Sonraki',
     'rename' => 'Yeniden Adlandır',

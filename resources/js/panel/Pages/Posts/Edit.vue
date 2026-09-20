@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
-import { router, useForm } from '@inertiajs/vue3';
+import { router, useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import { __ } from '../../composables/useLang';
 import { usePageHeader } from '../../composables/usePageHeader';
@@ -42,6 +42,33 @@ const title = computed(() =>
     ? __('general.edit')
     : __('general.new') + ' · ' + (isPages.value ? __('post.page') : __('post.blog')),
 );
+
+const page = usePage();
+
+/*
+ * Yazinin ON YUZ adresi — add-edit.blade.php:49-67 karsiligi.
+ *
+ * Blade `route('page', [$post->language, $post->slug])` cagiriyordu; burada
+ * elle kuruluyor cunku `page` route'u Ziggy'nin panel grubunda DEGIL
+ * (config/ziggy.php yalnizca panel ve auth route'larini basiyor).
+ * `route('page', ...)` cagrilsaydi istemcide "route is not in the route list"
+ * hatasi verirdi. URI zaten sabit: routes/web.php:325 `/{language}/{slug}`.
+ *
+ * Yol (`/tr/ornek-yazi`) ayrica hreflang alanlarina elle giriliyor, bu yuzden
+ * tam URL'den ayri bir kopyalama dugmesi var.
+ */
+const postPath = computed(() => `/${form.language}/${form.slug}`);
+const postUrl = computed(() => `${page.props.siteUrl}${postPath.value}`);
+
+async function copyToClipboard(value) {
+  try {
+    await navigator.clipboard.writeText(value);
+    pushToast(__('general.copied'), 'success');
+  } catch {
+    // Pano API'si izin vermezse (guvensiz baglam, izin reddi) sessiz kalma.
+    pushToast(value, 'info', 8000);
+  }
+}
 
 usePageHeader(title.value, [
   { label: __('dashboard.dashboard'), route: 'admin.index' },
@@ -428,6 +455,28 @@ function removeImage() {
       </div>
       <div v-if="form.errors.slug" class="text-[11px] font-semibold text-p-danger">
         {{ form.errors.slug }}
+      </div>
+
+      <!-- Kayitli yazinin adresi: ac, tam URL kopyala, yol kopyala (Blade paritesi). -->
+      <div v-if="post.id && form.slug" class="flex flex-wrap items-center gap-1.5 text-[11.5px]">
+        <a
+          :href="postUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="truncate text-p-accent hover:underline"
+        >
+          {{ postUrl }}
+        </a>
+
+        <button type="button" class="p-btn !h-7 !px-2 !text-[11px]" @click="copyToClipboard(postUrl)">
+          <i class="fa-solid fa-copy text-[10px]"></i>
+          {{ __('post.copy_full_url') }}
+        </button>
+
+        <button type="button" class="p-btn !h-7 !px-2 !text-[11px]" @click="copyToClipboard(postPath)">
+          <i class="fa-solid fa-link text-[10px]"></i>
+          {{ __('post.copy_url_path') }}
+        </button>
       </div>
 
       <TinyMceEditor

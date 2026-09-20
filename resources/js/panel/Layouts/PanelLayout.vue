@@ -397,7 +397,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
           :disabled="cacheClearing"
           @click="clearCache"
         >
-          <i :class="cacheClearing ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-trash-can'"></i>
+          <i :class="cacheClearing ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-broom'"></i>
         </button>
 
         <NotificationBell />

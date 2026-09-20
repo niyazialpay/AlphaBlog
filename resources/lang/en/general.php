@@ -40,6 +40,7 @@ return [
     'active' => 'Active',
     'passive' => 'Passive',
     'all' => 'All',
+    'copied' => 'Copied to clipboard',
     'previous' => 'Previous',
     'next' => 'Next',
     'rename' => 'Rename',
