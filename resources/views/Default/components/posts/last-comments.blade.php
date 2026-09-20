@@ -8,7 +8,7 @@
                     <header>
                         <h3>
                             <a href="{{route('page', ['language' => $item->language, $item])}}">
-                                {{stripslashes($item->title)}} - {{$item->user_id?$item->user_nickname:$item->name}}
+                                {{stripslashesNull($item->title)}} - {{$item->user_id?$item->user_nickname:$item->name}}
                             </a>
                         </h3>
                         <time class="published" datetime="{{dateformat($item->created_at, 'Y-m-d')}}">
@@ -32,7 +32,7 @@
                                 'height' => 200,
                                 'type' => 'cover',
                                 'image' => $item->file_name
-                            ])}}" alt="{{stripslashes($item->title)}}" />
+                            ])}}" alt="{{stripslashesNull($item->title)}}" />
                     </a>
                     @endif
                 </article>

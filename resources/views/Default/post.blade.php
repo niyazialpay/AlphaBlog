@@ -50,7 +50,7 @@
             <header>
                 <div class="title">
                     <h2>
-                        <a href="{{route('page', ['language' => $post->language, $post])}}">{{stripslashes($post->title)}}</a>
+                        <a href="{{route('page', ['language' => $post->language, $post])}}">{{stripslashesNull($post->title)}}</a>
                     </h2>
                 </div>
                 <div class="meta">
@@ -148,7 +148,7 @@
                         <div class="comment-text">
                             <h3>{{$item->user?->nickname ?? $item->name}}</h3>
                             <h5>{{dateformat($item->created_at, "d M Y H:i", locale: session('language'), timezone: config('app.timezone'))}}</h5>
-                            <p>{{ stripslashes($item->comment) }}</p>
+                            <p>{{ stripslashesNull($item->comment) }}</p>
                         </div>
                     </div>
                 @endforeach
@@ -216,7 +216,7 @@
             "@context" : "https://schema.org",
             "@type" : "Article",
             "inLanguage": "{{$post->language}}",
-            "name" : "{{stripslashes($post->title)}}",
+            "name" : "{{stripslashesNull($post->title)}}",
             "author" : {
                 "@type" : "Person",
                 "name" : "{{$post->user->nickname}}",
@@ -226,8 +226,8 @@
                 "@type": "WebPage",
                 "@id": "{{route('page', ['language' => $post->language, $post])}}"
             },
-            "headline": "{{stripslashes($post->title)}}",
-            "alternativeHeadline": "{{stripslashes($post->title)}}",
+            "headline": "{{stripslashesNull($post->title)}}",
+            "alternativeHeadline": "{{stripslashesNull($post->title)}}",
             "keywords": "{{$post->meta_keywords}}",
             "image": {
                 "@type": "ImageObject",
@@ -245,7 +245,7 @@
         },
             "datePublished" : "{{dateformat($post->created_at, 'Y-m-d\TH:i:sP', timezone: config('app.timezone'))}}",
             "dateModified" : "{{dateformat($post->updated_at, 'Y-m-d\TH:i:sP', timezone: config('app.timezone'))}}",
-            "articleBody" : "{{ stripslashes(strip_tags(preg_replace('/\s+/', ' ', trim($post->content)))) }}",
+            "articleBody" : "{{ stripslashesNull(strip_tags(preg_replace('/\s+/', ' ', trim($post->content)))) }}",
             "url" : "{{route('page', ['language' => $post->language, $post])}}",
             "publisher" : {
                 "@type" : "Organization",
@@ -263,7 +263,7 @@
         {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
-            "name": "{{stripslashes($post->title)}}",
+            "name": "{{stripslashesNull($post->title)}}",
             "itemListElement": [{
                 "@type": "ListItem",
                 "position": 1,
@@ -275,7 +275,7 @@
             {
                 "@type": "ListItem",
                 "position": {{$n+2}},
-                "name": "{{stripslashes($category->name)}}",
+                "name": "{{stripslashesNull($category->name)}}",
                 "item": "{{route('post.categories', [
                         'language' => session('language'),
                         __('routes.categories'),
@@ -286,7 +286,7 @@
         {
             "@type": "ListItem",
             "position": {{$breadcrumb_n}},
-                "name": "{{stripslashes($post->title)}}",
+                "name": "{{stripslashesNull($post->title)}}",
                 "item": "{{route('page', ['language' => $post->language, $post])}}"
             }]
         }
@@ -301,7 +301,7 @@
                     "@type": "Comment",
                     "name": "@if($item->user) {{$item->user->nickname}}@else{{$item->name}}@endif",
                     "@id":"{{route('page', ['language' => $post->language, $post])}}#comment-{{$item->_id}}",
-                    "text":"{{stripslashes(strip_tags(preg_replace('/\s+/', ' ', trim($item->comment))))}}",
+                    "text":"{{stripslashesNull(strip_tags(preg_replace('/\s+/', ' ', trim($item->comment))))}}",
                     "dateCreated":"{{dateformat($item->created_at, 'Y-m-d\TH:i:sP', timezone: config('app.timezone'))}}",
                     "author":{
                         "@type":"Person",

@@ -39,6 +39,7 @@ return [
     'close' => 'Kapat',
     'active' => 'Aktif',
     'passive' => 'Pasif',
+    'all' => 'Tümü',
     'previous' => 'Önceki',
     'next' => 'Sonraki',
     'rename' => 'Yeniden Adlandır',

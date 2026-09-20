@@ -4,7 +4,7 @@
             <div class="title">
                 <h2>
                     <a href="{{route('page', ['language' => session('language'), $item])}}">
-                        {{stripslashes($item->title)}}
+                        {{stripslashesNull($item->title)}}
                     </a>
                 </h2>
             </div>
@@ -42,7 +42,7 @@
                 'height' => 400,
                 'type' => 'cover',
                 'image' => $media->file_name
-            ])}}" alt="{{stripslashes($item->title)}}" />
+            ])}}" alt="{{stripslashesNull($item->title)}}" />
             </a>
         @endif
         <p>{!! mb_substr(strip_tags(stripslashesNull($item->content),"<br><p>"),0,2000) !!}</p>

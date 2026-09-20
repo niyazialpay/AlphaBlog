@@ -94,7 +94,7 @@ return [
             ['label' => 'settings.settings', 'icon' => 'fa-gear', 'route' => 'admin.settings', 'active' => 'settings*'],
             ['label' => 'dashboard.dashboard', 'icon' => 'fa-cloudflare', 'style' => 'brands', 'route' => 'cf.dashboard', 'active' => 'cloudflare', 'can' => ['cloudflare', User::class], 'group' => 'Cloudflare'],
             ['label' => 'DNS', 'icon' => 'fa-globe', 'route' => 'cf.dns', 'active' => 'cloudflare/dns', 'can' => ['cloudflare', User::class], 'group' => 'Cloudflare'],
-            ['label' => 'cache.clear_cache', 'icon' => 'fa-trash-can', 'action' => 'clear-cache'],
+            ['label' => 'cache.clear_cache', 'icon' => 'fa-trash-can', 'action' => 'clear-cache', 'can' => ['admin', User::class]],
             ['label' => 'notifications.notifications', 'icon' => 'fa-bell', 'route' => 'notifications.index', 'active' => 'notifications*', 'badge' => 'unreadNotifications'],
             ['label' => 'user.profile', 'icon' => 'fa-id-badge', 'route' => 'admin.profile.index', 'active' => 'profile*'],
         ],

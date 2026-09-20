@@ -37,13 +37,30 @@ function replace_characters($text): array|string|null
     return preg_replace("/([^\p{Latin}A-Za-z0-9\"', ._@öÖçÇşŞğĞüÜıİА-Яа-яЁё|₺€$\p{Cyrillic}-])/um", '', $text);
 }
 
+/**
+ * Kullanici metnini temizler.
+ *
+ * ESKIDEN `addslashes()` uygulaniyordu: metin veritabanina kacisli yaziliyor ve
+ * okurken `stripslashesNull()` ile geri cozuluyordu. Bu kalip iki sebeple
+ * birakildi:
+ *
+ *  1. Kacis KATLANIYORDU. Panel editoru kacisli metni gosterip tekrar
+ *     kaydettiginde `addslashes` bir kat daha ekliyor, her duzenlemede bir
+ *     ters bolu daha birikiyordu.
+ *  2. Okuma tarafindaki `stripslashes()`, icerikte GERCEKTEN bulunan ters
+ *     bolulari da yiyordu — bu bir yazilim blogu, icerikte kod ornegi ve
+ *     Windows dosya yolu var.
+ *
+ * SQL kacisi zaten PDO'nun isi; bunun guvenlikle ilgisi yoktu. Mevcut kacisli
+ * satirlar `php artisan db:unescape-slashes` ile bir kez temizlenir.
+ */
 function GetPost($request): array|string|null
 {
     if ($request != null) {
         if (is_array($request)) {
-            return addslashes(strip_tags($request[0]));
+            return strip_tags($request[0]);
         } else {
-            return addslashes(strip_tags($request));
+            return strip_tags($request);
         }
     }
 
@@ -55,7 +72,7 @@ function content($content): string
 {
     $allowed = '<br><br/><br /><a><b><strong><em><i><div><p><img><li><ul><ol><table><tr><td><h1><h2><h2><h3><h4><h5><h6><span><code><pre><blockquote><u><iframe><del><strike><s><sub><sup><hr>';
 
-    return addslashes(sanitizeHtml(strip_tags((string) $content, $allowed)));
+    return sanitizeHtml(strip_tags((string) $content, $allowed));
 }
 
 /**
@@ -141,13 +158,21 @@ function sanitizeComment($comment): string
     return trim(strip_tags((string) $comment));
 }
 
+/**
+ * ARTIK KACIS COZMUYOR — yalnizca null'i bos dizeye cevirir.
+ *
+ * Yazma tarafi (`GetPost`, `content`) `addslashes` uygulamayi birakti, bu
+ * yuzden okuma tarafinda `stripslashes()` calistirmak ZARARLI olurdu: icerikte
+ * gercekten bulunan ters bolulari (kod ornekleri, dosya yollari, regex'ler)
+ * yerdi.
+ *
+ * Fonksiyon ve ~200 cagri yeri BILEREK duruyor: mekanizmanin tek anahtari
+ * burasi. Toplu temizlik yarim kalirsa govdesi gecici olarak eski haline
+ * dondurulup tum site eski davranisa alinabilir.
+ */
 function stripslashesNull($text): string
 {
-    if ($text != null) {
-        return stripslashes($text);
-    } else {
-        return '';
-    }
+    return (string) $text;
 }
 
 function replaceCDN($text): string

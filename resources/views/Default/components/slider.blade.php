@@ -13,14 +13,14 @@
                             'type' => 'cover',
                             'image' => $media->file_name
                         ])}}"
-                         alt="{{stripslashes($item->title)}}">
+                         alt="{{stripslashesNull($item->title)}}">
                     @endif
                     <div class="feat-overlay">
                         <div class="feat-inner">
 
                             <h2>
                                 <a href="{{route('page', ['language' => session('language'), $item])}}">
-                                    {{stripslashes($item->title)}}
+                                    {{stripslashesNull($item->title)}}
                                 </a>
                             </h2>
                             <a href="{{route('page', ['language' => session('language'), $item])}}" class="feat-more">

@@ -39,6 +39,7 @@ return [
     'close' => 'Close',
     'active' => 'Active',
     'passive' => 'Passive',
+    'all' => 'All',
     'previous' => 'Previous',
     'next' => 'Next',
     'rename' => 'Rename',

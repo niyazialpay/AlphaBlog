@@ -8,7 +8,7 @@
             <article class="mini-post">
                 <header>
                     <h3>
-                        <a href="{{route('page', ['language' => $item->language, $item])}}">{{stripslashes($item->title)}}</a>
+                        <a href="{{route('page', ['language' => $item->language, $item])}}">{{stripslashesNull($item->title)}}</a>
                     </h3>
                     <time class="published" datetime="{{dateformat($item->created_at, 'Y-m-d')}}">
                         <a href="{{route('post.archives', [
@@ -36,7 +36,7 @@
                         'height' => 150,
                         'type' => 'cover',
                         'image' => $media->file_name
-                    ])}}" alt="{{stripslashes($item->title)}}" />
+                    ])}}" alt="{{stripslashesNull($item->title)}}" />
                 </a>
                 @endif
             </article>

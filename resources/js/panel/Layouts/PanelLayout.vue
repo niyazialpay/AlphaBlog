@@ -8,9 +8,11 @@ import CommandPalette from '../components/CommandPalette.vue';
 import NotificationBell from '../components/NotificationBell.vue';
 import FlashToast from '../components/FlashToast.vue';
 import { pageHeader } from '../composables/usePageHeader';
+import { pushToast } from '../composables/useToast';
 
 const page = usePage();
 const { theme, toggleTheme } = useTheme();
+const cacheClearing = ref(false);
 
 const paletteOpen = ref(false);
 const languageOpen = ref(false);
@@ -95,10 +97,35 @@ function open(item) {
  * prefetch'i bir gezinme bağlantısında hover'da tetikleyebilirdi.
  */
 function clearCache() {
+  if (cacheClearing.value) {
+    return;
+  }
+
+  cacheClearing.value = true;
+
   axios
     .post(route('admin.clear_cache.post'))
-    .then(() => router.reload({ only: ['flash'] }))
-    .catch(() => {});
+    .then(({ data }) => {
+      /*
+       * Uc JSON donuyor ve oturuma HICBIR flash yazmiyor; onceki hali
+       * `router.reload({ only: ['flash'] })` yapiyordu, yani bos bir flash
+       * okuyup hicbir sey gostermiyordu. Eski ekran burada SweetAlert
+       * basiyordu. Yaniti dogrudan toast'a veriyoruz.
+       */
+      pushToast(
+        data?.message || __('cache.cache_cleared'),
+        data?.status === 'error' ? 'error' : 'success',
+      );
+    })
+    .catch((error) => {
+      pushToast(
+        error?.response?.data?.message || __('cache.cache_not_cleared'),
+        'error',
+      );
+    })
+    .finally(() => {
+      cacheClearing.value = false;
+    });
 }
 
 /**
@@ -357,6 +384,21 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
             </a>
           </div>
         </div>
+
+        <!--
+          Onbellek temizleme ust barda da: sol menude Ayarlar bolumunun icinde
+          gizliydi. Route `can:admin` ile korunuyor, dugme de ayni kapiyi
+          kullanir - yoksa yetkisiz kullaniciya 403 veren bir dugme gosterilirdi.
+        -->
+        <button
+          v-if="$page.props.can?.admin"
+          class="grid h-[34px] w-[34px] place-items-center rounded-[9px] border border-p-line bg-p-panel2 text-[12px] text-p-ink2 hover:border-p-accent hover:text-p-ink disabled:opacity-50"
+          :title="__('cache.clear_cache')"
+          :disabled="cacheClearing"
+          @click="clearCache"
+        >
+          <i :class="cacheClearing ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-trash-can'"></i>
+        </button>
 
         <NotificationBell />
 

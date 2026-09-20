@@ -444,13 +444,24 @@ function removeImage() {
       </div>
     </div>
 
-    <!-- Ayar çekmecesi: >=1120px sabit sütun, altında overlay -->
+    <!--
+      Ayar çekmecesi: >=1120px sabit sütun, altında overlay.
+
+      `xl:` dalinda viewport'a sabitlenir ve KENDI ICINDE kayar. Aksi halde
+      sutun icerigi kadar uzuyor (flex stretch) ve `overflow-y-auto` hicbir
+      zaman devreye girmeden TUM SAYFAYI kaydiriyordu — editor zaten ~100dvh
+      oldugu icin sayfa kaymasinin tek kaynagi burasiydi.
+
+      `self-start` sart: stretch altinda yukseklik satir kadar olur ve
+      `sticky` hicbir sey yapmaz. `top-[58px]` ust bar yuksekligi
+      (`min-h-[58px]`, xl'de tek satir).
+    -->
     <aside
       class="w-[320px] shrink-0 overflow-y-auto border-l border-p-line bg-p-panel p-[18px]"
       :class="
         drawerOpen
           ? 'fixed right-0 top-0 z-30 h-screen animate-slideIn shadow-pop'
-          : 'hidden xl:block'
+          : 'hidden xl:sticky xl:top-[58px] xl:block xl:max-h-[calc(100dvh_-_58px)] xl:self-start'
       "
     >
       <div class="flex items-center gap-2 pb-3">

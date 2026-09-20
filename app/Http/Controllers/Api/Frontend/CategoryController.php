@@ -11,7 +11,7 @@ class CategoryController extends Controller
     public function index($language)
     {
         $categories = Categories::with(['categoryMedia' => function ($query) {
-            //$query->select('original_url');
+            // $query->select('original_url');
         }])->where('language', $language)->get();
 
         return response()->json($categories);
@@ -34,8 +34,8 @@ class CategoryController extends Controller
         $category = Categories::where('slug', $slug)->where('language', 'tr')->first();
         $posts = $category->posts()->with('user')->where('is_published', true)->where('language', 'tr')->paginate(30);
         $posts->getCollection()->transform(function ($post) {
-            $post->title = stripslashes($post->title);
-            $post->content = stripslashes($post->content);
+            $post->title = stripslashesNull($post->title);
+            $post->content = stripslashesNull($post->content);
 
             return $post;
         });

@@ -22,13 +22,13 @@
                                         'type' => 'cover',
                                         'image' => $media->file_name
                                     ])}}"
-                                 alt="{{stripslashes($item->title)}}">
+                                 alt="{{stripslashesNull($item->title)}}">
                         </a>
                         @endif
                     </div>
                     <h5 class="item-title">
                         <a href="{{route('page', ['language' => session('language'), $item])}}">
-                            {{stripslashes($item->title)}}
+                            {{stripslashesNull($item->title)}}
                         </a>
                     </h5>
                     <time class="published"

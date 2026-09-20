@@ -48,8 +48,8 @@ class PostController extends Controller
         $posts = $posts->paginate(30);
 
         $posts->getCollection()->transform(function ($post) {
-            $post->title = stripslashes($post->title);
-            $post->content = stripslashes($post->content);
+            $post->title = stripslashesNull($post->title);
+            $post->content = stripslashesNull($post->content);
 
             return $post;
         });
@@ -79,8 +79,8 @@ class PostController extends Controller
             },
         ])->where('id', $id)->where('language', $language)->where('is_published', 1)->firstOrFail();
         if ($post) {
-            $post->title = stripslashes($post->title);
-            $post->content = stripslashes($post->content);
+            $post->title = stripslashesNull($post->title);
+            $post->content = stripslashesNull($post->content);
             $post->user->makeHidden('email');
         }
 
