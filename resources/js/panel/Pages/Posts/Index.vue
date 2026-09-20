@@ -296,6 +296,17 @@ const list = computed(() => (tab.value === 'trashed' ? props.trashed : props.row
                   <span v-if="row.comments_count" class="text-[11px] text-p-ink3">
                     <i class="fa-solid fa-comments"></i> {{ row.comments_count }}
                   </span>
+                  <!--
+                    QR okuma sayısı: row() bu alanı zaten gönderiyordu ama hiçbir
+                    yerde kullanılmıyordu. QR'ın kendisi yazı editöründeki kartta.
+                  -->
+                  <span
+                    v-if="row.qr_scans_count"
+                    class="text-[11px] text-p-ink3"
+                    :title="__('post.qr_code')"
+                  >
+                    <i class="fa-solid fa-qrcode"></i> {{ row.qr_scans_count }}
+                  </span>
                 </div>
               </td>
 

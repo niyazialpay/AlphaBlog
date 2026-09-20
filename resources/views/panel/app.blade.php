@@ -60,8 +60,19 @@
     --}}
     <script>window.__panelLang = @json(\App\Support\Panel\PanelLang::bag());</script>
 
-    {{-- Yalnızca panel route'ları; çıplak @routes tüm route tablosunu gömer. --}}
-    @routes('panel')
+    {{--
+        Yalnızca panel route'ları; çıplak @routes tüm route tablosunu gömer.
+
+        @routes bir Blade DİREKTİFİ ve onu tightenco/ziggy'nin service provider'ı
+        kaydediyor. Paket o ortamda yüklü değilse Blade direktifi OLDUĞU GİBİ
+        metin olarak basar: sayfada düz "@routes('panel')" görünür, window.Ziggy
+        hiç tanımlanmaz, route() ilk çağrıda fırlatır ve panel bomboş açılır.
+
+        Bu yüzden yük doğrudan basılıyor: App\Support\Panel\PanelRoutes aynı
+        şekli Laravel'in kendi route tablosundan üretiyor, composer paketine
+        ihtiyaç duymuyor. İstemci tarafı (ziggy-js, npm) aynen çalışır.
+    --}}
+    <script>window.Ziggy = @json(\App\Support\Panel\PanelRoutes::payload('panel'));</script>
     @vite(['resources/js/panel/app.js'])
     @inertiaHead
 

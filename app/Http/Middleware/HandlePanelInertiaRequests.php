@@ -85,6 +85,15 @@ final class HandlePanelInertiaRequests extends Middleware
             ],
             'defaultLanguage' => fn () => self::defaultLanguage(),
 
+            /*
+             * Panel bir SPA: kok blade yalnizca ILK tam sayfa yuklemesinde
+             * render ediliyor, dolayisiyla `<meta name="csrf-token">` degeri
+             * (ve bootstrap.js'in ondan kurdugu statik `X-CSRF-TOKEN` basligi)
+             * oturum yenilendiginde BAYATLIYOR ve sonraki her POST 419 donuyor.
+             * Token her Inertia yanitinda tazelenir; istemci basligi gunceller.
+             */
+            'csrfToken' => fn () => $request->session()->token(),
+
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),

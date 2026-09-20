@@ -1,7 +1,7 @@
 import '../bootstrap';
 
 import { createApp, h } from 'vue';
-import { createInertiaApp, Head, Link } from '@inertiajs/vue3';
+import { createInertiaApp, Head, Link, router } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 
 import PanelLayout from './Layouts/PanelLayout.vue';
@@ -21,6 +21,23 @@ if (typeof window !== 'undefined') {
 }
 
 const appName = document.querySelector('title')?.innerText || '';
+
+/*
+ * CSRF token'ini her Inertia yanitindan tazele.
+ *
+ * bootstrap.js basligi kok blade'deki <meta>'dan BIR KEZ kuruyor. Panel bir SPA
+ * oldugu icin kok blade bir daha render edilmiyor; oturum yenilendiginde
+ * (giris, uzun acik sekme, oturum suresi) o baslik bayatliyor ve sunucu
+ * `X-CSRF-TOKEN`'i `X-XSRF-TOKEN` cerezine TERCIH ettigi icin taze cerez
+ * degeri hic kullanilmiyordu — her POST 419 "oturumunuz sona erdi" donuyordu.
+ */
+router.on('success', (event) => {
+    const token = event.detail.page?.props?.csrfToken;
+
+    if (token && window.axios) {
+        window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
+    }
+});
 
 /*
  * LAZY glob — eager DEĞİL. Eager olsaydı 40+ ekran, TinyMCE sarmalayıcısı ve

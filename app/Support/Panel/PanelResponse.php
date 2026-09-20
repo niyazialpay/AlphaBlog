@@ -82,9 +82,42 @@ final class PanelResponse
             return false;
         }
 
+        // Modul Vue sayfasi o kurulumda YOKSA Blade'e don.
+        //
+        // Modul panel kodu site-yerel (`/Modules` gitignore'lu). Sayfa dosyasi
+        // deploy edilmemisse istemcideki glob bos kalir, `resolvePage` undefined
+        // doner ve Inertia ziyareti BEYAZ EKRANLA olur — sunucu 200 dondugu icin
+        // hicbir log da tutmaz. Dosya diskte yoksa eski Blade ekrani sunulur:
+        // kill switch'in amaci zaten tam olarak bu.
+        if (str_contains($component, '::') && ! self::modulePageExists($component)) {
+            return false;
+        }
+
         $routeName = request()->route()?->getName();
 
         // Route adsızsa defterle eşleştirilemez; bu durumda kill switch yeterlidir.
         return $routeName === null || PanelMenu::isInertia($routeName);
+    }
+
+    /**
+     * `valefix::Customers/Index` icin
+     * `Modules/ValeFix/resources/js/panel/Pages/Customers/Index.vue` var mi?
+     *
+     * Dizin adi StudlyCase, namespace kucuk harf; eslestirme glob + kucuk harfe
+     * indirgenmis yol karsilastirmasiyla yapilir.
+     */
+    private static function modulePageExists(string $component): bool
+    {
+        [$namespace, $path] = explode('::', $component, 2);
+
+        $needle = '/modules/'.strtolower($namespace).'/';
+
+        foreach (glob(base_path('Modules/*/resources/js/panel/Pages/'.$path.'.vue')) ?: [] as $file) {
+            if (str_contains(strtolower(str_replace('\\', '/', $file)), $needle)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -16,7 +16,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
-use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Nwidart\Modules\Facades\Module;
@@ -68,11 +68,29 @@ return Application::configure(basePath: dirname(__DIR__))
                 SecurityHeaders::class,
             ],
             prepend: [
-                StartSession::class,
                 EarlyHintsMiddleware::class,
-                VerifyCsrfToken::class,
                 FirewallMiddleware::class,
-            ]);
+            ],
+            /*
+             * StartSession ve VerifyCsrfToken ARTIK PREPEND EDILMIYOR.
+             *
+             * `prependToGroup` sonucu `array_unique(array_merge($prepends, $group))`
+             * ile birlestiriyor: StartSession her iki listede de bulundugu icin
+             * array_unique ILK gecisi (prepend edilmis olani) tutuyor, gruptaki
+             * asil sirayi DUSURUYORDU. Yani oturum `EncryptCookies`'ten once
+             * basliyordu; oturum ve XSRF-TOKEN cerezleri sifrelenmeden gidip
+             * geliyor, sunucu ise `X-XSRF-TOKEN` basligini decrypt etmeye
+             * calistigi icin cerez tabanli CSRF yolu tamamen oluyordu.
+             *
+             * `replace` ile uygulamanin muaf yollarini tasiyan alt sinif
+             * framework middleware'inin YERINE konur; sira kanonik kalir:
+             * EncryptCookies -> AddQueuedCookies -> StartSession ->
+             * ShareErrorsFromSession -> VerifyCsrfToken -> SubstituteBindings.
+             */
+            replace: [
+                PreventRequestForgery::class => VerifyCsrfToken::class,
+            ],
+        );
         $middleware->use([
             TrustProxies::class,
             RouteRedirect::class,
