@@ -288,6 +288,18 @@ final class PanelMenu
     }
 
     /**
+     * Memoize edilmis defteri sifirlar; bir sonraki okuma config'ten gelir.
+     *
+     * Uretimde cagrilmaz — surec omru boyunca tek okuma isteniyor. Testler
+     * defteri daralttiginda (bkz. PanelTestCase::migrateScreens) bu daraltma
+     * sonraki test sinifina sizmasin diye gereklidir.
+     */
+    public static function flushLedger(): void
+    {
+        self::$ledger = null;
+    }
+
+    /**
      * Defter, O KURULUMDA gercekten var olan ekranlara indirgenmis hali.
      *
      * Modul panel kodu site-yereldir (`/Modules` gitignore'lu). Bir modulun Vue

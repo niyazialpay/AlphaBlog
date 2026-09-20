@@ -30,7 +30,13 @@ const props = defineProps({
   social: { type: Object, default: () => ({}) },
   socialDisplay: { type: Object, default: () => ({}) },
   socialOptions: { type: Array, default: () => [] },
-  languages: { type: Array, default: () => [] },
+  /*
+   * `languages` DEGIL, `languageRecords` - bkz. Menu/Index.vue `menuRecord`.
+   * Bu ekranin dil YONETIM kayitlari (id / is_active / is_default). Ayni adli
+   * sayfa prop'u, ust bar dil secicisinin okudugu paylasilan `languages`
+   * prop'unu ezerdi.
+   */
+  languageRecords: { type: Array, default: () => [] },
   themes: { type: Array, default: () => [] },
   notifications: { type: Object, default: () => ({}) },
   cloudflare: { type: Object, default: () => ({}) },
@@ -43,7 +49,7 @@ usePageHeader(__('settings.settings'), [
 ]);
 
 const activeTab = ref(props.tab);
-const seoLanguage = ref(props.languages[0]?.code || null);
+const seoLanguage = ref(props.languageRecords[0]?.code || null);
 const confirm = ref(null);
 const languageModal = ref(false);
 const editingLanguage = ref(null);
@@ -312,7 +318,7 @@ function uploadTheme() {
     <div v-else-if="activeTab === 'seo'" class="flex flex-col gap-3.5">
       <div class="flex flex-wrap gap-1.5">
         <button
-          v-for="language in languages"
+          v-for="language in languageRecords"
           :key="language.code"
           class="p-tab"
           :class="seoLanguage === language.code && 'p-tab-active'"
@@ -564,7 +570,7 @@ function uploadTheme() {
 
       <div class="p-card divide-y divide-p-line2">
         <div
-          v-for="language in languages"
+          v-for="language in languageRecords"
           :key="language.id"
           class="flex items-center gap-3 px-4 py-3"
         >

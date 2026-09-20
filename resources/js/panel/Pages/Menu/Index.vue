@@ -14,7 +14,8 @@ import ConfirmDialog from '../../components/ConfirmDialog.vue';
 const props = defineProps({
   menus: { type: Array, default: () => [] },
   menuRecord: { type: Object, default: null },
-  languages: { type: Array, default: () => [] },
+  // Ayni gerekce: paylasilan `languages` bayrak tasir, bu form listesi tasimaz.
+  languageOptions: { type: Array, default: () => [] },
 });
 
 usePageHeader(__('menu.menu'), [
@@ -28,7 +29,7 @@ const form = useForm({
   title: props.menuRecord?.title || '',
   // MenuRequest: in:header,footer
   menu_position: props.menuRecord?.menu_position || 'header',
-  language: props.menuRecord?.language || props.languages[0]?.code,
+  language: props.menuRecord?.language || props.languageOptions[0]?.code,
 });
 
 function submit() {
@@ -120,7 +121,7 @@ async function destroy(item) {
           type="select"
           :label="__('language.language')"
           :error="form.errors.language"
-          :options="languages.map((l) => ({ value: l.code, label: l.name }))"
+          :options="languageOptions.map((l) => ({ value: l.code, label: l.name }))"
         />
 
         <button class="p-btn-primary justify-center" :disabled="form.processing" @click="submit">

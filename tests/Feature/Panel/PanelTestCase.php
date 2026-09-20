@@ -14,7 +14,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 use Inertia\Inertia;
-use ReflectionProperty;
 use Tests\TestCase;
 
 /**
@@ -168,14 +167,11 @@ abstract class PanelTestCase extends TestCase
 
         /*
          * `PanelMenu::$ledger` defteri SUREC OMRU boyunca memoize ediyor (uretimde
-         * istek basina bir kez okunsun diye). Statik olduğu icin testler arasinda
-         * da yasiyor: config'i degistirmek tek basina yetmiyordu ve defteri ilk
-         * dolduran test butun sureci kilitliyordu. Sonuc siralamaya bagliydi —
-         * tam suit calisirken gercek config once yuklendigi icin her sey
-         * gecerken, `--filter` ile calisan bir alt kume ilk daraltmaya takilip
-         * Inertia yerine Blade yanitlari aliyordu.
+         * istek basina bir kez okunsun diye). Statik olduğu icin config'i
+         * degistirmek tek basina yetmiyor; defteri burada dusuruyoruz. Ters yonu
+         * (bu daraltmanin sonraki test sinifina sizmasi) `Tests\TestCase::setUp`
+         * her testten once ayni cagriyi yaparak kapatiyor.
          */
-        $ledger = new ReflectionProperty(PanelMenu::class, 'ledger');
-        $ledger->setValue(null, null);
+        PanelMenu::flushLedger();
     }
 }

@@ -19,7 +19,12 @@ const props = defineProps({
   tree: { type: Array, default: () => [] },
   flat: { type: Array, default: () => [] },
   category: { type: Object, default: null },
-  languages: { type: Array, default: () => [] },
+  /*
+   * `languages` DEĞİL, `languageOptions`: paylaşılan `languages` prop'u bayrak
+   * taşıyan üst bar dil listesidir ve aynı adlı sayfa prop'u onu EZER
+   * (bkz. Menu/Index.vue `menuRecord`). Buradaki liste yalnızca form seçenekleri.
+   */
+  languageOptions: { type: Array, default: () => [] },
 });
 
 usePageHeader(__('categories.categories'), [
@@ -29,7 +34,7 @@ usePageHeader(__('categories.categories'), [
 
 const confirm = ref(null);
 const imagePreview = ref(props.category?.image || null);
-const hreflangTab = ref(props.languages[0]?.code || null);
+const hreflangTab = ref(props.languageOptions[0]?.code || null);
 
 const editing = computed(() => !!props.category);
 
@@ -111,7 +116,7 @@ watch(
   <div class="flex flex-col gap-3.5 p-[22px]">
     <div class="flex flex-wrap gap-1.5">
       <button
-        v-for="item in languages"
+        v-for="item in languageOptions"
         :key="item.code"
         class="p-tab"
         :class="language === item.code && 'p-tab-active'"
@@ -161,7 +166,7 @@ watch(
             v-model="form.language"
             type="select"
             :label="__('language.language')"
-            :options="languages.map((l) => ({ value: l.code, label: l.name }))"
+            :options="languageOptions.map((l) => ({ value: l.code, label: l.name }))"
           />
           <FormField
             v-model="form.parent_id"
@@ -200,7 +205,7 @@ watch(
             <label class="p-label">Href Lang</label>
             <div class="mb-2 flex flex-wrap gap-1">
               <button
-                v-for="item in languages"
+                v-for="item in languageOptions"
                 :key="item.code"
                 class="p-tab !h-7 !px-2 !text-[11px]"
                 :class="hreflangTab === item.code && 'p-tab-active'"
@@ -210,7 +215,7 @@ watch(
               </button>
             </div>
             <input
-              v-for="item in languages"
+              v-for="item in languageOptions"
               v-show="hreflangTab === item.code"
               :key="item.code"
               v-model="form.hreflang_url[item.code]"

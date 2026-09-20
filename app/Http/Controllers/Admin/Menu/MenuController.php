@@ -42,7 +42,9 @@ class MenuController extends Controller
                     'menu_position' => $menu->menu_position,
                     'language' => $menu->language,
                 ] : null,
-                'languages' => collect(app('languages'))
+                // Ayni gerekce `languages` icin de gecerli: paylasilan liste
+                // bayrak tasir, bu form listesi tasimaz.
+                'languageOptions' => collect(app('languages'))
                     ->map(fn ($language) => ['code' => $language->code, 'name' => $language->name])
                     ->values(),
             ],

@@ -107,7 +107,12 @@ class SettingsController extends Controller
                     ->map(fn (string $label, string $key) => ['value' => $key, 'label' => $label])
                     ->values(),
 
-                'languages' => $languages->map(fn (Languages $item) => [
+                /*
+                 * `languages` DEGIL, `languageRecords` - bkz. MenuController::index()
+                 * `menuRecord`. Dil YONETIM tablosunun kayitlari; paylasilan
+                 * (bayrakli) `languages` prop'unu ezmemesi icin ayri ad tasir.
+                 */
+                'languageRecords' => $languages->map(fn (Languages $item) => [
                     'id' => $item->id,
                     'name' => $item->name,
                     'code' => $item->code,

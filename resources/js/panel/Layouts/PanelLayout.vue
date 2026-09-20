@@ -193,13 +193,11 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
       class="sticky top-0 z-20 h-screen w-[252px] shrink-0 flex-col border-r border-p-line bg-p-panel"
       :class="mobileNavOpen ? 'fixed left-[68px] flex shadow-pop' : 'hidden lg:flex'"
     >
+      <!--
+        Genis kolonda LOGO YOK: marka isareti dar ray'daki favicon, burasi ad +
+        alan adi. Ikisini birden basmak ayni markayi iki kez gosteriyordu.
+      -->
       <div class="flex items-center gap-2.5 border-b border-p-line2 px-[18px] pb-3.5 pt-[18px]">
-        <img
-          v-if="$page.props.siteLogo || $page.props.favicon"
-          :src="$page.props.siteLogo || $page.props.favicon"
-          :alt="$page.props.siteName"
-          class="h-8 w-8 shrink-0 rounded-lg object-contain"
-        />
         <div class="min-w-0">
           <div class="truncate font-display text-[15px] font-extrabold">{{ $page.props.siteName }}</div>
           <div class="mt-0.5 truncate text-[11.5px] text-p-ink3">{{ $page.props.siteDomain }}</div>

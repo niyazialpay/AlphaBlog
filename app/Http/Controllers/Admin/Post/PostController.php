@@ -315,7 +315,12 @@ class PostController extends Controller
                     ->get(['id', 'nickname'])
                     ->map(fn (User $user) => ['id' => (string) $user->id, 'nickname' => $user->nickname])
                     ->values(),
-                'languages' => collect(app('languages'))
+                /*
+                 * `languages` DEGIL, `languageOptions` - bkz. MenuController::index()
+                 * `menuRecord`. Paylasilan `languages` prop'u (bayrakli ust bar dil
+                 * secicisi) ayni adli sayfa prop'u tarafindan EZILIR.
+                 */
+                'languageOptions' => collect(app('languages'))
                     ->map(fn ($language) => ['code' => $language->code, 'name' => $language->name])
                     ->values(),
                 'sessionLanguage' => session('language'),

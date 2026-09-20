@@ -56,7 +56,12 @@ class CategoryController extends Controller
                         'parent_id' => $item->parent_id ? (string) $item->parent_id : null,
                     ])->values(),
                 'category' => $category->id ? self::editable($category) : null,
-                'languages' => collect(app('languages'))
+                /*
+                 * `languages` DEGIL, `languageOptions` - bkz. MenuController::index()
+                 * `menuRecord`. Paylasilan `languages` prop'u (bayrakli ust bar dil
+                 * secicisi) ayni adli sayfa prop'u tarafindan EZILIR.
+                 */
+                'languageOptions' => collect(app('languages'))
                     ->map(fn ($item) => ['code' => $item->code, 'name' => $item->name])
                     ->values(),
             ],

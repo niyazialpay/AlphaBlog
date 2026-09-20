@@ -26,7 +26,12 @@ const props = defineProps({
   post: { type: Object, required: true },
   categories: { type: Array, default: () => [] },
   users: { type: Array, default: () => [] },
-  languages: { type: Array, default: () => [] },
+  /*
+   * `languages` DEGIL, `languageOptions` - bkz. Menu/Index.vue `menuRecord`.
+   * Ayni adli sayfa prop'u, ust bar dil secicisinin okudugu paylasilan
+   * `languages` prop'unu ezer (bayrak alani kaybolur).
+   */
+  languageOptions: { type: Array, default: () => [] },
   sessionLanguage: { type: String, default: null },
 });
 
@@ -59,7 +64,7 @@ const confirm = ref(null);
 const drawerOpen = ref(false);
 const imageFile = ref(null);
 const imagePreview = ref(props.post.image);
-const hreflangTab = ref(props.languages[0]?.code || null);
+const hreflangTab = ref(props.languageOptions[0]?.code || null);
 const editor = ref(null);
 
 const form = useForm({
@@ -67,7 +72,7 @@ const form = useForm({
   title: props.post.title || '',
   slug: props.post.slug || '',
   content: props.post.content || '',
-  language: props.post.language || props.sessionLanguage || props.languages[0]?.code,
+  language: props.post.language || props.sessionLanguage || props.languageOptions[0]?.code,
   category_id: [...(props.post.category_ids || [])],
   meta_keywords: props.post.meta_keywords || '',
   meta_description: props.post.meta_description || '',
@@ -471,7 +476,7 @@ function removeImage() {
           v-model="form.language"
           type="select"
           :label="__('language.language')"
-          :options="languages.map((l) => ({ value: l.code, label: l.name }))"
+          :options="languageOptions.map((l) => ({ value: l.code, label: l.name }))"
         />
 
         <div v-if="!isPages">
@@ -537,7 +542,7 @@ function removeImage() {
           <label class="p-label">Href Lang</label>
           <div class="mb-2 flex flex-wrap gap-1">
             <button
-              v-for="language in languages"
+              v-for="language in languageOptions"
               :key="language.code"
               class="p-tab !h-7 !px-2 !text-[11px]"
               :class="hreflangTab === language.code && 'p-tab-active'"
@@ -547,7 +552,7 @@ function removeImage() {
             </button>
           </div>
           <input
-            v-for="language in languages"
+            v-for="language in languageOptions"
             v-show="hreflangTab === language.code"
             :key="language.code"
             v-model="form.hreflang_url[language.code]"
