@@ -69,7 +69,25 @@ class GoogleSearchConsoleService
             return [];
         }
 
-        return $response->json('rows', []);
+        $rows = $response->json('rows', []);
+
+        if ($rows === []) {
+            /*
+             * 200 + sifir satir SESSIZ bir bosluktu ve arayuzde "veri yok"tan
+             * ayirt edilemiyordu. En sik sebebi mulk bicimi: ayni servis hesabi
+             * `sc-domain:ornek.com` icin veri dondururken `https://ornek.com/`
+             * icin bos donebilir. Hangi site adresiyle sorulduğunu loga yaz ki
+             * neden bos oldugu anlasilabilsin.
+             */
+            Log::info('GSC: sorgu 200 dondu ama satir yok', [
+                'site' => $siteUrl,
+                'dimensions' => $body['dimensions'] ?? [],
+                'startDate' => $body['startDate'] ?? null,
+                'endDate' => $body['endDate'] ?? null,
+            ]);
+        }
+
+        return $rows;
     }
 
     public function getPerformance(Carbon $startDate, Carbon $endDate): array
