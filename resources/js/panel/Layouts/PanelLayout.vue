@@ -422,17 +422,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
           :disabled="cacheClearing"
           @click="clearCache"
         >
-          <!--
-            `!text-inherit`: ikon rengini HER ZAMAN dugmeden alir. Font Awesome
-            setleri (ozellikle Pro duotone) kendi glif renklerini tanimlayabiliyor
-            ve o kural `text-p-ink2` / `hover:text-p-ink`'i eziyordu — ikon zemine
-            uymayan yesil/turkuaz kaliyordu. `!important` ile hangi kaynaktan
-            gelirse gelsin bastirilir.
-          -->
-          <i
-            class="!text-inherit"
-            :class="cacheClearing ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-broom'"
-          ></i>
+          <i :class="cacheClearing ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-broom'"></i>
         </button>
 
         <NotificationBell />

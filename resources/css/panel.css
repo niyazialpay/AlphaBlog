@@ -83,9 +83,18 @@
     @apply inline-flex items-center gap-1.5 h-8 px-3 rounded-[9px] text-[12.5px] cursor-pointer
            border border-p-line bg-p-panel text-p-ink2 hover:text-p-ink transition-colors;
   }
+  /*
+   * `hover:text-p-accent-ink` SART.
+   *
+   * Taban katmandaki `a:hover { text-p-cyan }` kurali (0,1,1) bu siniftan
+   * (0,1,0) daha SPESIFIK. Bu yuzden `<Link class="p-btn-primary">` olarak
+   * render edilen her dugme -- "Yeni" dugmesi dahil -- hover'da mor zemin
+   * uzerinde turkuaz yaziya donuyordu. Hover rengini sinifta tanimlamak
+   * seciciyi (0,2,0)'a cikarir ve taban kurali bastirir.
+   */
   .p-btn-primary {
     @apply inline-flex items-center gap-1.5 h-8 px-3 rounded-[9px] text-[12.5px] font-semibold cursor-pointer
-           border-0 bg-p-accent text-p-accent-ink hover:opacity-90 transition-opacity;
+           border-0 bg-p-accent text-p-accent-ink hover:text-p-accent-ink hover:opacity-90 transition-opacity;
   }
   .p-icon-btn {
     @apply grid place-items-center w-7 h-7 rounded-lg border border-p-line bg-p-panel text-p-ink2
