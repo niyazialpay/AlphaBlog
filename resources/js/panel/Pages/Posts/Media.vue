@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import axios from 'axios';
 import { __ } from '../../composables/useLang';
 import { usePageHeader } from '../../composables/usePageHeader';
 import { pushToast } from '../../composables/useToast';
@@ -42,11 +43,23 @@ async function destroy(item) {
     return;
   }
 
-  router.post(
-    route('admin.post.media.delete', { type: props.type, post: props.post.id }),
-    { media_id: item.id },
-    { preserveScroll: true },
-  );
+  /*
+   * VERI ucu (R1) — bkz. Posts/Edit.vue::removeImage. Uc
+   * `$request->inertia() ? back() : response()->json()` dalliyor; X-Inertia
+   * basligina bagimli kalmamak icin axios ile cagrilir ve liste `only` ile
+   * tazelenir.
+   */
+  axios
+    .post(route('admin.post.media.delete', { type: props.type, post: props.post.id }), {
+      media_id: item.id,
+    })
+    .then(({ data }) => {
+      pushToast(data?.message || __('post.success_image_delete'), 'success');
+      router.reload({ only: ['media'], preserveScroll: true });
+    })
+    .catch((error) => {
+      pushToast(error?.response?.data?.message || __('general.error'), 'error');
+    });
 }
 
 function size(bytes) {

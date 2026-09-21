@@ -416,16 +416,35 @@ function removeImage() {
     return;
   }
 
-  router.post(
-    route('admin.post.image.delete', { type: props.type, post: postId.value }),
-    {},
-    {
-      preserveScroll: true,
-      onSuccess: () => {
-        imagePreview.value = null;
-      },
-    },
-  );
+  /*
+   * VERI ucu, Inertia ziyareti DEGIL (R1).
+   *
+   * Uc `$request->inertia() ? back() : response()->json()` seklinde dallaniyor.
+   * `router.post` kullanildiginda dogru dal X-Inertia basliginin agda sag
+   * kalmasina bagli oluyordu; baslik dusunce sunucu 200 JSON donuyor, Inertia da
+   * JSON'i sayfa sayamayip hata modalini aciyordu (ekranda "Redirecting" ve
+   * ardindan bos iframe). axios ile cagirinca JSON dali HER ZAMAN calisir,
+   * yanit acikca okunur ve ekran `only: ['post']` ile tazelenir.
+   */
+  axios
+    .post(route('admin.post.image.delete', { type: props.type, post: postId.value }))
+    .then(({ data }) => {
+      if (data?.status === false) {
+        pushToast(data?.message || __('general.error'), 'error');
+
+        return;
+      }
+
+      imagePreview.value = null;
+      form.image = null;
+      imageFile.value = null;
+
+      pushToast(data?.message || __('post.success_image_delete'), 'success');
+      router.reload({ only: ['post'], preserveScroll: true });
+    })
+    .catch((error) => {
+      pushToast(serverMessage(error), 'error');
+    });
 }
 </script>
 
