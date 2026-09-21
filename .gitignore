@@ -37,6 +37,8 @@ public/acusensor.php
 /resources/js/*
 !/resources/js/panel/
 !/resources/js/panel.js
+!/resources/js/app.js
+!/resources/js/app.min.js
 /resources/js/panel/node_modules/
 
 /tema
