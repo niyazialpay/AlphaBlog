@@ -8,7 +8,11 @@ import { __ } from '../../composables/useLang';
  * olduğu gibi kalır.
  */
 const props = defineProps({
-  status: { type: Number, required: true },
+  /*
+   * Zorunlu DEGIL: app.js, bundle'da bulunamayan bir sayfa icin de bu bileseni
+   * render ediyor (bkz. resolve()) ve o durumda prop'lar eksik sayfaninkilerdir.
+   */
+  status: { type: Number, default: 404 },
 });
 
 const title = computed(

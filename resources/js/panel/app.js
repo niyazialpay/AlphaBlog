@@ -76,7 +76,26 @@ createInertiaApp({
         const importer = resolvePage(name);
 
         if (!importer) {
-            throw new Error(`Panel sayfası bulunamadı: ${name}`);
+            /*
+             * Sayfa bundle'da YOK — pratikte hep modul sayfalarinda olur, cunku
+             * modul kodu site-yereldir (`/Modules` gitignore'lu) ve o kurulumda
+             * derlemeye girmemis olabilir.
+             *
+             * Eskiden burada `throw` vardi: Inertia promise'i reddediyor, hicbir
+             * sey render edilmiyor ve kullanici BOS EKRAN goruyordu; tek iz
+             * konsoldaki hataydi. Bunun yerine hata sayfasini dondururuz —
+             * ekranda ne eksik oldugu yazar, sidebar ve gezinme calismaya devam eder.
+             */
+            // eslint-disable-next-line no-console
+            console.error(`Panel sayfasi bundle'da yok: ${name}`);
+
+            return corePages['./Pages/Errors/Error.vue']().then((module) => {
+                if (module.default.layout === undefined) {
+                    module.default.layout = PanelLayout;
+                }
+
+                return module;
+            });
         }
 
         return importer().then((module) => {
