@@ -36,6 +36,24 @@ export default defineConfig(({ mode }) => {
             vue(),
         ],
         resolve: {
+            /*
+             * Deploy'da `Modules` dizini paylasilan (shared) bir dizine SYMLINK.
+             *
+             * Varsayilanda Vite/rolldown bir modulu GERCEK yoluna cozuyor, yani
+             * `<release>/Modules/X/...` yerine `<shared>/Modules/X/...` goruyor.
+             * Node cozumlemesi oradan yukari dogru `node_modules` ararken
+             * release dizinine hic ugramiyor ve modul panel sayfalarindaki
+             * `@inertiajs/vue3` importu cozulemiyor:
+             *
+             *   [vite]: Rolldown failed to resolve import "@inertiajs/vue3"
+             *   from ".../shared/Modules/Birdergi/.../Subscribers/Index.vue"
+             *
+             * `preserveSymlinks` symlink yolunu oldugu gibi birakir; arama
+             * `<release>/Modules/...` uzerinden yukari cikar ve
+             * `<release>/node_modules`'i bulur. Yerelde `Modules` gercek dizin
+             * oldugu icin bu ayarin yerel derlemeye etkisi yok.
+             */
+            preserveSymlinks: true,
             alias: {
                 '@': path.resolve(__dirname, 'resources/js'),
                 // Modul panel sayfalari cekirdek SDK'sini bu alias ile import eder:
