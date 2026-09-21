@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Support\Panel\PanelResponse;
 use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Encryption\Encrypter;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -72,36 +73,29 @@ class SearchController extends Controller
         return back()->with('success', __('search.check.success'));
     }
 
-    public function delete(Search $search, Request $request)
+    public function delete(Search $search, Request $request): RedirectResponse
     {
         try {
             DB::beginTransaction();
             if ($search->delete()) {
                 DB::commit();
 
-                // R2: Inertia yonlendirme alir; diger cagiranlar icin sekil degismez.
-                return $request->inertia()
-                    ? back()->with('success', __('search.delete.success'))
-                    : response()->json(['status' => true]);
+                return back()->with('success', __('search.delete.success'));
             }
 
             // Bu yol commit GORMUYOR: transaction acik kalirsa baglanti
             // istek boyunca kilit tutar.
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', __('search.delete.error'))
-                : response()->json(['status' => false]);
+            return back()->with('error', __('search.delete.error'));
         } catch (Throwable $e) {
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', __('search.delete.error'))
-                : response()->json(['status' => false]);
+            return back()->with('error', __('search.delete.error'));
         }
     }
 
-    public function think(Search $search, Request $request)
+    public function think(Search $search, Request $request): RedirectResponse
     {
         /*
          * Korumasiz: bos/eslesmeyen bagli modelde `update()` var olmayan satira
@@ -117,78 +111,53 @@ class SearchController extends Controller
         ]);
 
         if ($search->save()) {
-            return $request->inertia()
-                ? back()->with('success', __('search.think.updated'))
-                : response()->json([
-                    'status' => true,
-                    'think' => $search->think,
-                    'message' => __('search.think.updated'),
-                ]);
+            return back()->with('success', __('search.think.updated'));
         }
 
-        return $request->inertia()
-            ? back()->with('error', __('search.think.error'))
-            : response()->json([
-                'status' => false,
-                'message' => __('search.think.error'),
-            ]);
+        return back()->with('error', __('search.think.error'));
     }
 
-    public function deleteAll(Request $request)
+    public function deleteAll(Request $request): RedirectResponse
     {
         try {
             DB::beginTransaction();
             if (Search::truncate()) {
                 DB::commit();
 
-                // R2: Inertia yonlendirme alir; diger cagiranlar icin sekil degismez.
-                return $request->inertia()
-                    ? back()->with('success', __('search.delete.success'))
-                    : response()->json(['status' => true]);
+                return back()->with('success', __('search.delete.success'));
             }
 
             // Bu yol commit GORMUYOR: transaction acik kalirdi.
 
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', __('search.delete.error'))
-                : response()->json(['status' => false]);
+            return back()->with('error', __('search.delete.error'));
         } catch (Throwable $e) {
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', __('search.delete.error'))
-                : response()->json(['status' => false]);
+            return back()->with('error', __('search.delete.error'));
         }
     }
 
-    public function deleteNotThink(Request $request)
+    public function deleteNotThink(Request $request): RedirectResponse
     {
         try {
             DB::beginTransaction();
             if (Search::where('think', false)->delete()) {
                 DB::commit();
 
-                // R2: Inertia yonlendirme alir; diger cagiranlar icin sekil degismez.
-                return $request->inertia()
-                    ? back()->with('success', __('search.delete.success'))
-                    : response()->json(['status' => true]);
+                return back()->with('success', __('search.delete.success'));
             }
 
             // Bu yol commit GORMUYOR: transaction acik kalirdi.
 
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', __('search.delete.error'))
-                : response()->json(['status' => false]);
+            return back()->with('error', __('search.delete.error'));
         } catch (Throwable $e) {
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', __('search.delete.error'))
-                : response()->json(['status' => false]);
+            return back()->with('error', __('search.delete.error'));
         }
     }
 

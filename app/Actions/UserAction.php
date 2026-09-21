@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Throwable;
 
 class UserAction
 {
@@ -27,21 +28,22 @@ class UserAction
             $user->save();
             DB::commit();
 
-            return $request->inertia()
-                ? back()->with('success', __('profile.save_success'))
-                : response()->json([
-                    'status' => 'success',
-                    'message' => __('profile.save_success'),
-                ], 200);
-        } catch (\Exception $e) {
+            /*
+             * TEK sekil: yonlendirme.
+             *
+             * Eskiden `$request->inertia()` ile dallaniyordu. O kontrol yaniti
+             * X-Inertia basliginin agda sag kalmasina bagliyor; baslik dustugunde
+             * sunucu JSON donuyor, Inertia JSON'i sayfa sayamayip tam ekran hata
+             * modalini aciyor ve kullanici bembeyaz bir kutu goruyordu. Profil
+             * kaydetme bir FORM eylemi, veri ucu degil.
+             */
+            return back()->with('success', __('profile.save_success'));
+        } catch (Throwable $e) {
+            // `Exception` DEGIL: TypeError / null uzerinde metot cagrisi `Error`
+            // sinifindan gelir, `Exception` onu yakalamaz ve transaction acik kalirdi.
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', __('profile.save_error'))
-                : response()->json([
-                    'status' => 'error',
-                    'message' => __('profile.save_error'),
-                ], 422);
+            return back()->with('error', __('profile.save_error'));
         }
     }
 

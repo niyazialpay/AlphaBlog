@@ -8,6 +8,7 @@ use App\Models\RouteRedirects;
 use App\Support\Panel\PanelResponse;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -53,7 +54,7 @@ class RouteRedirectsController extends Controller
         return response()->json($route);
     }
 
-    public function delete(Request $request)
+    public function delete(Request $request): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -62,20 +63,15 @@ class RouteRedirectsController extends Controller
             $route->delete();
             DB::commit();
 
-            // R2: Inertia yonlendirme alir; jQuery cagiranlar ayni JSON'u almaya devam eder.
-            return $request->inertia()
-                ? back()->with('success', __('general.deleted'))
-                : response()->json(['success' => true]);
+            return back()->with('success', __('general.deleted'));
         } catch (Exception $e) {
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', __('general.error'))
-                : response()->json(['success' => false]);
+            return back()->with('error', __('general.error'));
         }
     }
 
-    public function save(RouteRedirects $route, RouteRequest $request)
+    public function save(RouteRedirects $route, RouteRequest $request): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -86,15 +82,11 @@ class RouteRedirectsController extends Controller
             Cache::forget(config('cache.prefix').'routes_'.Str::slug($route->old_url));
             DB::commit();
 
-            return $request->inertia()
-                ? back()->with('success', __('general.saved'))
-                : response()->json(['success' => true]);
+            return back()->with('success', __('general.saved'));
         } catch (Exception $e) {
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', __('general.error'))
-                : response()->json(['success' => false]);
+            return back()->with('error', __('general.error'));
         }
     }
 }

@@ -15,7 +15,6 @@ use App\Models\Settings\SocialSettings;
 use App\Models\SocialNetworks;
 use App\Models\Themes;
 use App\Support\Panel\PanelResponse;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
@@ -218,7 +217,7 @@ class SettingsController extends Controller
         ));
     }
 
-    public function updateApiSettings(CloudflareApiSettingsRequest $request): JsonResponse|RedirectResponse
+    public function updateApiSettings(CloudflareApiSettingsRequest $request): RedirectResponse
     {
         $cf = Cloudflare::first();
         if (! $cf) {
@@ -238,11 +237,6 @@ class SettingsController extends Controller
             Cache::forget(Cloudflare::zoneCacheKey($domain));
         }
 
-        return $request->inertia()
-            ? back()->with('success', __('cloudflare.api_settings_updated'))
-            : response()->json([
-                'status' => 'success',
-                'message' => __('cloudflare.api_settings_updated'),
-            ]);
+        return back()->with('success', __('cloudflare.api_settings_updated'));
     }
 }

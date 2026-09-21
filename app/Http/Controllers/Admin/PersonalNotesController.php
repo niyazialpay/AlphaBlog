@@ -9,6 +9,7 @@ use App\Models\PersonalNotes\PersonalNotes;
 use App\Support\Panel\PanelResponse;
 use Exception;
 use Illuminate\Encryption\Encrypter;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -35,6 +36,10 @@ class PersonalNotesController extends Controller
      * (`admin.notes.categories.create` / `.update`) `config/panel_inertia_routes.php`
      * defterinde YOK; PanelResponse o durumda blade'e dusuyor ve Inertia XHR'ina
      * ham AdminLTE HTML'i gidiyordu (200, sessiz). Yazmada sifre ekranina yonlendirilir.
+     *
+     * Bu dal X-Inertia BASLIGINA BAKMAZ. Baslik ag yolunda dusse bile bir POST'a
+     * ham Blade HTML'i donmek (200) istemcide tam ekran hata modali demekti;
+     * yazma daima yonlendirir.
      */
     private function encryptionGate(): ?Response
     {
@@ -42,7 +47,7 @@ class PersonalNotesController extends Controller
             return null;
         }
 
-        if (request()->inertia() && ! request()->isMethodSafe()) {
+        if (! request()->isMethodSafe()) {
             return to_route('admin.notes.categories')
                 ->with('error', __('notes.encryption_key_required'));
         }
@@ -183,7 +188,14 @@ class PersonalNotesController extends Controller
         );
     }
 
-    public function save(PersonalNotesRequest $request, PersonalNotes $note)
+    /**
+     * Not kaydeder.
+     *
+     * TEK YANIT SEKLI: yonlendirme. Vue (`Notes/Edit.vue`) bu ucu `form.post` ile
+     * cagiriyor; JSON dali cagrisiz kalmisti ve X-Inertia basligi ag yolunda
+     * dustugunde Inertia'ya JSON gidip tam ekran hata modali aciliyordu.
+     */
+    public function save(PersonalNotesRequest $request, PersonalNotes $note): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -195,22 +207,12 @@ class PersonalNotesController extends Controller
             $note->save();
             DB::commit();
 
-            return $request->inertia()
-                ? redirect()->route('admin.notes.edit', ['note' => $note->id])
-                    ->with('success', __('notes.success_save'))
-                : response()->json([
-                    'status' => 'success',
-                    'id' => $note->id,
-                ]);
+            return redirect()->route('admin.notes.edit', ['note' => $note->id])
+                ->with('success', __('notes.success_save'));
         } catch (Exception $e) {
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', $e->getMessage())
-                : response()->json([
-                    'status' => 'error',
-                    'message' => $e->getMessage(),
-                ]);
+            return back()->with('error', $e->getMessage());
         }
     }
 
@@ -251,7 +253,11 @@ class PersonalNotesController extends Controller
         }
     }
 
-    public function postImageDelete(PersonalNotes $note, Request $request)
+    /**
+     * TEK YANIT SEKLI: yonlendirme — `Notes/Media.vue` `router.post` ile cagiriyor.
+     * (Editor yuklemesi `editorImageUpload()` JSON kalir: TinyMCE veri ucu.)
+     */
+    public function postImageDelete(PersonalNotes $note, Request $request): RedirectResponse
     {
         $request->validate([
             'media_id' => 'required|integer',
@@ -262,20 +268,11 @@ class PersonalNotesController extends Controller
             $note->deleteMedia($request->post('media_id'));
             DB::commit();
 
-            return $request->inertia()
-                ? back()->with('success', __('notes.media_deleted'))
-                : response()->json([
-                    'success' => true,
-                ]);
+            return back()->with('success', __('notes.media_deleted'));
         } catch (Exception $e) {
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', $e->getMessage())
-                : response()->json([
-                    'success' => false,
-                    'message' => $e->getMessage(),
-                ]);
+            return back()->with('error', $e->getMessage());
         }
     }
 
@@ -300,45 +297,45 @@ class PersonalNotesController extends Controller
         );
     }
 
-    public function delete(PersonalNotes $note, Request $request)
+    /**
+     * TEK YANIT SEKLI: yonlendirme — `Notes/Index.vue` `router.post` ile cagiriyor.
+     */
+    public function delete(PersonalNotes $note, Request $request): RedirectResponse
     {
         try {
             DB::beginTransaction();
             if ($note->delete()) {
                 DB::commit();
 
-                return $request->inertia()
-                    ? back()->with('success', __('notes.deleted'))
-                    : response()->json(['status' => 'success', 'message' => __('notes.deleted')]);
+                return back()->with('success', __('notes.deleted'));
             } else {
-                return $request->inertia()
-                    ? back()->with('error', __('notes.delete_error'))
-                    : response()->json(['status' => 'error', 'message' => __('notes.delete_error')]);
+                // Bu yol commit GORMUYORDU: transaction istek boyunca acik kalirdi.
+                DB::rollBack();
+
+                return back()->with('error', __('notes.delete_error'));
             }
         } catch (Exception $e) {
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', $e->getMessage())
-                : response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+            return back()->with('error', $e->getMessage());
         }
     }
 
-    public function encryption(Request $request)
+    /**
+     * TEK YANIT SEKLI: yonlendirme — `Notes/Encryption.vue` `form.post` ile cagiriyor.
+     *
+     * Cerez YONLENDIRME yanitina eklenir; Inertia yonlendirmeyi izlerken tarayici
+     * Set-Cookie'yi normal sekilde isler. `httpOnly`/`secure` bayraklari DEGISMEDI.
+     */
+    public function encryption(Request $request): RedirectResponse
     {
         $request->validate([
             'encryption_key' => 'required',
             'remember_time' => 'required|integer|in:1,30,90,180,365',
         ]);
 
-        $response = $request->inertia()
-            ? back()->with('success', __('notes.encryption_key_saved'))
-            : response()->json([
-                'status' => 'success',
-                'message' => __('notes.encryption_key_saved'),
-            ]);
+        $response = back()->with('success', __('notes.encryption_key_saved'));
 
-        // Cookie yonlendirme yanitina eklenir ve Inertia yonlendirmeyi izlerken korunur.
         return $response->withCookie(cookie('encryption_key',
             md5($request->post('encryption_key')),
             1440 * $request->post('remember_time'),
@@ -372,7 +369,13 @@ class PersonalNotesController extends Controller
         );
     }
 
-    public function categorySave(Request $request, PersonalNoteCategories $category)
+    /**
+     * TEK YANIT SEKLI: yonlendirme — `Notes/Categories.vue` `form.post` ile cagiriyor.
+     *
+     * Donus tipi `RedirectResponse` DEGIL: sifreleme kapisi anahtar yokken devreye
+     * girip `to_route(...)` donuyor; Symfony `Response` ikisinin de ust turu.
+     */
+    public function categorySave(Request $request, PersonalNoteCategories $category): Response
     {
         // B6: kapi transaction'dan ONCE. Eskiden acik bir transaction icinden
         // view() donuluyordu: jQuery cagiran JSON bekliyordu, HTML aliyordu ve
@@ -393,50 +396,39 @@ class PersonalNotesController extends Controller
             $category->save();
             DB::commit();
 
-            return $request->inertia()
-                ? back()->with('success', __('notes.success_save'))
-                : response()->json([
-                    'status' => 'success',
-                    'id' => $category->id,
-                ]);
+            return back()->with('success', __('notes.success_save'));
         } catch (Exception $e) {
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', $e->getMessage())
-                : response()->json([
-                    'status' => 'error',
-                    'message' => $e->getMessage(),
-                ]);
+            return back()->with('error', $e->getMessage());
         }
     }
 
-    public function categoryDelete(PersonalNoteCategories $category, Request $request)
+    /**
+     * TEK YANIT SEKLI: yonlendirme — `Notes/Categories.vue` `router.post` ile cagiriyor.
+     */
+    public function categoryDelete(PersonalNoteCategories $category, Request $request): RedirectResponse
     {
         try {
+            // Bu erken donus transaction'dan ONCE: acilmamis bir transaction yok.
             if ($category->notes->count() > 0) {
-                return $request->inertia()
-                    ? back()->with('error', __('notes.error_delete_notes'))
-                    : response()->json(['status' => false, 'message' => __('notes.error_delete_notes')]);
+                return back()->with('error', __('notes.error_delete_notes'));
             }
             DB::beginTransaction();
             if ($category->delete()) {
                 DB::commit();
 
-                return $request->inertia()
-                    ? back()->with('success', __('notes.success_delete'))
-                    : response()->json(['status' => true, 'message' => __('notes.success_delete')]);
+                return back()->with('success', __('notes.success_delete'));
             } else {
-                return $request->inertia()
-                    ? back()->with('error', __('notes.error_delete'))
-                    : response()->json(['status' => false, 'message' => __('notes.error_delete')]);
+                // Bu yol commit GORMUYORDU: transaction istek boyunca acik kalirdi.
+                DB::rollBack();
+
+                return back()->with('error', __('notes.error_delete'));
             }
         } catch (Exception $e) {
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', $e->getMessage())
-                : response()->json(['status' => false, 'message' => $e->getMessage()]);
+            return back()->with('error', $e->getMessage());
         }
     }
 }

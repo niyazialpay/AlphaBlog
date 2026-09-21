@@ -12,6 +12,7 @@ use App\Models\Post\Categories;
 use App\Models\Post\Posts;
 use App\Models\Settings\SeoSettings;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +25,11 @@ class LanguagesController extends Controller
         return response()->json(Languages::where('id', GetPost($request->post('id')))->first());
     }
 
-    public function save(LanguageRequest $request, Languages $language)
+    /**
+     * TEK YANIT SEKLI: yonlendirme — `Settings/Index.vue` `languageForm.post` ile
+     * cagiriyor. (`show()` bir VERI ucu ve JSON kalir.)
+     */
+    public function save(LanguageRequest $request, Languages $language): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -72,27 +77,18 @@ class LanguagesController extends Controller
 
             DB::commit();
 
-            return request()->inertia()
-                ? back()->with('success', __('language.save_success'))
-                : response()->json([
-                    'status' => 'success',
-                    'message' => __('language.save_success'),
-                ]);
+            return back()->with('success', __('language.save_success'));
         } catch (Throwable $e) {
             DB::rollBack();
 
-            return request()->inertia()
-                ? back()->with('error', __('language.save_error'))
-                : response()->json([
-                    'status' => 'error',
-                    'message' => __('language.save_error'),
-                    'error' => $e->getMessage(),
-                ]);
+            return back()->with('error', __('language.save_error'));
         }
-
     }
 
-    public function delete(Request $request, Languages $languages)
+    /**
+     * TEK YANIT SEKLI: yonlendirme — `Settings/Index.vue` `router.post` ile cagiriyor.
+     */
+    public function delete(Request $request, Languages $languages): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -106,9 +102,7 @@ class LanguagesController extends Controller
             if (! $language) {
                 DB::rollBack();
 
-                return $request->inertia()
-                    ? back()->with('error', __('language.delete_error'))
-                    : response()->json(['status' => false, 'message' => __('language.delete_error')], 404);
+                return back()->with('error', __('language.delete_error'));
             }
 
             if (Posts::where('language', $language->code)->count() > 0) {
@@ -130,12 +124,7 @@ class LanguagesController extends Controller
                 // Bu yol commit GORMUYOR: transaction acik kalirdi.
                 DB::rollBack();
 
-                return $request->inertia()
-                    ? back()->with('error', $error_message)
-                    : response()->json([
-                        'status' => false,
-                        'message' => $error_message,
-                    ]);
+                return back()->with('error', $error_message);
             }
             SeoSettings::where('language', $language->code)->delete();
             $language->delete();
@@ -144,22 +133,11 @@ class LanguagesController extends Controller
 
             DB::commit();
 
-            return $request->inertia()
-                ? back()->with('success', __('language.delete_success'))
-                : response()->json([
-                    'status' => true,
-                    'message' => __('language.delete_success'),
-                ]);
+            return back()->with('success', __('language.delete_success'));
         } catch (Throwable $e) {
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', __('language.delete_error'))
-                : response()->json([
-                    'status' => false,
-                    'message' => __('language.delete_error'),
-                    'error' => $e->getMessage(),
-                ]);
+            return back()->with('error', __('language.delete_error'));
         }
     }
 }

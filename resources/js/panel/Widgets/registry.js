@@ -13,7 +13,8 @@
  * Modül yoksa glob boş geçer; çekirdek sorunsuz derlenir ve ekran o widget için
  * "modül güncellenmeli" durumu gösterir.
  */
-const moduleWidgets = import.meta.glob('../../../../Modules/*/resources/js/panel/Widgets/*.vue');
+// Aynadan okunur; gerekcesi icin bkz. resources/js/panel/app.js ve scripts/panel-modules.mjs
+const moduleWidgets = import.meta.glob('../.modules/*/Widgets/*.vue');
 
 const moduleLookup = Object.fromEntries(
     Object.entries(moduleWidgets).map(([path, importer]) => {

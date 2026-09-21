@@ -33,14 +33,20 @@ class AccessControlTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'user']);
 
+        /*
+         * Profil kaydetme artik HER ZAMAN yonlendirir (form eylemi).
+         * Eskiden `$request->inertia()` ile dallanip JSON donebiliyordu; o dal
+         * kaldirildi. Bu testin asil iddiasi statu degil, ROLUN DEGISMEMESI.
+         */
         $this->actingAs($user)
-            ->postJson(route('admin.profile.save'), [
+            ->from(route('admin.profile.index'))
+            ->post(route('admin.profile.save'), [
                 'name' => 'Mallory',
                 'surname' => 'Attacker',
                 'nickname' => 'mallory',
                 'role' => 'owner',
             ])
-            ->assertOk();
+            ->assertRedirect();
 
         $this->assertSame('user', $user->fresh()->role, 'role must NOT change via profile save');
     }
@@ -51,12 +57,13 @@ class AccessControlTest extends TestCase
         $user = User::factory()->create(['role' => 'user', 'name' => 'Old']);
 
         $this->actingAs($user)
-            ->postJson(route('admin.profile.save'), [
+            ->from(route('admin.profile.index'))
+            ->post(route('admin.profile.save'), [
                 'name' => 'NewName',
                 'surname' => 'NewSurname',
                 'nickname' => 'newnick',
             ])
-            ->assertOk();
+            ->assertRedirect();
 
         $this->assertSame('NewName', $user->fresh()->name);
     }

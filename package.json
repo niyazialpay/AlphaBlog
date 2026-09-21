@@ -2,9 +2,9 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "predev": "node scripts/theme-install.mjs",
-        "prebuild": "node scripts/theme-install.mjs",
-        "prepreview": "node scripts/theme-install.mjs",
+        "predev": "node scripts/theme-install.mjs && node scripts/panel-modules.mjs",
+        "prebuild": "node scripts/theme-install.mjs && node scripts/panel-modules.mjs",
+        "prepreview": "node scripts/theme-install.mjs && node scripts/panel-modules.mjs",
         "dev": "vite",
         "build": "vite build",
         "build:ssr": "vite build --ssr",

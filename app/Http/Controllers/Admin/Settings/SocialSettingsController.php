@@ -6,39 +6,25 @@ use App\Actions\SocialNetworkSaveAction;
 use App\Http\Controllers\Controller;
 use App\Models\Settings\SocialSettings;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class SocialSettingsController extends Controller
 {
-    public function save(Request $request)
+    public function save(Request $request): RedirectResponse
     {
         try {
             if (SocialNetworkSaveAction::execute($request, 'website')) {
                 Cache::forget(config('cache.prefix').'social_networks');
 
-                return request()->inertia()
-                    ? back()->with('success', __('profile.save_success'))
-                    : response()->json([
-                        'status' => 'success',
-                        'message' => __('profile.save_success'),
-                    ], 200);
+                return back()->with('success', __('profile.save_success'));
             } else {
-                return request()->inertia()
-                    ? back()->with('error', __('profile.save_error'))
-                    : response()->json([
-                        'status' => 'error',
-                        'message' => __('profile.save_error'),
-                    ], 422);
+                return back()->with('error', __('profile.save_error'));
             }
         } catch (Exception $e) {
-            return request()->inertia()
-                ? back()->with('error', $e->getMessage())
-                : response()->json([
-                    'status' => 'error',
-                    'message' => $e->getMessage(),
-                ], 500);
+            return back()->with('error', $e->getMessage());
         }
     }
 
@@ -69,7 +55,7 @@ class SocialSettingsController extends Controller
         )));
     }
 
-    public function saveHeader(Request $request)
+    public function saveHeader(Request $request): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -97,22 +83,11 @@ class SocialSettingsController extends Controller
             Cache::forget(config('cache.prefix').'social_settings');
             DB::commit();
 
-            return request()->inertia()
-                ? back()->with('success', __('profile.save_success'))
-                : response()->json([
-                    'status' => 'success',
-                    'message' => __('profile.save_success'),
-                ], 200);
+            return back()->with('success', __('profile.save_success'));
         } catch (Exception $e) {
             DB::rollBack();
 
-            return request()->inertia()
-                ? back()->with('error', __('profile.save_error'))
-                : response()->json([
-                    'status' => 'error',
-                    'message' => __('profile.save_error'),
-                    'error' => $e->getMessage(),
-                ], 422);
+            return back()->with('error', __('profile.save_error'));
         }
     }
 }

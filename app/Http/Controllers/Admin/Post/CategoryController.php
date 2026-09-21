@@ -104,6 +104,16 @@ class CategoryController extends Controller
                 'id' => (string) $item->id,
                 'name' => $item->name,
                 'slug' => $item->slug,
+                /*
+                 * Agac satirlarinda kucuk gorsel. Eski ekran da listede
+                 * `getFirstMediaUrl('categories', 'thumb')` basiyordu
+                 * (panel/post/category/index.blade.php:103).
+                 *
+                 * `mediaConversionUrl` sart: dogrudan `getFirstMediaUrl(...,
+                 * 'thumb')` cagrisi dosya URETILMEMIS olsa bile URL donduruyor
+                 * ve tarayici 404 aliyor.
+                 */
+                'image' => mediaConversionUrl($item->getFirstMedia('categories'), 'thumb'),
                 'children' => self::tree($language, $item->id),
             ])
             ->values()
@@ -128,7 +138,7 @@ class CategoryController extends Controller
         ];
     }
 
-    public function store(CategoryRequest $request, Categories $category): JsonResponse|RedirectResponse
+    public function store(CategoryRequest $request, Categories $category): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -170,51 +180,42 @@ class CategoryController extends Controller
             if ($category->save()) {
                 DB::commit();
 
-                return $request->inertia()
-                    ? back()->with('success', $message)
-                    : response()->json(['status' => 'success', 'message' => $message]);
+                return back()->with('success', $message);
             }
 
             // Bu yol commit GORMUYOR: transaction acik kalirdi.
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', __('categories.error'))
-                : response()->json(['status' => 'error', 'message' => __('categories.error')]);
+            return back()->with('error', __('categories.error'));
         } catch (Throwable $exception) {
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', $exception->getMessage())
-                : response()->json(['status' => 'error', 'message' => $exception->getMessage()])->setStatusCode(500);
+            return back()->with('error', $exception->getMessage());
         }
     }
 
-    public function delete(CategoryDeleteRequest $request, Categories $category): JsonResponse|RedirectResponse
+    public function delete(CategoryDeleteRequest $request, Categories $category): RedirectResponse
     {
         try {
             DB::beginTransaction();
             if ($category::find($request->id)->delete()) {
                 DB::commit();
 
-                return $request->inertia()
-                    ? back()->with('success', __('categories.success_delete'))
-                    : response()->json(['status' => 'success', 'message' => __('categories.success_delete')]);
+                return back()->with('success', __('categories.success_delete'));
             }
 
-            return $request->inertia()
-                ? back()->with('error', __('categories.error_delete'))
-                : response()->json(['status' => 'error', 'message' => __('categories.error_delete')]);
+            // Bu yol commit GORMUYOR: transaction acik kalirdi.
+            DB::rollBack();
+
+            return back()->with('error', __('categories.error_delete'));
         } catch (Throwable $exception) {
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', $exception->getMessage())
-                : response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
+            return back()->with('error', $exception->getMessage());
         }
     }
 
-    public function deleteImage(Request $request)
+    public function deleteImage(Request $request): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -228,23 +229,17 @@ class CategoryController extends Controller
             if (! $image) {
                 DB::rollBack();
 
-                return $request->inertia()
-                    ? back()->with('error', __('categories.error'))
-                    : response()->json(['status' => 'error'], 404);
+                return back()->with('error', __('categories.error'));
             }
 
             $image->deleteMedia($image->getFirstMedia('categories'));
             DB::commit();
 
-            return $request->inertia()
-                ? back()->with('success', __('post.success_image_delete'))
-                : response()->json(['status' => 'success']);
+            return back()->with('success', __('post.success_image_delete'));
         } catch (Throwable $exception) {
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', $exception->getMessage())
-                : response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
+            return back()->with('error', $exception->getMessage());
         }
     }
 

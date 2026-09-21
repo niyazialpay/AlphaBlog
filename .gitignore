@@ -40,6 +40,8 @@ public/acusensor.php
 !/resources/js/app.js
 !/resources/js/app.min.js
 /resources/js/panel/node_modules/
+# Derleme oncesi uretilen modul panel aynasi (scripts/panel-modules.mjs)
+/resources/js/panel/.modules/
 
 /tema
 

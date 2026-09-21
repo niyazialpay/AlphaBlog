@@ -407,7 +407,7 @@ class PostController extends Controller
         $type,
         PostRequest $request,
         Posts $post
-    ): JsonResponse|RedirectResponse {
+    ): RedirectResponse {
         try {
             DB::beginTransaction();
             $isNewPost = ! $post->id;
@@ -474,28 +474,26 @@ class PostController extends Controller
                 CacheClear::cacheClear();
 
                 /*
-                 * R2: Inertia yonlendirme alir, jQuery cagiranlar ayni JSON'u.
-                 * Donen `id` yeni kayitta yuk tasiyor (eski ekran ona gore
-                 * .../{id}/edit adresine gidiyordu); yonlendirme ayni hedefe gider.
+                 * Form eylemi: TEK donus sekli yonlendirmedir (R2). Yeni kayitta
+                 * hedef .../{id}/edit; eski JSON dali `id` donuyordu, yonlendirme
+                 * ayni yere gittigi icin bilgi kaybi yok.
                  */
-                return $request->inertia()
-                    ? to_route('admin.post.edit', ['type' => $type, 'post' => $post->id])->with('success', $message)
-                    : response()->json(['status' => 'success', 'message' => $message, 'id' => $post->id]);
+                return to_route('admin.post.edit', ['type' => $type, 'post' => $post->id])
+                    ->with('success', $message);
             }
 
-            return $request->inertia()
-                ? back()->with('error', __('post.error'))
-                : response()->json(['status' => 'error', 'message' => __('post.error')])->setStatusCode(500);
+            // Bu yol commit GORMUYOR: transaction acik kalirdi.
+            DB::rollBack();
+
+            return back()->with('error', __('post.error'));
         } catch (Exception $exception) {
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', $exception->getMessage())
-                : response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
+            return back()->with('error', $exception->getMessage());
         }
     }
 
-    public function delete($type, Posts $post)
+    public function delete($type, Posts $post): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -507,24 +505,21 @@ class PostController extends Controller
                 DB::commit();
                 CacheClear::cacheClear();
 
-                return request()->inertia()
-                    ? back()->with('success', __('post.success_delete'))
-                    : response()->json(['status' => 'success', 'message' => __('post.success_delete')]);
+                return back()->with('success', __('post.success_delete'));
             }
 
-            return request()->inertia()
-                ? back()->with('error', __('post.post.error_delete'))
-                : response()->json(['status' => 'error', 'message' => __('post.post.error_delete')]);
+            // Bu yol commit GORMUYOR: transaction acik kalirdi.
+            DB::rollBack();
+
+            return back()->with('error', __('post.post.error_delete'));
         } catch (Exception $exception) {
             DB::rollBack();
 
-            return request()->inertia()
-                ? back()->with('error', $exception->getMessage())
-                : response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
+            return back()->with('error', $exception->getMessage());
         }
     }
 
-    public function forceDelete($type, Posts $post)
+    public function forceDelete($type, Posts $post): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -540,24 +535,21 @@ class PostController extends Controller
                 DB::commit();
                 CacheClear::cacheClear();
 
-                return request()->inertia()
-                    ? back()->with('success', __('post.post.success_force_delete'))
-                    : response()->json(['status' => 'success', 'message' => __('post.post.success_force_delete')]);
+                return back()->with('success', __('post.post.success_force_delete'));
             }
 
-            return request()->inertia()
-                ? back()->with('error', __('post.post.error_force_delete'))
-                : response()->json(['status' => 'error', 'message' => __('post.post.error_force_delete')]);
+            // Bu yol commit GORMUYOR: transaction acik kalirdi.
+            DB::rollBack();
+
+            return back()->with('error', __('post.post.error_force_delete'));
         } catch (Exception $exception) {
             DB::rollBack();
 
-            return request()->inertia()
-                ? back()->with('error', $exception->getMessage())
-                : response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
+            return back()->with('error', $exception->getMessage());
         }
     }
 
-    public function restore($type, Posts $post)
+    public function restore($type, Posts $post): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -569,33 +561,33 @@ class PostController extends Controller
                 DB::commit();
                 CacheClear::cacheClear();
 
-                return request()->inertia()
-                    ? back()->with('success', __('post.post.success_restore'))
-                    : response()->json(['status' => 'success', 'message' => __('post.post.success_restore')]);
+                return back()->with('success', __('post.post.success_restore'));
             }
 
-            return request()->inertia()
-                ? back()->with('error', __('post.post.error_restore'))
-                : response()->json(['status' => 'error', 'message' => __('post.post.error_restore')]);
+            // Bu yol commit GORMUYOR: transaction acik kalirdi.
+            DB::rollBack();
+
+            return back()->with('error', __('post.post.error_restore'));
         } catch (Exception $exception) {
             DB::rollBack();
 
-            return request()->inertia()
-                ? back()->with('error', $exception->getMessage())
-                : response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
+            return back()->with('error', $exception->getMessage());
         }
     }
 
     /**
+     * VERI ucu: Posts/Edit.vue `removeImage()` bunu axios ile cagirir ve yaniti
+     * okuyup ekrani `only: ['post']` ile tazeler. Tek donus sekli JSON'dur -
+     * X-Inertia basligina gore dallanmak, baslik yolda dustugunde Inertia'ya
+     * sayfa yerine JSON verip tam ekran hata modali aciyordu.
+     *
      * @throws MediaCannotBeDeleted
      */
-    public function imageDelete($type, Posts $post, Request $request)
+    public function imageDelete($type, Posts $post, Request $request): JsonResponse
     {
         $post->deleteMedia($post->getFirstMedia('posts'));
 
-        return $request->inertia()
-            ? back()->with('success', __('post.success_image_delete'))
-            : response()->json(['status' => true, 'message' => __('post.success_image_delete')]);
+        return response()->json(['status' => true, 'message' => __('post.success_image_delete')]);
     }
 
     public function media($type, Posts $post): SymfonyResponse
@@ -663,16 +655,18 @@ class PostController extends Controller
     }
 
     /**
+     * VERI ucu: Posts/Media.vue `destroy()` bunu axios ile cagirir ve listeyi
+     * `only: ['media']` ile tazeler. Tek donus sekli JSON'dur - bkz.
+     * imageDelete().
+     *
      * @throws MediaCannotBeDeleted
      */
-    public function postImageDelete($type, Posts $post, Request $request)
+    public function postImageDelete($type, Posts $post, Request $request): JsonResponse
     {
         $post->deleteMedia($request->post('media_id'));
 
-        return $request->inertia()
-            ? back()->with('success', __('post.success_image_delete'))
-            : response()->json([
-                'success' => true,
-            ]);
+        return response()->json([
+            'success' => true,
+        ]);
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Post\PostHistory;
 use App\Models\Post\Posts;
 use App\Support\Panel\PanelResponse;
+use Illuminate\Http\RedirectResponse;
 use Qazd\TextDiff;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -35,13 +36,11 @@ class HistoryController extends Controller
         );
     }
 
-    public function delete($type, Posts $posts, PostHistory $history)
+    public function delete($type, Posts $posts, PostHistory $history): RedirectResponse
     {
         $history->forceDelete();
 
-        return request()->inertia()
-            ? back()->with('success', __('general.deleted'))
-            : response()->json(['status' => 'success']);
+        return back()->with('success', __('general.deleted'));
     }
 
     public function show($type, Posts $posts, PostHistory $history): Response
@@ -88,7 +87,7 @@ class HistoryController extends Controller
         );
     }
 
-    public function revert($type, Posts $posts, PostHistory $history)
+    public function revert($type, Posts $posts, PostHistory $history): RedirectResponse
     {
         $posts->update([
             'title' => $history->title,
@@ -96,8 +95,6 @@ class HistoryController extends Controller
             'content' => $history->content,
         ]);
 
-        return request()->inertia()
-            ? back()->with('success', __('post.revert_success'))
-            : response()->json(['status' => 'success']);
+        return back()->with('success', __('post.revert_success'));
     }
 }

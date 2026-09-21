@@ -21,6 +21,7 @@ use App\Support\Panel\PanelResponse;
 use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -75,7 +76,12 @@ class UserController extends Controller
         return $this->profileResponse($user, $sessions, true);
     }
 
-    public function changePassword(PasswordRequest $request)
+    /**
+     * TEK YANIT SEKLI: yonlendirme — `Profile/Index.vue` `passwordForm.post` ile
+     * cagiriyor. Yanlis eski parola `ValidationException` firlatir; Inertia
+     * `form.errors` alanlarini oturum hata cantasindan doldurur.
+     */
+    public function changePassword(PasswordRequest $request): RedirectResponse
     {
         $user = auth()->user();
         if (! Hash::check($request->old_password, $user->password)) {
@@ -91,12 +97,7 @@ class UserController extends Controller
         }
         UserAction::changePassword($request, $user);
 
-        return $request->inertia()
-            ? back()->with('success', __('profile.password_change_success'))
-            : response()->json([
-                'status' => 'success',
-                'message' => __('profile.password_change_success'),
-            ], 200);
+        return back()->with('success', __('profile.password_change_success'));
     }
 
     /**
@@ -108,7 +109,7 @@ class UserController extends Controller
      * ucunu kullaniyor ve orada eski parola dogrulamasi var; bu uc uzerinden
      * gecilseydi politika baypas edilirdi.
      */
-    public function userPasswordChange(AdminPasswordRequest $request, User $user_id)
+    public function userPasswordChange(AdminPasswordRequest $request, User $user_id): RedirectResponse
     {
         $ranks = $this->roleRanks();
         $actorRank = $ranks[auth()->user()->role] ?? -1;
@@ -117,12 +118,7 @@ class UserController extends Controller
 
         UserAction::changePassword($request, $user_id);
 
-        return $request->inertia()
-            ? back()->with('success', __('profile.password_change_success'))
-            : response()->json([
-                'status' => 'success',
-                'message' => __('profile.password_change_success'),
-            ], 200);
+        return back()->with('success', __('profile.password_change_success'));
     }
 
     public function save(UserRequest $request)
@@ -130,31 +126,24 @@ class UserController extends Controller
         return UserAction::userSave($request, auth()->user());
     }
 
-    private function socialProfileSave($request, $user_id)
+    /**
+     * TEK YANIT SEKLI: yonlendirme — `Profile/Index.vue` `socialForm.post` ile cagiriyor.
+     */
+    private function socialProfileSave($request, $user_id): RedirectResponse
     {
         if (SocialNetworkSaveAction::execute($request, 'user', $user_id)) {
-            return $request->inertia()
-                ? back()->with('success', __('profile.save_success'))
-                : response()->json([
-                    'status' => 'success',
-                    'message' => __('profile.save_success'),
-                ], 200);
+            return back()->with('success', __('profile.save_success'));
         }
 
-        return $request->inertia()
-            ? back()->with('error', __('profile.save_error'))
-            : response()->json([
-                'status' => 'error',
-                'message' => __('profile.save_error'),
-            ], 422);
+        return back()->with('error', __('profile.save_error'));
     }
 
-    public function socialSave(Request $request)
+    public function socialSave(Request $request): RedirectResponse
     {
         return $this->socialProfileSave($request, auth()->id());
     }
 
-    public function userSocialSave(Request $request, User $user_id)
+    public function userSocialSave(Request $request, User $user_id): RedirectResponse
     {
         return $this->socialProfileSave($request, $user_id->id);
     }
@@ -309,12 +298,7 @@ class UserController extends Controller
     {
         if ($request->has('role') && $request->role !== $user_id->role) {
             if (! $this->canAssignRole(auth()->user(), $request->role)) {
-                return $request->inertia()
-                    ? back()->with('error', __('profile.save_error'))
-                    : response()->json([
-                        'status' => 'error',
-                        'message' => __('profile.save_error'),
-                    ], 403);
+                return back()->with('error', __('profile.save_error'));
             }
             $user_id->role = $request->role;
             $user_id->save();
@@ -366,15 +350,13 @@ class UserController extends Controller
         );
     }
 
-    public function store(UserCreateRequest $request, User $user)
+    /**
+     * TEK YANIT SEKLI: yonlendirme — `Users/Create.vue` `form.post` ile cagiriyor.
+     */
+    public function store(UserCreateRequest $request, User $user): RedirectResponse
     {
         if (! $this->canAssignRole(auth()->user(), (string) $request->role)) {
-            return $request->inertia()
-                ? back()->with('error', __('profile.save_error'))
-                : response()->json([
-                    'status' => 'error',
-                    'message' => __('profile.save_error'),
-                ], 403);
+            return back()->with('error', __('profile.save_error'));
         }
 
         try {
@@ -398,51 +380,31 @@ class UserController extends Controller
                 ? __('user.email_verification_failed')
                 : null;
 
-            if ($request->inertia()) {
-                return to_route('admin.users')
-                    ->with('success', __('profile.save_success'))
-                    ->with('warning', $warning);
-            }
-
-            return response()->json([
-                'status' => 'success',
-                'message' => __('profile.save_success'),
-                'warning' => $warning,
-            ], 200);
+            return to_route('admin.users')
+                ->with('success', __('profile.save_success'))
+                ->with('warning', $warning);
         } catch (Exception $e) {
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', __('profile.save_error'))
-                : response()->json([
-                    'status' => 'error',
-                    'message' => __('profile.save_error'),
-                ], 422);
+            return back()->with('error', __('profile.save_error'));
         }
     }
 
-    public function userDelete(Request $request, User $user)
+    /**
+     * TEK YANIT SEKLI: yonlendirme — `Users/Index.vue` `router.post` ile cagiriyor.
+     */
+    public function userDelete(Request $request, User $user): RedirectResponse
     {
         try {
             DB::beginTransaction();
             $user::where('id', $request->user_id)->delete();
             DB::commit();
 
-            return $request->inertia()
-                ? back()->with('success', __('profile.delete_success'))
-                : response()->json([
-                    'status' => 'success',
-                    'message' => __('profile.delete_success'),
-                ], 200);
+            return back()->with('success', __('profile.delete_success'));
         } catch (Exception $e) {
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', __('profile.delete_error'))
-                : response()->json([
-                    'status' => 'error',
-                    'message' => __('profile.delete_error'),
-                ], 422);
+            return back()->with('error', __('profile.delete_error'));
         }
     }
 
@@ -461,46 +423,34 @@ class UserController extends Controller
         return (new WebAuthnAction)->rename($request, $webauthn, $user_id);
     }
 
-    public function userEmailChange(Request $request, User $user_id)
+    /**
+     * TEK YANIT SEKLI: yonlendirme — `Profile/Index.vue` `emailForm.post` ile cagiriyor.
+     */
+    public function userEmailChange(Request $request, User $user_id): RedirectResponse
     {
         if (UserAction::changeEmail($request, $user_id)) {
-            return $request->inertia()
-                ? back()->with('success', __('profile.save_success'))
-                : response()->json([
-                    'status' => 'success',
-                    'message' => __('profile.save_success'),
-                ], 200);
+            return back()->with('success', __('profile.save_success'));
         } else {
-            return $request->inertia()
-                ? back()->with('error', __('profile.save_error'))
-                : response()->json([
-                    'status' => 'error',
-                    'message' => __('profile.save_error'),
-                ], 422);
-
+            return back()->with('error', __('profile.save_error'));
         }
     }
 
-    public function changeEmail(Request $request)
+    /**
+     * TEK YANIT SEKLI: yonlendirme — `Profile/Index.vue` `emailForm.post` ile cagiriyor.
+     */
+    public function changeEmail(Request $request): RedirectResponse
     {
         if (UserAction::changeEmail($request, auth()->user())) {
-            return $request->inertia()
-                ? back()->with('success', __('profile.save_success'))
-                : response()->json([
-                    'status' => 'success',
-                    'message' => __('profile.save_success'),
-                ], 200);
+            return back()->with('success', __('profile.save_success'));
         } else {
-            return $request->inertia()
-                ? back()->with('error', __('profile.save_error'))
-                : response()->json([
-                    'status' => 'error',
-                    'message' => __('profile.save_error'),
-                ], 422);
+            return back()->with('error', __('profile.save_error'));
         }
     }
 
-    public function privacy(Request $request)
+    /**
+     * TEK YANIT SEKLI: yonlendirme — `Profile/Index.vue` `privacyForm.post` ile cagiriyor.
+     */
+    public function privacy(Request $request): RedirectResponse
     {
         if ($request->has('show_name')) {
             $show_name = true;
@@ -573,12 +523,7 @@ class UserController extends Controller
             ]
         );
 
-        return $request->inertia()
-            ? back()->with('success', __('profile.save_success'))
-            : response()->json([
-                'status' => 'success',
-                'message' => __('profile.save_success'),
-            ], 200);
+        return back()->with('success', __('profile.save_success'));
     }
 
     public function userSecretLogin($user_id)
@@ -617,7 +562,10 @@ class UserController extends Controller
         return redirect()->route('admin.index');
     }
 
-    public function killSession(Request $request)
+    /**
+     * TEK YANIT SEKLI: yonlendirme — `Profile/Index.vue` `router.post` ile cagiriyor.
+     */
+    public function killSession(Request $request): RedirectResponse
     {
         $session = UserSessions::find($request->session_id);
         if (! $session) {
@@ -631,12 +579,7 @@ class UserController extends Controller
         $session->session()->delete();
         $session->delete();
 
-        return $request->inertia()
-            ? back()->with('success', __('profile.delete_success'))
-            : response()->json([
-                'status' => 'success',
-                'message' => __('profile.delete_success'),
-            ], 200);
+        return back()->with('success', __('profile.delete_success'));
     }
 
     public function killAllSession(Request $request)

@@ -24,6 +24,15 @@ const props = defineProps({
   height: { type: [Number, String], default: null },
   /** Kisa pencerede editor kullanilabilir kalsin diye taban yukseklik. */
   minHeight: { type: Number, default: 320 },
+  /**
+   * Dar ekranda SABIT yukseklik (px).
+   *
+   * Mobilde `dvh` hesabi kullanilmaz: sarmalayici sayfada asagida oldugu icin
+   * olculen ust konum viewport'a yaklasiyor, `100dvh - top` sifira hatta eksiye
+   * dusuyor ve editor tamamen kayboluyordu. Eski Blade ekrani da mobilde sabit
+   * 400px veriyordu (add-edit.blade.php:602, `mobile: { height: 400 }`).
+   */
+  mobileHeight: { type: Number, default: 400 },
   aiEnabled: { type: Boolean, default: true },
   /** Yükleme isteğine eklenecek ek alanlar (title, slug, meta_keywords, language) */
   uploadMeta: { type: Function, default: () => ({}) },
@@ -53,6 +62,13 @@ const BOTTOM_GAP = 22; // sayfa kabuğundaki p-[22px] alt boşluğu
 
 const offset = ref(FALLBACK_OFFSET);
 
+/* Tailwind `md` esigi; CSS'teki medya sorgusuyla AYNI deger olmali. */
+const NARROW_BREAKPOINT = 768;
+
+function isNarrow() {
+    return typeof window !== 'undefined' && window.innerWidth < NARROW_BREAKPOINT;
+}
+
 function measure() {
   const top = wrap.value?.getBoundingClientRect().top;
 
@@ -81,6 +97,10 @@ const resolvedHeight = computed(() => {
 function initialPixelHeight() {
   if (typeof props.height === 'number') {
     return props.height;
+  }
+
+  if (isNarrow()) {
+    return props.mobileHeight;
   }
 
   const available = (window.innerHeight || 0) - offset.value;
@@ -233,16 +253,34 @@ defineExpose({
   <div
     ref="wrap"
     class="tinymce-shell overflow-hidden rounded-2xl border border-p-line bg-p-panel shadow-panel"
-    :style="{ '--tinymce-height': resolvedHeight, '--tinymce-min-height': `${minHeight}px` }"
+    :style="{
+      '--tinymce-height': resolvedHeight,
+      '--tinymce-min-height': `${minHeight}px`,
+      '--tinymce-mobile-height': `${mobileHeight}px`,
+    }"
   >
     <textarea :id="`tinymce-${$.uid}`" ref="el"></textarea>
   </div>
 </template>
 
 <style scoped>
+/*
+ * Mobilde SABIT yukseklik. `dvh` hesabi yalnizca genis ekranda devreye girer:
+ * dar ekranda sarmalayici sayfada asagida kaldigi icin olculen ust konum
+ * viewport'a yaklasiyor, `calc(100dvh - top)` sifira/eksiye dusuyor ve editor
+ * gorunmez oluyordu.
+ */
 .tinymce-shell {
-  height: var(--tinymce-height);
-  min-height: var(--tinymce-min-height);
+  height: var(--tinymce-mobile-height);
+  min-height: var(--tinymce-mobile-height);
+}
+
+@media (min-width: 768px) {
+  .tinymce-shell {
+    /* `max()` guvenlik agi: olcum hatali cikarsa bile kutu cokmez. */
+    height: max(var(--tinymce-min-height), var(--tinymce-height));
+    min-height: var(--tinymce-min-height);
+  }
 }
 
 /*

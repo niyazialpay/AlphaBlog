@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Languages;
 use App\Models\Settings\GeneralSettings;
 use App\Models\Settings\SeoSettings;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -14,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class SeoSettingsController extends Controller
 {
-    public function save(Request $request, SeoSettings $seo_settings)
+    public function save(Request $request, SeoSettings $seo_settings): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -59,37 +58,22 @@ class SeoSettingsController extends Controller
 
             DB::commit();
 
-            return request()->inertia()
-                ? back()->with('success', __('settings.seo_settings_saved'))
-                : response()->json([
-                    'status' => 'success',
-                    'message' => __('settings.seo_settings_saved'),
-                ]);
+            return back()->with('success', __('settings.seo_settings_saved'));
         } catch (\Throwable $e) {
             DB::rollBack();
 
-            return request()->inertia()
-                ? back()->with('error', $e->getMessage())
-                : response()->json([
-                    'status' => 'error',
-                    'message' => $e->getMessage(),
-                ]);
+            return back()->with('error', $e->getMessage());
         }
     }
 
-    public function saveRobots(Request $request)
+    public function saveRobots(Request $request): RedirectResponse
     {
         file_put_contents(public_path('robots.txt'), $request->post('robots_txt'));
 
-        return request()->inertia()
-                ? back()->with('success', __('settings.robots_txt_saved'))
-                : response()->json([
-                    'status' => 'success',
-                    'message' => __('settings.robots_txt_saved'),
-                ]);
+        return back()->with('success', __('settings.robots_txt_saved'));
     }
 
-    public function saveLlms(Request $request): JsonResponse|RedirectResponse
+    public function saveLlms(Request $request): RedirectResponse
     {
         // first() satir yoksa null doner ve ->update() fatal verirdi (temiz kurulum).
         $settings = GeneralSettings::first() ?? new GeneralSettings;
@@ -102,28 +86,18 @@ class SeoSettingsController extends Controller
         Cache::forget('llms_txt_content');
         Cache::forget('llms_full_txt_content');
 
-        return request()->inertia()
-                ? back()->with('success', __('settings.llms_txt_saved'))
-                : response()->json([
-                    'status' => 'success',
-                    'message' => __('settings.llms_txt_saved'),
-                ]);
+        return back()->with('success', __('settings.llms_txt_saved'));
     }
 
-    public function clearLlmsCache(): JsonResponse|RedirectResponse
+    public function clearLlmsCache(): RedirectResponse
     {
         Cache::forget('llms_txt_content');
         Cache::forget('llms_full_txt_content');
 
-        return request()->inertia()
-                ? back()->with('success', __('settings.llms_txt_cache_cleared'))
-                : response()->json([
-                    'status' => 'success',
-                    'message' => __('settings.llms_txt_cache_cleared'),
-                ]);
+        return back()->with('success', __('settings.llms_txt_cache_cleared'));
     }
 
-    public function saveGoogleIndexing(Request $request): JsonResponse|RedirectResponse
+    public function saveGoogleIndexing(Request $request): RedirectResponse
     {
         $updateData = [
             'google_indexing_enabled' => $request->boolean('google_indexing_enabled'),
@@ -135,11 +109,6 @@ class SeoSettingsController extends Controller
         $settings->fill($updateData)->save();
         Cache::forget(config('cache.prefix').'general_settings');
 
-        return request()->inertia()
-                ? back()->with('success', __('settings.google_indexing_saved'))
-                : response()->json([
-                    'status' => 'success',
-                    'message' => __('settings.google_indexing_saved'),
-                ]);
+        return back()->with('success', __('settings.google_indexing_saved'));
     }
 }

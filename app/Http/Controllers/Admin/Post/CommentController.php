@@ -7,6 +7,7 @@ use App\Http\Requests\Post\CommentRequest;
 use App\Models\Post\Comments;
 use App\Models\User;
 use App\Support\Panel\PanelResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
@@ -69,75 +70,55 @@ class CommentController extends Controller
         return response()->json($comment->load('post'));
     }
 
-    public function approve(Comments $comment)
+    public function approve(Comments $comment): RedirectResponse
     {
         $comment->is_approved = true;
         if ($comment->save()) {
-            return request()->inertia()
-                ? back()->with('success', __('comments.success_approve'))
-                : response()->json(['status' => 'success', 'message' => __('comments.success_approve')]);
+            return back()->with('success', __('comments.success_approve'));
         }
 
-        return request()->inertia()
-            ? back()->with('error', __('comments.error_approve'))
-            : response()->json(['status' => 'error', 'message' => __('comments.error_approve')]);
+        return back()->with('error', __('comments.error_approve'));
     }
 
-    public function disapprove(Comments $comment)
+    public function disapprove(Comments $comment): RedirectResponse
     {
         $comment->is_approved = false;
         if ($comment->save()) {
-            return request()->inertia()
-                ? back()->with('success', __('comments.success_disapprove'))
-                : response()->json(['status' => 'success', 'message' => __('comments.success_disapprove')]);
+            return back()->with('success', __('comments.success_disapprove'));
         }
 
-        return request()->inertia()
-            ? back()->with('error', __('comments.error_disapprove'))
-            : response()->json(['status' => 'error', 'message' => __('comments.error_disapprove')]);
+        return back()->with('error', __('comments.error_disapprove'));
     }
 
-    public function delete(Comments $comment)
+    public function delete(Comments $comment): RedirectResponse
     {
         if ($comment->delete()) {
-            return request()->inertia()
-                ? back()->with('success', __('comments.success_delete'))
-                : response()->json(['status' => 'success', 'message' => __('comments.success_delete')]);
+            return back()->with('success', __('comments.success_delete'));
         }
 
-        return request()->inertia()
-            ? back()->with('error', __('comments.error_delete'))
-            : response()->json(['status' => 'error', 'message' => __('comments.error_delete')]);
+        return back()->with('error', __('comments.error_delete'));
     }
 
-    public function restore(Comments $comment)
+    public function restore(Comments $comment): RedirectResponse
     {
         $comment->trashed();
         if ($comment->restore()) {
-            return request()->inertia()
-                ? back()->with('success', __('comments.success_restore'))
-                : response()->json(['status' => 'success', 'message' => __('comments.success_restore')]);
+            return back()->with('success', __('comments.success_restore'));
         }
 
-        return request()->inertia()
-            ? back()->with('error', __('comments.error_restore'))
-            : response()->json(['status' => 'error', 'message' => __('comments.error_restore')]);
+        return back()->with('error', __('comments.error_restore'));
     }
 
-    public function forceDelete(Comments $comment)
+    public function forceDelete(Comments $comment): RedirectResponse
     {
         if ($comment->forceDelete()) {
-            return request()->inertia()
-                ? back()->with('success', __('comments.success_force_delete'))
-                : response()->json(['status' => 'success', 'message' => __('comments.success_force_delete')]);
+            return back()->with('success', __('comments.success_force_delete'));
         }
 
-        return request()->inertia()
-            ? back()->with('error', __('comments.error_force_delete'))
-            : response()->json(['status' => 'error', 'message' => __('comments.error_force_delete')]);
+        return back()->with('error', __('comments.error_force_delete'));
     }
 
-    public function save(Comments $comment, CommentRequest $request)
+    public function save(Comments $comment, CommentRequest $request): RedirectResponse
     {
         if (auth()->check() && ! $comment->id &&
             (
@@ -157,13 +138,9 @@ class CommentController extends Controller
         $comment->created_at = dateformat($request->post('created_date'), 'Y-m-d H:i:s', config('app.timezone'));
         $comment->post_id = GetPost($request->post_id);
         if ($comment->save()) {
-            return request()->inertia()
-                ? back()->with('success', __('comments.success_save'))
-                : response()->json(['status' => 'success', 'message' => __('comments.success_save')]);
+            return back()->with('success', __('comments.success_save'));
         }
 
-        return request()->inertia()
-            ? back()->with('error', __('comments.error_save'))
-            : response()->json(['status' => 'error', 'message' => __('comments.error_save')]);
+        return back()->with('error', __('comments.error_save'));
     }
 }

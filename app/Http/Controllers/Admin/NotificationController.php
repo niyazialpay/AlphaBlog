@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Support\Panel\PanelResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -58,7 +59,12 @@ class NotificationController extends Controller
         return redirect()->route('notifications.index');
     }
 
-    public function destroy(Request $request)
+    /**
+     * TEK YANIT SEKLI: yonlendirme — `Notifications/Index.vue` `router.delete` ile
+     * cagiriyor. (Okundu isaretleme uclari POST alias'lariyla cagrilir; Inertia v2
+     * `<Link prefetch>` hover'da gercek GET attigi icin GET adlari kullanilmaz.)
+     */
+    public function destroy(Request $request): RedirectResponse
     {
         $user = $request->user();
         $notification = $user->notifications()->find($request->id);
@@ -66,20 +72,10 @@ class NotificationController extends Controller
         if ($notification) {
             $notification->delete();
 
-            return $request->inertia()
-                ? back()->with('success', __('notifications.notification_deleted'))
-                : response()->json([
-                    'result' => 'success',
-                    'message' => __('notifications.notification_deleted'),
-                ]);
+            return back()->with('success', __('notifications.notification_deleted'));
         }
 
-        return $request->inertia()
-            ? back()->with('error', __('notifications.notification_not_found'))
-            : response()->json([
-                'result' => 'error',
-                'message' => __('notifications.notification_not_found'),
-            ]);
+        return back()->with('error', __('notifications.notification_not_found'));
     }
 
     public function markAllAsRead(Request $request)
@@ -90,16 +86,14 @@ class NotificationController extends Controller
         return redirect()->route('notifications.index');
     }
 
-    public function deleteAll(Request $request)
+    /**
+     * TEK YANIT SEKLI: yonlendirme — `Notifications/Index.vue` `router.delete` ile cagiriyor.
+     */
+    public function deleteAll(Request $request): RedirectResponse
     {
         $user = $request->user();
         $user->notifications()->delete();
 
-        return $request->inertia()
-            ? back()->with('success', __('notifications.notifications_deleted'))
-            : response()->json([
-                'result' => 'success',
-                'message' => __('notifications.notifications_deleted'),
-            ]);
+        return back()->with('success', __('notifications.notifications_deleted'));
     }
 }

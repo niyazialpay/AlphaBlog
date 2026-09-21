@@ -49,17 +49,27 @@ class DashboardWidgetTest extends TestCase
         $this->assertSame(0, $this->admin->dashboardWidgets()->count());
     }
 
+    /**
+     * Uc TEK bir yanit bicimi dondurur: yonlendirme.
+     *
+     * Vue tarafi (`Dashboard/Index.vue`) bunu `router.post` ile cagiriyor, yani
+     * Inertia bekliyor. Eskiden yanit `$request->inertia()` terneriyle secilirdi;
+     * `X-Inertia` basligi ag yolunda kayboldugunda uc ciplak JSON donuyor ve
+     * istemcide "All Inertia requests must receive a valid Inertia response"
+     * modali (bos beyaz kutu) aciliyordu. Artik her cagrida `back()` doner.
+     */
     public function test_save_widgets_stores_widgets_for_user(): void
     {
         $this->actingAs($this->admin)
-            ->postJson(route('admin.dashboard.widgets.save'), [
+            ->from(route('admin.index'))
+            ->post(route('admin.dashboard.widgets.save'), [
                 'layout' => [
                     ['type' => 'ga4_active_users', 'x' => 0, 'y' => 0, 'w' => 3, 'h' => 2],
                     ['type' => 'gsc_clicks', 'x' => 3, 'y' => 0, 'w' => 3, 'h' => 2],
                 ],
             ])
-            ->assertOk()
-            ->assertJson(['status' => 'success']);
+            ->assertRedirect(route('admin.index'))
+            ->assertSessionHas('success', __('general.saved'));
 
         $this->assertSame(2, $this->admin->dashboardWidgets()->count());
 
@@ -69,6 +79,15 @@ class DashboardWidgetTest extends TestCase
         $this->assertSame(0, $widget->gs_y);
         $this->assertSame(3, $widget->gs_w);
         $this->assertSame(2, $widget->gs_h);
+
+        // Ikinci satir da aynen yazilmali: `layout[i][type|x|y|w|h]` istek sekli
+        // kullanicilarin kayitli panolarinin sozlesmesi.
+        $second = $this->admin->dashboardWidgets()->where('widget_type', 'gsc_clicks')->first();
+        $this->assertNotNull($second);
+        $this->assertSame(3, $second->gs_x);
+        $this->assertSame(0, $second->gs_y);
+        $this->assertSame(3, $second->gs_w);
+        $this->assertSame(2, $second->gs_h);
     }
 
     public function test_save_widgets_replaces_existing(): void
@@ -80,15 +99,22 @@ class DashboardWidgetTest extends TestCase
         ]);
 
         $this->actingAs($this->admin)
-            ->postJson(route('admin.dashboard.widgets.save'), [
+            ->from(route('admin.index'))
+            ->post(route('admin.dashboard.widgets.save'), [
                 'layout' => [
                     ['type' => 'gsc_clicks', 'x' => 0, 'y' => 0, 'w' => 3, 'h' => 2],
                 ],
             ])
-            ->assertOk();
+            ->assertRedirect(route('admin.index'));
 
         $this->assertSame(1, $this->admin->dashboardWidgets()->count());
-        $this->assertSame('gsc_clicks', $this->admin->dashboardWidgets()->first()->widget_type);
+
+        $widget = $this->admin->dashboardWidgets()->first();
+        $this->assertSame('gsc_clicks', $widget->widget_type);
+        $this->assertSame(0, $widget->gs_x);
+        $this->assertSame(0, $widget->gs_y);
+        $this->assertSame(3, $widget->gs_w);
+        $this->assertSame(2, $widget->gs_h);
     }
 
     public function test_widgets_are_isolated_per_user(): void

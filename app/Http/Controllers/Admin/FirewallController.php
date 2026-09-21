@@ -168,7 +168,7 @@ class FirewallController extends Controller
             ->make(true);
     }
 
-    public function whitelist(Request $request): SymfonyResponse
+    public function whitelist(Request $request): RedirectResponse
     {
         $firewall = Firewall::query()->firstOrFail();
 
@@ -182,17 +182,13 @@ class FirewallController extends Controller
             ]
         );
 
-        return $request->inertia()
-            ? back()->with('success', __('firewall.added_to_whitelist'))
-            : response()->json(['success' => true]);
+        return back()->with('success', __('firewall.added_to_whitelist'));
     }
 
-    public function delete(Request $request): SymfonyResponse
+    public function delete(Request $request): RedirectResponse
     {
         IPList::where('ip', $request->ip)->delete();
 
-        return $request->inertia()
-            ? back()->with('success', __('general.deleted'))
-            : response()->json(['success' => true]);
+        return back()->with('success', __('general.deleted'));
     }
 }

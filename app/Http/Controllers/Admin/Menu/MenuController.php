@@ -7,6 +7,7 @@ use App\Http\Requests\Menu\MenuRequest;
 use App\Models\Menu\Menu;
 use App\Support\Panel\PanelResponse;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -52,7 +53,10 @@ class MenuController extends Controller
         );
     }
 
-    public function save(Menu $menu, MenuRequest $request)
+    /**
+     * TEK YANIT SEKLI: yonlendirme — `Menu/Index.vue` `form.post` ile cagiriyor.
+     */
+    public function save(Menu $menu, MenuRequest $request): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -64,25 +68,18 @@ class MenuController extends Controller
             Cache::forget(config('cache.prefix').'footer_menu_tree_'.$menu->language);
             DB::commit();
 
-            return request()->inertia()
-                ? back()->with('success', __('menu.menu_saved'))
-                : response()->json([
-                    'message' => __('menu.menu_saved'),
-                    'status' => 'success',
-                ]);
+            return back()->with('success', __('menu.menu_saved'));
         } catch (Exception $e) {
             DB::rollBack();
 
-            return request()->inertia()
-                ? back()->with('error', __('menu.menu_save_error'))
-                : response()->json([
-                    'message' => __('menu.menu_save_error'),
-                    'status' => 'error',
-                ]);
+            return back()->with('error', __('menu.menu_save_error'));
         }
     }
 
-    public function delete(Request $request)
+    /**
+     * TEK YANIT SEKLI: yonlendirme — `Menu/Index.vue` `router.post` ile cagiriyor.
+     */
+    public function delete(Request $request): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -95,21 +92,11 @@ class MenuController extends Controller
             $menu->delete();
             DB::commit();
 
-            return request()->inertia()
-                ? back()->with('success', __('menu.menu_deleted'))
-                : response()->json([
-                    'message' => __('menu.menu_deleted'),
-                    'status' => 'success',
-                ]);
+            return back()->with('success', __('menu.menu_deleted'));
         } catch (Exception $e) {
             DB::rollBack();
 
-            return request()->inertia()
-                ? back()->with('error', __('menu.menu_delete_error'))
-                : response()->json([
-                    'message' => __('menu.menu_delete_error'),
-                    'status' => 'error',
-                ]);
+            return back()->with('error', __('menu.menu_delete_error'));
         }
     }
 }

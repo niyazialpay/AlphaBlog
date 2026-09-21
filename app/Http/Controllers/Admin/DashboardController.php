@@ -7,7 +7,6 @@ use App\Models\DashboardWidget;
 use App\Models\Languages;
 use App\Services\DashboardWidgetService;
 use App\Support\Panel\PanelResponse;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -70,7 +69,7 @@ class DashboardController extends Controller
         );
     }
 
-    public function saveWidgets(Request $request): JsonResponse|RedirectResponse
+    public function saveWidgets(Request $request): RedirectResponse
     {
         $validated = $request->validate(['layout' => 'required|array']);
         $userId = Auth::id();
@@ -94,14 +93,10 @@ class DashboardController extends Controller
             ]);
         }
 
-        if ($request->inertia()) {
-            return back()->with('success', __('general.saved'));
-        }
-
-        return response()->json(['status' => 'success']);
+        return back()->with('success', __('general.saved'));
     }
 
-    public function changeLanguage($language)
+    public function changeLanguage($language): RedirectResponse
     {
         $languages = new Languages;
         $language = $languages->getLanguage($language);

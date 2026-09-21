@@ -7,6 +7,7 @@ import { route } from 'ziggy-js';
 import PanelLayout from './Layouts/PanelLayout.vue';
 import { initTheme } from './composables/useTheme';
 import { __, transChoice } from './composables/useLang';
+import { pushToast } from './composables/useToast';
 
 import '../../css/panel.css';
 
@@ -31,6 +32,40 @@ const appName = document.querySelector('title')?.innerText || '';
  * `X-CSRF-TOKEN`'i `X-XSRF-TOKEN` cerezine TERCIH ettigi icin taze cerez
  * degeri hic kullanilmiyordu — her POST 419 "oturumunuz sona erdi" donuyordu.
  */
+/*
+ * Inertia olmayan yanitlari OKUNABILIR hale getir.
+ *
+ * Varsayilanda Inertia, Inertia olmayan bir yanit alinca govdeyi tam ekran bir
+ * iframe modalinda gosteriyor. Sunucu JSON ya da bir yonlendirme govdesi
+ * donduyse ekranda ya bembeyaz bir kutu ya da "Redirecting" yazisi kaliyor;
+ * kullanici ne oldugunu, biz de hangi ucun neden dustugunu goremiyoruz.
+ *
+ * Modal yerine durum kodunu ve govdenin basini toast olarak basiyoruz. Tipik
+ * sebepler: oturum/CSRF dusmesi (419), yetki (403) ve `$request->inertia()`
+ * yanlis dallanip JSON donen uclar.
+ */
+router.on('invalid', (event) => {
+    event.preventDefault();
+
+    const response = event.detail?.response;
+    const status = response?.status ?? '?';
+    const data = response?.data;
+
+    let detail = '';
+
+    if (typeof data === 'string') {
+        // HTML govde: etiketleri at, ilk anlamli satiri al.
+        detail = data.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160);
+    } else if (data && typeof data === 'object') {
+        detail = data.message || JSON.stringify(data).slice(0, 160);
+    }
+
+    // eslint-disable-next-line no-console
+    console.error('Inertia olmayan yanit', status, data);
+
+    pushToast(`${status} — ${detail || __('general.error')}`, 'error', 9000);
+});
+
 router.on('success', (event) => {
     const token = event.detail.page?.props?.csrfToken;
 
@@ -47,13 +82,21 @@ router.on('success', (event) => {
  * çekirdek repoya girmez; modül yoksa glob boş geçer ve build sorunsuz sürer.
  */
 const corePages = import.meta.glob('./Pages/**/*.vue');
-const modulePages = import.meta.glob('../../../Modules/*/resources/js/panel/Pages/**/*.vue');
+/*
+ * Modul sayfalari `Modules/` yerine AYNADAN okunur (scripts/panel-modules.mjs,
+ * `prebuild`/`predev` ile calisir).
+ *
+ * Deploy'da `Modules` paylasilan bir dizine symlink olabiliyor ve glob symlink'i
+ * guvenilir gezemiyor: hicbir modul sayfasi bundle'a girmiyor, her modul ekrani
+ * "Panel sayfasi bulunamadi" ile aciliyordu. Ayna proje ici GERCEK bir dizin
+ * oldugu icin davranis her ortamda ayni.
+ */
+const modulePages = import.meta.glob('./.modules/*/Pages/**/*.vue');
 
 const moduleLookup = Object.fromEntries(
     Object.entries(modulePages).map(([path, importer]) => {
-        // ../../../Modules/ValeFix/resources/js/panel/Pages/Customers/Index.vue
-        //   → valefix::Customers/Index
-        const match = path.match(/Modules\/([^/]+)\/resources\/js\/panel\/Pages\/(.+)\.vue$/);
+        // ./.modules/valefix/Pages/Customers/Index.vue -> valefix::Customers/Index
+        const match = path.match(/\.modules\/([^/]+)\/Pages\/(.+)\.vue$/);
 
         return match ? [`${match[1].toLowerCase()}::${match[2]}`, importer] : [path, importer];
     }),

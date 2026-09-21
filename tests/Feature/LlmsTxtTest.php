@@ -125,16 +125,27 @@ class LlmsTxtTest extends TestCase
         $this->assertTrue(Cache::has('llms_txt_content'));
     }
 
+    /**
+     * Panel YAZMA uclari tek bir yanit bicimi dondurur: yonlendirme.
+     *
+     * Ekran (`Settings/Index.vue`) bu ucu `useForm().post()` ile cagiriyor.
+     * Yanit eskiden `$request->inertia()` terneriyle seciliyordu; `X-Inertia`
+     * basligi ag yolunda kaybolunca uc ciplak JSON donuyor ve istemcide
+     * Inertia'nin hata modali (bos beyaz kutu) aciliyordu.
+     */
     public function test_admin_can_save_llms_settings(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
 
-        $response = $this->actingAs($admin)->postJson(route('admin.settings.seo.llms.save'), [
-            'llms_txt_intro' => 'We are a blog about tech.',
-            'llms_txt_instructions' => 'Please index all posts.',
-        ]);
+        $response = $this->actingAs($admin)
+            ->from(route('admin.settings'))
+            ->post(route('admin.settings.seo.llms.save'), [
+                'llms_txt_intro' => 'We are a blog about tech.',
+                'llms_txt_instructions' => 'Please index all posts.',
+            ]);
 
-        $response->assertJson(['status' => 'success']);
+        $response->assertRedirect(route('admin.settings'));
+        $response->assertSessionHas('success', __('settings.llms_txt_saved'));
         $this->assertDatabaseHas('general_settings', [
             'llms_txt_intro' => 'We are a blog about tech.',
         ]);
@@ -147,9 +158,12 @@ class LlmsTxtTest extends TestCase
 
         $admin = User::factory()->create(['role' => 'admin']);
 
-        $response = $this->actingAs($admin)->postJson(route('admin.settings.seo.llms.clear-cache'));
+        $response = $this->actingAs($admin)
+            ->from(route('admin.settings'))
+            ->post(route('admin.settings.seo.llms.clear-cache'));
 
-        $response->assertJson(['status' => 'success']);
+        $response->assertRedirect(route('admin.settings'));
+        $response->assertSessionHas('success', __('settings.llms_txt_cache_cleared'));
         $this->assertNull(Cache::get('llms_txt_content'));
         $this->assertNull(Cache::get('llms_full_txt_content'));
     }

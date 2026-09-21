@@ -9,6 +9,7 @@ use Cloudflare\API\Adapter\Guzzle;
 use Cloudflare\API\Auth\APIKey;
 use Cloudflare\API\Endpoints\Zones;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
@@ -73,21 +74,14 @@ class CloudflareController extends Controller
         );
     }
 
-    public function CacheClear()
+    public function CacheClear(): RedirectResponse
     {
         $this->zones->cachePurgeEverything($this->zoneID);
 
-        if (request()->inertia()) {
-            return back()->with('success', __('cloudflare.cache_cleared'));
-        }
-
-        return response()->json([
-            'status' => true,
-            'message' => __('cloudflare.cache_cleared'),
-        ]);
+        return back()->with('success', __('cloudflare.cache_cleared'));
     }
 
-    public function ToggleDevelopment()
+    public function ToggleDevelopment(): RedirectResponse
     {
         $develop_ment_mode_status = $this->zones->getBody()->result[0]->development_mode;
         if ($develop_ment_mode_status > 0) {
@@ -99,14 +93,6 @@ class CloudflareController extends Controller
         }
         $this->zones->changeDevelopmentMode($this->zoneID, $status);
 
-        if (request()->inertia()) {
-            return back()->with('success', $message);
-        }
-
-        return response()->json([
-            'status' => true,
-            'message' => $message,
-            'mode' => $status,
-        ]);
+        return back()->with('success', $message);
     }
 }

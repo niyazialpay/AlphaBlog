@@ -10,6 +10,7 @@ use App\Models\Post\Categories;
 use App\Models\Post\Posts;
 use App\Support\Panel\PanelResponse;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
@@ -111,7 +112,18 @@ class MenuItemsController extends Controller
             ->all();
     }
 
-    public function save(MenuItemRequest $request)
+    /**
+     * Menu agacini kaydeder.
+     *
+     * SOZLESME DEGISMEDI: `menu_id` + `menu` (JSON string) okunur, satirlar silinip
+     * dizi sirasinda yeniden yaratilir. Vue tarafi (`MenuTreeBuilder` /
+     * `MenuBuilder.vue`) kaydetme sonrasi yeni id'leri sunucudan okur; bu yuzden
+     * yonlendirme ZORUNLU - Inertia yonlendirmeyi izleyip `admin.menu.show`
+     * prop'larini (yeni id'lerle) taze alir.
+     *
+     * TEK YANIT SEKLI: yonlendirme — iki cagiran da `router.post`/`form.post`.
+     */
+    public function save(MenuItemRequest $request): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -121,21 +133,11 @@ class MenuItemsController extends Controller
             $this->updateMenu($request->post('menu_id'), $array_menu);
             DB::commit();
 
-            return request()->inertia()
-                ? back()->with('success', __('menu.menu_saved'))
-                : response()->json([
-                    'message' => __('menu.menu_saved'),
-                    'status' => 'success',
-                ]);
+            return back()->with('success', __('menu.menu_saved'));
         } catch (Exception $e) {
             DB::rollBack();
 
-            return request()->inertia()
-                ? back()->with('error', __('menu.menu_save_error'))
-                : response()->json([
-                    'message' => __('menu.menu_save_error'),
-                    'status' => 'error',
-                ]);
+            return back()->with('error', __('menu.menu_save_error'));
         }
         // B5: burada `return`'den sonra erisilemez kod vardi; kaldirildi.
     }

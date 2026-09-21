@@ -110,13 +110,18 @@ class MenuItemsTest extends PanelTestCase
             $this->node('Blog', '/blog'),
         ];
 
+        /*
+         * Uç TEK ŞEKİL döndürür: yönlendirme. Eskiden `X-Inertia` başlığına bakan
+         * bir üçlü vardı ve başlıksız çağrıda JSON dönüyordu; başlık ağ yolunda
+         * düştüğünde Inertia ziyareti JSON alıp tam ekran hata modalı açıyordu.
+         */
         $this->actingAs($this->owner)
             ->post(route('admin.menu-item.save'), [
                 'menu_id' => $menu->id,
                 'menu' => json_encode($tree),
             ])
-            ->assertOk()
-            ->assertJsonPath('status', 'success');
+            ->assertRedirect()
+            ->assertSessionHas('success', __('menu.menu_saved'));
 
         $root = MenuItems::where('menu_id', $menu->id)->whereNull('parent_id')->orderBy('order')->get();
 
@@ -154,7 +159,7 @@ class MenuItemsTest extends PanelTestCase
         $this->actingAs($this->owner)->post(route('admin.menu-item.save'), [
             'menu_id' => $menu->id,
             'menu' => json_encode($tree),
-        ])->assertOk();
+        ])->assertRedirect();
 
         $props = $this->actingAs($this->owner)
             ->get(route('admin.menu.show', ['menu' => $menu->id]))

@@ -12,6 +12,7 @@ use App\Support\IPFilterCache;
 use App\Support\Panel\PanelResponse;
 use App\Support\TrustedBots;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -89,7 +90,7 @@ class IPFilterController extends Controller
         );
     }
 
-    public function save(IPFilter $ip_filter, IPFilterRequest $request)
+    public function save(IPFilter $ip_filter, IPFilterRequest $request): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -111,7 +112,7 @@ class IPFilterController extends Controller
                     $ip_range[] = $item;
                 }
             }
-            [$ip_range, $trustedSkipped] = TrustedBots::filterOutTrusted($ip_range);
+            [$ip_range] = TrustedBots::filterOutTrusted($ip_range);
             if ($ip_filter->id) {
                 $message = __('ip_filter.success_update');
             } else {
@@ -139,30 +140,15 @@ class IPFilterController extends Controller
             $this->cacheRefresh();
             DB::commit();
 
-            if ($request->inertia()) {
-                return to_route('admin.ip-filter')->with('success', $message);
-            }
-
-            return response()->json([
-                'status' => true,
-                'message' => $message,
-                'trusted_skipped' => $trustedSkipped,
-            ]);
+            return to_route('admin.ip-filter')->with('success', $message);
         } catch (Exception $e) {
             DB::rollBack();
 
-            if ($request->inertia()) {
-                return back()->with('error', $e->getMessage());
-            }
-
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage(),
-            ]);
+            return back()->with('error', $e->getMessage());
         }
     }
 
-    public function delete(Request $request)
+    public function delete(Request $request): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -171,29 +157,15 @@ class IPFilterController extends Controller
             $this->cacheRefresh();
             DB::commit();
 
-            if ($request->inertia()) {
-                return back()->with('success', __('ip_filter.success_delete'));
-            }
-
-            return response()->json([
-                'status' => true,
-                'message' => __('ip_filter.success_delete'),
-            ]);
+            return back()->with('success', __('ip_filter.success_delete'));
         } catch (Exception $e) {
             DB::rollBack();
 
-            if ($request->inertia()) {
-                return back()->with('error', $e->getMessage());
-            }
-
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage(),
-            ]);
+            return back()->with('error', $e->getMessage());
         }
     }
 
-    public function toggleStatus(ToogleRequest $request)
+    public function toggleStatus(ToogleRequest $request): RedirectResponse
     {
         try {
             DB::beginTransaction();
@@ -203,30 +175,15 @@ class IPFilterController extends Controller
             $this->cacheRefresh();
             DB::commit();
 
-            if ($request->inertia()) {
-                return back()->with('success', __('ip_filter.success_update'));
-            }
-
-            return response()->json([
-                'status' => true,
-                'rule' => $ip->is_active,
-                'message' => __('ip_filter.success_update'),
-            ]);
+            return back()->with('success', __('ip_filter.success_update'));
         } catch (Exception $e) {
             DB::rollBack();
 
-            if ($request->inertia()) {
-                return back()->with('error', $e->getMessage());
-            }
-
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage(),
-            ]);
+            return back()->with('error', $e->getMessage());
         }
     }
 
-    public function bulkStoreIps(IPFilter $ip_filter, Request $request)
+    public function bulkStoreIps(IPFilter $ip_filter, Request $request): RedirectResponse
     {
         $request->validate([
             'ips' => 'required|string',
@@ -237,46 +194,26 @@ class IPFilterController extends Controller
             ->filter(fn ($ip) => $ip !== '');
 
         if ($rawIps->isEmpty()) {
-            return $request->inertia()
-                ? back()->with('error', __('ip_filter.ip_range_required'))
-                : response()->json([
-                    'status' => false,
-                    'message' => __('ip_filter.ip_range_required'),
-                ]);
+            return back()->with('error', __('ip_filter.ip_range_required'));
         }
 
         $validIps = collect();
-        $invalidIps = collect();
 
         foreach ($rawIps->unique() as $ip) {
             if (filter_var($ip, FILTER_VALIDATE_IP)) {
                 $validIps->push($ip);
-            } else {
-                $invalidIps->push($ip);
             }
         }
 
         if ($validIps->isEmpty()) {
-            return $request->inertia()
-                ? back()->with('error', __('ip_filter.no_valid_ip') ?? 'No valid IP address detected.')
-                : response()->json([
-                    'status' => false,
-                    'message' => __('ip_filter.no_valid_ip') ?? 'No valid IP address detected.',
-                    'invalid' => $invalidIps->values(),
-                ]);
+            return back()->with('error', __('ip_filter.no_valid_ip') ?? 'No valid IP address detected.');
         }
 
-        [$filteredIps, $trustedSkipped] = TrustedBots::filterOutTrusted($validIps->all());
+        [$filteredIps] = TrustedBots::filterOutTrusted($validIps->all());
         $validIps = collect($filteredIps);
 
         if ($validIps->isEmpty()) {
-            return $request->inertia()
-                ? back()->with('error', __('ip_filter.trusted_ip_not_allowed') ?? 'Trusted bot IPs cannot be filtered.')
-                : response()->json([
-                    'status' => false,
-                    'message' => __('ip_filter.trusted_ip_not_allowed') ?? 'Trusted bot IPs cannot be filtered.',
-                    'trusted_skipped' => $trustedSkipped,
-                ]);
+            return back()->with('error', __('ip_filter.trusted_ip_not_allowed') ?? 'Trusted bot IPs cannot be filtered.');
         }
 
         DB::beginTransaction();
@@ -298,36 +235,18 @@ class IPFilterController extends Controller
             $this->cacheRefresh();
             DB::commit();
 
-            if ($request->inertia()) {
-                return back()->with(
-                    'success',
-                    __('ip_filter.ip_added_success', ['count' => $created->count()])
-                );
-            }
-
-            return response()->json([
-                'status' => true,
-                'added' => $created->map(fn (IPList $model) => [
-                    'id' => $model->id,
-                    'ip' => $model->ip,
-                ]),
-                'duplicates' => $validIps->intersect($existing)->values(),
-                'invalid' => $invalidIps->values(),
-                'trusted_skipped' => $trustedSkipped,
-            ]);
+            return back()->with(
+                'success',
+                __('ip_filter.ip_added_success', ['count' => $created->count()])
+            );
         } catch (Exception $e) {
             DB::rollBack();
 
-            return $request->inertia()
-                ? back()->with('error', $e->getMessage())
-                : response()->json([
-                    'status' => false,
-                    'message' => $e->getMessage(),
-                ]);
+            return back()->with('error', $e->getMessage());
         }
     }
 
-    public function destroyIp(IPFilter $ip_filter, IPList $ip_list)
+    public function destroyIp(IPFilter $ip_filter, IPList $ip_list): RedirectResponse
     {
         if ($ip_list->filter_id !== $ip_filter->id) {
             abort(404);
@@ -340,21 +259,11 @@ class IPFilterController extends Controller
             $this->cacheRefresh();
             DB::commit();
 
-            if (request()->inertia()) {
-                return back()->with('success', __('general.deleted'));
-            }
-
-            return response()->json([
-                'status' => true,
-                'id' => $ip_list->id,
-            ]);
+            return back()->with('success', __('general.deleted'));
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'status' => false,
-                'message' => $e->getMessage(),
-            ]);
+            return back()->with('error', $e->getMessage());
         }
     }
 

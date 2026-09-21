@@ -71,6 +71,14 @@ class MediaConversionUrlTest extends TestCase
      */
     private function buildsAnUncheckedConversionUrl(string $line): bool
     {
+        $trimmed = ltrim($line);
+
+        // Yorum satirlari kod degildir; aciklamalarda ornek olarak gecen
+        // cagrilari isaretlemek yanlis pozitif uretir.
+        if ($trimmed === '' || str_starts_with($trimmed, '*') || str_starts_with($trimmed, '//') || str_starts_with($trimmed, '/*')) {
+            return false;
+        }
+
         if (str_contains($line, 'mediaConversionUrl(')) {
             return false;
         }

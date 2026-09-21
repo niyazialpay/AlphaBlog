@@ -44,10 +44,9 @@ async function destroy(item) {
   }
 
   /*
-   * VERI ucu (R1) — bkz. Posts/Edit.vue::removeImage. Uc
-   * `$request->inertia() ? back() : response()->json()` dalliyor; X-Inertia
-   * basligina bagimli kalmamak icin axios ile cagrilir ve liste `only` ile
-   * tazelenir.
+   * VERI ucu (R1) — bkz. Posts/Edit.vue::removeImage. Uc TEK sekil doner: JSON.
+   * X-Inertia basligina bagimli kalmamak icin axios ile cagrilir ve liste
+   * `only` ile tazelenir.
    */
   axios
     .post(route('admin.post.media.delete', { type: props.type, post: props.post.id }), {

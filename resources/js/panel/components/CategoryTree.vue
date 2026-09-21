@@ -26,6 +26,12 @@ defineEmits(['edit', 'delete']);
           class="fa-solid text-[10px] text-p-ink3"
           :class="node.children.length ? 'fa-folder-open' : 'fa-hashtag'"
         ></i>
+        <img
+          v-if="node.image"
+          :src="node.image"
+          alt=""
+          class="h-6 w-6 shrink-0 rounded-md border border-p-line object-cover"
+        />
         <span class="flex-1 truncate">{{ node.name }}</span>
         <span class="hidden text-[11px] text-p-ink3 sm:inline">{{ node.slug }}</span>
 

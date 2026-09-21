@@ -11,6 +11,7 @@ use Cloudflare\API\Endpoints\DNS;
 use Cloudflare\API\Endpoints\Zones;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
@@ -160,7 +161,7 @@ class DNSController extends Controller
         return response()->json($data);
     }
 
-    public function create_edit(Request $request): SymfonyResponse
+    public function create_edit(Request $request): RedirectResponse
     {
         $type = $request->post('record_type');
         if ($type == 'A' || $type == 'AAAA' || $type == 'CNAME') {
@@ -261,30 +262,16 @@ class DNSController extends Controller
         } elseif ($request->post('type') == 'edit') {
             $this->dns->updateRecordDetails($this->zoneID, $request->post('dns_id'), $data);
         } else {
-            return response()->json(['status' => 'error', 'message' => 'Invalid type']);
+            return back()->with('error', 'Invalid type');
         }
 
-        if ($request->inertia()) {
-            return back()->with('success', __('cloudflare.record_added'));
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'DNS record has been added successfully',
-        ]);
+        return back()->with('success', __('cloudflare.record_added'));
     }
 
-    public function delete(Request $request): SymfonyResponse
+    public function delete(Request $request): RedirectResponse
     {
         $this->dns->deleteRecord($this->zoneID, $request->post('dns_id'));
 
-        if ($request->inertia()) {
-            return back()->with('success', __('general.deleted'));
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'DNS record has been deleted successfully',
-        ]);
+        return back()->with('success', __('general.deleted'));
     }
 }
