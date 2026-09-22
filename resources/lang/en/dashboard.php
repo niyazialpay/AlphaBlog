@@ -31,4 +31,5 @@ return [
     'gsc_not_configured_hint' => 'Upload the credentials file and set the site URL under the Google Indexing settings.',
     'data_fetch_failed' => 'Could not load data.',
     'data_fetch_failed_hint' => 'The Google request failed. Check the system logs for details.',
+    'resize_hint' => 'Drag the corner to resize',
 ];

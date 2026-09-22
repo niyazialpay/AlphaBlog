@@ -37,4 +37,5 @@ return [
     'gsc_not_configured_hint' => 'Kimlik dosyasını yükleyin ve Google Indexing ayarlarından site adresini girin.',
     'data_fetch_failed' => 'Veri alınamadı.',
     'data_fetch_failed_hint' => 'Google isteği başarısız oldu. Ayrıntı için sistem günlüklerine bakın.',
+    'resize_hint' => 'Boyutlandırmak için köşeden sürükleyin',
 ];
