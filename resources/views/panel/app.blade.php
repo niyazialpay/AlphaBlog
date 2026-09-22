@@ -76,9 +76,14 @@
     @vite(['resources/js/panel/app.js'])
     @inertiaHead
 
-    @if($panelUser?->role === 'owner' || $panelUser?->role === 'admin')
-        {!! ($admin_notification ?? null)?->onesignal !!}
-    @endif
+    {{--
+        OneSignal ARTIK BASILMIYOR.
+
+        Panelin sag altinda kendi widget'ini aciyordu; yerine kendi Web Push
+        sistemimiz gelecek. Entegrasyonun geri kalani (model, ayar ekrani,
+        middleware) SILINMEDI — yalnizca panel kabugundan cikarildi, yani
+        kayitli App ID / Auth Key degerleri duruyor ve geri acmak tek satir.
+    --}}
 </head>
 <body class="min-h-screen bg-p-bg font-sans text-p-ink antialiased">
     @inertia

@@ -94,6 +94,17 @@ final class HandlePanelInertiaRequests extends Middleware
              */
             'csrfToken' => fn () => $request->session()->token(),
 
+            /*
+             * Web Push: VAPID ACIK anahtari istemcide gerekiyor
+             * (`pushManager.subscribe({ applicationServerKey })`). Gizli anahtar
+             * ASLA paylasilmaz. Anahtar tanimli degilse `enabled` false olur ve
+             * arayuz abone ol dugmesini hic gostermez.
+             */
+            'push' => fn () => [
+                'enabled' => filled(config('webpush.public_key')) && filled(config('webpush.private_key')),
+                'publicKey' => config('webpush.public_key'),
+            ],
+
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),

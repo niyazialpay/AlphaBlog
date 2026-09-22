@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Models\UserSessions;
 use App\Models\WebAuthnCredential;
 use App\Observers\UserObserver;
+use App\Support\Notifications\NotificationEvents;
 use App\Support\Panel\Panel;
 use App\Support\Panel\PanelResponse;
 use Exception;
@@ -272,9 +273,55 @@ class UserController extends Controller
                     array_keys($this->roleRanks()),
                     fn (string $role) => $this->canAssignRole(auth()->user(), $role),
                 )),
+                /*
+                 * Bildirim tercihleri YALNIZCA kendi profilinde doldurulur.
+                 *
+                 * `admin.profile.notifications.preferences` daima
+                 * `$request->user()` uzerine yazar (bkz. PushSubscriptionController);
+                 * baska birinin profilinde gosterilseydi yonetici baska bir
+                 * kullaniciya bakarken KENDI tercihlerini degistirirdi. Ayni
+                 * gerekce `twoFactor` prop'unda da gecerli.
+                 */
+                'notificationEvents' => $isSelf ? $this->notificationEvents($user) : [],
             ],
             ['user' => $user, 'sessions' => $sessions],
         );
+    }
+
+    /**
+     * Profil ekraninin bildirim sekmesi icin olay listesi.
+     *
+     * Liste `NotificationEvents::forUser()` ile SUZULUR: kullanici yetkisi
+     * olmayan bir olayi ekranda hic gormez. Kaydi olmayan olaylarda
+     * `NotificationEvents::defaults()` uygulanir — yeni bir olay eklendiginde
+     * mevcut kullanicilar icin satir uretmek gerekmez.
+     *
+     * Prop'lar JSON'a serilesebilir olmali: Eloquent modeli degil, duz dizi.
+     *
+     * @return list<array{key: string, label: string, database: bool, push: bool}>
+     */
+    private function notificationEvents(User $user): array
+    {
+        $saved = $user->notificationPreferences()->get()->keyBy('event');
+
+        return collect(NotificationEvents::forUser($user))
+            ->map(function (array $definition, string $event) use ($saved): array {
+                $defaults = NotificationEvents::defaults($event);
+                $preference = $saved->get($event);
+
+                return [
+                    'key' => $event,
+                    'label' => __($definition['label']),
+                    'database' => $preference !== null
+                        ? (bool) $preference->database
+                        : (bool) $defaults['database'],
+                    'push' => $preference !== null
+                        ? (bool) $preference->push
+                        : (bool) $defaults['push'],
+                ];
+            })
+            ->values()
+            ->all();
     }
 
     /**

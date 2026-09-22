@@ -144,4 +144,5 @@ return [
     'index_result' => 'Durum',
     'index_code' => 'Kod',
     'index_message' => 'Mesaj',
+    'editor_unavailable' => 'Metin editörü yüklenemedi. Düz metin alanına geçildi.',
 ];

@@ -8,8 +8,10 @@ import CommandPalette from '../components/CommandPalette.vue';
 import NotificationBell from '../components/NotificationBell.vue';
 import FlashToast from '../components/FlashToast.vue';
 import ConfirmDialog from '../components/ConfirmDialog.vue';
+import PushPrompt from '../components/PushPrompt.vue';
 import { pageHeader } from '../composables/usePageHeader';
 import { pushToast } from '../composables/useToast';
+import { initPush } from '../composables/usePush';
 
 const page = usePage();
 const { theme, toggleTheme } = useTheme();
@@ -191,7 +193,20 @@ function onKey(e) {
   }
 }
 
-onMounted(() => window.addEventListener('keydown', onKey));
+onMounted(() => {
+  window.addEventListener('keydown', onKey);
+
+  /*
+   * Push durumunu tarayicidan oku ve zaten abone olan bir cihazin aboneligini
+   * sunucuya yeniden bildir (ucuz upsert). Service worker panel kapaliyken
+   * `pushsubscriptionchange` ile aboneligi yenilemis olabilir ve sunucu hala
+   * eski endpoint'i tutuyor olabilir.
+   *
+   * `initPush()` kendi icinde bir kez calisir ve DESTEKLENMEYEN tarayicida
+   * sessizce cikar; burada catch yalnizca son savunma.
+   */
+  initPush().catch(() => undefined);
+});
 onUnmounted(() => window.removeEventListener('keydown', onKey));
 </script>
 
@@ -436,6 +451,13 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
           <span class="hidden sm:inline">{{ __('general.new') }}</span>
         </Link>
       </header>
+
+      <!--
+        Ilk ziyaret karti. Icerigin USTUNDE, akisin icinde duruyor (sabit
+        konumlu bir katman DEGIL): toast yigini ile ust uste binmez ve sayfayi
+        bloklamaz. Kosullar saglanmazsa hicbir sey render etmez.
+      -->
+      <PushPrompt />
 
       <slot />
     </main>

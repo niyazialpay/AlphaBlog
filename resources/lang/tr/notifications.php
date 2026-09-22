@@ -21,4 +21,46 @@ return [
     'delete_all' => 'Tümünü Sil',
     'notifications_deleted' => 'Bildirimler başarıyla silindi.',
     'no_notifications' => 'Bildiriminiz yok',
+
+    /*
+     * Bildirim olaylarının adları.
+     *
+     * Anahtarlar App\Support\Notifications\NotificationEvents içindeki kayıtla
+     * birebir eşleşir; yeni bir olay eklendiğinde buraya da bir satır gerekir,
+     * aksi halde tercih ekranında ham anahtar görünür.
+     */
+    'events' => [
+        'comment_created' => 'Yeni yorum',
+        'contact_message' => 'Yeni iletişim mesajı',
+    ],
+
+    /* Tercih ekranı */
+    'preferences_tab' => 'Bildirim Ayarları',
+    'preferences_intro' => 'Hangi olaylarda bildirim almak istediğinizi seçin. Panel zili tüm cihazlarda geçerlidir; tarayıcı bildirimleri yalnızca izin verdiğiniz cihazlara gönderilir.',
+    'preferences_saved' => 'Bildirim tercihleriniz kaydedildi.',
+    'preferences_error' => 'Bildirim tercihleri kaydedilirken bir hata oluştu.',
+    'event' => 'Olay',
+    'channel_database' => 'Panel zili',
+    'channel_push' => 'Tarayıcı',
+
+    /* Tarayıcı (web push) aboneliği */
+    'push_title' => 'Tarayıcı bildirimleri',
+    'push_on' => 'Açık',
+    'push_enable' => 'Bildirimleri aç',
+    'push_disable' => 'Bildirimleri kapat',
+    'push_settings' => 'Bildirim ayarları',
+    'push_subscribed' => 'Bu cihaz için tarayıcı bildirimleri açıldı.',
+    'push_unsubscribed' => 'Bu cihaz için tarayıcı bildirimleri kapatıldı.',
+    'push_error' => 'Tarayıcı bildirimleri açılamadı. Lütfen tekrar deneyin.',
+    'push_unsupported' => 'Bu tarayıcı bildirimleri desteklemiyor.',
+    'push_blocked' => 'Bildirimler tarayıcı ayarlarından engellenmiş.',
+    'push_blocked_hint' => 'Tarayıcınızın adres çubuğundaki site ayarlarından bildirim iznini verip sayfayı yenileyin.',
+    'push_device_title' => 'Bu cihaz',
+    'push_device_on' => 'Bu cihaz tarayıcı bildirimlerine abone.',
+    'push_device_off' => 'Bu cihaz tarayıcı bildirimlerine abone değil.',
+
+    /* İlk ziyaret kartı */
+    'push_prompt_title' => 'Bildirimleri açmak ister misiniz?',
+    'push_prompt_body' => 'Panel kapalıyken de yeni yorum ve mesajlardan haberdar olun. İzni istediğiniz zaman geri alabilirsiniz.',
+    'push_prompt_dismiss' => 'Şimdi değil',
 ];

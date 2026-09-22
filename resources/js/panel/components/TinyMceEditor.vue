@@ -10,6 +10,8 @@
  */
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { theme as panelTheme } from '../composables/useTheme';
+import { __ } from '../composables/useLang';
+import { pushToast } from '../composables/useToast';
 
 const props = defineProps({
   modelValue: { type: String, default: '' },
@@ -205,11 +207,41 @@ function settings() {
   };
 }
 
+/*
+ * TinyMCE yuklenemezse SESSIZ KALMA.
+ *
+ * `tinymce.min.js` kok blade'den self-hosted geliyor. Dosya 404 verir, CDN/WAF
+ * keser ya da `init()` firlatirsa eskiden hicbir sey olmuyordu: editor mount
+ * edilmiyor, textarea da TinyMCE tarafindan gizlenecegi varsayilarak ciplak
+ * kaliyordu — kullanici BOS bir kutu goruyordu ve konsol disinda iz yoktu.
+ * Mobilde bildirilen "editor acilmiyor" sikayetinin bu olma ihtimali var.
+ *
+ * Artik basarisizlikta duz textarea kullanilabilir halde kaliyor (icerik
+ * kaybolmuyor, yaziya devam edilebiliyor) ve durum ekranda soyleniyor.
+ */
+const failed = ref(false);
+
 async function mount() {
   measure();
-  await window.tinymce.init(settings());
-  editor = window.tinymce.get(el.value.id);
-  editor?.setContent(props.modelValue || '');
+
+  if (typeof window.tinymce === 'undefined') {
+    failed.value = true;
+    pushToast(__('post.editor_unavailable'), 'error', 8000);
+
+    return;
+  }
+
+  try {
+    await window.tinymce.init(settings());
+    editor = window.tinymce.get(el.value.id);
+    editor?.setContent(props.modelValue || '');
+    failed.value = false;
+  } catch (error) {
+    failed.value = true;
+    // eslint-disable-next-line no-console
+    console.error('TinyMCE init hatasi', error);
+    pushToast(__('post.editor_unavailable'), 'error', 8000);
+  }
 }
 function destroy() {
   editor?.remove();
@@ -259,7 +291,12 @@ defineExpose({
       '--tinymce-mobile-height': `${mobileHeight}px`,
     }"
   >
-    <textarea :id="`tinymce-${$.uid}`" ref="el"></textarea>
+    <textarea
+      :id="`tinymce-${$.uid}`"
+      ref="el"
+      :class="failed ? 'tinymce-fallback' : ''"
+      @input="failed && emit('update:modelValue', $event.target.value)"
+    ></textarea>
   </div>
 </template>
 
@@ -288,6 +325,22 @@ defineExpose({
  * `!important` yener. Boylece tek yukseklik kaynagi sarmalayici olur ve
  * pencere/`dvh` degistiginde editor onunla birlikte buyuyup kuculur.
  */
+/* TinyMCE yuklenemedigindeki yedek: duz ama kullanilabilir bir metin alani. */
+.tinymce-fallback {
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  padding: 12px;
+  border: 0;
+  outline: none;
+  resize: none;
+  background: rgb(var(--p-panel2));
+  color: rgb(var(--p-ink));
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
 .tinymce-shell :deep(.tox-tinymce) {
   height: 100% !important;
   max-height: 100% !important;

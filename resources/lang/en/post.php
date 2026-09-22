@@ -143,4 +143,5 @@ return [
     'index_result' => 'Status',
     'index_code' => 'Code',
     'index_message' => 'Message',
+    'editor_unavailable' => 'The editor failed to load. Falling back to a plain text area.',
 ];

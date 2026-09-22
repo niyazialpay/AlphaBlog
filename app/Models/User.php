@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\PersonalNotes\PersonalNoteCategories;
 use App\Models\PersonalNotes\PersonalNotes;
 use App\Models\Post\Posts;
+use App\Support\Notifications\NotificationEvents;
 use App\Traits\ModelLogger;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -32,6 +33,41 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail, WebAuth
     use SoftDeletes;
 
     protected $table = 'users';
+
+    public function pushSubscriptions(): HasMany
+    {
+        return $this->hasMany(PushSubscription::class);
+    }
+
+    public function notificationPreferences(): HasMany
+    {
+        return $this->hasMany(NotificationPreference::class);
+    }
+
+    /**
+     * Bu olay icin kullanicinin secimi.
+     *
+     * Kayit yoksa `NotificationEvents::defaults()` uygulanir — yeni bir olay
+     * eklendiginde mevcut kullanicilar icin satir uretmek gerekmez.
+     *
+     * YETKI HER ZAMAN ONCE GELIR: kullanici olayi gormeye yetkili degilse
+     * tercihi ne olursa olsun bildirim gonderilmez. Boylece rolu dusurulen bir
+     * kullaniciya eski tercihi yuzunden bildirim gitmez.
+     */
+    public function wantsNotification(string $event, string $channel = 'push'): bool
+    {
+        if (! array_key_exists($event, NotificationEvents::forUser($this))) {
+            return false;
+        }
+
+        $preference = $this->notificationPreferences->firstWhere('event', $event);
+
+        if ($preference === null) {
+            return (bool) (NotificationEvents::defaults($event)[$channel] ?? false);
+        }
+
+        return (bool) $preference->{$channel};
+    }
 
     public function preferredLocale()
     {

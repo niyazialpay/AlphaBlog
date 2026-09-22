@@ -31,6 +31,7 @@
         "laravel/tinker": "^3.0",
         "laravel/ui": "^4.5",
         "meilisearch/meilisearch-php": "^1.7",
+        "minishlink/web-push": "^11.0",
         "nwidart/laravel-modules": "^11.1",
         "opcodesio/log-viewer": "^3.9",
         "openai-php/client": "^0.9.1",

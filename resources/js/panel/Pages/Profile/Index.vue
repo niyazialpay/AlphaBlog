@@ -7,6 +7,7 @@ import { __ } from '../../composables/useLang';
 import { usePageHeader } from '../../composables/usePageHeader';
 import { formatDateTime } from '../../composables/useFormat';
 import { pushToast } from '../../composables/useToast';
+import { usePush } from '../../composables/usePush';
 import Tabs from '../../components/Tabs.vue';
 import FormField from '../../components/FormField.vue';
 import ConfirmDialog from '../../components/ConfirmDialog.vue';
@@ -38,6 +39,16 @@ const props = defineProps({
   privacy: { type: Object, default: () => ({}) },
   sessions: { type: Object, required: true },
   assignableRoles: { type: Array, default: () => [] },
+  /*
+   * Bildirim olaylari: `[{ key, label, database, push }]`.
+   *
+   * Liste SUNUCUDAN gelir (App\Support\Notifications\NotificationEvents) ve
+   * kullanicinin yetkisine gore suzulmustur — gormedigi bir olayi ekranda
+   * bulamaz. Yalnizca KENDI profilinde doludur; `admin.profile.notifications.preferences`
+   * daima `$request->user()` uzerine yazar, baska birinin profilinde gosterilse
+   * yanlis kullaniciyi degistirirdi.
+   */
+  notificationEvents: { type: Array, default: () => [] },
 });
 
 usePageHeader(props.isSelf ? __('user.profile') : props.profile.nickname, [
@@ -46,7 +57,33 @@ usePageHeader(props.isSelf ? __('user.profile') : props.profile.nickname, [
   { label: props.profile.nickname },
 ]);
 
-const tab = ref('about');
+const TAB_VALUES = ['about', 'social', 'security', 'privacy', 'notifications', 'sessions'];
+
+/*
+ * `?tab=` ile derin baglanti. Bildirim zilindeki "bildirim ayarlari" baglantisi
+ * dogrudan bu sekmeyi aciyor.
+ *
+ * Tabs bilesenine `queryKey` VERILMEDI bilerek: queryKey her sekme
+ * degisiminde `router.visit()` yapar, yani her tiklamada sunucuya gidilir.
+ * Burada URL yalnizca ACILISTA okunuyor; sekme gecisleri eskisi gibi tamamen
+ * istemcide.
+ */
+function initialTab() {
+  try {
+    const requested = new URLSearchParams(window.location.search).get('tab');
+
+    // Bildirim sekmesi yalnizca kendi profilinde ve gorulebilir olay varsa var.
+    if (requested === 'notifications' && !(props.isSelf && props.notificationEvents.length)) {
+      return 'about';
+    }
+
+    return TAB_VALUES.includes(requested) ? requested : 'about';
+  } catch (error) {
+    return 'about';
+  }
+}
+
+const tab = ref(initialTab());
 const securityTab = ref('password');
 const confirm = ref(null);
 const credentials = ref([]);
@@ -57,6 +94,13 @@ const tabs = computed(() =>
     { value: 'social', label: __('social.social_networks'), icon: 'fa-solid fa-share-nodes' },
     { value: 'security', label: __('profile.security'), icon: 'fa-solid fa-shield-halved' },
     { value: 'privacy', label: __('privacy.privacy_tab'), icon: 'fa-solid fa-user-lock' },
+    props.isSelf && props.notificationEvents.length
+      ? {
+          value: 'notifications',
+          label: __('notifications.preferences_tab'),
+          icon: 'fa-solid fa-bell',
+        }
+      : null,
     { value: 'sessions', label: __('sessions.sessions_tab'), icon: 'fa-solid fa-desktop' },
   ].filter(Boolean),
 );
@@ -98,6 +142,62 @@ const socialForm = useForm({ ...props.social });
 const privacyForm = useForm({ ...props.privacy });
 const passwordForm = useForm({ old_password: '', password: '', password_confirmation: '' });
 const emailForm = useForm({ email: props.profile.email || '' });
+
+/*
+ * Bildirim tercihleri.
+ *
+ * FORM eylemi (R1): `useForm().post()` ile gonderilir, uc `back()->with(...)`
+ * doner. Veri ucu DEGIL — `axios` kullanilmaz.
+ *
+ * Anahtarlar nokta iceriyor (`comment.created`). Inertia govdeyi JSON olarak
+ * gonderdigi icin anahtar OLDUGU GIBI korunur; sunucu `$request->input('preferences')`
+ * ile diziyi alip kendi izin verdigi olaylar uzerinden doner.
+ */
+const notificationForm = useForm({
+  preferences: Object.fromEntries(
+    props.notificationEvents.map((event) => [
+      event.key,
+      { database: Boolean(event.database), push: Boolean(event.push) },
+    ]),
+  ),
+});
+
+function saveNotifications() {
+  notificationForm.post(route('admin.profile.notifications.preferences'), { preserveScroll: true });
+}
+
+/*
+ * Bu CIHAZIN push aboneligi. Durum zil dropdown'i ile ortak (usePush tekil bir
+ * modul durumu tutar), yani buradan acildiginda zil de aninda guncellenir.
+ */
+const {
+  state: pushState,
+  permission: pushPermission,
+  busy: pushBusy,
+  subscribed: pushSubscribed,
+  toggle: togglePushState,
+} = usePush();
+
+async function togglePush() {
+  const wasOn = pushSubscribed.value;
+  const ok = await togglePushState();
+
+  if (ok) {
+    pushToast(
+      wasOn ? __('notifications.push_unsubscribed') : __('notifications.push_subscribed'),
+      'success',
+    );
+
+    return;
+  }
+
+  pushToast(
+    pushPermission.value === 'denied'
+      ? __('notifications.push_blocked')
+      : __('notifications.push_error'),
+    'error',
+  );
+}
 
 function saveAbout() {
   const url = props.isSelf
@@ -521,6 +621,103 @@ function deleteAvatar() {
 
       <div class="mt-4 flex justify-end">
         <button class="p-btn-primary" :disabled="privacyForm.processing" @click="savePrivacy">
+          <i class="fa-solid fa-floppy-disk text-xs"></i> {{ __('general.save') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Bildirimler -->
+    <div v-else-if="tab === 'notifications'" class="p-card p-4">
+      <div class="mb-3 text-[12px] leading-relaxed text-p-ink3">
+        {{ __('notifications.preferences_intro') }}
+      </div>
+
+      <!--
+        Bu tarayicidaki push durumu. Olay tercihleri SUNUCUDA saklanir ve tum
+        cihazlar icin gecerlidir; abonelik ise CIHAZ BASINA. Ikisi ayri satirda
+        duruyor ki "acik isaretledim ama bildirim gelmiyor" karisikligi olmasin.
+      -->
+      <div
+        v-if="$page.props.push?.enabled"
+        class="mb-4 flex flex-wrap items-center gap-3 rounded-[11px] border border-p-line bg-p-panel2 px-3.5 py-3"
+      >
+        <i class="fa-solid fa-bell text-[13px] text-p-ink3"></i>
+        <div class="min-w-[180px] flex-1">
+          <div class="text-[12.5px] font-semibold text-p-ink">
+            {{ __('notifications.push_device_title') }}
+          </div>
+          <div
+            class="mt-0.5 text-[11.5px] leading-relaxed"
+            :class="pushState === 'blocked' ? 'text-p-warn' : 'text-p-ink3'"
+          >
+            <template v-if="pushState === 'unsupported'">
+              {{ __('notifications.push_unsupported') }}
+            </template>
+            <template v-else-if="pushState === 'blocked'">
+              {{ __('notifications.push_blocked') }} {{ __('notifications.push_blocked_hint') }}
+            </template>
+            <template v-else-if="pushState === 'on'">{{ __('notifications.push_device_on') }}</template>
+            <template v-else>{{ __('notifications.push_device_off') }}</template>
+          </div>
+        </div>
+
+        <button
+          v-if="pushState === 'on' || pushState === 'off'"
+          :class="pushState === 'on' ? 'p-btn' : 'p-btn-primary'"
+          :disabled="pushBusy"
+          @click="togglePush"
+        >
+          <i
+            :class="pushBusy ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-bell'"
+            class="text-[11px]"
+          ></i>
+          {{ pushState === 'on' ? __('notifications.push_disable') : __('notifications.push_enable') }}
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse text-[12.5px]">
+          <thead>
+            <tr class="text-left text-[11.5px] uppercase tracking-wide text-p-ink3">
+              <th class="border-b border-p-line2 px-2 py-2 font-semibold">
+                {{ __('notifications.event') }}
+              </th>
+              <th class="w-28 border-b border-p-line2 px-2 py-2 text-center font-semibold">
+                {{ __('notifications.channel_database') }}
+              </th>
+              <th class="w-28 border-b border-p-line2 px-2 py-2 text-center font-semibold">
+                {{ __('notifications.channel_push') }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="event in notificationEvents" :key="event.key" class="hover:bg-p-panel2">
+              <td class="border-b border-p-line2 px-2 py-2.5">{{ event.label }}</td>
+              <td class="border-b border-p-line2 px-2 py-2.5 text-center">
+                <input
+                  v-model="notificationForm.preferences[event.key].database"
+                  type="checkbox"
+                  :aria-label="`${event.label} — ${__('notifications.channel_database')}`"
+                />
+              </td>
+              <td class="border-b border-p-line2 px-2 py-2.5 text-center">
+                <input
+                  v-model="notificationForm.preferences[event.key].push"
+                  type="checkbox"
+                  :aria-label="`${event.label} — ${__('notifications.channel_push')}`"
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-4 flex justify-end">
+        <button
+          class="p-btn-primary"
+          :disabled="notificationForm.processing"
+          @click="saveNotifications"
+        >
           <i class="fa-solid fa-floppy-disk text-xs"></i> {{ __('general.save') }}
         </button>
       </div>

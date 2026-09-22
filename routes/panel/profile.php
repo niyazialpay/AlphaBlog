@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\PushSubscriptionController;
 use App\Http\Controllers\Admin\TwoFactorAuthController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\WebAuthn\WebAuthnController;
@@ -64,3 +65,22 @@ Route::post('/email-change', [UserController::class, 'changeEmail'])
 Route::post('/privacy', [UserController::class, 'privacy'])
     ->can('own', 'App\Models\User')
     ->name('admin.profile.privacy');
+
+/*
+ * Web Push.
+ *
+ * Abonelik uclari VERI ucudur: tarayicinin PushManager degerlerini kaydeder /
+ * siler ve JSON doner (istemci axios ile cagirir). Tercih kaydi ise profil
+ * ekraninin form eylemidir ve yonlendirir.
+ */
+Route::post('/push/subscribe', [PushSubscriptionController::class, 'subscribe'])
+    ->can('own', 'App\Models\User')
+    ->name('admin.profile.push.subscribe');
+
+Route::post('/push/unsubscribe', [PushSubscriptionController::class, 'unsubscribe'])
+    ->can('own', 'App\Models\User')
+    ->name('admin.profile.push.unsubscribe');
+
+Route::post('/notifications/preferences', [PushSubscriptionController::class, 'preferences'])
+    ->can('own', 'App\Models\User')
+    ->name('admin.profile.notifications.preferences');
