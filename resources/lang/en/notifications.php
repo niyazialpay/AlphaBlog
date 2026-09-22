@@ -22,19 +22,11 @@ return [
     'notifications_deleted' => 'Notifications deleted successfully.',
     'no_notifications' => 'You have no notifications',
 
-    /*
-     * Notification event labels.
-     *
-     * Keys mirror the registry in App\Support\Notifications\NotificationEvents;
-     * a new event needs a line here too, otherwise the preference screen shows
-     * the raw key.
-     */
     'events' => [
         'comment_created' => 'New comment',
         'contact_message' => 'New contact message',
     ],
 
-    /* Preference screen */
     'preferences_tab' => 'Notification Settings',
     'preferences_intro' => 'Choose which events you want to be notified about. The panel bell applies to every device; browser notifications are only sent to the devices where you granted permission.',
     'preferences_saved' => 'Your notification preferences have been saved.',
@@ -43,7 +35,6 @@ return [
     'channel_database' => 'Panel bell',
     'channel_push' => 'Browser',
 
-    /* Browser (web push) subscription */
     'push_title' => 'Browser notifications',
     'push_on' => 'On',
     'push_enable' => 'Enable notifications',
@@ -59,7 +50,6 @@ return [
     'push_device_on' => 'This device is subscribed to browser notifications.',
     'push_device_off' => 'This device is not subscribed to browser notifications.',
 
-    /* First-visit card */
     'push_prompt_title' => 'Turn on notifications?',
     'push_prompt_body' => 'Stay on top of new comments and messages even when the panel is closed. You can revoke the permission at any time.',
     'push_prompt_dismiss' => 'Not now',

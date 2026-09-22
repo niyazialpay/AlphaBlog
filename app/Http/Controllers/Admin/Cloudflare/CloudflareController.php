@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class CloudflareController extends Controller
 {
-    // Octane: static olurlarsa worker içinde istekler arası sızarlar.
     private string $zoneID = '';
 
     private ?Zones $zones = null;
@@ -57,11 +56,6 @@ class CloudflareController extends Controller
             'Cloudflare/Index',
             'panel.cloudflare.index',
             [
-                /*
-                 * Blade'e ham API govdesi (stdClass) geciyordu ve icinde
-                 * $cloudflare->result[0]->... okunuyordu. Inertia prop'u
-                 * JSON-serilestirilebilir duz bir yapiya indirgenir.
-                 */
                 'zone' => $zone ? [
                     'name' => $zone->name ?? null,
                     'status' => $zone->status ?? null,

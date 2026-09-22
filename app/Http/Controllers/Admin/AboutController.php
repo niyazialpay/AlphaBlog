@@ -47,13 +47,6 @@ class AboutController extends Controller
             'OpenSSL Version' => OPENSSL_VERSION_TEXT,
         ];
 
-        /*
-         * 'Debug Mode' artik HTML rozet stringi degil bool prop.
-         * Not: bu ekran php_uname(), sunucu IP'si ve yuklu PHP eklentilerini
-         * tasiyor. Blade'de server-render'di, Inertia'da data-page JSON'una girer;
-         * route can('admin') ile korunuyor ve bunlarin HICBIRI paylasilan
-         * prop'a konmamali.
-         */
         return PanelResponse::render(
             'About/Index',
             'panel.about',
@@ -62,12 +55,6 @@ class AboutController extends Controller
         );
     }
 
-    /**
-     * Surucuden bagimsiz veritabani surumu.
-     *
-     * Onceki hali `DB::select('SELECT VERSION()')` idi; MySQL disinda
-     * (ornegin test ortamindaki sqlite) ekrani 500'e dusuruyordu.
-     */
     private function databaseVersion(): string
     {
         try {
@@ -78,9 +65,6 @@ class AboutController extends Controller
     }
 
     /**
-     * Eski Blade ekrani {!! !!} ile bastigi icin rozet HTML'ini bekliyor.
-     * PANEL_UI=blade geri donusu bozulmasin diye burada yeniden uretilir.
-     *
      * @param  array<string, mixed>  $systemInfo
      * @return array<string, mixed>
      */

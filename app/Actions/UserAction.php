@@ -22,25 +22,11 @@ class UserAction
             $user->education = $request->education;
             $user->job_title = $request->job_title;
             $user->skills = $request->skills;
-            // SECURITY: 'role' is intentionally NOT assignable here. Profile/user-edit
-            // saves must never escalate privileges. Role changes go through the
-            // dedicated, ceiling-checked path in UserController::userUpdate().
             $user->save();
             DB::commit();
 
-            /*
-             * TEK sekil: yonlendirme.
-             *
-             * Eskiden `$request->inertia()` ile dallaniyordu. O kontrol yaniti
-             * X-Inertia basliginin agda sag kalmasina bagliyor; baslik dustugunde
-             * sunucu JSON donuyor, Inertia JSON'i sayfa sayamayip tam ekran hata
-             * modalini aciyor ve kullanici bembeyaz bir kutu goruyordu. Profil
-             * kaydetme bir FORM eylemi, veri ucu degil.
-             */
             return back()->with('success', __('profile.save_success'));
         } catch (Throwable $e) {
-            // `Exception` DEGIL: TypeError / null uzerinde metot cagrisi `Error`
-            // sinifindan gelir, `Exception` onu yakalamaz ve transaction acik kalirdi.
             DB::rollBack();
 
             return back()->with('error', __('profile.save_error'));

@@ -24,7 +24,6 @@ class GoogleIndexingActionTest extends TestCase
 
     public function test_submit_returns_failed_when_no_credentials(): void
     {
-        // Ensure the credentials file does not exist in test environment
         $credPath = storage_path('app/analytics/service-account-credentials.json');
         $exists = file_exists($credPath);
         if ($exists) {

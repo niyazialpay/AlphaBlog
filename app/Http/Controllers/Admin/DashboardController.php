@@ -35,20 +35,9 @@ class DashboardController extends Controller
                     'h' => (int) $widget->gs_h,
                 ])->values(),
                 'widgetGroups' => $widgetGroups,
-                /*
-                 * `comments` ve `firewall` Eloquent koleksiyonlari; blade
-                 * icinde `$comment->user?->name` / `diffForHumans()` cagriliyordu.
-                 * Inertia prop'u olarak duz diziye indirilir, tarihler ISO-8601.
-                 */
                 'widgetData' => [
                     'ga4' => $widgetData['ga4'],
                     'gsc' => $widgetData['gsc'],
-                    /*
-                     * Widget'in "veri yok" ile "yapilandirilmamis" / "istek
-                     * patladi" arasini ayirabilmesi icin kaynak basina durum;
-                     * `settingsUrl` de yapilandirilmamis GSC widget'inin
-                     * kullaniciyi dogru sekmeye yollamasi icin.
-                     */
                     'status' => $widgetData['status'],
                     'settingsUrl' => route('admin.settings', ['tab' => 'seo']),
                     'comments' => collect($widgetData['comments'])->map(fn ($comment) => [

@@ -33,9 +33,6 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         Gate::policy(PersonalNotes::class, PersonalNotesPolicy::class);
@@ -52,9 +49,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->register(HorizonServiceProvider::class);
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         Paginator::useBootstrap();
@@ -64,7 +58,7 @@ class AppServiceProvider extends ServiceProvider
         }
 
         Paginator::currentPathResolver(function () {
-            return Request::getPathInfo(); // sadece "/tr/kategoriler/php"
+            return Request::getPathInfo();
         });
 
         Posts::observe(PostsObserver::class);
@@ -101,8 +95,6 @@ class AppServiceProvider extends ServiceProvider
             return $user->role === 'owner' || $user->role === 'admin';
         });
 
-        // SECURITY: do not surface raw email as PII in Pulse dashboards. Use the
-        // public nickname/name and a hashed gravatar id only.
         Pulse::user(fn ($user) => [
             'name' => $user->nickname ?: trim($user->name.' '.$user->surname),
             'extra' => '#'.$user->id,
@@ -112,8 +104,6 @@ class AppServiceProvider extends ServiceProvider
 
     private function shouldForceHttps(): bool
     {
-        // Use config only (never env() outside config/): env() returns null under
-        // config:cache, silently disabling HTTPS forcing in production.
         if (filter_var(config('app.force_https'), FILTER_VALIDATE_BOOLEAN)) {
             return true;
         }

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin\Settings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ThemeSettingsRequest;
 use App\Models\Themes;
-use Exception;
 use File;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,8 +22,6 @@ class ThemesSettingsController extends Controller
             $zip = new ZipArchive;
             $status = $zip->open($request->file('theme')->getRealPath());
             if ($status !== true) {
-                // Bu yol commit GORMUYOR: rollback olmadan transaction acik kalir
-                // ve baglanti istek boyunca kilit tutar.
                 DB::rollBack();
 
                 return back()->with('error', __('themes.theme_upload_error'));
@@ -53,10 +50,6 @@ class ThemesSettingsController extends Controller
         try {
             $theme = $themes::where('id', $request->post('id'))->first();
 
-            /*
-             * `first()` null donebiliyor; `$theme->is_default` erisimi `Error`
-             * firlatir ve `catch (Exception)` onu YAKALAMAZ -> 500.
-             */
             if (! $theme) {
                 return back()->with('error', __('themes.delete_error'));
             }

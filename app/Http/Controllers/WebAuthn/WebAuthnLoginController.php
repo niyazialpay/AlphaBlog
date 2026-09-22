@@ -3,22 +3,19 @@
 namespace App\Http\Controllers\WebAuthn;
 
 use App\Actions\SessionAction;
-use App\Models\User;
 use GeoIp2\Exception\AddressNotFoundException;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\Response;
 use Laragear\WebAuthn\Http\Requests\AssertedRequest;
 use Laragear\WebAuthn\Http\Requests\AssertionRequest;
-
 use MaxMind\Db\Reader\InvalidDatabaseException;
+
 use function response;
 
 class WebAuthnLoginController
 {
     /**
-     * Returns the challenge to assertion.
-     *
      * @throws BindingResolutionException
      */
     public function options(AssertionRequest $request): Responsable
@@ -27,7 +24,6 @@ class WebAuthnLoginController
     }
 
     /**
-     * Log the user in.
      * @throws AddressNotFoundException
      * @throws InvalidDatabaseException
      */

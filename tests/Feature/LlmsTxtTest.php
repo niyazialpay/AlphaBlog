@@ -13,19 +13,12 @@ use Tests\TestCase;
 
 class LlmsTxtTest extends TestCase
 {
-    // Migrasyonlar calismadigi icin tum DB'ye dokunan testler
-    // "no such table: users" ile patliyordu.
     use RefreshDatabase;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        /*
-         * GlobalVariableServiceProvider bu singleton'lari uygulama ACILIRKEN
-         * baglar; test veritabani o andan sonra migrate edildigi icin baglanmaz
-         * ve app('default_language') "Class does not exist" ile 500 verir.
-         */
         DB::table('languages')->insert([
             'name' => 'Türkçe', 'code' => 'tr', 'flag' => 'tr',
             'is_active' => true, 'is_default' => true,
@@ -125,14 +118,6 @@ class LlmsTxtTest extends TestCase
         $this->assertTrue(Cache::has('llms_txt_content'));
     }
 
-    /**
-     * Panel YAZMA uclari tek bir yanit bicimi dondurur: yonlendirme.
-     *
-     * Ekran (`Settings/Index.vue`) bu ucu `useForm().post()` ile cagiriyor.
-     * Yanit eskiden `$request->inertia()` terneriyle seciliyordu; `X-Inertia`
-     * basligi ag yolunda kaybolunca uc ciplak JSON donuyor ve istemcide
-     * Inertia'nin hata modali (bos beyaz kutu) aciliyordu.
-     */
     public function test_admin_can_save_llms_settings(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);

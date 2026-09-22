@@ -40,14 +40,6 @@ class DashboardWidgetService
         return array_merge(static::WIDGETS, config('dashboard_widgets', []));
     }
 
-    /**
-     * GA4 bu kurulumda kullanilabilir durumda mi?
-     *
-     * Kimlik dosyasi `storage/app/analytics` altinda ve o dizin gitignore'lu;
-     * yani her kuruluma elle konuyor. Property id ise .env'den geliyor. Biri
-     * eksikse bu bir HATA degil "yapilandirilmamis" durumudur ve arayuz ikisini
-     * ayirt edebilmelidir.
-     */
     public static function ga4Configured(): bool
     {
         return file_exists(storage_path('app/analytics/service-account-credentials.json'))
@@ -65,15 +57,6 @@ class DashboardWidgetService
             'gsc' => ['performance' => [], 'keywords' => [], 'trend' => []],
             'comments' => [],
             'firewall' => [],
-            /*
-             * Kaynak basina durum: 'idle' (o ailede widget yok), 'ok',
-             * 'not_configured', 'error'.
-             *
-             * Bu olmadan widget'lar UC ayri durumu tek bir mesaja indirgiyordu:
-             * kimlik bilgisi hic kurulmamis, istek patlamis, ve secilen
-             * aralikta gercekten satir yok. Ilk ikisi kullanicinin
-             * yapabilecegi bir sey oldugunu soyler; ucuncusu soylemez.
-             */
             'status' => ['ga4' => 'idle', 'gsc' => 'idle'],
         ];
 
@@ -98,12 +81,6 @@ class DashboardWidgetService
                 ]);
                 $data['status']['ga4'] = 'ok';
             } catch (Throwable $e) {
-                /*
-                 * Bu cagrilarin hicbiri korunmuyordu (yalnizca
-                 * fetchGA4Overview icinde sessiz bir catch vardi): gecersiz bir
-                 * property id, iptal edilmis servis hesabi ya da ag hatasi TUM
-                 * kontrol panelini 500'e dusuruyordu.
-                 */
                 Log::error('Dashboard GA4 widget verisi alinamadi', ['exception' => $e]);
                 $data['ga4'] = [];
                 $data['status']['ga4'] = 'error';
@@ -139,13 +116,6 @@ class DashboardWidgetService
         return $data;
     }
 
-    /**
-     * Istisnalari YUTMAZ.
-     *
-     * Cagiran taraf artik GA4 blogunun tamamini sariyor, hatayi logluyor ve
-     * 'error' durumuna ceviriyor. Burada sessizce bos dizi donmek, kirilmis bir
-     * entegrasyonu "veri yok" gibi gosteriyordu.
-     */
     private function fetchGA4Overview(Carbon $start, Carbon $end): array
     {
         $period = Period::create($start, $end);
@@ -163,7 +133,6 @@ class DashboardWidgetService
         $currDur = (float) ($row['userEngagementDuration'] ?? 0);
         $currSessions = (int) ($row['sessions'] ?? 1);
 
-        // Previous period
         $diffDays = $start->diffInDays($end);
         $prevEnd = $start->copy()->subDay();
         $prevStart = $prevEnd->copy()->subDays($diffDays);

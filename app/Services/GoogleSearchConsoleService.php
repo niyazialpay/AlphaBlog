@@ -34,14 +34,6 @@ class GoogleSearchConsoleService
         }
     }
 
-    /**
-     * "Yapilandirilmamis" ile "istek basarisiz" ayrimi icin.
-     *
-     * Kimlik dosyasi `storage/app/analytics` altinda ve bu dizin gitignore'lu;
-     * yani her kurulumda elle yerlestirilir. Site URL'si ise panelden girilen
-     * bir ayar. Ikisinden biri eksikse ekran bunu ACIKCA soylemeli, "veri yok"
-     * ya da genel bir "servis kullanilamiyor" mesaji vermemeli.
-     */
     public function isConfigured(): bool
     {
         return file_exists(storage_path('app/analytics/service-account-credentials.json'))
@@ -72,13 +64,6 @@ class GoogleSearchConsoleService
         $rows = $response->json('rows', []);
 
         if ($rows === []) {
-            /*
-             * 200 + sifir satir SESSIZ bir bosluktu ve arayuzde "veri yok"tan
-             * ayirt edilemiyordu. En sik sebebi mulk bicimi: ayni servis hesabi
-             * `sc-domain:ornek.com` icin veri dondururken `https://ornek.com/`
-             * icin bos donebilir. Hangi site adresiyle sorulduğunu loga yaz ki
-             * neden bos oldugu anlasilabilsin.
-             */
             Log::info('GSC: sorgu 200 dondu ama satir yok', [
                 'site' => $siteUrl,
                 'dimensions' => $body['dimensions'] ?? [],

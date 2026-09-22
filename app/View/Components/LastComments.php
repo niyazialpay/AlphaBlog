@@ -13,9 +13,6 @@ class LastComments extends Component
 {
     public $lastComments;
 
-    /**
-     * Create a new component instance.
-     */
     public function __construct()
     {
         if (Cache::has(config('cache.prefix').'last_comments_'.session('language'))) {
@@ -41,9 +38,6 @@ class LastComments extends Component
         $this->lastComments = $lastComments;
     }
 
-    /**
-     * Get the view / contents that represent the component.
-     */
     public function render(): View|Closure|string
     {
         try {

@@ -27,7 +27,6 @@ class ContactMessagesController extends Controller
                     'message' => $message->message,
                     'language' => $message->language,
                     'ip' => $message->ip_address,
-                    // ISO-8601: bicimlendirme istemcide, app timezone'u acikca verilerek.
                     'createdAt' => $message->created_at?->toIso8601String(),
                 ]),
             ],

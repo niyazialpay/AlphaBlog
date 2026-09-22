@@ -9,16 +9,6 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
 use Throwable;
 
-/**
- * Sidebar menüsünü veri olarak üretir.
- *
- * Çekirdek bölümler `config/panel_menu.php`'den, modül bölümleri
- * {@see PanelModuleMenu}'den gelir; ikisi `order` ile harmanlanır.
- *
- * Rozetler `View::shared()` üzerinden okunur — sayımları NewCommentsCount ve
- * SearchedWords middleware'leri zaten yapıyor. Böylece ne ikinci bir COUNT(*)
- * sorgusu atılır ne de eski AdminLTE kabuğuyla sayı farkı oluşur.
- */
 final class PanelMenu
 {
     /** @var list<string>|null */
@@ -91,7 +81,6 @@ final class PanelMenu
         if ($url === null && isset($item['route'])) {
             $url = self::url($item['route'], $item['params'] ?? []);
 
-            // Route çözülemiyorsa (devre dışı modül, kaldırılmış ekran) öğeyi gösterme.
             if ($url === null) {
                 return null;
             }
@@ -163,22 +152,11 @@ final class PanelMenu
         }
     }
 
-    /**
-     * Çeviri anahtarı ise çevir, değilse ham metin olarak bırak
-     * (blade'de "Search Console", "DNS", "Pulse" gibi sabitler de var).
-     */
     public static function label(string $label): string
     {
         return self::translate($label) ?? $label;
     }
 
-    /**
-     * Ceviriyi YALNIZCA string ise dondurur.
-     *
-     * Lang::has() ic ice diziler icin de true doner (modul panel.php dosyalari
-     * cogunlukla ekran basina gruplanmis dizilerdir) ve __() o zaman dizi dondurur.
-     * Bu guard olmadan menu uretimi TypeError ile 500 veriyordu.
-     */
     public static function translate(string $key): ?string
     {
         if (! Lang::has($key)) {
@@ -204,18 +182,6 @@ final class PanelMenu
     }
 
     /**
-     * Rozet sayacı.
-     *
-     * Çekirdek anahtarları (`newComments`, `searchedWords`,
-     * `unreadNotifications`) mevcut `View::share` değerlerinden okunur — çift
-     * `COUNT(*)` yok, eski AdminLTE kabuğuyla daima tutarlı.
-     *
-     * Modüller çekirdeğe dokunmadan kendi sayaçlarını verebilsin diye ikinci bir
-     * yol var: `panel_menu.php` içinde `'badge_count' => [Sinif::class, 'metot']`.
-     * Dizi biçimli callable bilinçli: `config:cache` Closure'ları serileştiremez,
-     * dizi callable'ı sorunsuz taşır. Sayaç patlarsa rozet gösterilmez — bir
-     * modülün hatası tüm sidebar'ı düşürmemeli.
-     *
      * @param  array{0: class-string, 1: string}|string|null  $counter
      */
     private static function badge(?string $key, array|string|null $counter = null): ?int
@@ -260,12 +226,6 @@ final class PanelMenu
         return false;
     }
 
-    /**
-     * Route Vue'ya taşındı mı? Tek defter: config/panel_inertia_routes.php.
-     *
-     * Taşınmamış ekrana `router.visit()` yapılamaz — yanıtta X-Inertia yok,
-     * client "plain JSON/HTML response" hatası verir. O yüzden varsayılan false.
-     */
     public static function isInertia(?string $routeName): bool
     {
         if ($routeName === null) {
@@ -278,8 +238,6 @@ final class PanelMenu
     }
 
     /**
-     * İstemci tarafı için aynı defter (komut paleti, bildirim zili, çapraz bağlantılar).
-     *
      * @return list<string>
      */
     public static function inertiaRoutePatterns(): array
@@ -287,29 +245,12 @@ final class PanelMenu
         return self::ledger();
     }
 
-    /**
-     * Memoize edilmis defteri sifirlar; bir sonraki okuma config'ten gelir.
-     *
-     * Uretimde cagrilmaz — surec omru boyunca tek okuma isteniyor. Testler
-     * defteri daralttiginda (bkz. PanelTestCase::migrateScreens) bu daraltma
-     * sonraki test sinifina sizmasin diye gereklidir.
-     */
     public static function flushLedger(): void
     {
         self::$ledger = null;
     }
 
     /**
-     * Defter, O KURULUMDA gercekten var olan ekranlara indirgenmis hali.
-     *
-     * Modul panel kodu site-yereldir (`/Modules` gitignore'lu). Bir modulun Vue
-     * sayfalari deploy edilmemisse defterdeki `panel.<modul>.*` desenleri
-     * yalan soyler: sidebar `router.visit()` yapar, sunucu Inertia olmayan bir
-     * yanit doner ve kullanici ya bos ekran ya da "plain HTML response" hatasi
-     * gorur. Sayfalari olmayan modulun desenleri dusurulur; o modul ekranlari
-     * eski Blade kabuguyla tam sayfa yuklemesi olarak acilir (kill switch'in
-     * amaci zaten bu). PanelResponse ayni kontrolu sunucu tarafinda yapar.
-     *
      * @return list<string>
      */
     private static function ledger(): array
@@ -327,9 +268,6 @@ final class PanelMenu
 
             $segment = Str::before(Str::after($pattern, 'panel.'), '.');
 
-            // Route oneki her zaman modul adiyla birebir degil
-            // (ör. XSayfaMuhasebe -> `panel.xsayfa.muhasebe.*`). Bilinen bir
-            // module denk gelmiyorsa dokunma.
             return ! self::isKnownModule($segment) || self::modulePagesPresent($segment);
         }));
     }
@@ -369,9 +307,6 @@ final class PanelMenu
             ->contains(fn ($provider) => filled($provider['key'] ?? null));
     }
 
-    /**
-     * Modül route adlarından okunabilir etiket türetir (katman 3 yedeği).
-     */
     public static function headline(string $routeName): string
     {
         return Str::headline(Str::afterLast($routeName, '.'));

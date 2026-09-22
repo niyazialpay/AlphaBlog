@@ -7,8 +7,9 @@
  * hedefi: `::` içeren anahtarlar artık namespace'li Blade view yerine modülün
  * kendi Vue bileşenini çözer.
  *
- *   'edergi::edergi_reads'
+ *   'edergi::widgets.edergi_reads'
  *     → Modules/EDergi/resources/js/panel/Widgets/edergi_reads.vue
+ *       (derlemede resources/js/panel/.modules/edergi/Widgets/ aynasindan)
  *
  * Modül yoksa glob boş geçer; çekirdek sorunsuz derlenir ve ekran o widget için
  * "modül güncellenmeli" durumu gösterir.
@@ -18,7 +19,13 @@ const moduleWidgets = import.meta.glob('../.modules/*/Widgets/*.vue');
 
 const moduleLookup = Object.fromEntries(
     Object.entries(moduleWidgets).map(([path, importer]) => {
-        const match = path.match(/Modules\/([^/]+)\/resources\/js\/panel\/Widgets\/(.+)\.vue$/);
+        /*
+         * Glob AYNADAN okuyor: `../.modules/edergi/Widgets/edergi_reads.vue`.
+         * Regex eskiden `Modules/<X>/resources/js/panel/Widgets/` bekliyordu;
+         * ayna eklenince hicbir modul widget'i eslesmez olmustu ve hepsi
+         * "kullanilamiyor" durumuna dusuyordu.
+         */
+        const match = path.match(/\.modules\/([^/]+)\/Widgets\/(.+)\.vue$/);
 
         return match ? [`${match[1].toLowerCase()}::${match[2]}`, importer] : [path, importer];
     }),

@@ -26,12 +26,6 @@ class SettingsController extends Controller
     {
         $languages = Languages::all();
 
-        /*
-         * GlobalVariableServiceProvider bu singleton'lari uygulama acilisinda
-         * baglar, ama tablolar yoksa (temiz kurulum) ya da migrasyonlar acilistan
-         * SONRA calistiysa (test ortami) baglamaz ve app('ad_settings') 500 verir.
-         * Bagli degilse dogrudan modelden okunur.
-         */
         $general = self::setting('general_settings', GeneralSettings::class);
         $advertise = self::setting('ad_settings', AdvertiseSettings::class);
         $analytics = self::setting('analytic_settings', AnalyticsSettings::class);
@@ -46,15 +40,8 @@ class SettingsController extends Controller
             'Settings/Index',
             'panel.settings.index',
             [
-                // Sekme bir URL SOZLESMESI: Cloudflare controller'lari gecersiz
-                // kimlik bilgisinde ?tab=cloudflare ile buraya yonlendiriyor.
                 'tab' => request()->get('tab', 'general'),
 
-                /*
-                 * Blade'e BOS bir `new SeoSettings` gecirilip iceride
-                 * ->where('language', ...)->first() cagriliyordu. Bos model
-                 * JSON'a serilestirilemez; dile gore sozluk olarak cozuluyor.
-                 */
                 'seo' => SeoSettings::all()->keyBy('language')->map(fn (SeoSettings $item) => [
                     'language' => $item->language,
                     'site_name' => $item->site_name,
@@ -92,12 +79,6 @@ class SettingsController extends Controller
                     'medium', 'youtube', 'reddit', 'xbox', 'deviantart', 'website', 'twitch',
                     'telegram', 'discord',
                 ]),
-                /*
-                 * `social_networks_header` / `_footer` HANGI aglarin gosterilecegini
-                 * tutan bir LISTE (json kolon), boolean degil. Blade coklu secim
-                 * kutusu kullaniyordu; ham json string prop olarak gecirilirse
-                 * arayuz onu boolean sanip listeyi siliyordu. Sunucuda diziye cozulur.
-                 */
                 'socialDisplay' => [
                     'social_networks_header' => self::socialList($socialSettings?->social_networks_header),
                     'social_networks_footer' => self::socialList($socialSettings?->social_networks_footer),
@@ -106,11 +87,6 @@ class SettingsController extends Controller
                     ->map(fn (string $label, string $key) => ['value' => $key, 'label' => $label])
                     ->values(),
 
-                /*
-                 * `languages` DEGIL, `languageRecords` - bkz. MenuController::index()
-                 * `menuRecord`. Dil YONETIM tablosunun kayitlari; paylasilan
-                 * (bayrakli) `languages` prop'unu ezmemesi icin ayri ad tasir.
-                 */
                 'languageRecords' => $languages->map(fn (Languages $item) => [
                     'id' => $item->id,
                     'name' => $item->name,
@@ -126,7 +102,6 @@ class SettingsController extends Controller
                     'is_default' => (bool) $item->is_default,
                 ])->values(),
 
-                // app_id / auth_key sifrelenmis alanlar; arayuze sadece varliklari bildirilir.
                 'notifications' => [
                     'safari_web_id' => $onesignal->safari_web_id ?? null,
                     'user_segmentation' => (bool) ($onesignal->user_segmentation ?? false),
@@ -137,7 +112,6 @@ class SettingsController extends Controller
                 'cloudflare' => $cloudflare ? [
                     'cf_email' => $cloudflare->cf_email,
                     'domain' => $cloudflare->domain,
-                    // cf_key sifrelenmis; UI'a gonderilmez, yalnizca varligi bildirilir.
                     'has_key' => filled($cloudflare->cf_key),
                 ] : ['cf_email' => null, 'domain' => null, 'has_key' => false],
 
@@ -160,8 +134,6 @@ class SettingsController extends Controller
     }
 
     /**
-     * Bagli singleton varsa onu, yoksa modelin ilk satirini dondurur.
-     *
      * @param  class-string  $model
      */
     private static function setting(string $binding, string $model): ?object
@@ -178,8 +150,6 @@ class SettingsController extends Controller
     }
 
     /**
-     * Modelden yalnizca beklenen alanlari cikarir; model null ise bos degerler.
-     *
      * @param  list<string>  $fields
      * @return array<string, mixed>
      */
@@ -191,12 +161,6 @@ class SettingsController extends Controller
     }
 
     /**
-     * Sosyal ag goruntuleme listesini normalize eder.
-     *
-     * Kolon `json` ama modelde cast yok: degeri ham string olarak gelir. Eski
-     * bozuk kayitlarda skaler (`1` / `"0"`) de bulunabilir; her durumda gecerli
-     * `social_list()` anahtarlarindan olusan duz bir listeye indirgenir.
-     *
      * @return list<string>
      */
     private static function socialList(mixed $value): array
@@ -225,14 +189,12 @@ class SettingsController extends Controller
         }
         $previousDomain = $cf->domain;
         $cf->cf_email = $request->post('cf_email');
-        // "Bos birak, korunur": alan doldurulmadiysa mevcut sifreli anahtar korunur.
         if ($request->filled('cf_key')) {
             $cf->cf_key = $request->post('cf_key');
         }
         $cf->domain = $request->post('cf_domain');
         $cf->save();
 
-        // Zone ID 6 saat cache'leniyor; domain/kimlik değişince hemen tazelenmeli.
         foreach (array_filter([$previousDomain, $cf->domain]) as $domain) {
             Cache::forget(Cloudflare::zoneCacheKey($domain));
         }

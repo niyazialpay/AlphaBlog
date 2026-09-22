@@ -7,17 +7,12 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class PasswordRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return auth()->check() && (auth()->user()->can('own', auth()->user()) || auth()->user()->can('admin', auth()->user()));
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
      * @return array<string, ValidationRule|array|string>
      */
     public function rules(): array
@@ -29,8 +24,6 @@ class PasswordRequest extends FormRequest
     }
 
     /**
-     * Get the validation messages that apply to the request.
-     *
      * @return array<string, string>
      */
     public function messages(): array

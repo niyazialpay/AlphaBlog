@@ -49,15 +49,6 @@ class DashboardWidgetTest extends TestCase
         $this->assertSame(0, $this->admin->dashboardWidgets()->count());
     }
 
-    /**
-     * Uc TEK bir yanit bicimi dondurur: yonlendirme.
-     *
-     * Vue tarafi (`Dashboard/Index.vue`) bunu `router.post` ile cagiriyor, yani
-     * Inertia bekliyor. Eskiden yanit `$request->inertia()` terneriyle secilirdi;
-     * `X-Inertia` basligi ag yolunda kayboldugunda uc ciplak JSON donuyor ve
-     * istemcide "All Inertia requests must receive a valid Inertia response"
-     * modali (bos beyaz kutu) aciliyordu. Artik her cagrida `back()` doner.
-     */
     public function test_save_widgets_stores_widgets_for_user(): void
     {
         $this->actingAs($this->admin)
@@ -80,8 +71,6 @@ class DashboardWidgetTest extends TestCase
         $this->assertSame(3, $widget->gs_w);
         $this->assertSame(2, $widget->gs_h);
 
-        // Ikinci satir da aynen yazilmali: `layout[i][type|x|y|w|h]` istek sekli
-        // kullanicilarin kayitli panolarinin sozlesmesi.
         $second = $this->admin->dashboardWidgets()->where('widget_type', 'gsc_clicks')->first();
         $this->assertNotNull($second);
         $this->assertSame(3, $second->gs_x);
@@ -136,12 +125,6 @@ class DashboardWidgetTest extends TestCase
             ->assertUnauthorized();
     }
 
-    /**
-     * Ekran Vue'ya tasindi: `panel.dashboard` blade'i yerine `Dashboard/Index`
-     * Inertia bileseni render ediliyor. Iddia edilen prop'lar ayni
-     * (widgets / widgetData / widgetGroups) — kayitli duzenlerin bozulmadigini
-     * dogrulamak icin en onemli test bu.
-     */
     public function test_dashboard_index_loads_for_admin(): void
     {
         $response = $this->actingAs($this->admin)->get(route('admin.index'));

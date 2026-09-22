@@ -12,24 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
-/**
- * Tarayici push abonelikleri ve kullanici bildirim tercihleri.
- *
- * ABONELIK UCLARI VERI UCUDUR (R1): tarayicinin `PushManager` nesnesinden gelen
- * degerleri kaydeder/siler ve JSON doner; Vue tarafi `axios` ile cagirir. Bir
- * sayfa gecisi degil, arka plandaki bir durum degisikligi.
- *
- * TERCIH KAYDI ise FORM eylemidir: profil ekranindan gonderilir ve yonlendirir.
- */
 class PushSubscriptionController extends Controller
 {
-    /**
-     * Abonelik kaydi (upsert).
-     *
-     * Ayni endpoint tekrar gonderilebilir: tarayici izni yenilendiginde ya da
-     * sayfa her acildiginda istemci mevcut aboneligi bildirir. `endpoint_hash`
-     * uzerinden upsert yapilir, mukerrer satir olusmaz.
-     */
     public function subscribe(Request $request): JsonResponse
     {
         $data = $request->validate([
@@ -57,12 +41,6 @@ class PushSubscriptionController extends Controller
         return response()->json(['status' => true]);
     }
 
-    /**
-     * Abonelik silme.
-     *
-     * Yalniz KENDI aboneligini silebilir; endpoint tahmin edilebilir bir deger
-     * olmasa da sahiplik kontrolu atlanmaz.
-     */
     public function unsubscribe(Request $request): JsonResponse
     {
         $data = $request->validate([
@@ -77,13 +55,6 @@ class PushSubscriptionController extends Controller
         return response()->json(['status' => true]);
     }
 
-    /**
-     * Bildirim tercihleri.
-     *
-     * YETKI SUNUCUDA YENIDEN DEGERLENDIRILIR: istemciden gelen liste degil,
-     * `NotificationEvents::forUser()` belirleyici. Boylece bir kullanici
-     * gormedigi bir olayi POST ederek kendine acamaz.
-     */
     public function preferences(Request $request): RedirectResponse
     {
         $user = $request->user();

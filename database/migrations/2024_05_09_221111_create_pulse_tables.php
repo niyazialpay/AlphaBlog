@@ -6,13 +6,6 @@ use Laravel\Pulse\Support\PulseMigration;
 
 return new class extends PulseMigration
 {
-    /**
-     * Run the migrations.
-     *
-     * Replaces Pulse's default migration for OCI MySQL compatibility.
-     * OCI MySQL does not support md5() in generated columns, so key_hash
-     * is a plain char(32) column and is populated by PHP via md5().
-     */
     public function up(): void
     {
         if (! $this->shouldRun()) {
@@ -76,9 +69,6 @@ return new class extends PulseMigration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('pulse_values');

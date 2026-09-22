@@ -13,9 +13,6 @@ use function response;
 
 class WebAuthnRegisterController
 {
-    /**
-     * Returns a challenge to be verified by the user device.
-     */
     public function options(AttestationRequest $request): Responsable
     {
         return $request
@@ -23,9 +20,6 @@ class WebAuthnRegisterController
             ->toCreate();
     }
 
-    /**
-     * Registers a device for further WebAuthn authentication.
-     */
     public function register(AttestedRequest $request): Response
     {
         $request->save();

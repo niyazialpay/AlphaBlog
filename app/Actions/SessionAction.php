@@ -29,9 +29,6 @@ class SessionAction
     }
 
     /**
-     * Best-effort GeoIP lookup. This must never throw: a missing or unreadable
-     * GeoLite2 database is non-critical and may not block authentication.
-     *
      * @return array{0: ?string, 1: ?string, 2: ?string, 3: ?string, 4: ?string}
      */
     private static function resolveLocation(?string $ip): array

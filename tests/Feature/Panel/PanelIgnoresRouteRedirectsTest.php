@@ -8,20 +8,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use PHPUnit\Framework\Attributes\Test;
 
-/**
- * Site yonlendirme tablosunun YONETIM PANELINI kacirmadigini kilitler.
- *
- * `RouteRedirect` GLOBAL bir middleware: her istege bakiyor ve `route_redirects`
- * tablosunda `old_url` ile birebir eslesme ararsa `redirect()` donuyor. Panel
- * URL'leri de bu taramaya giriyordu.
- *
- * Sonuc: panelde bir ekran acilmiyordu. Inertia ziyareti sayfa yerine bir
- * yonlendirme govdesi aliyor, JSON/HTML ayrimini yapamayip hata modalini
- * aciyor ve kullanici bos ekran goruyordu — uretimde notlar ekraninda tam
- * olarak bu yasandi ("200 — Redirecting to .../panel/notes").
- *
- * Yonlendirme tablosu SITE icindir; panel ona tabi degildir.
- */
 class PanelIgnoresRouteRedirectsTest extends PanelTestCase
 {
     use RefreshDatabase;

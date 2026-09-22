@@ -8,7 +8,6 @@ use App\Http\Requests\Category\CategoryRequest;
 use App\Models\Languages;
 use App\Models\Post\Categories;
 use App\Support\Panel\PanelResponse;
-use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,13 +20,6 @@ class CategoryController extends Controller
 {
     public function index(Categories $category): Response
     {
-        /*
-         * `?tab=<dil kodu>` bir EKRAN SOZLESMESI: hem dil sekmeleri hem komut
-         * paleti bu parametreyle geliyor. Eski blade tum dilleri birden render
-         * edip goruneni `request()->get('tab')` ile seciyordu; Vue portu tek dil
-         * gonderdigi icin parametre sunucuda cozulmeli, yoksa sekmeler no-op olur.
-         * Bilinmeyen kod yok sayilir (oturum diline duser).
-         */
         if ($category->id) {
             $language = $category->language;
         } else {
@@ -41,11 +33,6 @@ class CategoryController extends Controller
             'panel.post.category.index',
             [
                 'language' => $language,
-                /*
-                 * Blade'e BOS bir `new Categories` ornegi gecirilip sorgular
-                 * icerideydi ($categories->where(...)->get()). Bos model JSON'a
-                 * serilestirilemez; agac ve duz liste burada cozulur.
-                 */
                 'tree' => self::tree($language),
                 'flat' => Categories::where('language', $language)
                     ->orderBy('name')
@@ -56,11 +43,6 @@ class CategoryController extends Controller
                         'parent_id' => $item->parent_id ? (string) $item->parent_id : null,
                     ])->values(),
                 'category' => $category->id ? self::editable($category) : null,
-                /*
-                 * `languages` DEGIL, `languageOptions` - bkz. MenuController::index()
-                 * `menuRecord`. Paylasilan `languages` prop'u (bayrakli ust bar dil
-                 * secicisi) ayni adli sayfa prop'u tarafindan EZILIR.
-                 */
                 'languageOptions' => collect(app('languages'))
                     ->map(fn ($item) => ['code' => $item->code, 'name' => $item->name])
                     ->values(),
@@ -73,9 +55,6 @@ class CategoryController extends Controller
         );
     }
 
-    /**
-     * `?tab` degerini yalnizca TANIMLI bir dil kodu ise kabul eder.
-     */
     private static function requestedLanguage(mixed $tab): ?string
     {
         if (! is_string($tab) || $tab === '') {
@@ -90,8 +69,6 @@ class CategoryController extends Controller
     }
 
     /**
-     * Kategori agaci (blade'deki ozyinelemeli category_row partial'inin karsiligi).
-     *
      * @return list<array<string, mixed>>
      */
     private static function tree(?string $language, ?int $parentId = null): array
@@ -104,15 +81,6 @@ class CategoryController extends Controller
                 'id' => (string) $item->id,
                 'name' => $item->name,
                 'slug' => $item->slug,
-                /*
-                 * Agac satirlarinda kucuk gorsel. Eski ekran da listede
-                 * `getFirstMediaUrl('categories', 'thumb')` basiyordu
-                 * (panel/post/category/index.blade.php:103).
-                 *
-                 * `mediaConversionUrl` sart: dogrudan `getFirstMediaUrl(...,
-                 * 'thumb')` cagrisi dosya URETILMEMIS olsa bile URL donduruyor
-                 * ve tarayici 404 aliyor.
-                 */
                 'image' => mediaConversionUrl($item->getFirstMedia('categories'), 'thumb'),
                 'children' => self::tree($language, $item->id),
             ])
@@ -161,16 +129,6 @@ class CategoryController extends Controller
             $category->language = GetPost($request->language);
             $category->parent_id = GetPost($request->parent_id);
             $hreflang = [];
-            /*
-             * `hreflang_url` GONDERILMEYEBILIR.
-             *
-             * Vue formu bunu bos nesne olarak baslatiyor; Inertia'nin
-             * objectToFormData'si bos nesne icin SIFIR alan ekliyor, yani
-             * anahtar govdede hic yer almiyor. Korumasiz foreach null uzerinde
-             * ErrorException firlatiyordu -> yeni yazi/sayfa/kategori
-             * kaydedilemiyor, mevcut kayitta hreflang bos ise duzenleme de
-             * kaydedilemiyor.
-             */
             foreach ((array) $request->input('hreflang_url', []) as $key => $value) {
                 if ($value != null) {
                     $hreflang[$key] = GetPost($value);
@@ -183,7 +141,6 @@ class CategoryController extends Controller
                 return back()->with('success', $message);
             }
 
-            // Bu yol commit GORMUYOR: transaction acik kalirdi.
             DB::rollBack();
 
             return back()->with('error', __('categories.error'));
@@ -204,7 +161,6 @@ class CategoryController extends Controller
                 return back()->with('success', __('categories.success_delete'));
             }
 
-            // Bu yol commit GORMUYOR: transaction acik kalirdi.
             DB::rollBack();
 
             return back()->with('error', __('categories.error_delete'));
@@ -221,11 +177,6 @@ class CategoryController extends Controller
             DB::beginTransaction();
             $image = Categories::find($request->post('id'));
 
-            /*
-             * `find()` null donebiliyor; ardindan gelen metot cagrisi `Error`
-             * firlatir ve asagidaki `catch (Exception)` onu YAKALAMAZ —
-             * sonuc: 500 + acik kalan transaction (istek boyunca kilit).
-             */
             if (! $image) {
                 DB::rollBack();
 

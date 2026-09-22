@@ -17,7 +17,6 @@ class MenuController extends Controller
 {
     public function index(Menu $menu): Response
     {
-        // Blade'e BOS bir `new Menu` ornegi gecirilip sorgu icerideydi.
         $all = Menu::orderBy('menu_position')->orderBy('title')->get();
 
         return PanelResponse::render(
@@ -31,20 +30,12 @@ class MenuController extends Controller
                     'language' => $item->language,
                     'items_count' => $item->menuItems()->count(),
                 ])->values(),
-                /*
-                 * `menu` DEGIL, `menuRecord` - bkz. MenuItemsController::show().
-                 * Paylasilan `menu` prop'u sidebar bolumleridir; ayni adli sayfa
-                 * prop'u onu ezip sol menuyu yok ediyordu (burada null olunca
-                 * sessizce bos, duzenleme modunda ise TypeError ile komple).
-                 */
                 'menuRecord' => $menu->id ? [
                     'id' => $menu->id,
                     'title' => $menu->title,
                     'menu_position' => $menu->menu_position,
                     'language' => $menu->language,
                 ] : null,
-                // Ayni gerekce `languages` icin de gecerli: paylasilan liste
-                // bayrak tasir, bu form listesi tasimaz.
                 'languageOptions' => collect(app('languages'))
                     ->map(fn ($language) => ['code' => $language->code, 'name' => $language->name])
                     ->values(),
@@ -53,9 +44,6 @@ class MenuController extends Controller
         );
     }
 
-    /**
-     * TEK YANIT SEKLI: yonlendirme — `Menu/Index.vue` `form.post` ile cagiriyor.
-     */
     public function save(Menu $menu, MenuRequest $request): RedirectResponse
     {
         try {
@@ -76,9 +64,6 @@ class MenuController extends Controller
         }
     }
 
-    /**
-     * TEK YANIT SEKLI: yonlendirme — `Menu/Index.vue` `router.post` ile cagiriyor.
-     */
     public function delete(Request $request): RedirectResponse
     {
         try {

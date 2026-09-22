@@ -4,17 +4,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-/**
- * Web Push abonelikleri.
- *
- * Bir kullanicinin BIRDEN COK abonelige sahip olmasi normaldir: her tarayici ve
- * her cihaz ayri bir endpoint uretir. Bu yuzden benzersizlik kullanici basina
- * degil ENDPOINT basinadir.
- *
- * `endpoint` cok uzun olabildigi icin (FCM adresleri 300+ karakter) TEXT olarak
- * tutulur; MySQL'de TEXT dogrudan unique index alamadigindan yaninda
- * `endpoint_hash` kolonu var ve benzersizlik onun uzerinden saglaniyor.
- */
 return new class extends Migration
 {
     public function up(): void

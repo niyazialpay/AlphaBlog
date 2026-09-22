@@ -12,7 +12,7 @@ class GoogleAnalytics
 {
     private const COOKIE_NAME = '_ga_cid';
 
-    private const COOKIE_DAYS = 730; // 2 years
+    private const COOKIE_DAYS = 730;
 
     public function handle(Request $request, Closure $next): Response
     {
@@ -21,15 +21,12 @@ class GoogleAnalytics
         if ($this->shouldTrack($request, $response)) {
             $clientId = $this->resolveClientId($request);
 
-            // Cookie yalnızca front-end (app.blade / e-dergi reader) onu üretmediyse
-            // burada yazılır; aksi halde mükerrer cookie set edilmez.
             if (! app()->bound('ga_client_id') && ! $request->cookie(self::COOKIE_NAME)) {
                 $response->cookie(self::COOKIE_NAME, $clientId, self::COOKIE_DAYS * 60 * 24);
             }
 
             $payload = $this->buildPayload($request, $clientId);
 
-            // Defer until after response is sent to client — zero latency impact
             defer(fn () => $this->send($payload));
         }
 
@@ -58,7 +55,6 @@ class GoogleAnalytics
             return false;
         }
 
-        // Skip common bots
         $ua = strtolower($request->userAgent() ?? '');
         foreach (['bot', 'crawler', 'spider', 'slurp', 'facebookexternalhit', 'lighthouse', 'pagespeed'] as $bot) {
             if (str_contains($ua, $bot)) {
@@ -69,11 +65,6 @@ class GoogleAnalytics
         return true;
     }
 
-    /**
-     * Tek client_id otoritesi: front-end (app.blade / reader) ürettiği değer
-     * app()->instance('ga_client_id', ...) ile paylaşılır; böylece gtag.js ile
-     * server-side Measurement Protocol AYNI client_id'yi kullanır (hybrid eşleşme).
-     */
     private function resolveClientId(Request $request): string
     {
         if (app()->bound('ga_client_id')) {
@@ -124,13 +115,9 @@ class GoogleAnalytics
                 $payload
             );
         } catch (\Throwable) {
-            // Silently fail — analytics should never break the app
         }
     }
 
-    /**
-     * Önce panelden yönetilen ayar (analytics_settings), yoksa .env fallback.
-     */
     private function measurementId(): ?string
     {
         $fromDb = app()->bound('analytic_settings')

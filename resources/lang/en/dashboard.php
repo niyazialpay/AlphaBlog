@@ -32,4 +32,8 @@ return [
     'data_fetch_failed' => 'Could not load data.',
     'data_fetch_failed_hint' => 'The Google request failed. Check the system logs for details.',
     'resize_hint' => 'Drag the corner to resize',
+    'done' => 'Done',
+    'add_widget' => 'Add Widget',
+    'empty' => 'The dashboard is empty. Add widgets to customize it.',
+    'widget_missing' => 'No interface was found for this widget; the module needs an update.',
 ];

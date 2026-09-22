@@ -7,18 +7,6 @@ use Illuminate\Contracts\Pagination\Paginator;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * Taşınmış panel ekranlarının tek render noktası.
- *
- * Controller'da değişen tek şey `view(...)` satırının bununla değişmesidir;
- * imza, doğrulama, policy ve yönlendirmeler aynı kalır:
- *
- *   - return view('panel.dashboard', $data);
- *   + return PanelResponse::render('Dashboard', 'panel.dashboard', $props, $data);
- *
- * PANEL_UI=blade (ya da PANEL_UI_SCREENS allowlist'i dışında kalmak) durumunda
- * eski Blade ekranı aynen döner — derleme gerektirmeyen geri dönüş yolu.
- */
 final class PanelResponse
 {
     /**
@@ -37,21 +25,6 @@ final class PanelResponse
     }
 
     /**
-     * Paginator satırlarını YERİNDE DEĞİŞTİRMEDEN Inertia prop'una indirger.
-     *
-     * `LengthAwarePaginator::through()` `$this->items->transform(...)` çağırır —
-     * yani koleksiyonu yerinde değiştirir ve AYNI nesneyi döndürür. Tipik
-     * kullanım
-     *
-     *     PanelResponse::render($c, $v, ['rows' => $rows->through($fn)], compact('rows'))
-     *
-     * bu yüzden sinsi bir hata taşır: PHP argümanları çağrıdan ÖNCE
-     * değerlendirdiği için `through()` `PANEL_UI=blade` modunda da çalışır ve
-     * Blade'e Eloquent modelleri yerine düz diziler ulaşır. Kill switch —
-     * derleme gerektirmeyen tek geri dönüş yolumuz — sessizce bozulur.
-     *
-     * Bu yardımcı klonun koleksiyonunu değiştirir; özgün paginator'a dokunmaz.
-     *
      * @template TValue
      *
      * @param  Paginator|CursorPaginator  $paginator
@@ -65,47 +38,21 @@ final class PanelResponse
         return $projected;
     }
 
-    /**
-     * Ekran Vue olarak mı sunulacak?
-     *
-     * İki koşul birden aranır ve DEFTER tek otoritedir:
-     *   1. Kill switch açık (PANEL_UI ve varsa PANEL_UI_SCREENS allowlist'i),
-     *   2. Route adı config/panel_inertia_routes.php içinde.
-     *
-     * (2) olmadan bir controller'ı dönüştürüp defteri güncellemeyi unutmak,
-     * sunucunun Vue render ettiği ama sidebar'ın tam sayfa yüklemesiyle gittiği
-     * "yarım taşınmış" bir ekran bırakırdı. Böylece güvenli varsayılan Blade olur.
-     */
     private static function vueEnabled(string $component): bool
     {
         if (! Panel::vueEnabled($component)) {
             return false;
         }
 
-        // Modul Vue sayfasi o kurulumda YOKSA Blade'e don.
-        //
-        // Modul panel kodu site-yerel (`/Modules` gitignore'lu). Sayfa dosyasi
-        // deploy edilmemisse istemcideki glob bos kalir, `resolvePage` undefined
-        // doner ve Inertia ziyareti BEYAZ EKRANLA olur — sunucu 200 dondugu icin
-        // hicbir log da tutmaz. Dosya diskte yoksa eski Blade ekrani sunulur:
-        // kill switch'in amaci zaten tam olarak bu.
         if (str_contains($component, '::') && ! self::modulePageExists($component)) {
             return false;
         }
 
         $routeName = request()->route()?->getName();
 
-        // Route adsızsa defterle eşleştirilemez; bu durumda kill switch yeterlidir.
         return $routeName === null || PanelMenu::isInertia($routeName);
     }
 
-    /**
-     * `valefix::Customers/Index` icin
-     * `Modules/ValeFix/resources/js/panel/Pages/Customers/Index.vue` var mi?
-     *
-     * Dizin adi StudlyCase, namespace kucuk harf; eslestirme glob + kucuk harfe
-     * indirgenmis yol karsilastirmasiyla yapilir.
-     */
     private static function modulePageExists(string $component): bool
     {
         [$namespace, $path] = explode('::', $component, 2);

@@ -27,38 +27,11 @@ $themeAssetPath = static function (string $file, string $fallback) use ($themeAs
 };
 
 return [
-    /*
-    |--------------------------------------------------------------------------
-    | Theme Renderer
-    |--------------------------------------------------------------------------
-    |
-    | Determines how frontend themes are rendered. Available options:
-    |  - blade: render Blade views under resources/views/themes/{theme}
-    |  - vue:   render Vue components via Inertia using resources/js/{theme}
-    |
-    */
     'renderer' => env('THEME_RENDERER', 'blade'),
 
     'vue' => [
-        /*
-        |--------------------------------------------------------------------------
-        | Vue Theme Namespace
-        |--------------------------------------------------------------------------
-        |
-        | Allows overriding the namespace used when resolving Vue components.
-        | By default the active theme name from the database will be used.
-        |
-        */
         'theme_namespace' => env('THEME_VUE_NAMESPACE'),
 
-        /*
-        |--------------------------------------------------------------------------
-        | Vue Page Root
-        |--------------------------------------------------------------------------
-        |
-        | The directory under the theme namespace where page components live.
-        |
-        */
         'page_root' => env('THEME_VUE_PAGE_ROOT', 'Pages'),
     ],
 
@@ -66,45 +39,15 @@ return [
         'asset_dir' => $normalizedThemeAssetDir ?? $themeAssetDir,
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Theme Asset Entries
-    |--------------------------------------------------------------------------
-    |
-    | Allow each installation to point to its own Vite entry files. If you keep
-    | theme-specific CSS/JS outside the repository, point these variables to
-    | the appropriate paths (relative to the project root).
-    |
-    */
     'assets' => [
         'css_entry' => ($cssEntryEnv !== null && $cssEntryEnv !== '') ? $cssEntryEnv : $themeAssetPath('app.css', 'resources/css/app.css'),
         'js_entry' => ($jsEntryEnv !== null && $jsEntryEnv !== '') ? $jsEntryEnv : $themeAssetPath('app.js', 'resources/js/app.js'),
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Tailwind Configuration Override
-    |--------------------------------------------------------------------------
-    |
-    | Provide an absolute or relative path to a Tailwind config file that should
-    | replace the default one. Useful when each deployment ships its own theme
-    | assets that live outside of version control.
-    |
-    */
     'tailwind' => [
         'config_path' => env('THEME_TAILWIND_CONFIG'),
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Theme Node Package Directory
-    |--------------------------------------------------------------------------
-    |
-    | Directory that contains the theme-specific package.json/node_modules.
-    | When provided, tooling scripts can automatically install the theme
-    | dependencies without bloating the core package.json.
-    |
-    */
     'packages' => [
         'directory' => ($packageDirEnv !== null && $packageDirEnv !== '') ? $packageDirEnv : ($normalizedThemeAssetDir ?? $themeAssetDir),
     ],

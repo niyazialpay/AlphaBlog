@@ -58,10 +58,6 @@ trait ModelLogger
     }
 
     /**
-     * Keys whose values must never be written to the audit log. getOriginal()/
-     * toArray() bypass the model's $hidden, so credential material would otherwise
-     * be persisted in plaintext-equivalent form (hashes / encrypted 2FA secrets).
-     *
      * @return array<int, string>
      */
     protected static function loggerRedactedKeys(): array

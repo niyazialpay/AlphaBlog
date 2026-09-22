@@ -6,19 +6,6 @@ use Illuminate\Support\Facades\Lang;
 use Nwidart\Modules\Facades\Module;
 use Throwable;
 
-/**
- * Panelin çeviri torbası.
- *
- * Yeni bir `panel.php` namespace'i AÇILMAZ: panel metinleri bugün ~30 mevcut
- * namespace'e dağılmış durumda (general, post, settings, firewall, …) ve eski
- * Blade ekranları hâlâ onları kullanıyor. İkinci bir kaynak yaratmak kaçınılmaz
- * olarak drift üretirdi.
- *
- * Torba Inertia paylaşılan prop'u DEĞİLDİR — kök blade'de `window.__panelLang`
- * olarak bir kez basılır. Paylaşılan prop olsaydı her Inertia ziyaretinde
- * yeniden serileştirilirdi; böyle tam sayfa başına bir kez ödenir, ziyaret
- * başına sıfır.
- */
 final class PanelLang
 {
     /**
@@ -58,9 +45,6 @@ final class PanelLang
     }
 
     /**
-     * Etkin modüllerin panel çevirileri: `valefix::panel`, `birdergi::birdergi`, …
-     * Lang dizini olmayan modüller (ör. XSayfaMuhasebe) Lang::has ile elenir.
-     *
      * @return list<string>
      */
     private static function moduleNamespaces(): array
@@ -91,12 +75,6 @@ final class PanelLang
     }
 
     /**
-     * Modülün lang/{locale} dizinlerinde fiilen var olan dosya adlarını (grup
-     * adlarını) döner. `panel` ve modül anahtarı yukarıda zaten eklendiği için
-     * burada tekrar gelmesi zararsızdır (array_unique ile sadeleşir). Böylece
-     * `valefix::ai` gibi ikinci bir dosyası olan her modül, elle listeye
-     * eklenmeye gerek kalmadan torbaya girer.
-     *
      * @return list<string>
      */
     private static function moduleLangGroups(\Nwidart\Modules\Module $module): array

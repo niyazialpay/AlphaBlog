@@ -29,11 +29,6 @@ class SocialSettingsController extends Controller
     }
 
     /**
-     * Istekten gelen sosyal ag listesini gecerli anahtarlara indirger.
-     *
-     * Eski jQuery formu `social_networks_header[]` dizisi gonderiyordu; Inertia
-     * formu da dizi gonderir. Skaler/gecersiz her deger elenir.
-     *
      * @return list<string>
      */
     private static function networkList(mixed $value): array
@@ -59,13 +54,6 @@ class SocialSettingsController extends Controller
     {
         try {
             DB::beginTransaction();
-            /*
-             * Bu iki kolon HANGI aglarin gosterilecegini tutan bir liste.
-             * Ham istek degeri dogrudan yazilirsa (ornegin bir checkbox'tan gelen
-             * "1"/"0") kolona skaler dusuyor ve Blade temalarinda
-             * `in_array(..., json_decode($show, true))` TypeError firlatiyor.
-             * Daima gecerli `social_list()` anahtarlarindan olusan bir listeye indirgenir.
-             */
             $header = self::networkList($request->input('social_networks_header'));
             $footer = self::networkList($request->input('social_networks_footer'));
 

@@ -48,9 +48,6 @@ class HistoryController extends Controller
         $posts->load('history');
         $textDiff = new TextDiff;
 
-        // history = eski (kaydedilen) durum, posts = güncel durum. Sol=eski,
-        // sağ=yeni olacak şekilde bu sırada render edilmeli; aksi halde
-        // eklenen/silinen renklendirmesi ve sütun sırası ters döner.
         $title = $textDiff::render($history->title, $posts->title);
         $slug = $textDiff::render($history->slug, $posts->slug);
         $content = $textDiff::render($history->content, $posts->content);
@@ -65,15 +62,6 @@ class HistoryController extends Controller
                     'id' => $history->id,
                     'createdAt' => $history->created_at?->toIso8601String(),
                 ],
-                /*
-                 * Panelde HTML tasiyan TEK prop.
-                 *
-                 * TextDiff <ins>/<del> isaretlemesi uretir; bunu Vue'da yeniden
-                 * yazmak port degil yeniden yazim olurdu. Tek bir <DiffHtml>
-                 * bileseninden v-html ile basilir - panelde baska v-html yok.
-                 * Icerik zaten Blade'de de {!! !!} ile basiliyordu, yeni bir
-                 * acik degil.
-                 */
                 'diff' => ['title' => $title, 'slug' => $slug, 'content' => $content],
             ],
             [

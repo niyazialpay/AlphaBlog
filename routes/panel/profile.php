@@ -66,13 +66,6 @@ Route::post('/privacy', [UserController::class, 'privacy'])
     ->can('own', 'App\Models\User')
     ->name('admin.profile.privacy');
 
-/*
- * Web Push.
- *
- * Abonelik uclari VERI ucudur: tarayicinin PushManager degerlerini kaydeder /
- * siler ve JSON doner (istemci axios ile cagirir). Tercih kaydi ise profil
- * ekraninin form eylemidir ve yonlendirir.
- */
 Route::post('/push/subscribe', [PushSubscriptionController::class, 'subscribe'])
     ->can('own', 'App\Models\User')
     ->name('admin.profile.push.subscribe');

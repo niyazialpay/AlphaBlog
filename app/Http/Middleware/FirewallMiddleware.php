@@ -29,8 +29,6 @@ class FirewallMiddleware
     protected array $trustedBotIps = [];
 
     /**
-     * Handle an incoming request.
-     *
      * @param  Closure(Request): Response  $next
      */
     public function handle(Request $request, Closure $next): Application|Response|ResponseFactory|JsonResponse|RedirectResponse|StreamedResponse
@@ -116,49 +114,35 @@ class FirewallMiddleware
 
             if ($this->checkIpInList($request->getClientIp() ?? '', $ips)) {
                 if ($filter['list_type'] === 'blacklist') {
-                    // Block blacklisted IP
                     abort($blockCode);
                 } elseif ($filter['list_type'] === 'whitelist') {
-                    // Allow whitelisted IP
                     return $next($request);
                 }
             } else {
-                // IP is not in the list
                 if ($filter['list_type'] === 'whitelist') {
-                    // If it's a whitelist and not found, block
                     abort($blockCode);
                 }
-                // If it's a blacklist and not found, ignore
             }
         }
 
-        // Process filters for specific routes
         foreach ($scopedFilters as $filter) {
             $routes = $filter['routes'] ?? [];
             $ips = $filter['ips'] ?? [];
             $blockCode = $filter['code'] ?? 403;
 
-            // Check if the request path matches any route for this filter
             if (! empty($routes) && $request->is($routes)) {
-                // If the IP is in the filter's list
                 if ($this->checkIpInList($request->getClientIp() ?? '', $ips)) {
                     if ($filter['list_type'] === 'blacklist') {
-                        // Block blacklisted IP
                         abort($blockCode);
                     } elseif ($filter['list_type'] === 'whitelist') {
-                        // Allow whitelisted IP
                         return $next($request);
                     }
                 } else {
-                    // IP not found in this filter's list
                     if ($filter['list_type'] === 'whitelist') {
-                        // Whitelist filter => blocks if not in the list
                         abort($blockCode);
                     }
-                    // Blacklist filter => ignores if not in the list
                 }
             }
-            // If the route does not match, continue to the next filter
         }
 
         if ($firewall && $firewall->is_active) {
@@ -168,9 +152,6 @@ class FirewallMiddleware
         return $next($request);
     }
 
-    /**
-     * Checks the Referer header for POST requests (simple host match).
-     */
     protected function checkReferer(Request $request): bool
     {
         if ($request->isMethod('post')) {
@@ -183,10 +164,6 @@ class FirewallMiddleware
         return true;
     }
 
-    /**
-     * Checks if the user agent matches any known bad bot from the DB list.
-     * If the user agent is empty or no match is found, it will NOT be blocked.
-     */
     protected function isBadBot(?string $userAgent, array $badBots): bool
     {
         if (! $userAgent) {
@@ -209,9 +186,6 @@ class FirewallMiddleware
         return false;
     }
 
-    /**
-     * Checks if the HTTP method is valid (GET, HEAD, POST, PUT).
-     */
     protected function checkRequestMethod(Request $request): bool
     {
         $validMethods = ['get', 'head', 'post', 'put'];
@@ -219,14 +193,9 @@ class FirewallMiddleware
         return in_array(strtolower($request->method()), $validMethods);
     }
 
-    /**
-     * Checks if the request might be a DOS attack (simple user agent check).
-     */
     protected function checkDosAttack(Request $request): bool
     {
         $agent = $request->userAgent();
-        // Previously we blocked if $agent was empty.
-        // But you can adjust this logic as needed.
         if (! $agent || $agent === '-') {
             return true;
         }
@@ -234,9 +203,6 @@ class FirewallMiddleware
         return false;
     }
 
-    /**
-     * Checks if the query string might contain a UNION SQL attack pattern.
-     */
     protected function checkUnionSql(Request $request): bool
     {
         $queryString = strtolower($request->getQueryString() ?? '');
@@ -260,9 +226,6 @@ class FirewallMiddleware
         return false;
     }
 
-    /**
-     * Checks if the query string might contain suspicious strings like 'c2nyaxb0'.
-     */
     protected function checkClickAttack(Request $request): bool
     {
         $queryString = strtolower($request->getQueryString() ?? '');
@@ -273,9 +236,6 @@ class FirewallMiddleware
         return false;
     }
 
-    /**
-     * Checks if the query string contains common XSS patterns.
-     */
     protected function checkXss(Request $request): bool
     {
         $queryString = strtolower($request->getQueryString() ?? '');
@@ -283,14 +243,11 @@ class FirewallMiddleware
         $badStrings = [
             '<script', 'javascript:', 'vbscript:', 'onload=', 'onclick=',
             'alert(', 'document.cookie', 'expression(',
-            // Evil starting attributes
             '#(<[^>]+[\x00-\x20\"\'\/])(form|formaction|on\w*|style|xmlns|xlink:href)[^>]*>?#iUu',
 
-            // javascript:, livescript:, vbscript:, mocha: protocols
             '!((java|live|vb)script|mocha|feed|data):(\w)*!iUu',
             '#-moz-binding[\x00-\x20]*:#u',
 
-            // Unneeded tags
             '#</*(applet|meta|xml|blink|link|style|script|embed|object|iframe|frame|frameset|ilayer|layer|bgsound|title|base|img)[^>]*>?#i',
         ];
 
@@ -303,9 +260,6 @@ class FirewallMiddleware
         return false;
     }
 
-    /**
-     * Checks cookies, POST data, and GET data for dangerous tags (like <script>, <embed>, etc.).
-     */
     protected function checkCookieInjection(Request $request): bool
     {
         $dangerousTags = [
@@ -314,21 +268,18 @@ class FirewallMiddleware
             'title', 'vbscript', 'xml', 'onabort', 'onerror', 'onload', 'onclick',
         ];
 
-        // Check cookies
         foreach ($request->cookies as $value) {
             if ($this->containsDangerous($value, $dangerousTags)) {
                 return true;
             }
         }
 
-        // Check POST data
         foreach ($request->post() as $value) {
             if ($this->containsDangerous($value, $dangerousTags)) {
                 return true;
             }
         }
 
-        // Check GET data
         foreach ($request->query() as $value) {
             if ($this->containsDangerous($value, $dangerousTags)) {
                 return true;
@@ -338,9 +289,6 @@ class FirewallMiddleware
         return false;
     }
 
-    /**
-     * Helper method to detect dangerous keywords or tags in a string or array.
-     */
     protected function containsDangerous(mixed $haystack, array $badWords): bool
     {
         if (is_array($haystack)) {
@@ -624,9 +572,6 @@ class FirewallMiddleware
         ];
     }
 
-    /**
-     * Blocks the request, logs it, and optionally adds the IP to the firewall blacklist.
-     */
     protected function blockRequest(string $reason, Request $request, Firewall $firewall, array $ipList): void
     {
         $ip = $request->ip();
@@ -659,9 +604,6 @@ class FirewallMiddleware
         );
     }
 
-    /**
-     * Checks if a given IP is already listed in any filter (whitelist or blacklist)
-     */
     protected function isIpListedInAnyFilter(string $clientIp): bool
     {
         $allIps = $this->compiledFilters['all_ips'] ?? [];
@@ -670,10 +612,6 @@ class FirewallMiddleware
     }
 
     /**
-     * Checks if a given client IP is in a list of IPs or CIDR blocks.
-     * If the record in the DB is a plain IP (no slash), we append /32 for IPv4
-     * or /128 for IPv6 before checking with the helper.
-     *
      * @param  string[]  $ips
      */
     protected function checkIpInList(string $clientIp, array $ips): bool
@@ -681,10 +619,6 @@ class FirewallMiddleware
         return IpRangeMatcher::matches($clientIp, $ips);
     }
 
-    /**
-     * Checks if a specific IP is already included in the given filter_id's IP list
-     * (whether it is exactly the same IP or within the same CIDR range).
-     */
     protected function ipAlreadyListedInFilter(string $clientIp, int $filterId): bool
     {
         $filter = $this->findCompiledFilterById($filterId);

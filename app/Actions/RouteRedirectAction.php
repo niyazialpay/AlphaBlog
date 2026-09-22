@@ -11,17 +11,6 @@ class RouteRedirectAction
 {
     public static function RouteRedirect($request)
     {
-        /*
-         * YONETIM PANELI YONLENDIRME TABLOSUNA TABI DEGIL.
-         *
-         * Bu eylem global `RouteRedirect` middleware'inden (ve exception
-         * hook'undan) cagriliyor, yani HER istege bakiyor. Site icin tanimlanan
-         * bir kural panel URL'iyle eslestiginde yonetim ekranini kaciriyor:
-         * Inertia ziyareti sayfa yerine bir yonlendirme govdesi aliyor ve
-         * kullaniciya bos/bozuk ekran donuyor.
-         *
-         * Panel yollari (ve panel disindaki auth ekranlari) bu tablodan muaf.
-         */
         if (Panel::isPanelRequest($request)) {
             return null;
         }

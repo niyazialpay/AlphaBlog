@@ -1,24 +1,5 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Vue'ya taşınmış panel route'ları — TEK MİGRASYON DEFTERİ
-|--------------------------------------------------------------------------
-|
-| Burada listelenen route adları (Str::is desenleri) Inertia ile sunulur.
-| Listede OLMAYAN her panel route'u hâlâ eski AdminLTE Blade kabuğundadır ve
-| ona gidiş tam sayfa yüklemesi olmalıdır: yanıtta X-Inertia başlığı yoktur,
-| `router.visit()` client tarafında hata verir.
-|
-| Bu liste hem sunucuda (sidebar öğelerinin `inertia` bayrağı) hem istemcide
-| (`inertiaRoutes` paylaşılan prop'u; komut paleti, bildirim zili, çapraz
-| bağlantılar) kullanılır — böylece defter tek yerde tutulur.
-|
-| Bir ekran taşındığında yapılacak tek şey: route adını buraya eklemek.
-|
-| Modül route'ları da aynı deftere girer, ör. 'panel.valefix.customers.*'.
-*/
-
 return [
 
     'admin.about',
@@ -29,7 +10,6 @@ return [
     'admin.system-logs',
     'admin.search.index',
 
-    // Faz 3 - icerik cekirdegi
     'admin.posts',
     'admin.post.category',
     'admin.post.create',
@@ -40,7 +20,6 @@ return [
     'admin.post.history',
     'admin.post.history.show',
 
-    // Faz 4
     'admin.users',
     'admin.user.create',
     'admin.notes',
@@ -55,32 +34,26 @@ return [
     'admin.profile.index',
     'admin.user.edit',
 
-    // Faz 5
     'admin.settings',
     'admin.ip-filter',
     'admin.ip-filter.create',
     'admin.ip-filter.show',
     'admin.firewall',
     'admin.firewall.logs',
-    // Cloudflare ekranlari canli CF API kimlik bilgisi ister; duman testine
-    // alinmaz (gecersiz kimlikte zaten admin.settings?tab=cloudflare'e doner).
     'cf.dashboard',
     'cf.dns',
 
-    // Faz 6 — raporlar + sohbet
     'admin.contact_page',
     'admin.analytics',
     'admin.search-console',
     'chatbot',
     'admin.index',
 
-    // Faz 1 — Auth ekranları
     'login',
     'forgot-password',
     'password.reset',
     'verification.notice',
 
-    // Faz 7 — ValeFix
     'panel.valefix.appointments',
     'panel.valefix.appointments.show',
     'panel.valefix.customers',
@@ -108,7 +81,6 @@ return [
     'panel.valefix.theme.index',
     'panel.valefix.vehicles',
 
-    // Faz 7 — CihanSK
     'panel.cihansk.belts',
     'panel.cihansk.belts.create',
     'panel.cihansk.belts.edit',
@@ -143,7 +115,6 @@ return [
     'panel.cihansk.trainers.edit',
     'panel.cihansk.trainers.settings',
 
-    // Faz 7 — BirderAkademi
     'panel.birderakademi.approvals.index',
     'panel.birderakademi.categories.edit',
     'panel.birderakademi.categories.index',
@@ -166,7 +137,6 @@ return [
     'panel.birderakademi.settings',
     'panel.birderakademi.sources.index',
 
-    // Faz 7 — EDergi
     'panel.edergi.create',
     'panel.edergi.edit',
     'panel.edergi.index',
@@ -174,8 +144,6 @@ return [
     'panel.edergi.settings',
     'panel.edergi.stats',
 
-    // Faz 7 — Podcast (modules_statuses.json'da devre disi; route'lari
-    // kayitli degil, bu yuzden defter testi devre disi modulleri atlar)
     'panel.podcast.index',
     'panel.podcast.deleted',
     'panel.podcast.episodes',
@@ -187,11 +155,9 @@ return [
     'panel.podcast.episodes.create',
     'panel.podcast.episodes.edit',
 
-    // Faz 7 — Birdergi
     'panel.birdergi.bulk-mail',
     'panel.birdergi.settings',
     'panel.birdergi.subscribers.index',
 
-    // Faz 7 — XSayfaMuhasebe
     'panel.xsayfa.muhasebe.index',
 ];

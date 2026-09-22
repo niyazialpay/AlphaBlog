@@ -95,14 +95,6 @@ Route::get('/theme/activate/{theme}',
     ->can('admin', 'App\Models\User')
     ->name('admin.settings.themes.default');
 
-/*
- * POST alias.
- *
- * Yukaridaki GET route'u SITE TEMASINI DEGISTIRIYOR. Inertia v2'de
- * <Link prefetch> hover'da gercek bir GET atar; bu da farkinda olmadan temayi
- * degistirirdi. Vue tarafi bu alias'i kullanir; eski GET route'u yer imleri ve
- * henuz tasinmamis Blade ekrani icin oldugu gibi kalir.
- */
 Route::post('/theme/activate/{theme}',
     [ThemesSettingsController::class, 'makeDefault'])
     ->can('admin', 'App\Models\User')

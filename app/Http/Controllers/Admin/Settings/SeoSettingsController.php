@@ -18,20 +18,6 @@ class SeoSettingsController extends Controller
         try {
             DB::beginTransaction();
 
-            /*
-             * DIL KAPSAMI.
-             *
-             * Eski Blade formu TUM dilleri tek gonderimde, dil ekli adlarla
-             * yolluyordu (`site_name_tr`, `site_name_en`, ...). Vue formu ise
-             * sekme basina YALNIZCA aktif dilin duz alanlarini yolluyor
-             * (`site_name`, `title`, ... + `language`).
-             *
-             * Ikisi ayirt edilmezse Vue gonderimi her dil icin dil ekli anahtari
-             * arar, hepsini null bulur ve TUM dillerin SEO satirlarini NULL'lar.
-             * Kolonlar nullable oldugu icin DB reddetmez, commit gecer, cache
-             * temizlenir ve kullanici "kaydedildi" mesaji gorur. Sessiz ve geri
-             * alinamaz veri kaybi.
-             */
             $scoped = $request->filled('language');
 
             $languages = $scoped
@@ -41,8 +27,6 @@ class SeoSettingsController extends Controller
             foreach ($languages as $language) {
                 $suffix = $scoped ? '' : '_'.$language->code;
 
-                // Bir dil icin satir yoksa `first()` null doner ve sonraki
-                // ozellik atamasi `Error` firlatir (Exception DEGIL).
                 $seo = $seo_settings->newQuery()->firstOrNew(['language' => $language->code]);
 
                 $seo->site_name = $request->post($scoped ? 'site_name' : 'site_name'.$suffix);
@@ -75,7 +59,6 @@ class SeoSettingsController extends Controller
 
     public function saveLlms(Request $request): RedirectResponse
     {
-        // first() satir yoksa null doner ve ->update() fatal verirdi (temiz kurulum).
         $settings = GeneralSettings::first() ?? new GeneralSettings;
         $settings->fill([
             'llms_txt_intro' => $request->post('llms_txt_intro'),

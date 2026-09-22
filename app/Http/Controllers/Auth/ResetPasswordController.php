@@ -18,22 +18,8 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class ResetPasswordController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Password Reset Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller is responsible for handling password reset requests
-    | and uses a simple trait to include this behavior. You're free to
-    | explore this trait and override any methods you wish to tweak.
-    |
-    */
-
     use ResetsPasswords;
 
-    /**
-     * Where to redirect users after resetting their password.
-     */
     protected string $redirectTo = RouteServiceProvider::HOME;
 
     public function resetPassword(Request $request)
@@ -54,7 +40,6 @@ class ResetPasswordController extends Controller
             'panel.auth.passwords.reset-form',
             [
                 'token' => $token,
-                // Blade `request()->get('user')` okuyordu; sozlesme korunur.
                 'user' => (string) request()->get('user'),
                 'honeypot' => Panel::honeypot(),
                 'routes' => [
@@ -77,7 +62,6 @@ class ResetPasswordController extends Controller
         $login = request()->input('user');
         $fieldType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
         $request->merge([$fieldType => $login]);
-        // $user = User::where($fieldType, $login)->first();
 
         $response = Password::reset(
             $request->only($fieldType, 'password', 'password_confirmation', 'token'),

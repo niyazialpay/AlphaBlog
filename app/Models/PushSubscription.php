@@ -5,13 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * Bir tarayici/cihazin push abonelik kaydi.
- *
- * Bir kullanicinin birden cok kaydi olabilir (her tarayici ayri endpoint).
- * Benzersizlik `endpoint_hash` uzerinden; `endpoint` TEXT oldugu icin MySQL'de
- * dogrudan unique index alamiyor.
- */
 class PushSubscription extends Model
 {
     protected $table = 'push_subscriptions';

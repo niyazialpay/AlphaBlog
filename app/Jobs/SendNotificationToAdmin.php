@@ -22,9 +22,6 @@ class SendNotificationToAdmin implements ShouldQueue
 
     private string $mailSubject;
 
-    /**
-     * Create a new job instance.
-     */
     public function __construct($title, $message, $url = null, $mailSubject = 'New Comment')
     {
         $this->title = $title;
@@ -33,9 +30,6 @@ class SendNotificationToAdmin implements ShouldQueue
         $this->mailSubject = $mailSubject;
     }
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
         foreach (User::whereIn('role', ['admin', 'owner'])->get() as $admin) {

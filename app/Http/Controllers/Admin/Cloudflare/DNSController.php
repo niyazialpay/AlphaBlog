@@ -18,7 +18,6 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class DNSController extends Controller
 {
-    // Octane: static olurlarsa worker içinde istekler arası sızarlar.
     private string $zoneID = '';
 
     private ?DNS $dns = null;
@@ -64,19 +63,6 @@ class DNSController extends Controller
             'panel.cloudflare.dns',
             [
                 'domain' => $cf->domain,
-                /*
-                 * Eski ekran server-side DataTables kullaniyordu ama besleme
-                 * zaten `perPage: 5000` ile TUM kayitlari cekiyordu — yani
-                 * sunucu tarafi siralama/sayfalama hicbir sey kazandirmiyordu.
-                 *
-                 * Kayitlar tek seferde prop olarak gecirilir, filtre/sira
-                 * istemcide yapilir. Bu, `dns_json()` icindeki 0-4 siralama
-                 * haritasi hatasini (6. kolon `order[0][column]=5` gonderiyordu,
-                 * undefined index) dogrudan ortadan kaldirir.
-                 *
-                 * `raw` eski `all_data` alaninin karsiligi: duzenleme modalini
-                 * dolduran ham CF kaydi.
-                 */
                 'records' => collect($this->dns->listRecords($this->zoneID, perPage: 5000)->result)
                     ->map(fn ($record) => [
                         'id' => $record->id,
@@ -105,7 +91,6 @@ class DNSController extends Controller
             4 => 'ttl',
         ];
 
-        // B3: 6. kolon (islemler) `order[0][column]=5` gonderiyor, haritada yok.
         $order = $columns[$request->input('order.0.column')] ?? 'name';
         $dir = $request->input('order.0.dir') === 'asc' ? 'asc' : 'desc';
 
@@ -126,7 +111,6 @@ class DNSController extends Controller
         $k = 0;
         if ($count > 0) {
             foreach ($this->dns->listRecords($this->zoneID, name: $search, perPage: 5000, order: $order, direction: $dir, match: 'any')->result as $record) {
-                // echo $record->name." ".$record->type." ".$record->content." | Record ID ".$record->id."<br>".PHP_EOL;
                 if ($record->proxied == 1) {
                     $status = '<span class="cloud" style="background: transparent url('.config('app.url').'/themes/panel/img/cficon.png) 0 -83px no-repeat;"></span>';
                 } else {

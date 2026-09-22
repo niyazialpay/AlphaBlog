@@ -9,11 +9,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MonitoringController extends Controller
 {
-    /**
-     * Pulse/Telescope kendi env bayraklariyla kapatilabiliyor; kapaliyken route
-     * hic kaydolmaz ve route('telescope') RouteNotFoundException firlatip ekrani
-     * 500'e dusururdu. Yok ise null donup arayuz "kullanilamiyor" gosterir.
-     */
     private static function namedRoute(string $name): ?string
     {
         return Route::has($name) ? route($name) : null;

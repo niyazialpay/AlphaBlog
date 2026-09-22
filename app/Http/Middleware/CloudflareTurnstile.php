@@ -13,8 +13,6 @@ class CloudflareTurnstile
     protected array $except = [];
 
     /**
-     * Handle an incoming request.
-     *
      * @param  Closure(Request): (Response)  $next
      *
      * @throws GuzzleException

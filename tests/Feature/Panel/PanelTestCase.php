@@ -16,17 +16,6 @@ use Illuminate\Support\Facades\View;
 use Inertia\Inertia;
 use Tests\TestCase;
 
-/**
- * Panel testleri için ortak bootstrap.
- *
- * Bir panel isteği, uygulamanın normalde GlobalVariableServiceProvider ve
- * Language/NewCommentsCount/SearchedWords middleware'lerinden gelen paylaşılan
- * durumuna ihtiyaç duyar. Bu kurulum daha önce her test dosyasında elle
- * tekrarlanıyordu (`tests/TestCase.php` boş) — burada tek yere alındı.
- *
- * ÖNEMLİ: `HandlePanelInertiaRequests` BİLEREK devre dışı bırakılmaz. Panel
- * testlerinin amacı tam olarak o middleware'in ürettiği yanıtı doğrulamaktır.
- */
 abstract class PanelTestCase extends TestCase
 {
     use RefreshDatabase;
@@ -39,14 +28,8 @@ abstract class PanelTestCase extends TestCase
     {
         parent::setUp();
 
-        // Vite manifest'i olmadan kök blade render edilebilsin.
         $this->withoutVite();
 
-        /*
-         * Inertia varsayilan olarak asset surumunu Vite manifest'inden turetir.
-         * Test istekleri X-Inertia-Version tasimadigi icin her Inertia XHR'i
-         * 409 (version conflict) aliyordu. Surum testte devre disi.
-         */
         Inertia::version(fn () => null);
 
         DB::table('languages')->insert([
@@ -67,12 +50,6 @@ abstract class PanelTestCase extends TestCase
 
         $generalSettings = GeneralSettings::firstOrCreate([], []);
 
-        /*
-         * Gercek satir olarak yaratiliyor: Language middleware'i seo_settings'i
-         * her istekte DB'den yeniden baglar. Sadece app()->instance() ile stub
-         * koymak yetmez, eski Blade kabugu app('seo_settings')->site_name okuyor
-         * ve null uzerinden 500 aliyordu.
-         */
         $seoSettings = SeoSettings::firstOrCreate(
             ['language' => $this->language->code],
             ['site_name' => 'Test', 'title' => 'Test', 'description' => '', 'keywords' => '', 'author' => '', 'robots' => 'index, follow'],
@@ -87,16 +64,6 @@ abstract class PanelTestCase extends TestCase
         View::share('newCommentsCount', 0);
         View::share('searchedWordsCount', 0);
 
-        /*
-         * `otp` ve `webauthn` BILEREK acikca veriliyor.
-         *
-         * User modelinde `WebAuthn(): HasMany` adinda bir iliski var ve PHP metod
-         * adlari buyuk/kucuk harf duyarsiz. Factory bu sutunu yazmadiginda model
-         * ozniteliklerinde bulunmaz, Eloquent iliskiye duser ve BOS bir Collection
-         * doner — bu da PHP'de truthy'dir. Sonucta VerifyOTP her panel testini
-         * OTP duvarina carpar. Uretimde kullanici DB'den tum sutunlariyla
-         * yuklendigi icin sorun gorunmez.
-         */
         $this->owner = User::factory()->create([
             'role' => 'owner',
             'otp' => false,
@@ -105,12 +72,6 @@ abstract class PanelTestCase extends TestCase
     }
 
     /**
-     * Gerçek bir Inertia ziyaretinin başlıkları.
-     *
-     * Inertia middleware'i asset sürümünü KENDİ version() metodundan set eder
-     * (Vite manifest hash'i), bu yüzden Inertia::version() ile testte override
-     * etmek işe yaramaz: doğru sürümü göndermeyen her XHR 409 alır.
-     *
      * @return array<string, string>
      */
     protected function inertiaHeaders(): array
@@ -122,14 +83,6 @@ abstract class PanelTestCase extends TestCase
         ];
     }
 
-    /**
-     * Güvenlik duvarı tekil ayar satırı + zorunlu kara liste kuralı.
-     *
-     * `FirewallController::index()` `firstOrFail()` çağırıyor ve
-     * `firewall.blacklist_rule_id` `ip_filters` tablosuna zorunlu bir yabancı
-     * anahtar. setUp'a KONMAZ: `is_active` true bir satır FirewallMiddleware'i
-     * devreye sokup ilgisiz panel testlerini engelleyebilir.
-     */
     protected function seedFirewall(): Firewall
     {
         $blacklist = IPFilter::create([
@@ -155,8 +108,6 @@ abstract class PanelTestCase extends TestCase
     }
 
     /**
-     * Belirli ekranları Vue olarak sunulacak şekilde işaretler (migrasyon defteri).
-     *
      * @param  list<string>  $routeNames
      */
     protected function migrateScreens(array $routeNames): void
@@ -165,13 +116,6 @@ abstract class PanelTestCase extends TestCase
         config()->set('settings.panel_ui', 'vue');
         config()->set('settings.panel_ui_screens', '');
 
-        /*
-         * `PanelMenu::$ledger` defteri SUREC OMRU boyunca memoize ediyor (uretimde
-         * istek basina bir kez okunsun diye). Statik olduğu icin config'i
-         * degistirmek tek basina yetmiyor; defteri burada dusuruyoruz. Ters yonu
-         * (bu daraltmanin sonraki test sinifina sizmasi) `Tests\TestCase::setUp`
-         * her testten once ayni cagriyi yaparak kapatiyor.
-         */
         PanelMenu::flushLedger();
     }
 }

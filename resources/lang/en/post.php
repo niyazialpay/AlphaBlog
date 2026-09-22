@@ -126,7 +126,6 @@ return [
     'qr_not_created' => 'No QR code has been generated for this post yet.',
     'qr_scans' => ':count scans',
 
-    // Google index status dialog on the post list.
     'index_status' => 'Google Index Status',
     'index_checking' => 'Querying Google...',
     'indexed' => 'Indexed',

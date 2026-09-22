@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Panel\Panel;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Vite;
@@ -10,18 +11,33 @@ use Symfony\Component\HttpFoundation\Response;
 class EarlyHintsMiddleware
 {
     /**
-     * Handle an incoming request.
-     *
      * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $links = array_merge($this->buildStaticEarlyHints(), $this->buildViteEarlyHints());
-        if (! empty($links)) {
-            $this->frankenphp_send_early_hints($links);
+        $response = $next($request);
+
+        if (! $this->wantsHints($request, $response)) {
+            return $response;
         }
 
-        return $next($request);
+        $links = array_merge($this->buildStaticEarlyHints(), $this->buildViteEarlyHints());
+
+        if ($links !== []) {
+            $response->headers->set('Link', implode(', ', $links), false);
+        }
+
+        return $response;
+    }
+
+    private function wantsHints(Request $request, Response $response): bool
+    {
+        return $request->isMethod('GET')
+            && ! $request->ajax()
+            && ! $request->header('X-Inertia')
+            && ! Panel::isPanelRequest($request)
+            && $response->isSuccessful()
+            && str_contains((string) $response->headers->get('Content-Type'), 'text/html');
     }
 
     private function buildViteEarlyHints(): array
@@ -144,16 +160,5 @@ class EarlyHintsMiddleware
         }
 
         return '<'.$href.'>; rel=modulepreload';
-    }
-
-    private function frankenphp_send_early_hints(array $links): void
-    {
-        foreach ($links as $link) {
-            header('Link: '.$link, false);
-        }
-
-        if (function_exists('headers_send')) {
-            headers_send(103);
-        }
     }
 }

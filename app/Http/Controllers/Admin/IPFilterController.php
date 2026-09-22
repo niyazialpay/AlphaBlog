@@ -50,11 +50,6 @@ class IPFilterController extends Controller
             'IpFilter/Show',
             'panel.ip_filter.show',
             [
-                /*
-                 * `show()` hem admin.ip-filter.create (parametresiz -> bos model)
-                 * hem admin.ip-filter.show icin calisiyor; savunmaci serilestirilir
-                 * ve Vue null'da "yeni kayit" moduna duser.
-                 */
                 'filter' => $ip_filter->id ? [
                     'id' => $ip_filter->id,
                     'name' => $ip_filter->name,
@@ -68,14 +63,6 @@ class IPFilterController extends Controller
                     ])->values(),
                     'routes' => $ip_filter->routeList->pluck('route')->values(),
                 ] : null,
-                /*
-                 * Blade'e `Route::getRoutes()` (RouteCollection) gecirilip icinde
-                 * $item->uri() / methods() cagriliyordu. Nesne JSON'a
-                 * serilestirilemez; burada duz listeye cevrilir.
-                 *
-                 * ~400 kayit ve her istekte ayni: Inertia::optional ile yalniz
-                 * istendiginde gonderilir.
-                 */
                 'routeList' => Inertia::optional(fn () => collect(Route::getRoutes()->getRoutes())
                     ->map(fn ($route) => [
                         'uri' => $route->uri(),

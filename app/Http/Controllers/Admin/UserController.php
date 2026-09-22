@@ -46,13 +46,7 @@ class UserController extends Controller
             'Auth/Login',
             'panel.auth.login',
             [
-                // Blade'deki `@honeypot` direktifinin prop karsiligi.
                 'honeypot' => Panel::honeypot(),
-                /*
-                 * Iki asamali giris XHR kalir (R1), dolayisiyla uc URL'leri
-                 * prop olarak verilir; Ziggy auth ekranlarinda da yuklu ama
-                 * bunlari tek yerde toplamak akisi okunur kiliyor.
-                 */
                 'routes' => [
                     'firstStep' => route('login.first_step'),
                     'login' => route('login'),
@@ -77,21 +71,10 @@ class UserController extends Controller
         return $this->profileResponse($user, $sessions, true);
     }
 
-    /**
-     * TEK YANIT SEKLI: yonlendirme — `Profile/Index.vue` `passwordForm.post` ile
-     * cagiriyor. Yanlis eski parola `ValidationException` firlatir; Inertia
-     * `form.errors` alanlarini oturum hata cantasindan doldurur.
-     */
     public function changePassword(PasswordRequest $request): RedirectResponse
     {
         $user = auth()->user();
         if (! Hash::check($request->old_password, $user->password)) {
-            /*
-             * DAVRANIS DEGISIKLIGI: eskiden 422 JSON donuyordu ve bu bir
-             * ValidationException olmadigi icin Inertia form.errors'a dusmuyordu.
-             * Artik alan hatasi olarak firlatiliyor; jQuery cagiranlar da 422
-             * almaya devam eder (Laravel JSON isteklerine 422 + errors doner).
-             */
             throw ValidationException::withMessages([
                 'old_password' => __('profile.old_password_incorrect'),
             ]);
@@ -101,15 +84,6 @@ class UserController extends Controller
         return back()->with('success', __('profile.password_change_success'));
     }
 
-    /**
-     * Yoneticinin BASKA bir hesabin parolasini degistirmesi.
-     *
-     * SECURITY: rutbe tavani `userSecretLogin` ile AYNI — rutbesi esit ya da
-     * yuksek bir hesabin parolasi degistirilemez (admin -> owner devralma yolu).
-     * Kendi parolasi da buradan degistirilemez: arayuz zaten `admin.profile.password`
-     * ucunu kullaniyor ve orada eski parola dogrulamasi var; bu uc uzerinden
-     * gecilseydi politika baypas edilirdi.
-     */
     public function userPasswordChange(AdminPasswordRequest $request, User $user_id): RedirectResponse
     {
         $ranks = $this->roleRanks();
@@ -127,9 +101,6 @@ class UserController extends Controller
         return UserAction::userSave($request, auth()->user());
     }
 
-    /**
-     * TEK YANIT SEKLI: yonlendirme — `Profile/Index.vue` `socialForm.post` ile cagiriyor.
-     */
     private function socialProfileSave($request, $user_id): RedirectResponse
     {
         if (SocialNetworkSaveAction::execute($request, 'user', $user_id)) {
@@ -181,7 +152,6 @@ class UserController extends Controller
                     'createdAt' => $item->created_at?->toIso8601String(),
                 ]),
                 'filters' => ['search' => $request->get('search')],
-                // Rol hiyerarsisi sunucuda; arayuz atanamayacak rolu hic gostermez.
                 'assignableRoles' => array_values(array_filter(
                     array_keys($this->roleRanks()),
                     fn (string $role) => $this->canAssignRole(auth()->user(), $role),
@@ -199,11 +169,6 @@ class UserController extends Controller
     }
 
     /**
-     * Profil ekrani.
-     *
-     * `admin.profile.index` ve `admin.user.edit` AYNI bileseni kullanir - eski
-     * Blade de oyleydi. `isSelf` hangi eylemlerin gorunecegini surer.
-     *
      * @param  LengthAwarePaginator  $sessions
      */
     private function profileResponse(User $user, $sessions, bool $isSelf): SymfonyResponse
@@ -233,16 +198,6 @@ class UserController extends Controller
                     'webauthn' => (bool) $user->getAttributeValue('webauthn'),
                     'two_factor_confirmed' => (bool) $user->two_factor_confirmed_at,
                 ],
-                /*
-                 * panel.profile.partials.two-factor-authentication-tab karsiligi.
-                 * Eski partial de daima auth()->user() uzerinde calisiyordu (route
-                 * parametresindeki hedef kullaniciyi degil) - bu yuzden yalniz
-                 * isSelf'te doldurulur; admin baska birini duzenlerken sekme hic
-                 * gosterilmez (eskiden kafa karistirici sekilde adminin KENDI 2FA
-                 * durumunu gosteriyordu, bu Vue portunda tasinmadi).
-                 * QR SVG onceden render edilmis HTML prop olamaz (bkz. sozlesme)
-                 * - bu yuzden data-uri img src'i olarak gonderiliyor.
-                 */
                 'twoFactor' => $isSelf ? [
                     'confirmed' => (bool) $user->two_factor_confirmed_at,
                     'pending' => (bool) ($user->two_factor_secret && ! $user->two_factor_confirmed_at),
@@ -273,15 +228,6 @@ class UserController extends Controller
                     array_keys($this->roleRanks()),
                     fn (string $role) => $this->canAssignRole(auth()->user(), $role),
                 )),
-                /*
-                 * Bildirim tercihleri YALNIZCA kendi profilinde doldurulur.
-                 *
-                 * `admin.profile.notifications.preferences` daima
-                 * `$request->user()` uzerine yazar (bkz. PushSubscriptionController);
-                 * baska birinin profilinde gosterilseydi yonetici baska bir
-                 * kullaniciya bakarken KENDI tercihlerini degistirirdi. Ayni
-                 * gerekce `twoFactor` prop'unda da gecerli.
-                 */
                 'notificationEvents' => $isSelf ? $this->notificationEvents($user) : [],
             ],
             ['user' => $user, 'sessions' => $sessions],
@@ -289,15 +235,6 @@ class UserController extends Controller
     }
 
     /**
-     * Profil ekraninin bildirim sekmesi icin olay listesi.
-     *
-     * Liste `NotificationEvents::forUser()` ile SUZULUR: kullanici yetkisi
-     * olmayan bir olayi ekranda hic gormez. Kaydi olmayan olaylarda
-     * `NotificationEvents::defaults()` uygulanir — yeni bir olay eklendiginde
-     * mevcut kullanicilar icin satir uretmek gerekmez.
-     *
-     * Prop'lar JSON'a serilesebilir olmali: Eloquent modeli degil, duz dizi.
-     *
      * @return list<array{key: string, label: string, database: bool, push: bool}>
      */
     private function notificationEvents(User $user): array
@@ -355,8 +292,6 @@ class UserController extends Controller
     }
 
     /**
-     * Privilege-management hierarchy. Higher number = more privilege.
-     *
      * @return array<string, int>
      */
     private function roleRanks(): array
@@ -364,11 +299,6 @@ class UserController extends Controller
         return ['user' => 0, 'author' => 1, 'editor' => 2, 'admin' => 3, 'owner' => 4];
     }
 
-    /**
-     * Whether $actor may assign $targetRole to another account.
-     * Only an owner may grant owner/admin; everyone else may grant only roles
-     * strictly below their own rank. Unknown roles are rejected.
-     */
     private function canAssignRole(User $actor, string $targetRole): bool
     {
         $ranks = $this->roleRanks();
@@ -397,9 +327,6 @@ class UserController extends Controller
         );
     }
 
-    /**
-     * TEK YANIT SEKLI: yonlendirme — `Users/Create.vue` `form.post` ile cagiriyor.
-     */
     public function store(UserCreateRequest $request, User $user): RedirectResponse
     {
         if (! $this->canAssignRole(auth()->user(), (string) $request->role)) {
@@ -437,9 +364,6 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * TEK YANIT SEKLI: yonlendirme — `Users/Index.vue` `router.post` ile cagiriyor.
-     */
     public function userDelete(Request $request, User $user): RedirectResponse
     {
         try {
@@ -470,9 +394,6 @@ class UserController extends Controller
         return (new WebAuthnAction)->rename($request, $webauthn, $user_id);
     }
 
-    /**
-     * TEK YANIT SEKLI: yonlendirme — `Profile/Index.vue` `emailForm.post` ile cagiriyor.
-     */
     public function userEmailChange(Request $request, User $user_id): RedirectResponse
     {
         if (UserAction::changeEmail($request, $user_id)) {
@@ -482,9 +403,6 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * TEK YANIT SEKLI: yonlendirme — `Profile/Index.vue` `emailForm.post` ile cagiriyor.
-     */
     public function changeEmail(Request $request): RedirectResponse
     {
         if (UserAction::changeEmail($request, auth()->user())) {
@@ -494,9 +412,6 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * TEK YANIT SEKLI: yonlendirme — `Profile/Index.vue` `privacyForm.post` ile cagiriyor.
-     */
     public function privacy(Request $request): RedirectResponse
     {
         if ($request->has('show_name')) {
@@ -583,8 +498,6 @@ class UserController extends Controller
         $ranks = $this->roleRanks();
         $actorRank = $ranks[auth()->user()->role] ?? -1;
         $targetRank = $ranks[$target->role] ?? PHP_INT_MAX;
-        // SECURITY: never impersonate an account whose role is equal to or higher
-        // than the actor's (prevents admin -> owner vertical escalation).
         abort_unless($targetRank < $actorRank, 403);
 
         $originalUserId = Auth::id();
@@ -609,9 +522,6 @@ class UserController extends Controller
         return redirect()->route('admin.index');
     }
 
-    /**
-     * TEK YANIT SEKLI: yonlendirme — `Profile/Index.vue` `router.post` ile cagiriyor.
-     */
     public function killSession(Request $request): RedirectResponse
     {
         $session = UserSessions::find($request->session_id);
@@ -619,7 +529,6 @@ class UserController extends Controller
             abort(404);
         }
 
-        // SECURITY: a session may only be killed by its owner, or by an owner/admin.
         $isPrivileged = in_array(auth()->user()->role, ['owner', 'admin'], true);
         abort_unless($isPrivileged || $session->user_id === auth()->id(), 403);
 

@@ -10,24 +10,12 @@ use Inertia\Middleware;
 class HandleInertiaRequests extends Middleware
 {
     /**
-     * The root template that is loaded on the first page visit.
-     *
      * @var string
      */
     protected $rootView = 'app';
 
-    /**
-     * Define the props that are shared by default.
-     */
     public function share(Request $request): array
     {
-        /*
-         * Panel yuzeyi kendi middleware'inde (HandlePanelInertiaRequests) paylasiliyor.
-         * Bu middleware tum `web` grubunda calistigi icin panel isteklerinde de
-         * devreye giriyor ve ThemeData::{site,theme,languages,social,headerMenu,
-         * footerMenu,navigationCategories,translations,ads,analytics} EAGER olarak
-         * uretiliyordu: panelin hic kullanmadigi 10 cagri, her istekte.
-         */
         if (Panel::isPanelRequest($request)) {
             return parent::share($request);
         }

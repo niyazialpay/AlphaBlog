@@ -9,27 +9,16 @@ use Illuminate\Validation\Rule;
 
 class LanguageRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return auth()->check() && auth()->user()->can('admin', auth()->user());
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
      * @return array<string, ValidationRule|array|string>
      */
     public function rules(): array
     {
-        /*
-         * `$this->id` govdede olmayan bir alana bakiyordu (Vue formu `id`
-         * gondermiyor); route'a bagli modelden okunmali. Aksi halde duzenleme
-         * modu hic tetiklenmiyor ve name/code ayni birakildiginda (tipik
-         * duzenleme senaryosu) unique kurali kendi kaydini dislayamiyordu.
-         */
         $language = $this->route('language');
         $languageId = $language instanceof Languages ? $language->id : $language;
 
@@ -42,9 +31,6 @@ class LanguageRequest extends FormRequest
         ];
     }
 
-    /**
-     * Get the error messages for the defined validation rules.
-     */
     public function messages(): array
     {
         return [

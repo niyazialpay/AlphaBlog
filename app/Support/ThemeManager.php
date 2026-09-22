@@ -8,9 +8,6 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class ThemeManager
 {
-    /**
-     * Render the requested theme view using Blade or Vue (Inertia).
-     */
     public static function render(string $view, array $data = [], int $status = 200, array $headers = []): SymfonyResponse
     {
         if (self::usingVue()) {
@@ -62,17 +59,11 @@ class ThemeManager
         return response()->view($bladeView, $data, $status, $headers);
     }
 
-    /**
-     * Determine if the Vue renderer is enabled.
-     */
     public static function usingVue(): bool
     {
         return config('theme.renderer') === 'vue';
     }
 
-    /**
-     * Resolve the component name that Inertia should render.
-     */
     protected static function componentName(string $view): string
     {
         $themeNamespace = config('theme.vue.theme_namespace')
@@ -89,9 +80,6 @@ class ThemeManager
             ->implode('/');
     }
 
-    /**
-     * Resolve the Blade view path with theme fallback.
-     */
     protected static function resolveBladeView(string $view): string
     {
         $themeName = app()->bound('theme') ? (string) app('theme')->name : 'Default';

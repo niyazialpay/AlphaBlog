@@ -6,15 +6,6 @@ use Illuminate\Console\Command;
 use Minishlink\WebPush\VAPID;
 use Throwable;
 
-/**
- * Web Push icin VAPID anahtar cifti uretir.
- *
- * Anahtar cifti SITE BASINA bir kez uretilir ve DEGISMEZ. Degistirilirse
- * mevcut tum abonelikler gecersiz olur; kullanicilarin her cihazda yeniden
- * abone olmasi gerekir. Bu yuzden komut, `.env` dosyasini kendisi YAZMAZ —
- * degerleri ekrana basar, siz elle eklersiniz. Kazara uretilen yeni bir cift
- * calisan bir kurulumu sessizce bozmasin diye bilincli bir tercih.
- */
 class GenerateVapidKeys extends Command
 {
     protected $signature = 'webpush:vapid';

@@ -14,10 +14,6 @@ class Cloudflare extends Model
         'domain',
     ];
 
-    /**
-     * Zone ID çözümü canlı bir Cloudflare API çağrısı; her istekte tekrarlanmamalı.
-     * Anahtar burada tanımlı ki controller'lar ve ayar kaydetme aynı anahtarı kullansın.
-     */
     public static function zoneCacheKey(string $domain): string
     {
         return config('cache.prefix').'cf_zone_id_'.$domain;

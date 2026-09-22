@@ -8,18 +8,6 @@ use Nwidart\Modules\Facades\Module;
 use PHPUnit\Framework\Attributes\Test;
 use Throwable;
 
-/**
- * Sidebar etiketlerinin HAM ANAHTAR olarak basilmadigini kilitler.
- *
- * Panelde `contact.messages` gibi ham anahtarlar goruldu. `PanelMenu::label()`
- * cevrilemeyen bir anahtari oldugu gibi dondurur (blade'de "DNS", "Pulse" gibi
- * duz metin etiketler de var, bu yuzden bu davranis dogru) — ama bunun bedeli,
- * eksik bir ceviri anahtarinin sessizce kullaniciya gosterilmesi.
- *
- * Bu test her menu etiketini tarar: ceviri anahtari GORUNUMUNDE olan her sey
- * (`ad.alt_ad`, bosluksuz, kucuk harf) hem `tr` hem `en` icinde gercekten
- * cozulmek ZORUNDA. Duz metin etiketler (`DNS`, `Cloudflare`) atlanir.
- */
 class PanelMenuLabelsTest extends PanelTestCase
 {
     #[Test]
@@ -64,8 +52,6 @@ class PanelMenuLabelsTest extends PanelTestCase
     }
 
     /**
-     * Bolum ve oge etiketlerini toplar.
-     *
      * @param  array<int, mixed>  $sections
      * @return list<string>
      */
@@ -118,9 +104,6 @@ class PanelMenuLabelsTest extends PanelTestCase
         );
     }
 
-    /**
-     * `contact.messages` evet, `DNS` / `Cloudflare` hayir.
-     */
     private function looksLikeTranslationKey(string $label): bool
     {
         return str_contains($label, '.')

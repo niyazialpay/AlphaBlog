@@ -5,26 +5,10 @@ namespace Tests\Feature\Panel;
 use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Facades\Route;
 
-/**
- * "Route adları ve URI'ler değişmeyecek" garantisinin testi.
- *
- * Migrasyonun tek sert kuralı buydu: panel Vue'ya taşınırken hiçbir route adı,
- * URI'si, HTTP verb'ü ya da `can:` kapısı değişmeyecek — aksi halde kayıtlı
- * bağlantılar, modül menüleri ve harici entegrasyonlar sessizce kırılır.
- *
- * Fixture (`tests/Fixtures/panel-routes.json`) commit'li bir anlık görüntüdür.
- * Kasıtlı bir değişiklik olduğunda fixture ile birlikte güncellenir; kazara
- * değişiklik testi kırar.
- *
- * Kapsam ÇEKİRDEK panel prefix'i: modül route'ları modül başına ayrı yaşıyor ve
- * bu repoda izlenmiyor (`/Modules` gitignore'lu), fixture'a girmeleri sahte bir
- * kırılganlık yaratırdı.
- */
 class PanelRouteContractTest extends PanelTestCase
 {
     private const FIXTURE = 'tests/Fixtures/panel-routes.json';
 
-    /** Modül prefix'leri — bunlar fixture dışı. */
     private const MODULE_SEGMENTS = [
         'valefix', 'cihansk', 'birderakademi', 'birdergi', 'edergi', 'podcast', 'xsayfa',
     ];
@@ -35,7 +19,6 @@ class PanelRouteContractTest extends PanelTestCase
         $path = base_path(self::FIXTURE);
 
         if (! is_file($path)) {
-            // Ilk calistirmada fixture'i uret; commit edilmesi gerekir.
             @mkdir(dirname($path), 0777, true);
             file_put_contents($path, json_encode($actual, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)."\n");
 
@@ -93,9 +76,6 @@ class PanelRouteContractTest extends PanelTestCase
     }
 
     /**
-     * `->can('admin', User::class)` middleware'e `can:admin,App\Models\User`
-     * olarak yaziliyor; yetki kapisi da sozlesmenin parcasi.
-     *
      * @return list<string>
      */
     private static function gates(RoutingRoute $route): array

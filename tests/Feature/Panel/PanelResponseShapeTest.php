@@ -9,31 +9,6 @@ use RecursiveIteratorIterator;
 use SplFileInfo;
 use Tests\TestCase;
 
-/**
- * Panel yazma uclarinin TEK bir yanit sekli oldugunu kilitler.
- *
- * YASAKLANAN KALIP:
- *
- *     return $request->inertia()
- *         ? back()->with('success', ...)
- *         : response()->json([...]);
- *
- * NEDEN: bu ucluk yaniti `X-Inertia` istek basliginin agda sag kalmasina
- * baglar. Uretimde kalmadi. Kullanici "gorsel sil" dedi, uc Inertia ziyaretine
- * `200 {"status":true}` dondu; Inertia JSON'i sayfa sayamadigi icin tam ekran
- * hata modalini acti ve ekranda bembeyaz bir kutu kaldi. Ayni sinif baska
- * ekranlarda "Redirecting" yazan bos bir modal uretti.
- *
- * DOGRUSU (CLAUDE.md, R1): form eylemi HER ZAMAN yonlendirir, veri ucu HER
- * ZAMAN JSON doner. Hangisi oldugu ucun isine gore SABITTIR; istek basligina
- * gore degismez.
- *
- * MUAF: `$request->inertia()` bir YONLENDIRME KORUMASI olarak kullanilabilir —
- * ornegin `PostController::wantsDataTable()` eski DataTables beslemesini Inertia
- * ziyaretinden ayirmak icin `$request->ajax() && ! $request->inertia() &&
- * $request->has('draw')` diyor. Bu yanit sekli secmiyor, hangi ISIN
- * yapilacagini seciyor. Test yalnizca UCLUK bicimini yasaklar.
- */
 class PanelResponseShapeTest extends TestCase
 {
     #[Test]
@@ -70,16 +45,12 @@ class PanelResponseShapeTest extends TestCase
     }
 
     /**
-     * `inertia()` ucluk bicimini yakalar; tek satirda da, sonraki satira sarkan
-     * `? ... : ...` biciminde de.
-     *
      * @param  list<string>  $lines
      */
     private function isResponseShapeTernary(string $line, array $lines, int $number): bool
     {
         $trimmed = ltrim($line);
 
-        // Yorumlar kod degildir.
         if ($trimmed === '' || str_starts_with($trimmed, '*') || str_starts_with($trimmed, '//') || str_starts_with($trimmed, '/*')) {
             return false;
         }
@@ -88,13 +59,10 @@ class PanelResponseShapeTest extends TestCase
             return false;
         }
 
-        // Ayni satirda ucluk: `$request->inertia() ? ... : ...`
         if (preg_match('/inertia\(\)\s*\?/', $line) === 1) {
             return true;
         }
 
-        // Sonraki satira sarkan ucluk: satir `inertia()` ile bitiyor ve
-        // sonraki dolu satir `?` ile basliyor.
         if (preg_match('/inertia\(\)\s*$/', rtrim($line)) !== 1) {
             return false;
         }

@@ -18,7 +18,6 @@ class AuthController extends Controller
 
         $credentials = $request->only('username', 'password');
 
-        // Validate credentials WITHOUT establishing a session (token flow).
         if (! auth()->validate($credentials)) {
             return response()->json([
                 'message' => 'The provided credentials do not match our records.',
@@ -27,16 +26,6 @@ class AuthController extends Controller
 
         $user = auth()->getProvider()->retrieveByCredentials($credentials);
 
-        // SECURITY: optionally enforce the second factor here too. The web flow
-        // gates 2FA via VerifyOTP middleware; the API can issue a token from
-        // password alone unless API_REQUIRE_2FA is enabled. Gated by a flag
-        // (default off) so existing mobile/API clients that only send
-        // username+password are not locked out — flip it on once clients send
-        // the TOTP `code`.
-        // The app tracks "2FA enabled" via the otp flag (set true by
-        // User::confirmTwoFactorAuth, false on disable). two_factor_confirmed_at
-        // is only migrated when Fortify's confirm feature is on, so otp is the
-        // reliable signal here.
         $hasTwoFactor = $user->two_factor_secret && $user->otp;
 
         if (config('sanctum.require_two_factor') && $hasTwoFactor) {
@@ -48,10 +37,6 @@ class AuthController extends Controller
                 ], 423);
             }
         } elseif ($hasTwoFactor) {
-            // AUDIT: a 2FA-enrolled user authenticated via the API from password
-            // alone because API_REQUIRE_2FA is off (legacy-client compatibility).
-            // Logged so this exposure is auditable and can be time-boxed; flip
-            // API_REQUIRE_2FA=true once clients send the TOTP code.
             Log::warning('API login bypassed 2FA for a 2FA-enrolled user (API_REQUIRE_2FA off)', [
                 'user_id' => $user->id,
                 'ip' => $request->ip(),

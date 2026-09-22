@@ -26,9 +26,6 @@ class ProcessFirewallBlock implements ShouldQueue
 
     protected ?int $blacklistRuleId;
 
-    /**
-     * Create a new job instance.
-     */
     public function __construct(string $ip, string $reason, ?string $userAgent, string $url, array $requestData, ?int $blacklistRuleId)
     {
         $this->ip = $ip;
@@ -39,9 +36,6 @@ class ProcessFirewallBlock implements ShouldQueue
         $this->blacklistRuleId = $blacklistRuleId;
     }
 
-    /**
-     * Execute the job.
-     */
     public function handle(): void
     {
         if (! $this->blacklistRuleId) {
@@ -71,11 +65,6 @@ class ProcessFirewallBlock implements ShouldQueue
     }
 
     /**
-     * Strip credential material from a captured request body before persisting it
-     * to firewall_logs (which is rendered in the admin panel and included in DB
-     * dumps). A login that trips a firewall rule must never leave a plaintext
-     * password at rest.
-     *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */

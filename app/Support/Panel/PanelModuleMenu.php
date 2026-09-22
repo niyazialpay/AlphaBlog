@@ -10,21 +10,6 @@ use Illuminate\Support\Str;
 use Nwidart\Modules\Facades\Module;
 use Throwable;
 
-/**
- * `@includeIf('<modül>::panel.menu')` ifadesinin Vue karşılığı.
- *
- * Blade'deki sözleşme "modül bir menü GÖRÜNÜMÜ yayınlıyorsa dahil et, yoksa
- * sessizce atla" idi. Vue'da markup paylaşılamaz, veri paylaşılır; sözleşme
- * aynı kalır:
- *
- *   1. Modules/<X>/config/panel_menu.php  → modülün yayın noktası (asıl mekanizma)
- *   2. config/panel_menu.local.php        → site sahibinin elle override'ı (gitignore'lu)
- *   3. Route tablosundan otomatik keşif   → henüz (1)'i yazılmamış modüller için yedek
- *
- * Katman 3 sayesinde HİÇ değiştirilmemiş bir modül de yeni sidebar'da görünür.
- * Bir öğenin Inertia ile mi açılacağı config/panel_inertia_routes.php defterinden
- * türetilir (PanelMenu::isInertia) — modül ekranı taşınana dek tam sayfa yüklemesi.
- */
 final class PanelModuleMenu
 {
     /**
@@ -60,7 +45,6 @@ final class PanelModuleMenu
             $section['key'] ??= $key;
             $section['label'] ??= self::sectionLabel($key, $module->getName());
             $section['icon'] ??= 'fa-cube';
-            // Modüller blade'de de notlardan sonra, yönetimden önce geliyordu (30 < x < 40).
             $section['order'] ??= $order + 0.1;
             $order += 0.1;
 
@@ -71,8 +55,6 @@ final class PanelModuleMenu
     }
 
     /**
-     * Katman 1 — modülün kendi yayını.
-     *
      * @return array<string, mixed>|null
      */
     private static function fromModuleConfig(object $module): ?array
@@ -89,8 +71,6 @@ final class PanelModuleMenu
     }
 
     /**
-     * Katman 2 — site başına elle override.
-     *
      * @return array<string, array<string, mixed>>
      */
     private static function localOverrides(): array
@@ -107,13 +87,6 @@ final class PanelModuleMenu
     }
 
     /**
-     * Katman 3 — route tablosundan otomatik keşif.
-     *
-     * Her modül panel route'unu `panel.<lowername>.*` adıyla kaydediyor.
-     * Yetki, route üzerindeki `->can(...)` çağrısının ürettiği `can:ability,Model`
-     * middleware string'i parse edilerek değerlendirilir; böylece görünürlük
-     * modülün kendi @can sarmalayıcılarıyla eşleşir, modül blade'i okunmadan.
-     *
      * @return array<string, mixed>|null
      */
     private static function fromRouteTable(string $key, ?User $user): ?array
@@ -127,7 +100,6 @@ final class PanelModuleMenu
             ->filter(function (RoutingRoute $route) use ($prefix) {
                 $tail = Str::after((string) $route->getName(), $prefix);
 
-                // Yalnızca üst seviye giriş noktaları: "customers.index" veya "home".
                 return $tail === 'index' || Str::endsWith($tail, '.index') || ! Str::contains($tail, '.');
             })
             ->filter(fn (RoutingRoute $route) => self::routeAllows($route, $user))
@@ -158,8 +130,6 @@ final class PanelModuleMenu
             $arguments = explode(',', Str::after($middleware, 'can:'));
             $ability = array_shift($arguments);
 
-            // Model bağlamalı kapılar (ör. can:edit,post) menüde değerlendirilemez;
-            // parametreli route'lar zaten elenmiş oluyor, yine de güvenli tarafta kal.
             try {
                 if (! Gate::forUser($user)->allows($ability, $arguments === [] ? null : $arguments)) {
                     return false;

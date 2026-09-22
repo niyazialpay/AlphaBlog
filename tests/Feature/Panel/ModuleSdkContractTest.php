@@ -5,18 +5,6 @@ namespace Tests\Feature\Panel;
 use Illuminate\Support\Facades\Route;
 use Nwidart\Modules\Facades\Module;
 
-/**
- * Modül panel SDK sözleşmesinin testi.
- *
- * Modül kodu çekirdek repoya girmez (`/Modules` gitignore'lu), bu yüzden bu test
- * "modül X doğru taşınmış mı" demez — SÖZLEŞMEYİ doğrular: etkin modüllerden
- * hangisi bir menü yayınlıyorsa şeması geçerli olmalı ve bildirdiği her route
- * adı gerçekten çözülmelidir.
- *
- * Bunun yakaladığı hata sınıfı pahalıdır: menüde var olmayan bir route adı
- * `route()` çağrısında RouteNotFoundException fırlatır ve TÜM panel sidebar'ını
- * çökertir — modülün kendi ekranlarını değil, panelin tamamını.
- */
 class ModuleSdkContractTest extends PanelTestCase
 {
     public function test_enabled_module_menus_declare_resolvable_routes(): void
@@ -31,7 +19,6 @@ class ModuleSdkContractTest extends PanelTestCase
             $path = $module->getPath().'/config/panel_menu.php';
 
             if (! is_file($path)) {
-                // Katman 1 yazilmamis modul: route tablosundan otomatik kesfe duser.
                 continue;
             }
 
@@ -55,15 +42,9 @@ class ModuleSdkContractTest extends PanelTestCase
             }
         }
 
-        // Hicbir modul menu yayinlamamis olabilir; test yine de anlamlidir.
         $this->assertGreaterThanOrEqual(0, $checked);
     }
 
-    /**
-     * Modül Vue sayfaları kendi dizinlerinde yaşar ve tek build'e glob'lanır.
-     * Bir modül Pages dizini açtıysa bileşen dosyalarının okunabilir olduğunu
-     * doğrula — boş/erişilemez dizin, build'de sessizce kaybolan ekran demektir.
-     */
     public function test_module_panel_page_directories_are_readable(): void
     {
         if (! class_exists(Module::class)) {

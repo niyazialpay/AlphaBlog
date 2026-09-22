@@ -54,8 +54,6 @@ class AiChatbotController extends Controller
             'hasAvailableProvider' => $providers !== [],
         ];
 
-        // Sohbet uclari (conversations / conversation / message) zaten temiz bir
-        // JSON API; R1 geregi oyle kalir, yalniz index() Inertia'ya doner.
         return PanelResponse::render('Chat/Index', 'panel.Chat.index', $props, $props);
     }
 

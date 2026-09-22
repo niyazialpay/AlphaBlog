@@ -14,7 +14,6 @@ use App\Http\Controllers\Admin\TwoFactorAuthController;
 use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 
-// admin panel
 Route::get('/', [DashboardController::class, 'index'])
     ->name('admin.index');
 
@@ -39,15 +38,6 @@ Route::get('/clear-cache', [CacheController::class, 'clearCache'])
     ->can('admin', 'App\Models\User')
     ->name('admin.clear_cache');
 
-/*
- * POST alias'lari.
- *
- * Inertia v2 `<Link prefetch>` fare uzerine gelindiginde GERCEK bir GET atiyor.
- * Asagidaki uclar durum degistiriyor (onbellek temizleme, dil degistirme,
- * KULLANICI TAKLIDI) — bir gezinme baglantisi olarak render edilirlerse hover
- * bile onlari tetikleyebilir. Eski GET'ler eski panel ve kayitli baglantilar
- * icin AYNEN KALIR; Vue yalnizca POST'lari cagirir.
- */
 Route::post('/clear-cache', [CacheController::class, 'clearCache'])
     ->can('admin', 'App\Models\User')
     ->name('admin.clear_cache.post');
@@ -90,11 +80,6 @@ Route::post('/dashboard/widgets', [DashboardController::class, 'saveWidgets'])
 Route::get('/about', [AboutController::class, 'index'])
     ->name('admin.about')->can('admin', 'App\Models\User');
 
-/*
- * Yazi editorundeki "Yazar" alani icin sunucu tarafli arama (VERI ucu, JSON).
- * GET: durum degistirmiyor; Inertia prefetch'i yalnizca <Link> uzerinde
- * tetiklenir, axios cagrisini etkilemez.
- */
 Route::get('/authors/search', AuthorSearchController::class)
     ->can('createPost', 'App\Models\Post\Posts')
     ->middleware('throttle:60,1')

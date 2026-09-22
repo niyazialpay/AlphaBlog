@@ -22,19 +22,11 @@ return [
     'notifications_deleted' => 'Bildirimler başarıyla silindi.',
     'no_notifications' => 'Bildiriminiz yok',
 
-    /*
-     * Bildirim olaylarının adları.
-     *
-     * Anahtarlar App\Support\Notifications\NotificationEvents içindeki kayıtla
-     * birebir eşleşir; yeni bir olay eklendiğinde buraya da bir satır gerekir,
-     * aksi halde tercih ekranında ham anahtar görünür.
-     */
     'events' => [
         'comment_created' => 'Yeni yorum',
         'contact_message' => 'Yeni iletişim mesajı',
     ],
 
-    /* Tercih ekranı */
     'preferences_tab' => 'Bildirim Ayarları',
     'preferences_intro' => 'Hangi olaylarda bildirim almak istediğinizi seçin. Panel zili tüm cihazlarda geçerlidir; tarayıcı bildirimleri yalnızca izin verdiğiniz cihazlara gönderilir.',
     'preferences_saved' => 'Bildirim tercihleriniz kaydedildi.',
@@ -43,7 +35,6 @@ return [
     'channel_database' => 'Panel zili',
     'channel_push' => 'Tarayıcı',
 
-    /* Tarayıcı (web push) aboneliği */
     'push_title' => 'Tarayıcı bildirimleri',
     'push_on' => 'Açık',
     'push_enable' => 'Bildirimleri aç',
@@ -59,7 +50,6 @@ return [
     'push_device_on' => 'Bu cihaz tarayıcı bildirimlerine abone.',
     'push_device_off' => 'Bu cihaz tarayıcı bildirimlerine abone değil.',
 
-    /* İlk ziyaret kartı */
     'push_prompt_title' => 'Bildirimleri açmak ister misiniz?',
     'push_prompt_body' => 'Panel kapalıyken de yeni yorum ve mesajlardan haberdar olun. İzni istediğiniz zaman geri alabilirsiniz.',
     'push_prompt_dismiss' => 'Şimdi değil',

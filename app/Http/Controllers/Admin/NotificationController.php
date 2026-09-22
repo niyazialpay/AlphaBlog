@@ -59,11 +59,6 @@ class NotificationController extends Controller
         return redirect()->route('notifications.index');
     }
 
-    /**
-     * TEK YANIT SEKLI: yonlendirme — `Notifications/Index.vue` `router.delete` ile
-     * cagiriyor. (Okundu isaretleme uclari POST alias'lariyla cagrilir; Inertia v2
-     * `<Link prefetch>` hover'da gercek GET attigi icin GET adlari kullanilmaz.)
-     */
     public function destroy(Request $request): RedirectResponse
     {
         $user = $request->user();
@@ -86,9 +81,6 @@ class NotificationController extends Controller
         return redirect()->route('notifications.index');
     }
 
-    /**
-     * TEK YANIT SEKLI: yonlendirme — `Notifications/Index.vue` `router.delete` ile cagiriyor.
-     */
     public function deleteAll(Request $request): RedirectResponse
     {
         $user = $request->user();

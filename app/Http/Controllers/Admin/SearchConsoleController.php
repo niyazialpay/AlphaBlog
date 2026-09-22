@@ -81,10 +81,6 @@ class SearchConsoleController extends Controller
                 ];
             });
         } catch (Throwable $e) {
-            /*
-             * Yapilandirilmis ama calismayan entegrasyon ekrani 500'e
-             * dusurmemeli; ayirt edilebilir bir durum olarak donuyor.
-             */
             Log::error('Search Console verisi alinamadi', ['exception' => $e]);
 
             return [

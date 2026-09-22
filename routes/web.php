@@ -36,17 +36,6 @@ use Laravel\Fortify\Http\Controllers\EmailVerificationPromptController;
 use Laravel\Fortify\Http\Controllers\VerifyEmailController;
 use Spatie\Honeypot\ProtectAgainstSpam;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-
 if (config('app.cdn_url') != null && config('app.cdn_url') != config('app.url')) {
     $domain = config('app.cdn_url');
 } else {
@@ -268,8 +257,6 @@ Route::domain(config('app.url'))->group(function () {
 
                 Route::post('/comment-save', [CommentController::class, 'store'])
                     ->middleware([
-                        // Re-enable once the public comment form embeds the Turnstile widget:
-                        // \App\Http\Middleware\CloudflareTurnstile::class,
                         ProtectAgainstSpam::class,
                         'throttle:5,1',
                     ])

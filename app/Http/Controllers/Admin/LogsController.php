@@ -12,18 +12,6 @@ use Yajra\DataTables\Facades\DataTables;
 
 class LogsController extends Controller
 {
-    /**
-     * Sunucu tarafli tablo artik AYRI bir JSON beslemesi degil, Inertia prop'u.
-     *
-     * Gerekcesi:
-     *   - assertInertia ile test edilebilir (JSON beslemesi degildi),
-     *   - versiyonlama / ?format= bayragi / kopya metot gerekmez,
-     *   - Vue tarafi kismi yeniden yukleme (only: ['logs','filters']) kullandigi
-     *     icin URL durumu paylasilabilir ve geri tusu dogru calisir.
-     *
-     * Eski `admin.system-logs.data` ucu DOKUNULMADAN duruyor: henuz tasinmamis
-     * Blade ekrani ve olasi dis cagiranlar icin.
-     */
     public function index(Request $request): Response
     {
         $perPage = self::perPage($request);
@@ -50,10 +38,7 @@ class LogsController extends Controller
                     'ip' => $log->ip,
                     'user_agent' => $log->user_agent,
                     'model' => $log->model,
-                    // HAM anahtar gonderiliyor, cevrilmis metin degil:
-                    // boylece eyleme gore arama da dogru calisir.
                     'action' => $log->action,
-                    // Gercek nesne; eski uc '<pre>'.htmlspecialchars(...) basiyordu.
                     'old_data' => json_decode((string) $log->old_data, true),
                     'new_data' => json_decode((string) $log->new_data, true),
                     'user' => $log->user ? ['id' => $log->user->id, 'nickname' => $log->user->nickname] : null,
@@ -70,10 +55,6 @@ class LogsController extends Controller
         );
     }
 
-    /**
-     * Sayfa boyu, eski tablolarin paylastigi session anahtari yerine acik bir
-     * query parametresi. jQuery DataTables'in lengthMenu degerleriyle sinirli.
-     */
     private static function perPage(Request $request): int
     {
         $perPage = (int) $request->get('per_page', 10);

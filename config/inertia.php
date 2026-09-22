@@ -2,12 +2,6 @@
 
 return [
 
-    /*
-    |--------------------------------------------------------------------------
-    | Server Side Rendering
-    |--------------------------------------------------------------------------
-    */
-
     'ssr' => [
 
         'enabled' => (bool) env('INERTIA_SSR_ENABLED', false),
@@ -18,19 +12,11 @@ return [
 
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Pages
-    |--------------------------------------------------------------------------
-    */
-
     'ensure_pages_exist' => false,
 
     'page_paths' => [
         resource_path('js/Pages'),
 
-        // Panel sayfalari: cekirdek + her modulun kendi dizini.
-        // Modul yoksa glob bos gecer.
         resource_path('js/panel/Pages'),
         ...glob(base_path('Modules/*/resources/js/panel/Pages')),
     ],
@@ -43,18 +29,6 @@ return [
         'tsx',
         'vue',
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Testing
-    |--------------------------------------------------------------------------
-    |
-    | assertInertia()->component() bileseni GERCEKTEN var mi diye bakar ve bunun
-    | icin AYRI bir view-finder kullanir. Panel sayfalari resources/js/Pages
-    | altinda degil, bu yuzden yollar burada da bildirilmeli — aksi halde
-    | "Inertia page component file [...] does not exist" alinir.
-    |
-    */
 
     'testing' => [
 

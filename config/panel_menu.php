@@ -5,32 +5,6 @@ use App\Models\Post\Comments;
 use App\Models\Post\Posts;
 use App\Models\User;
 
-/*
-|--------------------------------------------------------------------------
-| Panel menüsü (çekirdek)
-|--------------------------------------------------------------------------
-|
-| resources/views/panel/partials/menu.blade.php içeriğinin veri karşılığı.
-| Vue sidebar bunu "menu" paylaşılan prop'u üzerinden okur (App\Support\Panel\PanelMenu).
-|
-| Alanlar:
-|   label    → çeviri anahtarı (__() ile çözülür) veya ham metin
-|   icon     → Font Awesome ikon adı; fontawesome_pro açıkken stil fa-duotone olur
-|   style    → solid | regular | brands (varsayılan solid)
-|   route    → route adı
-|   params   → route parametreleri; 'defaultLanguage' değeri çalışma anında çözülür
-|   active   → panel path'ine göre aktiflik deseni (string veya string dizisi)
-|   can      → [ability, model] — Gate ile değerlendirilir
-|   badge    → newComments | searchedWords | unreadNotifications
-|   action   → route yerine istemci tarafı eylem (ör. clear-cache)
-|   group    → sidebar içinde alt başlık (ör. Cloudflare)
-|   when     → ek koşul anahtarı ('ai' => en az bir AI sağlayıcı yapılandırılmış)
-|
-| MİGRASYON DEFTERİ burada DEĞİL: config/panel_inertia_routes.php'de.
-| Bir öğenin Inertia ile mi yoksa tam sayfa yüklemesiyle mi açılacağı, route
-| adının o listeyle eşleşmesinden türetilir (PanelMenu::isInertia).
-*/
-
 return [
 
     [
@@ -74,12 +48,6 @@ return [
             ['label' => 'categories.categories', 'icon' => 'fa-list', 'route' => 'admin.notes.categories', 'active' => 'notes/categories*'],
         ],
     ],
-
-    /*
-     * Modül bölümleri burada, 30 ile 40 arasına yerleşir — blade'deki
-     * @foreach(Module::all()) ... @includeIf(...) bloğu da tam bu konumda.
-     * App\Support\Panel\PanelModuleMenu tarafından üretilir.
-     */
 
     [
         'key' => 'yonetim',

@@ -17,20 +17,12 @@ class AnalyticsController extends Controller
 {
     public function index(Request $request): SymfonyResponse
     {
-        // B10: burada hesaplanan $start_date/$end_date kullanilmadan atiliyordu;
-        // tarih araligini zaten extracted() kendi icinde cozuyor.
         $data = $this->extracted($request);
 
         return PanelResponse::render(
             'Analytics/Index',
             'panel.analytics',
             [
-                /*
-                 * `configured` GERIYE DONUK uyumluluk icin duruyor; ekran artik
-                 * `status` uzerinden suruluyor cunku "yapilandirilmamis" ile
-                 * "Google cagrisi patladi" ayni sey degil ve kullaniciya ayni
-                 * mesaji gostermek yanlis.
-                 */
                 'configured' => $data['status'] !== 'not_configured',
                 'status' => $data['status'],
                 'dateRange' => $data['date_range'],
@@ -91,12 +83,6 @@ class AnalyticsController extends Controller
                     'status' => 'ok',
                 ];
             } catch (Throwable $e) {
-                /*
-                 * Onceden hicbir koruma yoktu: gecersiz property id, iptal
-                 * edilmis servis hesabi ya da bir ag hatasi ekrani 500'e
-                 * dusuruyordu. Artik loglanip ayirt edilebilir bir duruma
-                 * ceviriliyor.
-                 */
                 Log::error('GA4 analytics verisi alinamadi', ['exception' => $e]);
                 $dashboard = array_merge($empty, ['status' => 'error']);
             }

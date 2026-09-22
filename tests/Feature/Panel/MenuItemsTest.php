@@ -5,19 +5,6 @@ namespace Tests\Feature\Panel;
 use App\Models\Menu\Menu;
 use App\Models\Menu\MenuItems;
 
-/**
- * "Menü Öğeleri" ekranının iki regresyonu.
- *
- * B6 — PROP GÖLGELEME: `HandlePanelInertiaRequests` sidebar bölümlerini `menu`
- * adıyla paylaşıyor. Inertia'da sayfa prop'ları aynı adlı paylaşılan prop'u
- * EZDİĞİ için bu ekranın `menu` adlı sayfa prop'u sol menüyü yok ediyordu
- * (PanelLayout'ta `sections` dizi yerine nesne alıyor, `sections.find()`
- * TypeError fırlatıyor ve layout alt ağacı komple düşüyordu).
- *
- * B7 — SINIRSIZ DERİNLİK: Vue kurucusu yalnızca düz sıralama yapabiliyordu;
- * sunucu sözleşmesi ise zaten özyinelemeli. Burada sözleşmenin ucu uca
- * çalıştığı (kaydet → oku) doğrulanır.
- */
 class MenuItemsTest extends PanelTestCase
 {
     private function menu(): Menu
@@ -30,8 +17,6 @@ class MenuItemsTest extends PanelTestCase
     }
 
     /**
-     * Sunucunun `updateMenu()` içinde KORUMASIZ okuduğu altı anahtar.
-     *
      * @param  list<array<string, mixed>>  $children
      * @return array<string, mixed>
      */
@@ -62,7 +47,6 @@ class MenuItemsTest extends PanelTestCase
 
         $this->assertSame('Menu/Items', $response->viewData('page')['component']);
 
-        // Paylaşılan sidebar prop'u: bölüm listesi, menü kaydı DEĞİL.
         $this->assertIsArray($props['menu']);
         $this->assertArrayNotHasKey('menu_position', $props['menu']);
 
@@ -71,7 +55,6 @@ class MenuItemsTest extends PanelTestCase
             $this->assertArrayHasKey('items', $section);
         }
 
-        // Ekranın kendi kaydı ayrı bir ad altında.
         $this->assertSame($menu->id, $props['menuRecord']['id']);
         $this->assertSame('Ana Menü', $props['menuRecord']['title']);
     }
@@ -110,11 +93,6 @@ class MenuItemsTest extends PanelTestCase
             $this->node('Blog', '/blog'),
         ];
 
-        /*
-         * Uç TEK ŞEKİL döndürür: yönlendirme. Eskiden `X-Inertia` başlığına bakan
-         * bir üçlü vardı ve başlıksız çağrıda JSON dönüyordu; başlık ağ yolunda
-         * düştüğünde Inertia ziyareti JSON alıp tam ekran hata modalı açıyordu.
-         */
         $this->actingAs($this->owner)
             ->post(route('admin.menu-item.save'), [
                 'menu_id' => $menu->id,
@@ -172,17 +150,11 @@ class MenuItemsTest extends PanelTestCase
         $this->assertSame('Hakkımızda', $kurumsal['children'][0]['title']);
         $this->assertSame('Tarihçe', $kurumsal['children'][0]['children'][0]['title']);
 
-        // Sunucunun korumasız okuduğu anahtarlar geri de geliyor: istemci aynı
-        // düğümü hiçbir alanı kaybetmeden tekrar POST edebilmeli.
         foreach (['title', 'url', 'language', 'icon', 'nav_target', 'menu_type', 'children'] as $key) {
             $this->assertArrayHasKey($key, $kurumsal);
         }
     }
 
-    /**
-     * `menuTree()` (Blade kabuğu) `order` yerine `id`'ye göre sıralıyordu.
-     * Satırlar her kayıtta silinip yeniden yaratıldığı için kazara çalışıyordu.
-     */
     public function test_legacy_blade_markup_is_ordered_by_order_column(): void
     {
         config()->set('settings.panel_ui', 'blade');

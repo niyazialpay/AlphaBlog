@@ -6,30 +6,6 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-/**
- * Eski `addslashes()` kacislarini veritabanindan BIR KEZ temizler.
- *
- * GECMIS: `GetPost()` ve `content()` yardimcilari metni `addslashes()` ile
- * kacisli yaziyor, okuma tarafi `stripslashes()` ile geri cozuyordu. Bu kalip
- * kaldirildi (bkz. app/Helpers/functions.php): kacis her duzenlemede
- * katlaniyordu ve okuma tarafindaki `stripslashes()` icerikte GERCEKTEN bulunan
- * ters bolulari (kod ornekleri, dosya yollari, regex'ler) yiyordu.
- *
- * NEDEN PHP'NIN `stripslashes()` FONKSIYONU KULLANILMIYOR: o, ters boluyu
- * HANGI karakterden once olursa olsun siler. Bir yazilim blogunda yikici olur:
- * "C:\Users" -> "C:Users", "\d+" -> "d+". Bu komut yalnizca `addslashes()`'in
- * URETTIGI uc diziyi cozer — tirnak onundeki ters bolu ve cift ters bolu —
- * baska hicbir ters boluya dokunmaz.
- *
- * Tarama TEK YONLU ve soldan sagadir: cozulen bir kacisin ciktisi yeniden
- * taranmaz. Bu sayede "kacisli ters bolu + gercek tirnak" dizisi dogru sonuca
- * iner, ardisik `str_replace` cagrilarinin yaptigi gibi bozulmaz.
- *
- * DIKKAT — GERI ALINAMAZ. Once yedek alin:
- *     mysqldump -u KULLANICI -p VERITABANI > yedek.sql
- *
- * Varsayilan KURU CALISMA'dir; yazmak icin `--force` gerekir.
- */
 class UnescapeLegacySlashes extends Command
 {
     protected $signature = 'db:unescape-slashes
@@ -41,15 +17,6 @@ class UnescapeLegacySlashes extends Command
     protected $description = 'Eski addslashes kacislarini veritabanindan temizler (tirnak onu ve cift ters bolu)';
 
     /**
-     * Islenecek tablo => kolon haritasi.
-     *
-     * Yalnizca `GetPost()` / `content()` uzerinden yazilan ya da temalarda
-     * `stripslashes()` ile basilan SERBEST METIN kolonlari. Slug, e-posta, IP,
-     * user-agent gibi hic kacis gormemis kolonlar BILEREK disarida.
-     *
-     * Var olmayan tablo/kolonlar Schema kontrolu ile sessizce atlanir; komut
-     * semasi farkli kurulumlarda da calisir.
-     *
      * @var array<string, list<string>>
      */
     private const MAP = [
@@ -165,13 +132,6 @@ class UnescapeLegacySlashes extends Command
         $samples = [];
         $stillEscaped = 0;
 
-        /*
-         * Eloquent DEGIL, query builder.
-         *
-         * `Posts` modelinin observer'i her guncellemede `post_histories`
-         * tablosuna yeni bir satir yaziyor. Model uzerinden gidilseydi temizlik,
-         * temizlemesi gereken veriyi cogaltirdi.
-         */
         DB::table($table)
             ->select(array_merge(['id'], $columns))
             ->orderBy('id')
@@ -222,13 +182,6 @@ class UnescapeLegacySlashes extends Command
         return [$rowCount, $cellCount, $samples, $stillEscaped];
     }
 
-    /**
-     * `addslashes()`'in tersi — AMA yalnizca onun urettigi diziler icin.
-     *
-     * Ters bolu bir tirnaktan ya da baska bir ters boludan onceyse kacistir ve
-     * kaldirilir. Baska her durumda (`\n`, `\d`, `C:\Users`) OLDUGU GIBI kalir.
-     * Tek gecis oldugu icin cozulen ciktinin uzerinden tekrar gecilmez.
-     */
     public static function unescape(string $value): string
     {
         $out = '';

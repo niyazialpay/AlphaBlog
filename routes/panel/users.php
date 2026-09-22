@@ -18,10 +18,6 @@ Route::post('/delete', [UserController::class, 'userDelete'])
     ->can('admin', 'App\Models\User')
     ->name('admin.user.delete');
 
-// NOTE: intentionally NOT gated by can('admin'). During impersonation the active
-// session IS the (possibly low-privilege) impersonated user; gating this with
-// 'admin' would trap that session and prevent restoring the original identity.
-// secretLogout() is a safe no-op unless 'impersonated_original' is set in session.
 Route::get('/secret-logout', [UserController::class, 'secretLogout'])
     ->name('admin.user.secret-logout');
 
@@ -45,14 +41,6 @@ Route::get('/{user_id}/secret-login', [UserController::class, 'userSecretLogin']
     ->can('admin', 'App\Models\User')
     ->name('admin.user.secret-login');
 
-/*
- * POST alias — KULLANICI TAKLIDI.
- *
- * Inertia v2 `<Link prefetch>` hover'da gercek GET atiyor; bu ucun GET olarak
- * bir gezinme baglantisina dusmesi, sadece fareyi uzerine getirerek baska bir
- * kullaniciya gecilmesi demekti. Eski GET geriye donuk uyumluluk icin kalir,
- * Vue yalnizca bu POST'u cagirir.
- */
 Route::post('/{user_id}/secret-login', [UserController::class, 'userSecretLogin'])
     ->can('owner', 'App\Models\User')
     ->name('admin.user.secret-login.post');

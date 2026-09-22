@@ -9,21 +9,6 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
 
-/**
- * Panel Vue dosyalarindaki HER ceviri anahtarinin gercekten cozuldugunu kilitler.
- *
- * `resources/js/panel/composables/useLang.js` bulunamayan anahtari (Laravel gibi)
- * ANAHTARIN KENDISI olarak dondurur. Bu iyi bir varsayilan — arayuz bos kutu
- * gostermez — ama eksik bir anahtar sessizce kullaniciya `contact.no_messages`
- * diye basilir. Panelde tam olarak bu yasandi.
- *
- * Test, `resources/js/panel/**` ve her modulun `resources/js/panel/**` agacindaki
- * duz yazili `__('...')` / `$t('...')` / `transChoice('...')` cagrilarini tarar ve
- * her anahtarin hem `tr` hem `en` icinde STRING olarak cozuldugunu dogrular.
- *
- * Kapsam disi: sablon literalleri (`__(`ns.${degisken}`)`) — calisma zamaninda
- * uretildikleri icin statik olarak cozulemezler.
- */
 class PanelTranslationKeysTest extends PanelTestCase
 {
     #[Test]
@@ -43,12 +28,6 @@ class PanelTranslationKeysTest extends PanelTestCase
         $hints = array_keys(Lang::getLoader()->namespaces());
 
         foreach ($keys as $key => $files) {
-            /*
-             * Devre disi ya da bu kurulumda bulunmayan bir modulun lang
-             * namespace'i hic kaydedilmez; `Lang::has()` o anahtarlar icin her
-             * zaman false doner. Bu bir ceviri eksigi DEGIL, modulun yoklugudur
-             * (ör. modules_statuses.json'da Podcast kapali). Atlanir.
-             */
             if (str_contains($key, '::') && ! in_array(strstr($key, '::', true), $hints, true)) {
                 continue;
             }
@@ -106,8 +85,6 @@ class PanelTranslationKeysTest extends PanelTestCase
     }
 
     /**
-     * Yalnizca duz yazili anahtarlar; `${...}` iceren sablon literalleri elenir.
-     *
      * @return list<string>
      */
     private function keysIn(string $source): array

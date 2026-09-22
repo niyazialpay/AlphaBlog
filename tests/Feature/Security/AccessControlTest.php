@@ -28,16 +28,10 @@ class AccessControlTest extends TestCase
         ]);
     }
 
-    /** ALPHA-001: a low-privilege user must not be able to escalate role via profile save. */
     public function test_user_cannot_escalate_role_via_profile_save(): void
     {
         $user = User::factory()->create(['role' => 'user']);
 
-        /*
-         * Profil kaydetme artik HER ZAMAN yonlendirir (form eylemi).
-         * Eskiden `$request->inertia()` ile dallanip JSON donebiliyordu; o dal
-         * kaldirildi. Bu testin asil iddiasi statu degil, ROLUN DEGISMEMESI.
-         */
         $this->actingAs($user)
             ->from(route('admin.profile.index'))
             ->post(route('admin.profile.save'), [
@@ -51,7 +45,6 @@ class AccessControlTest extends TestCase
         $this->assertSame('user', $user->fresh()->role, 'role must NOT change via profile save');
     }
 
-    /** ALPHA-001: the profile save itself still works for legitimate fields. */
     public function test_profile_save_updates_allowed_fields(): void
     {
         $user = User::factory()->create(['role' => 'user', 'name' => 'Old']);
@@ -68,7 +61,6 @@ class AccessControlTest extends TestCase
         $this->assertSame('NewName', $user->fresh()->name);
     }
 
-    /** ALPHA-010: an admin must not be able to promote themselves to owner via user-edit. */
     public function test_admin_cannot_self_promote_to_owner_via_user_edit(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -84,7 +76,6 @@ class AccessControlTest extends TestCase
         $this->assertSame('admin', $admin->fresh()->role, 'admin must NOT be able to grant owner');
     }
 
-    /** ALPHA-010: an admin MAY still assign a role strictly below their own. */
     public function test_admin_can_assign_lower_role(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -101,7 +92,6 @@ class AccessControlTest extends TestCase
         $this->assertSame('author', $target->fresh()->role);
     }
 
-    /** ALPHA-011: a user must not be able to kill another user's session (broken ownAdmin policy). */
     public function test_user_cannot_kill_another_users_session(): void
     {
         $attacker = User::factory()->create(['role' => 'user']);
@@ -121,7 +111,6 @@ class AccessControlTest extends TestCase
         $this->assertDatabaseHas('user_sessions', ['id' => $victimSession->id]);
     }
 
-    /** ALPHA-012: an admin must not be able to impersonate the owner (no role ceiling). */
     public function test_admin_cannot_impersonate_owner(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -134,7 +123,6 @@ class AccessControlTest extends TestCase
         $this->assertSame($admin->id, auth()->id(), 'session must remain the admin, not the owner');
     }
 
-    /** ALPHA-012: impersonating a strictly-lower role still works. */
     public function test_admin_can_impersonate_lower_role(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);

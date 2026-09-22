@@ -9,25 +9,6 @@ use Minishlink\WebPush\Subscription;
 use Minishlink\WebPush\WebPush;
 use Throwable;
 
-/**
- * Laravel bildirim kanali: tarayici push.
- *
- * Bir bildirim `via()` icinde `WebPushChannel::class` dondurup `toWebPush()`
- * tanimlarsa buradan gecer.
- *
- * UC KAPI, sirayla:
- *   1. VAPID yapilandirilmis mi (anahtar yoksa sessizce atlanir — kurulum
- *      yapilmamis bir sitede bildirim gondermek hata degildir).
- *   2. Bildirim bir OLAY anahtari bildiriyorsa (`pushEvent()`), kullanicinin
- *      o olay icin push tercihi acik mi. `User::wantsNotification()` yetkiyi
- *      de kontrol eder: rolu dusurulen kullaniciya eski tercihi yuzunden
- *      bildirim GITMEZ.
- *   3. Kullanicinin kayitli abonelikleri.
- *
- * Push servisi 404/410 dondurdugunde abonelik olmustur (tarayici verisi
- * silinmis, izin geri alinmis); satir silinir. Aksi halde tablo zamanla olu
- * kayitlarla dolar ve her bildirim bosa istek atar.
- */
 class WebPushChannel
 {
     public function send(object $notifiable, Notification $notification): void
@@ -86,10 +67,6 @@ class WebPushChannel
                 continue;
             }
 
-            /*
-             * `isSubscriptionExpired()` 404 ve 410 icin true doner — cihaz
-             * kaydi silinmis demektir, tekrar denemenin anlami yok.
-             */
             if ($prune && $report->isSubscriptionExpired()) {
                 PushSubscription::query()
                     ->where('endpoint_hash', PushSubscription::hashFor($report->getEndpoint()))

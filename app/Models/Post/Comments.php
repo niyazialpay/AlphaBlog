@@ -10,9 +10,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Comments extends Model
 {
-    use SoftDeletes;
     use ModelLogger;
-
+    use SoftDeletes;
 
     protected $table = 'comments';
 
@@ -31,11 +30,6 @@ class Comments extends Model
         'is_approved' => false,
     ];
 
-    /*protected $appends = [
-        'nickname',
-        'user_email',
-    ];*/
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -45,14 +39,4 @@ class Comments extends Model
     {
         return $this->belongsTo(Posts::class, 'post_id');
     }
-
-    /*public function getNicknameAttribute(): string
-    {
-        return $this->user_id ? $this->user()->first()->nickname : $this->name;
-    }
-
-    public function getUserEmailAttribute(): string
-    {
-        return $this->user_id ? $this->user()->first()->email : $this->email;
-    }*/
 }

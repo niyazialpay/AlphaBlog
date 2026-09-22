@@ -15,12 +15,6 @@ class ContactController extends Controller
 {
     public function index(): SymfonyResponse
     {
-        /*
-         * Blade'e bos bir model (`new ContactPage`) gecirilip icinde
-         * `$contactPage->where(...)->first()` cagriliyordu; yani model bir
-         * sorgu kolu olarak kullaniliyordu. Inertia prop'u serilestirilebilir
-         * olmak zorunda: dil koduna gore anahtarlanmis duz diziye cevrilir.
-         */
         $pages = ContactPage::all()->keyBy('language');
 
         return PanelResponse::render(

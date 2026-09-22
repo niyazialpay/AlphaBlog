@@ -12,9 +12,6 @@ class MostReadPosts extends Component
 {
     public mixed $posts;
 
-    /**
-     * Create a new component instance.
-     */
     public function __construct()
     {
         if (Cache::has(config('cache.prefix').'most_read_posts_'.session('language'))) {
@@ -39,9 +36,6 @@ class MostReadPosts extends Component
         $this->posts = $posts;
     }
 
-    /**
-     * Get the view / contents that represent the component.
-     */
     public function render(): View|Closure|string
     {
         try {

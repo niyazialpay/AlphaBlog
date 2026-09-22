@@ -4,9 +4,6 @@ namespace Tests\Feature\Panel;
 
 use App\Models\User;
 
-/**
- * Yazi editorundeki yazar alaninin sunucu tarafli aramasi (`admin.authors.search`).
- */
 class AuthorSearchTest extends PanelTestCase
 {
     /**
@@ -48,6 +45,13 @@ class AuthorSearchTest extends PanelTestCase
         $asEditor = collect($this->search($editor, 'Demir'))->firstWhere('value', (string) $target->id);
         $this->assertNotNull($asEditor);
         $this->assertStringNotContainsString('gizli@example.test', (string) $asEditor['description']);
+    }
+
+    public function test_label_matches_legacy_full_name_and_nickname_format(): void
+    {
+        $this->author(['name' => 'Ahmet', 'surname' => 'Rıza', 'nickname' => 'arz']);
+
+        $this->assertSame('Ahmet Rıza (arz)', $this->search($this->owner, 'arz')[0]['label']);
     }
 
     public function test_like_wildcards_are_literal(): void

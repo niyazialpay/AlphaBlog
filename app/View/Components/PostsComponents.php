@@ -26,9 +26,6 @@ class PostsComponents extends Component
 
     public ?string $search;
 
-    /**
-     * Create a new component instance.
-     */
     public function __construct($category = null, $paginate = 10, $user = null, $search = null)
     {
         $this->category = $category;
@@ -38,8 +35,6 @@ class PostsComponents extends Component
     }
 
     /**
-     * Get the view / contents that represent the component.
-     *
      * @throws GuzzleException
      */
     public function render(): View|Closure|string

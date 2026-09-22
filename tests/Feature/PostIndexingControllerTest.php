@@ -50,8 +50,6 @@ class PostIndexingControllerTest extends TestCase
 
         $ids = $published->pluck('id')->concat([$draft->id])->toArray();
 
-        // PostsObserver yayimlanan her yeni postta zaten bir indeksleme job'i atiyor.
-        // Sayaci burada sifirla ki yalnizca toplu istegin dispatch'leri olculsun.
         Bus::fake();
 
         $response = $this->actingAs($this->admin)

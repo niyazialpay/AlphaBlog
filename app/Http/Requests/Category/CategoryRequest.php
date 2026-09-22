@@ -9,28 +9,16 @@ use Illuminate\Validation\Rule;
 
 class CategoryRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return auth()->check() && (auth()->user()->role == 'owner' || auth()->user()->role == 'admin' || auth()->user()->role == 'editor');
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
      * @return array<string, ValidationRule|array|string>
      */
     public function rules(): array
     {
-        /*
-         * Duzenleme modu govdeden (`id`) DEGIL, route parametresinden okunur —
-         * Vue formu `id` alanini hic gondermiyor (route-model binding zaten
-         * kategoriyi URL'den cozuyor). Gövdeye bakmak, düzenleme sırasında
-         * unique kuralının kendi kaydını asla dışlayamamasına ve doğrulamanın
-         * komple reddedilmesine yol açıyordu.
-         */
         $category = $this->route('category');
         $categoryId = $category instanceof Categories ? $category->id : $category;
 
@@ -49,9 +37,6 @@ class CategoryRequest extends FormRequest
         ];
     }
 
-    /**
-     * Get the error messages for the defined validation rules.
-     */
     public function messages(): array
     {
         return [

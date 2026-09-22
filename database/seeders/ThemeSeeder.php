@@ -7,9 +7,6 @@ use Illuminate\Database\Seeder;
 
 class ThemeSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         Themes::create([

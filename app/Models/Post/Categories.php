@@ -17,8 +17,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class Categories extends Model implements HasMedia
 {
     use InteractsWithMedia;
-    use Searchable;
     use ModelLogger;
+    use Searchable;
 
     protected $table = 'categories';
 
@@ -83,17 +83,14 @@ class Categories extends Model implements HasMedia
         $this->addMediaConversion('resized')
             ->width(1920)
             ->height(1080)
-            //->sharpen(10)
             ->nonOptimized()->keepOriginalImageFormat();
         $this->addMediaConversion('cover')
             ->width(850)
             ->height(480)
-            //->sharpen(10)
             ->nonOptimized()->keepOriginalImageFormat();
         $this->addMediaConversion('thumb')
             ->width(365)
             ->height(200)
-            //->sharpen(10)
             ->nonOptimized()->keepOriginalImageFormat();
     }
 }

@@ -15,27 +15,21 @@ use Psr\Container\NotFoundExceptionInterface;
 class HomePosts extends Component
 {
     public int $paginate;
-    public int  $skip = 0;
 
-    /**
-     * Create a new component instance.
-     */
+    public int $skip = 0;
+
     public function __construct($paginate = 10, $skip = 0)
     {
         $this->paginate = $paginate;
         $this->skip = $skip;
     }
 
-    /**
-     * Get the view / contents that represent the component.
-     */
     public function render(): View|Closure|string
     {
         try {
-            if(is_numeric(request()->get('page'))) {
+            if (is_numeric(request()->get('page'))) {
                 $page = request()->get('page') ?? 1;
-            }
-            else{
+            } else {
                 $page = 1;
             }
         } catch (NotFoundExceptionInterface|ContainerExceptionInterface $e) {
@@ -70,7 +64,6 @@ class HomePosts extends Component
                 ->take($perPage)
                 ->get();
 
-            // Pagination manually handled
             $total = Posts::where('post_type', 'post')
                 ->where('language', session('language'))
                 ->where('is_published', true)

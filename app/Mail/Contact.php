@@ -15,17 +15,11 @@ class Contact extends Mailable
 
     public array $contact;
 
-    /**
-     * Create a new message instance.
-     */
     public function __construct($contact)
     {
         $this->contact = $contact;
     }
 
-    /**
-     * Get the message envelope.
-     */
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -35,9 +29,6 @@ class Contact extends Mailable
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
     public function content(): Content
     {
         return new Content(
@@ -46,8 +37,6 @@ class Contact extends Mailable
     }
 
     /**
-     * Get the attachments for the message.
-     *
      * @return array<int, Attachment>
      */
     public function attachments(): array

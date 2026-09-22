@@ -49,11 +49,6 @@ class SearchConsoleControllerTest extends TestCase
         $response->assertRedirect();
     }
 
-    /**
-     * Ekran Vue'ya tasindi: artik `panel.search-console` blade'i yerine
-     * `SearchConsole/Index` Inertia bileseni render ediliyor. Iddia edilen sey
-     * ayni: kimlik dosyasi yokken ekran 200 doner ve `configured` false'tur.
-     */
     public function test_index_renders_inertia_component_when_not_configured(): void
     {
         $response = $this->actingAs($this->admin)->get(route('admin.search-console'));

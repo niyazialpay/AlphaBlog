@@ -14,9 +14,6 @@ class SimilarPosts extends Component
 {
     public $post;
 
-    /**
-     * Create a new component instance.
-     */
     public function __construct($post, $limit)
     {
         if (Cache::has(config('cache.prefix').'similar_posts_'.$post->id.'_'.$limit)) {
@@ -58,9 +55,6 @@ class SimilarPosts extends Component
         }
     }
 
-    /**
-     * Get the view / contents that represent the component.
-     */
     public function render(): View|Closure|string
     {
         try {

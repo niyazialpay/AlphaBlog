@@ -8,15 +8,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SecurityHeaders
 {
-    /**
-     * Apply baseline security response headers.
-     *
-     * NOTE: a strict Content-Security-Policy is intentionally NOT set here. The
-     * panel and themes rely on inline scripts and several CDN sources, so a tight
-     * CSP requires nonce/hash work and per-view auditing first. Add it (ideally
-     * Report-Only at first) once those are inventoried. The headers below are
-     * non-breaking and close clickjacking / MIME-sniffing / referrer-leak vectors.
-     */
     public function handle(Request $request, Closure $next): Response
     {
         $response = $next($request);
@@ -35,7 +26,6 @@ class SecurityHeaders
             }
         }
 
-        // HSTS only over HTTPS to avoid pinning HTTP clients during local dev.
         if ($request->isSecure() && ! $response->headers->has('Strict-Transport-Security')) {
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         }

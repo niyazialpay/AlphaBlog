@@ -17,23 +17,14 @@ use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
-        // Fortify default routes must be disabled before providers boot.
         Fortify::ignoreRoutes();
 
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        // SECURITY: strengthen the default password policy used by Password::default()
-        // (registration, reset, change). Previously fell back to min-8 only.
         Password::defaults(function () {
             return Password::min(12)
                 ->mixedCase()

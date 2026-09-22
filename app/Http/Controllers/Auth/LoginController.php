@@ -18,17 +18,6 @@ class LoginController extends Controller
 {
     use AuthenticatesUsers;
 
-    /*
-    |--------------------------------------------------------------------------
-    | Login Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles authenticating users for the application and
-    | redirecting them to your home screen. The controller uses a trait
-    | to conveniently provide its functionality to your applications.
-    |
-    */
-
     public static function middleware(): array
     {
         return [
@@ -42,10 +31,6 @@ class LoginController extends Controller
         $check = User::where('username', $login)->first();
 
         if ($check?->webauthn || WebAuthnCredential::where('authenticatable_id', $check?->id)->exists()) {
-            // SECURITY: do NOT echo email/username here. This endpoint is reachable
-            // pre-authentication; returning PII enables account enumeration and
-            // address harvesting. The opaque 'login' handle is sufficient for the
-            // subsequent WebAuthn assertion.
             return [
                 'status' => true,
                 'webauthn' => true,
@@ -86,9 +71,6 @@ class LoginController extends Controller
         ]);
 
         if (Auth::attempt(['username' => $request->username, 'password' => $request->password], true)) {
-            // SECURITY: rotate the session ID on privilege change to prevent
-            // session fixation. Must happen BEFORE sessionUpdate() so the tracked
-            // user_sessions row records the new session id.
             $request->session()->regenerate();
             if (Hash::needsRehash(auth()->user()->password)) {
                 auth()->user()->password = Hash::make($request->password);
@@ -115,7 +97,6 @@ class LoginController extends Controller
         }
         $this->incrementLoginAttempts($request);
 
-        // SECURITY: record failed authentications for monitoring/alerting.
         Log::warning('Failed login attempt', [
             'username' => $request->username,
             'ip' => $request->ip(),
@@ -133,8 +114,6 @@ class LoginController extends Controller
     public function logout(Request $request)
     {
         Auth::logout();
-        // SECURITY: fully invalidate the session and issue a fresh CSRF token on
-        // logout so the old session id/token cannot be replayed.
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

@@ -5,40 +5,9 @@ namespace Tests\Feature\Panel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
-/**
- * Panel yazma uçlarının Inertia protokol testi.
- *
- * NEDEN VAR: migrasyon sonrası 231 test yeşildi ama panelde HER form gönderimi
- * 500 veriyordu. Testlerin tamamı GET render yollarını kapsıyordu; tek bir POST
- * ucu bile Inertia başlıklarıyla çağrılmamıştı. Çelişmeli denetim 13 blocker
- * buldu, 8'i tek bir sınıftan:
- *
- *     public function save(...): JsonResponse        // <- daraltılmış dönüş tipi
- *     {
- *         return $request->inertia()
- *             ? back()->with('success', ...)          // <- RedirectResponse
- *             : response()->json([...]);
- *     }
- *
- * PHP sınıf dönüş tiplerinde coercion yapmaz: her Inertia POST'u yakalanmamış
- * TypeError → 500.
- *
- * BEKLENTİ VUE'DAN TÜRETİLİR, VARSAYILMAZ. Panelin R1 kuralı şudur: form
- * eylemleri yönlendirir, VERİ eylemleri JSON kalır. Bu yüzden bir ucun Inertia
- * konuşup konuşmayacağını Vue tarafındaki ÇAĞRI BİÇİMİ belirler:
- *
- *   router.post(route('x'))  /  useForm().post(route('x'))  → Inertia dönmeli
- *   axios.post(route('x'))                                  → JSON kalmalı
- *
- * Böylece `general.search` ya da `admin.system-logs.data` gibi meşru JSON
- * beslemeleri yanlışlıkla ihlal sayılmaz.
- */
 class PanelWriteProtocolTest extends PanelTestCase
 {
     /**
-     * Protokolden muaf DEĞİL; bu testte güvenilir çalıştırılamayanlar
-     * (dış servis, oturum imhası, kimlik değiştirme, tarayıcı kriptosu).
-     *
      * @var list<string>
      */
     private const SKIP = [
@@ -60,24 +29,12 @@ class PanelWriteProtocolTest extends PanelTestCase
         'webauthn.register',
         'user.security.webauthn',
 
-        // Fortify kendi yanıt sözleşmesini döndürür.
         'two-factor.enable',
         'two-factor.confirm',
         'two-factor.disable',
     ];
 
     /**
-     * Modül segmentleri.
-     *
-     * Modül yazma uçları DIŞLANIR — protokolden muaf oldukları için değil, test
-     * ortamında URL'leri üretilemediği için. Bazı modüller ön yüz route'larını
-     * `Route::group(['prefix' => '/{language}'])->whereIn('language',
-     * Languages::all()->pluck('code'))` ile kaydediyor; `Languages::all()` ROUTE
-     * KAYIT anında çalışıyor ve `RefreshDatabase` dil satırını bundan SONRA
-     * eklediği için dizi boş kalıyor, requirement boş regex'e düşüyor ve
-     * `route()` "Routing requirement for 'language' cannot be empty" fırlatıyor.
-     * Aynı kök neden `php artisan route:list`i de bu projede asıyor.
-     *
      * @var list<string>
      */
     private const MODULE_SEGMENTS = [
@@ -101,7 +58,6 @@ class PanelWriteProtocolTest extends PanelTestCase
                 continue;
             }
 
-            // Her ucu kendi defterine yazili gibi calistir.
             $this->migrateScreens([$name]);
 
             try {
@@ -142,13 +98,6 @@ class PanelWriteProtocolTest extends PanelTestCase
         $this->assertSame([], $failures, "Inertia protokol ihlali:\n  - ".implode("\n  - ", $failures)."\n");
     }
 
-    /**
-     * axios ile çağrılan uçlar JSON KALMALI (R1).
-     *
-     * Ters yön de bir hatadır: bir veri ucu `back()` döndürmeye başlarsa axios
-     * çağıranı `response.data.status` okur, `undefined` alır ve sessizce yanlış
-     * dala düşer — hata bile vermez.
-     */
     public function test_axios_called_write_endpoints_stay_json(): void
     {
         $axiosCalled = self::routeNamesCalledWith('axios');
@@ -187,23 +136,12 @@ class PanelWriteProtocolTest extends PanelTestCase
     }
 
     /**
-     * Açık kalmış DB transaction'ını yakalar ve geri alır.
-     *
-     * Bir controller `DB::beginTransaction()` açıp commit/rollback yapmadan
-     * dönerse (ör. transaction içinde fırlayan ve yakalanmayan bir hata),
-     * bağlantı transaction içinde kalır. Üretimde bu, istek bitene kadar kilit
-     * tutar; testte ise SONRAKİ testin setUp'ını "cannot start a transaction
-     * within a transaction" ile düşürür ve hata YANLIŞ teste atfedilir.
-     *
-     * Burada hem raporlanır hem temizlenir ki kalan uçlar ölçülebilsin.
-     *
      * @param  list<string>  $failures
      */
     private function releaseLeakedTransactions(string $routeName, array &$failures): void
     {
         $connection = DB::connection();
 
-        // RefreshDatabase kendi sarmalayici transaction'ini tutar (seviye 1).
         while ($connection->transactionLevel() > 1) {
             $failures[] = "{$routeName} acik DB transaction birakti (commit/rollback yok) — "
                 .'uretimde istek boyunca kilit tutar.';
@@ -213,8 +151,6 @@ class PanelWriteProtocolTest extends PanelTestCase
     }
 
     /**
-     * Vue kaynağında belirtilen çağrı biçimiyle kullanılan route adları.
-     *
      * @param  string  $callerPattern  regex alternasyonu: 'router|useForm' ya da 'axios'
      * @return list<string>
      */
@@ -241,7 +177,6 @@ class PanelWriteProtocolTest extends PanelTestCase
 
                 $src = (string) file_get_contents($file->getPathname());
 
-                // router.post(route('x'  |  form.post(route('x'  |  axios.post(route('x'
                 $pattern = '/(?:'.$callerPattern.')[\w.]*\.\w+\(\s*route\(\s*[\'"]([^\'"]+)[\'"]/';
 
                 if (preg_match_all($pattern, $src, $m)) {
@@ -256,8 +191,6 @@ class PanelWriteProtocolTest extends PanelTestCase
     }
 
     /**
-     * Zorunlu segment taşımayan çekirdek panel yazma route'ları.
-     *
      * @return array<string, string> route adı => HTTP metodu
      */
     private function panelWriteRoutes(): array

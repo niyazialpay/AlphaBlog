@@ -18,29 +18,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PersonalNotesController extends Controller
 {
-    /**
-     * Sifreleme kapisi.
-     *
-     * Notlar, kullanicinin kendi anahtariyla (cookie'de tutulan) sifreleniyor.
-     * Anahtar yoksa ya da yanlissa ekran yerine kapi gosterilir.
-     *
-     * PAYLASILAN PROP YAPILMADI: her panel isteginde hesaplanir ve "bu
-     * kullanicinin notlari acik" bilgisini her sayfanin yukune sizdirirdi.
-     * Ayri bir sayfa olarak sunulur.
-     *
-     * 200 doner, 302 degil - bugunku davranisin aynisi ve Inertia 200 + X-Inertia
-     * yanitinda bileseni dogru sekilde takas eder.
-     *
-     * TEK ISTISNA yazma istekleri: bir POST'a sayfa BILESENI donmek Inertia'nin
-     * redirect-after-POST sozlesmesine aykiri. Ustelik yazma uclari
-     * (`admin.notes.categories.create` / `.update`) `config/panel_inertia_routes.php`
-     * defterinde YOK; PanelResponse o durumda blade'e dusuyor ve Inertia XHR'ina
-     * ham AdminLTE HTML'i gidiyordu (200, sessiz). Yazmada sifre ekranina yonlendirilir.
-     *
-     * Bu dal X-Inertia BASLIGINA BAKMAZ. Baslik ag yolunda dusse bile bir POST'a
-     * ham Blade HTML'i donmek (200) istemcide tam ekran hata modali demekti;
-     * yazma daima yonlendirir.
-     */
     private function encryptionGate(): ?Response
     {
         if (request()->cookie('encryption_key')) {
@@ -188,13 +165,6 @@ class PersonalNotesController extends Controller
         );
     }
 
-    /**
-     * Not kaydeder.
-     *
-     * TEK YANIT SEKLI: yonlendirme. Vue (`Notes/Edit.vue`) bu ucu `form.post` ile
-     * cagiriyor; JSON dali cagrisiz kalmisti ve X-Inertia basligi ag yolunda
-     * dustugunde Inertia'ya JSON gidip tam ekran hata modali aciliyordu.
-     */
     public function save(PersonalNotesRequest $request, PersonalNotes $note): RedirectResponse
     {
         try {
@@ -253,10 +223,6 @@ class PersonalNotesController extends Controller
         }
     }
 
-    /**
-     * TEK YANIT SEKLI: yonlendirme — `Notes/Media.vue` `router.post` ile cagiriyor.
-     * (Editor yuklemesi `editorImageUpload()` JSON kalir: TinyMCE veri ucu.)
-     */
     public function postImageDelete(PersonalNotes $note, Request $request): RedirectResponse
     {
         $request->validate([
@@ -297,9 +263,6 @@ class PersonalNotesController extends Controller
         );
     }
 
-    /**
-     * TEK YANIT SEKLI: yonlendirme — `Notes/Index.vue` `router.post` ile cagiriyor.
-     */
     public function delete(PersonalNotes $note, Request $request): RedirectResponse
     {
         try {
@@ -309,7 +272,6 @@ class PersonalNotesController extends Controller
 
                 return back()->with('success', __('notes.deleted'));
             } else {
-                // Bu yol commit GORMUYORDU: transaction istek boyunca acik kalirdi.
                 DB::rollBack();
 
                 return back()->with('error', __('notes.delete_error'));
@@ -321,12 +283,6 @@ class PersonalNotesController extends Controller
         }
     }
 
-    /**
-     * TEK YANIT SEKLI: yonlendirme — `Notes/Encryption.vue` `form.post` ile cagiriyor.
-     *
-     * Cerez YONLENDIRME yanitina eklenir; Inertia yonlendirmeyi izlerken tarayici
-     * Set-Cookie'yi normal sekilde isler. `httpOnly`/`secure` bayraklari DEGISMEDI.
-     */
     public function encryption(Request $request): RedirectResponse
     {
         $request->validate([
@@ -369,17 +325,8 @@ class PersonalNotesController extends Controller
         );
     }
 
-    /**
-     * TEK YANIT SEKLI: yonlendirme — `Notes/Categories.vue` `form.post` ile cagiriyor.
-     *
-     * Donus tipi `RedirectResponse` DEGIL: sifreleme kapisi anahtar yokken devreye
-     * girip `to_route(...)` donuyor; Symfony `Response` ikisinin de ust turu.
-     */
     public function categorySave(Request $request, PersonalNoteCategories $category): Response
     {
-        // B6: kapi transaction'dan ONCE. Eskiden acik bir transaction icinden
-        // view() donuluyordu: jQuery cagiran JSON bekliyordu, HTML aliyordu ve
-        // transaction commit/rollback edilmeden sizyordu.
         if ($gate = $this->encryptionGate()) {
             return $gate;
         }
@@ -404,13 +351,9 @@ class PersonalNotesController extends Controller
         }
     }
 
-    /**
-     * TEK YANIT SEKLI: yonlendirme — `Notes/Categories.vue` `router.post` ile cagiriyor.
-     */
     public function categoryDelete(PersonalNoteCategories $category, Request $request): RedirectResponse
     {
         try {
-            // Bu erken donus transaction'dan ONCE: acilmamis bir transaction yok.
             if ($category->notes->count() > 0) {
                 return back()->with('error', __('notes.error_delete_notes'));
             }
@@ -420,7 +363,6 @@ class PersonalNotesController extends Controller
 
                 return back()->with('success', __('notes.success_delete'));
             } else {
-                // Bu yol commit GORMUYORDU: transaction istek boyunca acik kalirdi.
                 DB::rollBack();
 
                 return back()->with('error', __('notes.error_delete'));

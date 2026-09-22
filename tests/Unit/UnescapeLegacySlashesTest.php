@@ -7,14 +7,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-/**
- * `db:unescape-slashes` komutunun cozme kuralini kilitler.
- *
- * Kritik olan sey KALDIRILMAYANLAR: bu bir yazilim blogu, icerikte kod ornegi,
- * Windows dosya yolu ve regex var. PHP'nin `stripslashes()` fonksiyonu ters
- * boluyu hangi karakterden once olursa olsun sildigi icin kullanilamiyor —
- * "C:\Users" -> "C:Users" olurdu. Bu testler o farki korur.
- */
 class UnescapeLegacySlashesTest extends TestCase
 {
     private const BS = '\\';
@@ -38,7 +30,6 @@ class UnescapeLegacySlashesTest extends TestCase
             'cift ters bolu teke iner' => ["{$b}{$b}{$b}{$b}", "{$b}{$b}"],
             'kacisli ters bolu artı gercek tirnak' => ["{$b}{$b}{$b}{$q}", "{$b}{$q}"],
 
-            // Korunmasi gerekenler — regresyon olursa icerik bozulur.
             'windows yolu korunur' => ["C:{$b}Users{$b}Admin", "C:{$b}Users{$b}Admin"],
             'regex korunur' => ["{$b}d+{$b}s*", "{$b}d+{$b}s*"],
             'php namespace korunur' => ["App{$b}Models{$b}Post", "App{$b}Models{$b}Post"],

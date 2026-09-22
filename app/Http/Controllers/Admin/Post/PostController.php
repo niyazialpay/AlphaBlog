@@ -34,13 +34,6 @@ use Yajra\DataTables\Facades\DataTables;
 
 class PostController extends Controller
 {
-    /**
-     * Inertia her XHR ziyaretinde X-Requested-With: XMLHttpRequest gonderir ve
-     * Request::ajax() tam olarak bunu kontrol eder. Salt ajax() ile dallanmak,
-     * sidebar uzerinden yapilan her Inertia gezinmesine sayfa yerine DataTables
-     * JSON'u dondururdu. jQuery DataTables her zaman `draw` gonderdigi icin bu
-     * ek kosul eski davranis acisindan notrdur.
-     */
     private function wantsDataTable(Request $request): bool
     {
         return $request->ajax()
@@ -177,29 +170,12 @@ class PostController extends Controller
         );
     }
 
-    /**
-     * Inertia sayfasi icin satirlar.
-     *
-     * Eski jQuery DataTables ucu (admin.posts + `draw`) DOKUNULMADAN duruyor:
-     * henuz tasinmamis Blade ekrani ve dis cagiranlar icin. Burasi ayni veriyi
-     * HAM ALANLAR halinde dondurur; HTML kolonlari (checkbox/title/categories/
-     * media/action) Vue tarafinda uretilir.
-     */
     private function rows(Request $request, $query, ?string $language)
     {
         $search = trim((string) $request->get('search'));
         $perPage = $this->perPage($request);
 
         if ($search !== '') {
-            /*
-             * Scout aramasi ilgi sirasi dondurur; orderBy yok sayilir, bu yuzden
-             * arama etkinken sıralama UI'i kapatilir (yajra da boyle davraniyordu).
-             *
-             * DIKKAT: `where('language', ...)` Meilisearch tarafinda bir FILTRE'ye
-             * cevrilir; `language` filterableAttributes icinde degilse sessizce
-             * etkisiz kalir. phpunit SCOUT_DRIVER=null oldugu icin bunu hicbir test
-             * yakalamaz - canli indekse karsi elle dogrulanmali.
-             */
             $results = Posts::search($search)
                 ->query(fn ($builder) => $builder->withCount('qrScans')->with(['user', 'categories', 'comments']))
                 ->where('language', $language)
@@ -241,8 +217,6 @@ class PostController extends Controller
                 : [],
             'author' => $item->user ? ['id' => $item->user->id, 'nickname' => $item->user->nickname] : null,
             'thumbnail' => mediaConversionUrl($item->getFirstMedia('posts'), 'resized'),
-            // ISO-8601: eski uc created_at icin 'Y-m-d H:i:s', updated_at icin
-            // 'd.m.Y H:i:s' basiyordu (tutarsiz). Bicimlendirme artik istemcide.
             'created_at' => $item->created_at?->toIso8601String(),
             'updated_at' => $item->updated_at?->toIso8601String(),
             'deleted_at' => $item->deleted_at?->toIso8601String(),
@@ -253,11 +227,6 @@ class PostController extends Controller
         ];
     }
 
-    /**
-     * Sayfa boyu artik session('post_datatable_length') degil acik bir query
-     * parametresi. Eski session yazimi, onu okuyan son Blade tablosu da
-     * tasinana kadar yerinde birakildi.
-     */
     private function perPage(Request $request): int
     {
         $perPage = (int) $request->get('per_page', 10);
@@ -287,8 +256,6 @@ class PostController extends Controller
                 'comments.user',
                 'history',
             ]);
-            // QR okuma sayaci: index()/search yolunda withCount var, editorde YOKTU;
-            // bu yuzden editorPost() rozeti her zaman 0 gosteriyordu.
             $post->loadCount('qrScans');
             $categories = Categories::where('language', $post?->language)->get();
         } else {
@@ -304,29 +271,11 @@ class PostController extends Controller
                 'categories' => $categories->map(fn (Categories $category) => [
                     'id' => (string) $category->id,
                     'name' => $category->name,
-                    // Eski blade secenek etiketine dil sonekini basiyordu.
                     'language' => $category->language,
                 ])->values(),
-                /*
-                 * Yazar listesi ARTIK GONDERILMIYOR.
-                 *
-                 * Eskiden tum kullanicilar sinirsiz bir liste olarak geliyordu
-                 * (B9) ve arama istemcide yalnizca takma adlar uzerinde
-                 * yapiliyordu. Arama artik sunucuda (`admin.authors.search`,
-                 * ad/soyad/takma ad, admin icin e-posta). Burada yalnizca SECILI
-                 * yazar gonderilir ki alan acilista dogru etiketi gostersin.
-                 *
-                 * Yeni yazida secili yazar giris yapan kullanicidir: save()
-                 * bos `user_id` gelirse zaten `auth()->id()`'ye dusuyor.
-                 */
                 'authorSeed' => ($author = $post->user ?? auth()->user())
                     ? [AuthorSearchController::option($author, auth()->user()->can('admin', User::class))]
                     : [],
-                /*
-                 * `languages` DEGIL, `languageOptions` - bkz. MenuController::index()
-                 * `menuRecord`. Paylasilan `languages` prop'u (bayrakli ust bar dil
-                 * secicisi) ayni adli sayfa prop'u tarafindan EZILIR.
-                 */
                 'languageOptions' => collect(app('languages'))
                     ->map(fn ($language) => ['code' => $language->code, 'name' => $language->name])
                     ->values(),
@@ -335,8 +284,6 @@ class PostController extends Controller
             [
                 'post' => $post,
                 'categories' => $categories,
-                // Yalnizca eski Blade yolu kullaniyor (PANEL_UI=blade). Vue modunda
-                // tum kullanici tablosunu bosuna yuklememek icin kosullu.
                 'users' => Panel::vueEnabled('Posts/Edit') ? collect() : User::all(),
                 'type' => $type,
             ],
@@ -344,15 +291,6 @@ class PostController extends Controller
     }
 
     /**
-     * Editor icin post prop'u.
-     *
-     * DIKKAT - `language_code` BILEREK gonderilmiyor.
-     * PostRequest slug benzersizligini `$this->input('language_code')` ile
-     * scope'luyor ama eski form bu alani HIC gondermiyordu; kural fiilen
-     * `where language is null` olarak calisiyor ve benzersizlik uygulanmiyor.
-     * Bu davranisi korumak icin alan eklenmedi; duzeltmek dogrulama davranisini
-     * degistirir ve ayri bir karar gerektirir.
-     *
      * @return array<string, mixed>
      */
     private function editorPost(Posts $post): array
@@ -377,24 +315,15 @@ class PostController extends Controller
             'image' => mediaConversionUrl($post->getFirstMedia('posts'), 'resized'),
             'qr_link' => $post->qr_link ?? null,
             'qr_scans_count' => (int) ($post->qr_scans_count ?? 0),
-            // Eski blade QR'i CDN'den yuklenen qrcodejs ile ciziyordu. Yeni
-            // bagimlilik eklemek yerine sunucuda SVG uretilir (Fortify 2FA
-            // ekraninda zaten kullanilan bacon/bacon-qr-code ile, ayni data-URI
-            // deseninde).
             'qr_image' => self::qrImage($post->qr_link ?? null),
             'history_count' => $post->relationLoaded('history') ? $post->history->count() : 0,
             'comments_count' => $post->relationLoaded('comments') ? $post->comments->count() : 0,
-            // datetime-local girdisi icin saniyesiz yerel bicim.
             'published_at' => $post->created_at
                 ? $post->created_at->timezone(config('app.timezone'))->format('Y-m-d\TH:i')
                 : now()->timezone(config('app.timezone'))->format('Y-m-d\TH:i'),
         ];
     }
 
-    /**
-     * QR baglantisini data-URI SVG'ye cevirir; baglanti yoksa ya da uretici
-     * kullanilamiyorsa null doner (editor ekrani bu yuzden asla patlamaz).
-     */
     private static function qrImage(?string $link): ?string
     {
         if (! $link) {
@@ -441,8 +370,6 @@ class PostController extends Controller
             $post->content = content($request->post('content'));
             $post->meta_description = GetPost($request->post('meta_description'));
             $post->meta_keywords = content($request->post('meta_keywords'));
-            // SECURITY: only owner/admin may assign post ownership to another user.
-            // Lower-privilege authors cannot spoof the author field.
             if (in_array(auth()->user()->role, ['owner', 'admin'], true)) {
                 $post->user_id = GetPost($request->post('user_id')) ?: ($post->user_id ?? auth()->id());
             } else {
@@ -454,16 +381,6 @@ class PostController extends Controller
             $post->created_at = dateformat($request->post('published_at'), 'Y-m-d H:i:s', config('app.timezone'));
 
             $hreflang = [];
-            /*
-             * `hreflang_url` GONDERILMEYEBILIR.
-             *
-             * Vue formu bunu bos nesne olarak baslatiyor; Inertia'nin
-             * objectToFormData'si bos nesne icin SIFIR alan ekliyor, yani
-             * anahtar govdede hic yer almiyor. Korumasiz foreach null uzerinde
-             * ErrorException firlatiyordu -> yeni yazi/sayfa/kategori
-             * kaydedilemiyor, mevcut kayitta hreflang bos ise duzenleme de
-             * kaydedilemiyor.
-             */
             foreach ((array) $request->input('hreflang_url', []) as $key => $value) {
                 if ($value != null) {
                     $hreflang[$key] = GetPost($value);
@@ -482,16 +399,10 @@ class PostController extends Controller
                 DB::commit();
                 CacheClear::cacheClear();
 
-                /*
-                 * Form eylemi: TEK donus sekli yonlendirmedir (R2). Yeni kayitta
-                 * hedef .../{id}/edit; eski JSON dali `id` donuyordu, yonlendirme
-                 * ayni yere gittigi icin bilgi kaybi yok.
-                 */
                 return to_route('admin.post.edit', ['type' => $type, 'post' => $post->id])
                     ->with('success', $message);
             }
 
-            // Bu yol commit GORMUYOR: transaction acik kalirdi.
             DB::rollBack();
 
             return back()->with('error', __('post.error'));
@@ -517,7 +428,6 @@ class PostController extends Controller
                 return back()->with('success', __('post.success_delete'));
             }
 
-            // Bu yol commit GORMUYOR: transaction acik kalirdi.
             DB::rollBack();
 
             return back()->with('error', __('post.post.error_delete'));
@@ -547,7 +457,6 @@ class PostController extends Controller
                 return back()->with('success', __('post.post.success_force_delete'));
             }
 
-            // Bu yol commit GORMUYOR: transaction acik kalirdi.
             DB::rollBack();
 
             return back()->with('error', __('post.post.error_force_delete'));
@@ -573,7 +482,6 @@ class PostController extends Controller
                 return back()->with('success', __('post.post.success_restore'));
             }
 
-            // Bu yol commit GORMUYOR: transaction acik kalirdi.
             DB::rollBack();
 
             return back()->with('error', __('post.post.error_restore'));
@@ -585,11 +493,6 @@ class PostController extends Controller
     }
 
     /**
-     * VERI ucu: Posts/Edit.vue `removeImage()` bunu axios ile cagirir ve yaniti
-     * okuyup ekrani `only: ['post']` ile tazeler. Tek donus sekli JSON'dur -
-     * X-Inertia basligina gore dallanmak, baslik yolda dustugunde Inertia'ya
-     * sayfa yerine JSON verip tam ekran hata modali aciyordu.
-     *
      * @throws MediaCannotBeDeleted
      */
     public function imageDelete($type, Posts $post, Request $request): JsonResponse
@@ -664,10 +567,6 @@ class PostController extends Controller
     }
 
     /**
-     * VERI ucu: Posts/Media.vue `destroy()` bunu axios ile cagirir ve listeyi
-     * `only: ['media']` ile tazeler. Tek donus sekli JSON'dur - bkz.
-     * imageDelete().
-     *
      * @throws MediaCannotBeDeleted
      */
     public function postImageDelete($type, Posts $post, Request $request): JsonResponse

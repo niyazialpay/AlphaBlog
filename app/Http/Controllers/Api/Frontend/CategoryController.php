@@ -10,9 +10,7 @@ class CategoryController extends Controller
 {
     public function index($language)
     {
-        $categories = Categories::with(['categoryMedia' => function ($query) {
-            // $query->select('original_url');
-        }])->where('language', $language)->get();
+        $categories = Categories::with(['categoryMedia' => function ($query) {}])->where('language', $language)->get();
 
         return response()->json($categories);
     }
@@ -28,9 +26,6 @@ class CategoryController extends Controller
 
     public function show(Request $request, $slug)
     {
-        /*$categories = Categories::with(['posts' => function($query){
-            $query->where('is_published', true)->where('language', 'tr')->paginate(30);
-        }])->where('slug', $slug)->get();*/
         $category = Categories::where('slug', $slug)->where('language', 'tr')->first();
         $posts = $category->posts()->with('user')->where('is_published', true)->where('language', 'tr')->paginate(30);
         $posts->getCollection()->transform(function ($post) {

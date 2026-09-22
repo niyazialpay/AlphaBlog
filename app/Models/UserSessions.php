@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use hisorange\BrowserDetect\Parser;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use hisorange\BrowserDetect\Parser;
 
 class UserSessions extends Model
 {
@@ -18,7 +18,7 @@ class UserSessions extends Model
         'region_code',
         'region_name',
         'city_name',
-        'zip_code'
+        'zip_code',
     ];
 
     protected $browser;
@@ -39,19 +39,16 @@ class UserSessions extends Model
         return $this->belongsTo(Session::class, 'session_id', 'id');
     }
 
-    // Browser name attribute
     public function getBrowserNameAttribute(): string
     {
         return $this->browser->parse($this->user_agent)->browserName();
     }
 
-    // Browser version attribute
     public function getBrowserVersionAttribute(): string
     {
         return $this->browser->parse($this->user_agent)->browserVersion();
     }
 
-    // Operating system attribute
     public function getOperatingSystemAttribute(): string
     {
         return $this->browser->parse($this->user_agent)->platformName();

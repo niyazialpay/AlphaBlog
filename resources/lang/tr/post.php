@@ -126,8 +126,6 @@ return [
     'qr_not_created' => 'Bu yazı için henüz QR kod oluşturulmamış.',
     'qr_scans' => ':count okuma',
 
-    // Yazi listesindeki Google index durumu penceresi (eski
-    // panel/post/index.blade.php:473-565 karsiligi).
     'index_status' => 'Google Index Durumu',
     'index_checking' => 'Google sorgulanıyor...',
     'indexed' => 'İndexlenmiş',

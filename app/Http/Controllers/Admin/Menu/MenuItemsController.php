@@ -25,31 +25,12 @@ class MenuItemsController extends Controller
             'Menu/Items',
             'panel.menu.show',
             [
-                /*
-                 * `menu` DEGIL, `menuRecord`.
-                 *
-                 * B6: HandlePanelInertiaRequests `menu` adiyla SIDEBAR bolumlerini
-                 * paylasiyor (PanelMenu::build). Inertia'da sayfa prop'lari ayni
-                 * adli paylasilan prop'u EZER; bu ekran `menu` gonderdiginde
-                 * PanelLayout'taki `sections` bir dizi yerine bu nesneyi aliyor,
-                 * `sections.find(...)` TypeError firlatiyor ve Vue tum layout alt
-                 * agacini bos bir yorum dugumune dusuruyordu - sol menu komple
-                 * kayboluyordu. Ad cakismasi cozuldu; PanelLayout'a dokunulmadi.
-                 */
                 'menuRecord' => [
                     'id' => $menu->id,
                     'title' => $menu->title,
                     'language' => $menu->language,
                     'menu_position' => $menu->menu_position,
                 ],
-                /*
-                 * `html_menu` yerine JSON agaci.
-                 *
-                 * Eski ekran sunucuda uretilmis bir <ol class="dd-list"> string'i
-                 * aliyordu (jquery.nestable icin). Vue tarafi ayni veriyi agac
-                 * olarak alir ve KAYDEDERKEN yine ayni JSON string'ini uretir -
-                 * MenuItemsController::save() sozlesmesi degismedi.
-                 */
                 'tree' => $this->itemTree($menu->id),
                 'categories' => Categories::where('language', $menu->language)
                     ->get(['id', 'name', 'slug'])
@@ -77,23 +58,12 @@ class MenuItemsController extends Controller
     }
 
     /**
-     * Menu ogeleri agaci.
-     *
-     * ANAHTAR ADLARI SUNUCU SOZLESMESIYLE AYNI OLMAK ZORUNDA: updateMenu()
-     * `title`, `url`, `language`, `icon`, `nav_target`, `menu_type` ve `children`
-     * okuyor; ilk dordu KORUMASIZ okunuyor, eksik olan biri transaction'i
-     * rollback'e dusurup jenerik bir hata uretir.
-     *
-     * DB kolonu `target`, payload anahtari `nav_target` - karistirilmamali.
-     *
      * @return list<array<string, mixed>>
      */
     private function itemTree(int $menuId, ?int $parentId = null): array
     {
         return MenuItems::where('menu_id', $menuId)
             ->where('parent_id', $parentId)
-            // B4: eskiden yalnizca id'ye gore siralaniyordu. Satirlar her kayitta
-            // silinip dizi sirasinda yeniden yaratildigi icin kazara calisiyordu.
             ->orderBy('order')
             ->orderBy('id')
             ->get()
@@ -112,17 +82,6 @@ class MenuItemsController extends Controller
             ->all();
     }
 
-    /**
-     * Menu agacini kaydeder.
-     *
-     * SOZLESME DEGISMEDI: `menu_id` + `menu` (JSON string) okunur, satirlar silinip
-     * dizi sirasinda yeniden yaratilir. Vue tarafi (`MenuTreeBuilder` /
-     * `MenuBuilder.vue`) kaydetme sonrasi yeni id'leri sunucudan okur; bu yuzden
-     * yonlendirme ZORUNLU - Inertia yonlendirmeyi izleyip `admin.menu.show`
-     * prop'larini (yeni id'lerle) taze alir.
-     *
-     * TEK YANIT SEKLI: yonlendirme — iki cagiran da `router.post`/`form.post`.
-     */
     public function save(MenuItemRequest $request): RedirectResponse
     {
         try {
@@ -139,7 +98,6 @@ class MenuItemsController extends Controller
 
             return back()->with('error', __('menu.menu_save_error'));
         }
-        // B5: burada `return`'den sonra erisilemez kod vardi; kaldirildi.
     }
 
     private function updateMenu($menu_id, $menu, $parent = null, bool $clearCache = true): void
@@ -196,10 +154,6 @@ class MenuItemsController extends Controller
     private function menuTree($menu_id, $parent_id = null): string
     {
         $items = '';
-        // B4 (Blade kabugu): `order` yok sayilip yalnizca `id`'ye gore
-        // siralaniyordu. Satirlar her kayitta silinip dizi sirasinda yeniden
-        // yaratildigi icin kazara calisiyordu; tek bir kismi yazma sirayi
-        // bozuyordu. itemTree() ile ayni siralama.
         $query = MenuItems::where('parent_id', $parent_id)
             ->where('menu_id', $menu_id)
             ->orderBy('order')

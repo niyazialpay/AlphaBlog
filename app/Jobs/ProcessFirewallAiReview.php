@@ -26,9 +26,6 @@ class ProcessFirewallAiReview implements ShouldQueue
 
     public function __construct(protected array $payload, protected int $firewallId) {}
 
-    /**
-     * Execute the job.
-     */
     public function handle(AiChatModelCatalog $modelCatalog): void
     {
         $firewall = Firewall::query()->find($this->firewallId);

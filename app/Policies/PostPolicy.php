@@ -7,13 +7,7 @@ use App\Models\User;
 
 class PostPolicy
 {
-    /**
-     * Create a new policy instance.
-     */
-    public function __construct()
-    {
-        //
-    }
+    public function __construct() {}
 
     public function create(User $user): bool
     {
@@ -43,16 +37,6 @@ class PostPolicy
             $user->role === 'author';
     }
 
-    /**
-     * `$posts` NULL olabilir: route'lar bu yetenegi hem model bagli
-     * (`->can('edit', 'post')`) hem SINIF seviyesinde
-     * (`->can('edit', 'App\Models\Post\Posts')`, ornegin admin.post.index.bulk)
-     * kullaniyor. Zorunlu parametre oldugunda sinif seviyesindeki cagri
-     * TypeError firlatip ucu 500'e dusuruyordu.
-     *
-     * Sinif seviyesinde yazarlara IZIN VERILMEZ: toplu islemler tek tek sahiplik
-     * dogrulamasi yapmiyor, bu yuzden kapi moderatorlerle sinirli tutulur.
-     */
     public function edit(User $user, ?Posts $posts = null): bool
     {
         if ($user->role === 'owner' || $user->role === 'admin' || $user->role === 'editor') {

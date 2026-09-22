@@ -32,12 +32,6 @@ class SearchController extends Controller
             'SearchWords/Index',
             'panel.search',
             [
-                /*
-                 * Blade'e `new Browser` ornegi gecirilip iceride statik olarak
-                 * cagriliyordu ($browser::platformName(...)). Servis nesnesi
-                 * JSON'a serilestirilemez; cozumleme burada yapilip string
-                 * gonderiliyor.
-                 */
                 'words' => PanelResponse::rows($words, fn (Search $item) => [
                     'id' => $item->id,
                     'search' => $item->search,
@@ -68,8 +62,6 @@ class SearchController extends Controller
             $item->save();
         }
 
-        // Tek cagiran resources/js/panel/Pages/SearchWords/Index.vue, router.post
-        // ile Inertia uzerinden cagiriyor - eski jQuery/axios tuketicisi yok.
         return back()->with('success', __('search.check.success'));
     }
 
@@ -83,8 +75,6 @@ class SearchController extends Controller
                 return back()->with('success', __('search.delete.success'));
             }
 
-            // Bu yol commit GORMUYOR: transaction acik kalirsa baglanti
-            // istek boyunca kilit tutar.
             DB::rollBack();
 
             return back()->with('error', __('search.delete.error'));
@@ -97,11 +87,6 @@ class SearchController extends Controller
 
     public function think(Search $search, Request $request): RedirectResponse
     {
-        /*
-         * Korumasiz: bos/eslesmeyen bagli modelde `update()` var olmayan satira
-         * INSERT denemesi yapiyor ve firlatiyordu (500). Kayit yoksa 404 dogru
-         * yanittir.
-         */
         if (! $search->exists) {
             abort(404);
         }
@@ -127,8 +112,6 @@ class SearchController extends Controller
                 return back()->with('success', __('search.delete.success'));
             }
 
-            // Bu yol commit GORMUYOR: transaction acik kalirdi.
-
             DB::rollBack();
 
             return back()->with('error', __('search.delete.error'));
@@ -148,8 +131,6 @@ class SearchController extends Controller
 
                 return back()->with('success', __('search.delete.success'));
             }
-
-            // Bu yol commit GORMUYOR: transaction acik kalirdi.
 
             DB::rollBack();
 

@@ -5,26 +5,6 @@ namespace Tests\Feature\Panel;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
-/**
- * Panelde medya donusum URL'lerinin KORUMASIZ uretilmedigini kilitler.
- *
- * `Media::getFullUrl('resized')` dosya diskte OLMASA DA adlandirma kuralindan
- * bir URL uretir. Bu yuzden panelde yaygin olan
- *
- *     $media->getFullUrl('resized') ?: $media->getFullUrl()
- *
- * kalibi sessizce bozuktu: sol taraf hicbir zaman bos donmedigi icin yedege
- * dusulmuyor, tarayici 404 aliyordu. Medya ekranindaki kirik onizlemeler ve
- * TinyMCE'nin icerige gomdugu 404 adresler bundandi.
- *
- * "Uretilmemis donusum" ANORMAL DEGIL: donusumler varsayilan olarak kuyruga
- * alinir (`media-library.queue_conversions_by_default`) ve `format('webp')`
- * goruntu surucusunun webp destegine baglidir. Worker calismiyorsa ya da GD
- * webp desteklemiyorsa dosya hic olusmaz.
- *
- * Dogru yol `mediaConversionUrl()` yardimcisi (app/Helpers/functions.php):
- * once `hasGeneratedConversion()` sorar, yoksa orijinale doner.
- */
 class MediaConversionUrlTest extends TestCase
 {
     #[Test]
@@ -65,16 +45,10 @@ class MediaConversionUrlTest extends TestCase
         );
     }
 
-    /**
-     * `getFullUrl('x')` ya da `getFirstMediaUrl('collection', 'x')` cagrilari.
-     * Donusumsuz (`getFullUrl()`, `getFirstMediaUrl('posts')`) cagrilar guvenli.
-     */
     private function buildsAnUncheckedConversionUrl(string $line): bool
     {
         $trimmed = ltrim($line);
 
-        // Yorum satirlari kod degildir; aciklamalarda ornek olarak gecen
-        // cagrilari isaretlemek yanlis pozitif uretir.
         if ($trimmed === '' || str_starts_with($trimmed, '*') || str_starts_with($trimmed, '//') || str_starts_with($trimmed, '/*')) {
             return false;
         }

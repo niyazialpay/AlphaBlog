@@ -10,21 +10,6 @@ use PHPUnit\Framework\Attributes\Test;
 use ReflectionObject;
 use Tests\TestCase;
 
-/**
- * `web` middleware grubunun SIRASINI kilitler.
- *
- * NEDEN VAR: `bootstrap/app.php` bir donem `StartSession`'i gruba PREPEND
- * ediyordu. Laravel prepend'i `array_unique(array_merge($prepends, $group))`
- * ile birlestirdigi icin ayni sinif iki listede bulundugunda ILK gecis kaliyor
- * ve gruptaki asil sirasi DUSUYORDU. Sonuc: oturum `EncryptCookies`'ten once
- * basliyor, oturum ve `XSRF-TOKEN` cerezleri sifrelenmeden yazilip okunuyor,
- * sunucu ise `X-XSRF-TOKEN` basligini decrypt etmeye calisip basarisiz oluyor
- * ve cerez tabanli CSRF yolu tamamen oluyordu — panelde her POST 419.
- *
- * Hicbir test bunu yakalamamisti: CSRF middleware'i `runningUnitTests()` ile
- * testlerde tamamen atlaniyor, dolayisiyla yesil suit bu hatayi goremez.
- * Bu yuzden dogrulama davranisa degil, SIRAYA bakiyor.
- */
 class WebMiddlewareOrderTest extends TestCase
 {
     #[Test]

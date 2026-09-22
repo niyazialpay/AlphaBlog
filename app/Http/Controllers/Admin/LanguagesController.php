@@ -11,7 +11,6 @@ use App\Models\Menu\MenuItems;
 use App\Models\Post\Categories;
 use App\Models\Post\Posts;
 use App\Models\Settings\SeoSettings;
-use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -25,10 +24,6 @@ class LanguagesController extends Controller
         return response()->json(Languages::where('id', GetPost($request->post('id')))->first());
     }
 
-    /**
-     * TEK YANIT SEKLI: yonlendirme — `Settings/Index.vue` `languageForm.post` ile
-     * cagiriyor. (`show()` bir VERI ucu ve JSON kalir.)
-     */
     public function save(LanguageRequest $request, Languages $language): RedirectResponse
     {
         try {
@@ -85,20 +80,12 @@ class LanguagesController extends Controller
         }
     }
 
-    /**
-     * TEK YANIT SEKLI: yonlendirme — `Settings/Index.vue` `router.post` ile cagiriyor.
-     */
     public function delete(Request $request, Languages $languages): RedirectResponse
     {
         try {
             DB::beginTransaction();
             $language = $languages::where('id', GetPost($request->post('id')))->first();
 
-            /*
-             * `first()` null donebiliyor; asagidaki `$language->code` erisimi
-             * `Error` firlatir ve `catch (Exception)` onu YAKALAMAZ — sonuc
-             * 500 + acik kalan transaction (istek boyunca kilit).
-             */
             if (! $language) {
                 DB::rollBack();
 
@@ -121,7 +108,6 @@ class LanguagesController extends Controller
                 $error_message = __('language.delete_default');
             }
             if (isset($error_message)) {
-                // Bu yol commit GORMUYOR: transaction acik kalirdi.
                 DB::rollBack();
 
                 return back()->with('error', $error_message);

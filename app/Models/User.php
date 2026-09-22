@@ -44,16 +44,6 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail, WebAuth
         return $this->hasMany(NotificationPreference::class);
     }
 
-    /**
-     * Bu olay icin kullanicinin secimi.
-     *
-     * Kayit yoksa `NotificationEvents::defaults()` uygulanir — yeni bir olay
-     * eklendiginde mevcut kullanicilar icin satir uretmek gerekmez.
-     *
-     * YETKI HER ZAMAN ONCE GELIR: kullanici olayi gormeye yetkili degilse
-     * tercihi ne olursa olsun bildirim gonderilmez. Boylece rolu dusurulen bir
-     * kullaniciya eski tercihi yuzunden bildirim gitmez.
-     */
     public function wantsNotification(string $event, string $channel = 'push'): bool
     {
         if (! array_key_exists($event, NotificationEvents::forUser($this))) {
@@ -75,8 +65,6 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail, WebAuth
     }
 
     /**
-     * The attributes that are mass assignable.
-     *
      * @var array<int, string>
      */
     protected $fillable = [
@@ -96,8 +84,6 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail, WebAuth
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
      * @var array<int, string>
      */
     protected $hidden = [
@@ -209,8 +195,6 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail, WebAuth
     {
         return $this->hasOne(ProfilePrivacy::class);
     }
-
-    // App\Models\User.php
 
     public function getDisplayNameAttribute()
     {

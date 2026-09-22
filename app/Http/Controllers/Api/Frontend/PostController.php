@@ -54,10 +54,9 @@ class PostController extends Controller
             return $post;
         });
 
-        // Manually append the profile_image attribute to the user models
         foreach ($posts as $post) {
             if ($post->user) {
-                $post->user->makeHidden('email'); // email alanını gizli tutuyoruz
+                $post->user->makeHidden('email');
             }
         }
 
@@ -103,7 +102,7 @@ class PostController extends Controller
             ->get();
         foreach ($posts as $post) {
             if ($post->user) {
-                $post->user->makeHidden('email'); // email alanını gizli tutuyoruz
+                $post->user->makeHidden('email');
             }
         }
 

@@ -112,10 +112,8 @@ class FirewallController extends Controller
                     'url' => $log->url,
                     'user_agent' => $log->user_agent,
                     'reason' => $log->reason,
-                    // Gercek nesne; eski uc '<pre>'.htmlspecialchars(...) basiyordu.
                     'request_data' => json_decode((string) $log->request_data, true),
                     'ip_filter' => $log->ipFilter ? ['id' => $log->ipFilter->id, 'name' => $log->ipFilter->name] : null,
-                    // Satir aksiyonlarini surer: blade partial'i bu kosulu isliyordu.
                     'is_blacklisted' => $log->ipList && $log->ipList->ip === $log->ip
                         && $log->ipFilter?->list_type === 'blacklist',
                     'createdAt' => $log->created_at?->toIso8601String(),

@@ -2,14 +2,6 @@
 
 namespace Tests\Feature\Panel;
 
-/**
- * Kök panel kabuğunun DUMAN testi.
- *
- * `@routes('panel')` bir Blade direktifiydi ve tightenco/ziggy yüklü olmayan
- * bir ortamda Blade onu DUZ METIN olarak basiyordu: ekranda "@routes('panel')"
- * yazisi, `window.Ziggy` tanimsiz, `route()` firlatiyor, panel bos aciliyor.
- * Hicbir test bunu gormuyordu cunku testler HTML govdesine hic bakmiyordu.
- */
 class RootViewSmokeTest extends PanelTestCase
 {
     public function test_panel_shell_emits_ziggy_and_no_literal_directive(): void
@@ -22,7 +14,7 @@ class RootViewSmokeTest extends PanelTestCase
             ->getContent();
 
         $this->assertStringNotContainsString(
-            "@routes(",
+            '@routes(',
             $html,
             'Kok kabukta derlenmemis Blade direktifi DUZ METIN olarak basilmis.'
         );

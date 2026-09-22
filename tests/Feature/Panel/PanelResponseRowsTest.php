@@ -7,20 +7,6 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Tests\TestCase;
 
-/**
- * `PanelResponse::rows()` — paginator'ı YERİNDE DEĞİŞTİRMEME garantisi.
- *
- * `LengthAwarePaginator::through()` `$this->items->transform(...)` çağırıyor:
- * koleksiyonu yerinde değiştirip AYNI nesneyi döndürüyor. Tipik kullanım
- *
- *     PanelResponse::render($c, $v, ['rows' => $rows->through($fn)], compact('rows'))
- *
- * bu yüzden sinsiydi: PHP argümanları çağrıdan ÖNCE değerlendirdiği için
- * dönüşüm `PANEL_UI=blade` modunda DA çalışıyor ve Blade'e Eloquent modelleri
- * yerine düz diziler ulaşıyordu — kill switch sessizce bozuluyordu.
- *
- * Bu test o regresyonu kilitler.
- */
 class PanelResponseRowsTest extends TestCase
 {
     public function test_rows_does_not_mutate_the_source_paginator(): void
@@ -52,11 +38,6 @@ class PanelResponseRowsTest extends TestCase
         );
     }
 
-    /**
-     * `through()` davranışının gerçekten yıkıcı olduğunu doğrular — bu test
-     * kırmızıya dönerse Laravel davranışı değişmiş demektir ve `rows()`
-     * yardımcısı gereksiz hale gelmiş olabilir.
-     */
     public function test_through_mutates_in_place_which_is_why_rows_exists(): void
     {
         $paginator = new LengthAwarePaginator(
@@ -74,10 +55,6 @@ class PanelResponseRowsTest extends TestCase
         );
     }
 
-    /**
-     * Sayfalama meta verisi (total, perPage, currentPage, links) korunmalı —
-     * `Pagination.vue` bunlara dayanıyor.
-     */
     public function test_rows_preserves_pagination_metadata(): void
     {
         $paginator = new LengthAwarePaginator(

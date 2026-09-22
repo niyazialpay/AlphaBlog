@@ -1,19 +1,18 @@
 <script setup>
-import { computed, defineAsyncComponent, onMounted, onUnmounted, ref } from 'vue';
+import { computed, defineAsyncComponent, onUnmounted, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { __ } from '../../composables/useLang';
 import { usePageHeader } from '../../composables/usePageHeader';
 import Modal from '../../components/Modal.vue';
 import CoreWidget from '../../Widgets/CoreWidget.vue';
 import { CORE_WIDGETS, resolveModuleWidget } from '../../Widgets/registry';
+import { COLUMNS, byPosition, moveNode, normalize, resizeNode } from '../../Widgets/gridLayout';
 
 /*
- * panel/dashboard.blade.php karşılığı.
- *
- * gridstack yerine 12 kolonlu CSS grid + HTML5 sürükle-bırak. Kayıt yükü
- * DEĞİŞMEZ: `layout[] = {type, x, y, w, h}` — `DashboardWidgetTest` ve
- * `dashboard_widgets` tablosundaki satırlar aynen çalışır. `x`/`y` düzenleme
- * sonrası sıradan yeniden türetilir; genişlik/yükseklik adımlayıcıyla ayarlanır.
+ * panel/dashboard.blade.php karsiligi — gridstack davranisi:
+ * cellHeight 80, margin 10, float false, kartin her yerinden surukleme,
+ * sag-alt koseden boyutlandirma, degisiklikten 500 ms sonra otomatik kayit,
+ * 768 px altinda tek kolon. Kayit yuku `layout[] = {type, x, y, w, h}`.
  */
 const props = defineProps({
   widgets: { type: Array, default: () => [] },
@@ -23,17 +22,18 @@ const props = defineProps({
 
 usePageHeader(__('dashboard.dashboard'), [{ label: __('dashboard.dashboard') }]);
 
-const COLUMNS = 12;
-const ROW_HEIGHT = 80;
+const CELL_HEIGHT = 80;
+const MARGIN = 10;
+const ONE_COLUMN_BELOW = 768;
+const DRAG_THRESHOLD = 4;
 
-// Blade sıralaması gs_y, gs_x idi; aynı sırayı koru.
 const items = ref(
-  [...props.widgets].sort((a, b) => a.y - b.y || a.x - b.x).map((widget) => ({ ...widget })),
+  normalize(props.widgets.map(({ id, type, x, y, w, h }) => ({ id, type, x, y, w, h }))),
 );
 
 const editing = ref(false);
 const libraryOpen = ref(false);
-const dragIndex = ref(null);
+let sequence = 0;
 
 const moduleComponents = {};
 
@@ -67,208 +67,215 @@ function labelFor(type) {
 
 const groups = computed(() => Object.entries(props.widgetGroups));
 
-function add(type, config) {
-  items.value.push({
-    id: `new-${items.value.length}-${type}`,
-    type,
-    x: 0,
-    y: items.value.length,
-    w: Number(config.w ?? 3),
-    h: Number(config.h ?? 2),
-  });
-
-  libraryOpen.value = false;
-  editing.value = true;
-  save();
-}
-
-function remove(index) {
-  items.value.splice(index, 1);
-  save();
-}
-
-function resize(item, axis, delta) {
-  const limits = axis === 'w' ? [1, COLUMNS] : [1, 8];
-
-  item[axis] = Math.min(limits[1], Math.max(limits[0], item[axis] + delta));
-  save();
-}
-
-const dropIndex = ref(null);
 const gridEl = ref(null);
+const width = ref(0);
+let observer = null;
 
-function onDragStart(index, event) {
-  dragIndex.value = index;
-  dropIndex.value = index;
-
-  if (event?.dataTransfer) {
-    event.dataTransfer.effectAllowed = 'move';
-    // Firefox surukleme baslatmak icin bir veri yuku sart kosuyor.
-    event.dataTransfer.setData('text/plain', String(index));
-  }
-}
-
-function onDragOver(index) {
-  if (dragIndex.value !== null) {
-    dropIndex.value = index;
-  }
-}
-
-function onDragEnd() {
-  dragIndex.value = null;
-  dropIndex.value = null;
-}
-
-function onDrop(index) {
-  const from = dragIndex.value;
-
-  onDragEnd();
-
-  if (from === null || from === index) {
-    return;
+watch(gridEl, (element, previous) => {
+  if (previous) {
+    observer?.unobserve(previous);
   }
 
-  const [moved] = items.value.splice(from, 1);
-  items.value.splice(index, 0, moved);
-  save();
-}
+  if (element) {
+    observer ??= new ResizeObserver(([entry]) => {
+      width.value = entry.contentRect.width;
+    });
+    observer.observe(element);
+    width.value = element.clientWidth;
+  }
+});
 
-/*
- * SURUKLEYEREK BOYUTLANDIRMA — gridstack'in kose tutamaginin karsiligi.
- *
- * Ok dugmeleri duruyor (klavye/dokunmatik icin ve tek adimlik ince ayar icin),
- * ama fare ile kartin kosesini tutup cekmek asil beklenen davranis.
- *
- * Kolon genisligi SABIT YAZILMAZ: grid `grid-cols-1 / md:6 / xl:12` ile
- * degisiyor. `getComputedStyle().gridTemplateColumns` cozulmus parca listesini
- * verdigi icin hem kolon SAYISI hem tek kolon GENISLIGI oradan okunur; boylece
- * hesap kirilma noktasindan bagimsiz dogru olur.
- */
-const resizing = ref(null);
+const oneColumn = computed(() => width.value > 0 && width.value < ONE_COLUMN_BELOW);
+const cellWidth = computed(() => width.value / COLUMNS);
 
-function gridMetrics() {
-  if (! gridEl.value) {
-    return null;
+const boxes = computed(() => {
+  const result = {};
+
+  if (oneColumn.value) {
+    let top = 0;
+
+    for (const item of [...items.value].sort(byPosition)) {
+      result[item.id] = { left: 0, top, width: width.value, height: item.h * CELL_HEIGHT };
+      top += item.h * CELL_HEIGHT;
+    }
+
+    return result;
   }
 
-  const style = getComputedStyle(gridEl.value);
-  const tracks = style.gridTemplateColumns.split(' ').filter(Boolean).map(parseFloat);
+  for (const item of items.value) {
+    result[item.id] = {
+      left: item.x * cellWidth.value,
+      top: item.y * CELL_HEIGHT,
+      width: item.w * cellWidth.value,
+      height: item.h * CELL_HEIGHT,
+    };
+  }
 
+  return result;
+});
+
+const interaction = ref(null);
+
+const gridHeight = computed(() => {
+  let bottom = 0;
+
+  for (const box of Object.values(boxes.value)) {
+    bottom = Math.max(bottom, box.top + box.height);
+  }
+
+  const pixel = interaction.value?.active ? interaction.value.pixel : null;
+
+  return Math.max(bottom, pixel ? pixel.top + pixel.height : 0);
+});
+
+function boxStyle(box) {
   return {
-    count: tracks.length,
-    column: tracks[0] || 0,
-    columnGap: parseFloat(style.columnGap) || 0,
-    rowGap: parseFloat(style.rowGap) || 0,
+    transform: `translate(${box.left}px, ${box.top}px)`,
+    width: `${box.width}px`,
+    height: `${box.height}px`,
   };
 }
 
-/*
- * Tutamak YALNIZCA 12 kolonlu genislikte. Dar ekranda grid 6 ya da 1 kolona
- * dusuyor; orada boyutlandirmak `w` degerini 6'ya kirpar ve MASAUSTU yerlesimi
- * sessizce bozardi. Kayit 12 kolonluk uzayda tutuluyor.
- */
-/*
- * `viewportWidth` computed'in BAGIMLILIGI olsun diye var: `getComputedStyle`
- * reaktif degil, dolayisiyla pencere yeniden boyutlandirilip kirilma noktasi
- * degistiginde `canResize` bayat kalirdi (dar ekrana gecince tutamak durmaya
- * devam ederdi).
- */
-const viewportWidth = ref(typeof window === 'undefined' ? 0 : window.innerWidth);
+function styleFor(item) {
+  const state = interaction.value;
 
-function onViewportResize() {
-  viewportWidth.value = window.innerWidth;
+  return boxStyle(state?.active && state.id === item.id ? state.pixel : boxes.value[item.id]);
 }
 
-onMounted(() => window.addEventListener('resize', onViewportResize));
-onUnmounted(() => window.removeEventListener('resize', onViewportResize));
+const canEdit = computed(() => editing.value && !oneColumn.value);
 
-const canResize = computed(() => {
-  // eslint-disable-next-line no-unused-expressions
-  viewportWidth.value;
+function startInteraction(item, event, mode) {
+  if (!canEdit.value || event.button !== 0) {
+    return;
+  }
 
-  const metrics = gridMetrics();
-
-  return metrics !== null && metrics.count === COLUMNS;
-});
-
-function startResize(item, event) {
-  const metrics = gridMetrics();
-
-  if (! metrics || metrics.count !== COLUMNS) {
+  if (mode === 'move' && event.target.closest('button, a, [data-resize-handle]')) {
     return;
   }
 
   event.preventDefault();
-  event.stopPropagation();
 
-  resizing.value = {
-    item,
+  const origin = { ...boxes.value[item.id] };
+
+  interaction.value = {
+    mode,
+    id: item.id,
+    snapshot: items.value.map((node) => ({ ...node })),
     startX: event.clientX,
     startY: event.clientY,
-    startW: item.w,
-    startH: item.h,
-    step: metrics.column + metrics.columnGap,
-    rowStep: ROW_HEIGHT + metrics.rowGap,
+    origin,
+    pixel: origin,
+    active: false,
   };
 
-  event.currentTarget.setPointerCapture?.(event.pointerId);
+  window.addEventListener('pointermove', onPointerMove);
+  window.addEventListener('pointerup', endInteraction);
+  window.addEventListener('pointercancel', endInteraction);
 }
 
-function moveResize(event) {
-  const state = resizing.value;
+function onPointerMove(event) {
+  const state = interaction.value;
 
-  if (! state) {
+  if (!state) {
     return;
   }
 
-  const columns = Math.round((event.clientX - state.startX) / state.step);
-  const rows = Math.round((event.clientY - state.startY) / state.rowStep);
+  const dx = event.clientX - state.startX;
+  const dy = event.clientY - state.startY;
 
-  state.item.w = Math.min(COLUMNS, Math.max(1, state.startW + columns));
-  state.item.h = Math.min(8, Math.max(1, state.startH + rows));
-}
-
-/* Kaydetme YALNIZCA birakilinca: her pikselde POST atmak sunucuyu doverdi. */
-function endResize() {
-  if (! resizing.value) {
+  if (!state.active && Math.hypot(dx, dy) < DRAG_THRESHOLD) {
     return;
   }
 
-  const changed =
-    resizing.value.item.w !== resizing.value.startW || resizing.value.item.h !== resizing.value.startH;
+  state.active = true;
 
-  resizing.value = null;
+  const nodes = state.snapshot.map((node) => ({ ...node }));
+  const node = nodes.find((candidate) => candidate.id === state.id);
+  const { origin } = state;
 
-  if (changed) {
+  if (state.mode === 'move') {
+    const left = Math.min(Math.max(0, origin.left + dx), width.value - origin.width);
+    const top = Math.max(0, origin.top + dy);
+
+    state.pixel = { ...origin, left, top };
+    moveNode(nodes, node, Math.round(left / cellWidth.value), Math.round(top / CELL_HEIGHT));
+  } else {
+    const boxWidth = Math.min(Math.max(cellWidth.value, origin.width + dx), width.value - origin.left);
+    const boxHeight = Math.max(CELL_HEIGHT, origin.height + dy);
+
+    state.pixel = { ...origin, width: boxWidth, height: boxHeight };
+    resizeNode(nodes, node, Math.round(boxWidth / cellWidth.value), Math.round(boxHeight / CELL_HEIGHT));
+  }
+
+  items.value = nodes;
+}
+
+function positionsOf(nodes) {
+  return JSON.stringify(nodes.map(({ id, x, y, w, h }) => [id, x, y, w, h]));
+}
+
+function endInteraction() {
+  window.removeEventListener('pointermove', onPointerMove);
+  window.removeEventListener('pointerup', endInteraction);
+  window.removeEventListener('pointercancel', endInteraction);
+
+  const state = interaction.value;
+
+  interaction.value = null;
+
+  if (state?.active && positionsOf(state.snapshot) !== positionsOf(items.value)) {
+    scheduleSave();
+  }
+}
+
+function add(type, config) {
+  const bottom = items.value.reduce((max, node) => Math.max(max, node.y + node.h), 0);
+
+  items.value = normalize([
+    ...items.value.map((node) => ({ ...node })),
+    { id: `new-${++sequence}`, type, x: 0, y: bottom, w: Number(config.w ?? 3), h: Number(config.h ?? 2) },
+  ]);
+
+  libraryOpen.value = false;
+  save();
+}
+
+function remove(item) {
+  items.value = normalize(items.value.filter((node) => node.id !== item.id).map((node) => ({ ...node })));
+  scheduleSave();
+}
+
+let saveTimer = null;
+
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(save, 500);
+}
+
+function toggleEditing() {
+  editing.value = !editing.value;
+
+  if (!editing.value && saveTimer) {
     save();
   }
 }
 
-/* Sıradan 12 kolonluk yerleşime geri dönüştürür (gridstack'in yaptığının aynısı). */
-function layout() {
-  let x = 0;
-  let y = 0;
-
-  return items.value.map((item) => {
-    if (x + item.w > COLUMNS) {
-      x = 0;
-      y += 1;
-    }
-
-    const placed = { type: item.type, x, y, w: item.w, h: item.h };
-    x += item.w;
-
-    return placed;
-  });
-}
-
 function save() {
+  clearTimeout(saveTimer);
+  saveTimer = null;
+
   router.post(
     route('admin.dashboard.widgets.save'),
-    { layout: layout() },
+    { layout: items.value.map(({ type, x, y, w, h }) => ({ type, x, y, w, h })) },
     { preserveScroll: true, preserveState: true },
   );
 }
+
+onUnmounted(() => {
+  clearTimeout(saveTimer);
+  observer?.disconnect();
+  endInteraction();
+});
 </script>
 
 <template>
@@ -276,108 +283,96 @@ function save() {
 
   <div class="flex flex-col gap-3.5 p-[22px]">
     <div class="flex justify-end gap-2">
-      <button v-if="items.length" class="p-btn" @click="editing = !editing">
-        <i class="fa-solid fa-pen text-xs"></i>
-        {{ editing ? __('general.close') : __('general.edit') }}
+      <button v-if="items.length && !oneColumn" class="p-btn" @click="toggleEditing">
+        <i class="fa-solid text-xs" :class="editing ? 'fa-check' : 'fa-pen'"></i>
+        {{ editing ? __('dashboard.done') : __('general.edit') }}
       </button>
       <button class="p-btn-primary" @click="libraryOpen = true">
-        <i class="fa-solid fa-plus text-xs"></i> Widget Ekle
+        <i class="fa-solid fa-plus text-xs"></i> {{ __('dashboard.add_widget') }}
       </button>
     </div>
 
     <div v-if="!items.length" class="p-card px-4 py-14 text-center">
       <i class="fa-solid fa-table-cells-large mb-3 block text-[32px] text-p-ink3"></i>
-      <p class="mb-3 text-[12.5px] text-p-ink3">
-        Dashboard henüz boş. Widget ekleyerek özelleştirin.
-      </p>
+      <p class="mb-3 text-[12.5px] text-p-ink3">{{ __('dashboard.empty') }}</p>
       <button class="p-btn-primary" @click="libraryOpen = true">
-        <i class="fa-solid fa-plus text-xs"></i> Widget Ekle
+        <i class="fa-solid fa-plus text-xs"></i> {{ __('dashboard.add_widget') }}
       </button>
     </div>
 
-    <div ref="gridEl" v-else class="grid grid-cols-1 gap-3.5 md:grid-cols-6 xl:grid-cols-12">
+    <div
+      v-else
+      ref="gridEl"
+      class="relative -mx-[5px]"
+      :class="canEdit && 'select-none'"
+      :style="{ height: `${gridHeight}px` }"
+    >
       <div
-        v-for="(item, index) in items"
+        v-if="interaction?.active"
+        class="pointer-events-none absolute left-0 top-0 transition-transform duration-150"
+        :style="boxStyle(boxes[interaction.id])"
+      >
+        <div class="absolute rounded-xl border-2 border-dashed border-p-accent bg-p-soft/40" :style="{ inset: `${MARGIN / 2}px` }"></div>
+      </div>
+
+      <div
+        v-for="item in items"
         :key="item.id"
-        class="p-card relative overflow-hidden transition-shadow"
+        class="absolute left-0 top-0"
         :class="[
-          dragIndex === index ? 'opacity-50' : '',
-          dropIndex === index && dragIndex !== null && dragIndex !== index
-            ? 'ring-2 ring-p-accent'
-            : '',
-          editing ? 'cursor-grab' : '',
+          interaction?.active && interaction.id === item.id
+            ? 'z-20 opacity-90'
+            : 'transition-[transform,width,height] duration-200',
+          canEdit ? 'cursor-grab touch-none' : '',
+          interaction?.active && interaction.id === item.id && interaction.mode === 'move' ? '!cursor-grabbing' : '',
         ]"
-        :style="{
-          gridColumn: `span ${Math.min(item.w, COLUMNS)} / span ${Math.min(item.w, COLUMNS)}`,
-          minHeight: `${item.h * ROW_HEIGHT}px`,
-        }"
-        :draggable="editing && !resizing"
-        @dragstart="onDragStart(index, $event)"
-        @dragover.prevent="onDragOver(index)"
-        @dragend="onDragEnd"
-        @drop.prevent="onDrop(index)"
+        :style="styleFor(item)"
+        @pointerdown="startInteraction(item, $event, 'move')"
       >
         <div
-          v-if="editing"
-          class="absolute right-1.5 top-1.5 z-10 flex items-center gap-1 rounded-lg bg-p-panel2/90 p-1"
+          class="p-card absolute overflow-hidden"
+          :class="interaction?.active && interaction.id === item.id && 'shadow-pop'"
+          :style="{ inset: `${MARGIN / 2}px` }"
         >
-          <button class="p-icon-btn !h-6 !w-6 !text-[10px]" title="-" @click="resize(item, 'w', -1)">
-            <i class="fa-solid fa-left-long"></i>
-          </button>
-          <button class="p-icon-btn !h-6 !w-6 !text-[10px]" title="+" @click="resize(item, 'w', 1)">
-            <i class="fa-solid fa-right-long"></i>
-          </button>
-          <button class="p-icon-btn !h-6 !w-6 !text-[10px]" title="-" @click="resize(item, 'h', -1)">
-            <i class="fa-solid fa-up-long"></i>
-          </button>
-          <button class="p-icon-btn !h-6 !w-6 !text-[10px]" title="+" @click="resize(item, 'h', 1)">
-            <i class="fa-solid fa-down-long"></i>
-          </button>
           <button
-            class="p-icon-btn !h-6 !w-6 !text-[10px] hover:!border-p-danger hover:!text-p-danger"
+            v-if="canEdit"
+            class="p-icon-btn absolute right-1.5 top-1.5 z-10 !h-6 !w-6 !text-[10px] hover:!border-p-danger hover:!text-p-danger"
             :title="__('general.delete')"
-            @click="remove(index)"
+            @click="remove(item)"
           >
             <i class="fa-solid fa-xmark"></i>
           </button>
-        </div>
 
-        <!--
-          Kose tutamagi: fare ile dogrudan boyutlandirma. Yalnizca 12 kolonlu
-          genislikte gorunur — dar ekranda `w` degeri kirpilip masaustu
-          yerlesimini bozardi.
-        -->
-        <div
-          v-if="editing && canResize"
-          class="absolute bottom-0 right-0 z-10 grid h-5 w-5 cursor-nwse-resize place-items-center rounded-tl-lg bg-p-panel2/90 text-[9px] text-p-ink3 hover:text-p-accent"
-          :title="__('dashboard.resize_hint')"
-          draggable="false"
-          @pointerdown="startResize(item, $event)"
-          @pointermove="moveResize"
-          @pointerup="endResize"
-          @pointercancel="endResize"
-        >
-          <i class="fa-solid fa-up-right-and-down-left-from-center rotate-90"></i>
-        </div>
+          <div class="h-full" :class="canEdit && 'pointer-events-none'">
+            <CoreWidget v-if="configFor(item.type)" :config="configFor(item.type)" :data="widgetData" />
 
-        <CoreWidget v-if="configFor(item.type)" :config="configFor(item.type)" :data="widgetData" />
+            <component
+              :is="componentFor(item.type)"
+              v-else-if="componentFor(item.type)"
+              :widget="item"
+              :widget-data="widgetData"
+            />
 
-        <component
-          :is="componentFor(item.type)"
-          v-else-if="componentFor(item.type)"
-          :widget="item"
-          :widget-data="widgetData"
-        />
+            <div v-else class="flex h-full flex-col justify-center p-3 text-[12px] text-p-ink3">
+              <div class="font-semibold text-p-ink2">{{ labelFor(item.type) }}</div>
+              <div>{{ __('dashboard.widget_missing') }}</div>
+            </div>
+          </div>
 
-        <!-- Modül kayıtlı ama Vue karşılığı henüz yok (Faz 7'ye kadar). -->
-        <div v-else class="flex h-full flex-col justify-center p-3 text-[12px] text-p-ink3">
-          <div class="font-semibold text-p-ink2">{{ labelFor(item.type) }}</div>
-          <div>{{ __('general.not_available') }}</div>
+          <div
+            v-if="canEdit"
+            data-resize-handle
+            class="absolute bottom-0 right-0 z-10 grid h-5 w-5 cursor-nwse-resize touch-none place-items-center rounded-tl-lg bg-p-panel2/90 text-[9px] text-p-ink3 hover:text-p-accent"
+            :title="__('dashboard.resize_hint')"
+            @pointerdown.stop="startInteraction(item, $event, 'resize')"
+          >
+            <i class="fa-solid fa-up-right-and-down-left-from-center rotate-90"></i>
+          </div>
         </div>
       </div>
     </div>
 
-    <Modal v-model:open="libraryOpen" title="Widget Ekle" icon="fa-solid fa-table-cells-large" width="720px">
+    <Modal v-model:open="libraryOpen" :title="__('dashboard.add_widget')" icon="fa-solid fa-table-cells-large" width="720px">
       <div class="flex flex-col gap-4">
         <div v-for="[group, entries] in groups" :key="group">
           <div class="mb-2 text-[11px] font-bold uppercase tracking-[.06em] text-p-ink3">
