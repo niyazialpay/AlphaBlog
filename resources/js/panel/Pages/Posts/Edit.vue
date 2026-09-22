@@ -8,6 +8,7 @@ import { pushToast } from '../../composables/useToast';
 import TinyMceEditor from '../../components/TinyMceEditor.vue';
 import FormField from '../../components/FormField.vue';
 import MultiSelect from '../../components/MultiSelect.vue';
+import SearchableSelect from '../../components/SearchableSelect.vue';
 import ConfirmDialog from '../../components/ConfirmDialog.vue';
 
 /*
@@ -569,13 +570,22 @@ function removeImage() {
           </div>
         </div>
 
-        <FormField
-          v-model="form.user_id"
-          type="select"
-          :label="__('post.author')"
-          :error="form.errors.user_id"
-          :options="users.map((u) => ({ value: u.id, label: u.nickname }))"
-        />
+        <!--
+          Yazar alani ARANABILIR: sitede yuzlerce kullanici olabiliyor ve duz
+          bir <select> icinde isim aramak mumkun degil. Eski temada burada
+          select2 vardi; `SearchableSelect` onun jQuery'siz karsiligi.
+        -->
+        <div>
+          <label class="p-label">{{ __('post.author') }}</label>
+          <SearchableSelect
+            v-model="form.user_id"
+            :options="users.map((u) => ({ value: u.id, label: u.nickname }))"
+            :placeholder="__('post.author')"
+          />
+          <div v-if="form.errors.user_id" class="mt-1.5 text-[11px] font-semibold text-p-danger">
+            {{ form.errors.user_id }}
+          </div>
+        </div>
 
         <FormField
           v-model="form.published_at"

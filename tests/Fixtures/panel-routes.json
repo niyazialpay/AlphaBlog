@@ -799,6 +799,15 @@
             "can:own,App\\Models\\User"
         ]
     },
+    "admin.profile.notifications.preferences": {
+        "uri": "admin/profile/notifications/preferences",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:own,App\\Models\\User"
+        ]
+    },
     "admin.profile.password": {
         "uri": "admin/profile/password/change",
         "methods": [
@@ -810,6 +819,24 @@
     },
     "admin.profile.privacy": {
         "uri": "admin/profile/privacy",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:own,App\\Models\\User"
+        ]
+    },
+    "admin.profile.push.subscribe": {
+        "uri": "admin/profile/push/subscribe",
+        "methods": [
+            "POST"
+        ],
+        "gates": [
+            "can:own,App\\Models\\User"
+        ]
+    },
+    "admin.profile.push.unsubscribe": {
+        "uri": "admin/profile/push/unsubscribe",
         "methods": [
             "POST"
         ],

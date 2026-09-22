@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import axios from 'axios';
 import Webpass from '@laragear/webpass';
@@ -299,14 +299,92 @@ function disableTwoFactor() {
 }
 
 /* ---- WebAuthn (passkey) ---- */
-async function loadCredentials() {
+
+/**
+ * Sunucudan gelen hatayi OKUNABILIR bir metne cevirir.
+ *
+ * Posts/Edit.vue'deki ayni yardimciyi yansitir: tek bir `general.error`
+ * metnine dusuldugunde kullanici 403 (yetki), 419 (oturum) ve 500 (sunucu)
+ * arasindaki farki goremiyordu. HTML hata sayfalari toast'a basilmaz, yerine
+ * durum kodu gosterilir.
+ */
+function serverMessage(error) {
+  const response = error?.response;
+  const data = response?.data;
+
+  if (data?.message) {
+    return data.message;
+  }
+
+  const errors = data?.errors ? Object.values(data.errors).flat() : [];
+
+  if (errors.length) {
+    return String(errors[0]);
+  }
+
+  if (typeof data === 'string' && data.trim() !== '' && !data.trim().startsWith('<')) {
+    return data.trim().slice(0, 300);
+  }
+
+  if (response?.status) {
+    return `${__('general.error')} (HTTP ${response.status})`;
+  }
+
+  return error?.message || __('general.error');
+}
+
+/**
+ * Passkey listesi.
+ *
+ * ESKI DAVRANIS (hata): liste YALNIZCA yenile dugmesine basildiginda, kayittan
+ * sonra ve silmeden sonra cekiliyordu. Panelde hicbir `onMounted` ya da izleyici
+ * yoktu, dolayisiyla passkey ile giris yapmis bir kullanici sekmeyi actiginda
+ * `credentials` hala bos dizi oluyor ve ekranda "Kayit bulunamadi" yaziyordu.
+ *
+ * Artik sekme GORUNUR OLDUGUNDA cekiliyor. Sayfa acilisinda DEGIL: passkey,
+ * guvenlik sekmesinin bir alt sekmesi; her profil ziyaretinde istek atmak bosa
+ * is olurdu.
+ */
+const credentialsLoading = ref(false);
+const credentialsLoaded = ref(false);
+
+async function loadCredentials(force = false) {
+  if (credentialsLoading.value || (credentialsLoaded.value && !force)) {
+    return;
+  }
+
   const url = props.isSelf
     ? route('user.security.webauthn')
     : route('admin.user.webauthn', { user_id: props.profile.id });
 
-  const { data } = await axios.post(url);
-  credentials.value = Array.isArray(data) ? data : data?.credentials || [];
+  credentialsLoading.value = true;
+
+  try {
+    const { data } = await axios.post(url);
+
+    credentials.value = Array.isArray(data) ? data : data?.credentials || [];
+    credentialsLoaded.value = true;
+  } catch (error) {
+    /*
+     * Eskiden burada hic yakalama yoktu: 403/500 firlatiyor, panel sessizce
+     * bos kaliyor ve "kayit yok" ile ayirt edilemiyordu. `credentialsLoaded`
+     * BILEREK false birakilir ki sekmeye tekrar girildiginde yeniden denensin.
+     */
+    pushToast(serverMessage(error), 'error');
+  } finally {
+    credentialsLoading.value = false;
+  }
 }
+
+/*
+ * Alt sekme passkey'e gecince bir kez cek. `immediate` yok: `securityTab`
+ * daima 'password' ile basliyor, ilk tetikleme bosa istek olurdu.
+ */
+watch(securityTab, (value) => {
+  if (value === 'passkey') {
+    loadCredentials();
+  }
+});
 
 async function registerPasskey() {
   const response = await Webpass.attest(
@@ -316,7 +394,7 @@ async function registerPasskey() {
 
   if (response.success) {
     pushToast(__('webauthn.verification_success'), 'success');
-    await loadCredentials();
+    await loadCredentials(true);
 
     return;
   }
@@ -333,8 +411,15 @@ async function deleteCredential(credential) {
     ? route('user.security.webauthn.delete')
     : route('admin.user.webauthn.delete', { user_id: props.profile.id });
 
-  await axios.post(url, { id: credential.id });
-  await loadCredentials();
+  try {
+    await axios.post(url, { id: credential.id });
+  } catch (error) {
+    pushToast(serverMessage(error), 'error');
+  }
+
+  // Silme basarisiz olsa da yeniden cekilir: liste her durumda GERCEGI gostersin.
+  credentialsLoaded.value = false;
+  await loadCredentials(true);
 }
 
 /* ---- Oturumlar ---- */
@@ -576,8 +661,11 @@ function deleteAvatar() {
       <div v-else-if="securityTab === 'passkey'" class="p-card p-4">
         <div class="mb-3 flex items-center gap-2">
           <div class="flex-1 text-[12.5px] text-p-ink2">{{ __('webauthn.register_device') }}</div>
-          <button class="p-btn" @click="loadCredentials">
-            <i class="fa-solid fa-rotate text-[11px]"></i>
+          <button class="p-btn" :disabled="credentialsLoading" @click="loadCredentials(true)">
+            <i
+              :class="credentialsLoading ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-rotate'"
+              class="text-[11px]"
+            ></i>
           </button>
           <button v-if="isSelf" class="p-btn-primary" @click="registerPasskey">
             <i class="fa-solid fa-key text-xs"></i> {{ __('webauthn.register_device') }}
@@ -599,7 +687,21 @@ function deleteAvatar() {
               <i class="fa-solid fa-trash"></i>
             </button>
           </div>
-          <div v-if="!credentials.length" class="py-6 text-center text-[12px] text-p-ink3">
+          <!--
+            Yukleniyor ile "kayit yok" AYRI: eskiden ikisi de bos panel olarak
+            goruluyordu ve kullanici passkey'i varken "Kayit bulunamadi" okuyordu.
+          -->
+          <div
+            v-if="credentialsLoading"
+            class="flex items-center justify-center gap-2 py-6 text-[12px] text-p-ink3"
+          >
+            <i class="fa-solid fa-spinner fa-spin text-[11px]"></i>
+            {{ __('general.loading') }}
+          </div>
+          <div
+            v-else-if="!credentials.length"
+            class="py-6 text-center text-[12px] text-p-ink3"
+          >
             {{ __('general.no_records') }}
           </div>
         </div>
