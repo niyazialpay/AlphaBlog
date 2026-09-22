@@ -13,9 +13,16 @@ import { __ } from '../composables/useLang';
  * `<select>` icinde isim aramak mumkun degil — kullanici listeyi kaydirarak
  * bulmak zorunda kaliyordu.
  *
- * Filtreleme ISTEMCIDE: secenekler zaten sunucudan tam liste olarak geliyor.
- * Turkce siralama/kucultme icin `toLocaleLowerCase('tr')` kullaniliyor, aksi
- * halde "I" ve "İ" yanlis eslesiyor.
+ * IKI MOD:
+ *  - Yerel (varsayilan): `options` tam listedir, filtreleme istemcide.
+ *    Turkce kucultme icin `toLocaleLowerCase('tr')`, aksi halde "I"/"İ"
+ *    yanlis eslesir.
+ *  - Uzak (`remote` verilirse): `remote(query)` bir Promise ile secenek dizisi
+ *    doner; filtreleme SUNUCUDA. `options` o zaman yalnizca baslangic tohumudur
+ *    (ör. secili kayit), acilista etiketi gosterebilmek icin.
+ *
+ * Secenek sekli: { value, label, description? } — `description` etiketin
+ * altinda soluk satir olarak gosterilir (ör. ad soyad / e-posta).
  */
 const props = defineProps({
   modelValue: { type: [String, Number, null], default: null },
@@ -24,6 +31,8 @@ const props = defineProps({
   /** Bos secim sunulsun mu (ör. "Kategori seciniz"). */
   clearable: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
+  /** `(query: string) => Promise<Array<{ value, label, description? }>>` */
+  remote: { type: Function, default: null },
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -33,11 +42,67 @@ const query = ref('');
 const root = ref(null);
 const search = ref(null);
 
-const selected = computed(
-  () => props.options.find((option) => String(option.value) === String(props.modelValue)) || null,
-);
+const remoteOptions = ref([]);
+const loading = ref(false);
+let debounce = null;
+let sequence = 0;
+
+/*
+ * Uzak modda secili kayit son arama sonucunda olmayabilir (kullanici baska
+ * bir sey aradi). Gorulen her secenek hatirlanir ki dugmedeki etiket
+ * kaybolmasin.
+ */
+const known = ref(new Map());
+
+function remember(options) {
+  for (const option of options) {
+    known.value.set(String(option.value), option);
+  }
+}
+
+watch(() => props.options, (options) => remember(options), { immediate: true });
+
+const selected = computed(() => {
+  const key = String(props.modelValue);
+
+  return props.options.find((option) => String(option.value) === key)
+    || known.value.get(key)
+    || null;
+});
+
+async function runRemote() {
+  const current = ++sequence;
+  loading.value = true;
+
+  try {
+    const options = (await props.remote(query.value.trim())) || [];
+
+    // Yavas donen eski bir istek yeni sonucun ustune yazmasin.
+    if (current === sequence) {
+      remoteOptions.value = options;
+      remember(options);
+    }
+  } finally {
+    if (current === sequence) {
+      loading.value = false;
+    }
+  }
+}
+
+watch(query, () => {
+  if (! props.remote) {
+    return;
+  }
+
+  clearTimeout(debounce);
+  debounce = setTimeout(runRemote, 250);
+});
 
 const filtered = computed(() => {
+  if (props.remote) {
+    return remoteOptions.value;
+  }
+
   const needle = query.value.trim().toLocaleLowerCase('tr');
 
   if (! needle) {
@@ -66,6 +131,11 @@ function toggle() {
 /* Acilinca arama kutusuna odaklan: select2'de de oyleydi, fare gerekmiyor. */
 watch(open, async (value) => {
   if (value) {
+    // Uzak modda ilk acilista bos sorguyla ilk sayfa getirilir.
+    if (props.remote && ! remoteOptions.value.length) {
+      runRemote();
+    }
+
     await nextTick();
     search.value?.focus();
   }
@@ -89,6 +159,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  clearTimeout(debounce);
   document.removeEventListener('click', outside);
   document.removeEventListener('keydown', onKeydown);
 });
@@ -145,10 +216,19 @@ onUnmounted(() => {
           class="fa-solid w-3 text-[10px]"
           :class="String(option.value) === String(modelValue) ? 'fa-check' : 'fa-minus opacity-0'"
         ></i>
-        <span class="truncate">{{ option.label }}</span>
+        <span class="min-w-0">
+          <span class="block truncate">{{ option.label }}</span>
+          <span v-if="option.description" class="block truncate text-[11px] text-p-ink3">
+            {{ option.description }}
+          </span>
+        </span>
       </button>
 
-      <div v-if="! filtered.length" class="px-3 py-4 text-center text-[12px] text-p-ink3">
+      <div v-if="loading" class="px-3 py-4 text-center text-[12px] text-p-ink3">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+      </div>
+
+      <div v-else-if="! filtered.length" class="px-3 py-4 text-center text-[12px] text-p-ink3">
         {{ __('general.no_records') }}
       </div>
     </div>

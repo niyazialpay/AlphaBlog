@@ -26,6 +26,15 @@
             "can:admin,App\\Models\\User"
         ]
     },
+    "admin.authors.search": {
+        "uri": "admin/authors/search",
+        "methods": [
+            "GET"
+        ],
+        "gates": [
+            "can:createPost,App\\Models\\Post\\Posts"
+        ]
+    },
     "admin.categories": {
         "uri": "admin/blogs/categories/{category?}",
         "methods": [

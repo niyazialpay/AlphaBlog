@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AboutController;
 use App\Http\Controllers\Admin\AiChatbotController;
 use App\Http\Controllers\Admin\AnalyticsController;
+use App\Http\Controllers\Admin\AuthorSearchController;
 use App\Http\Controllers\Admin\CacheController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\ContactMessagesController;
@@ -88,3 +89,13 @@ Route::post('/dashboard/widgets', [DashboardController::class, 'saveWidgets'])
 
 Route::get('/about', [AboutController::class, 'index'])
     ->name('admin.about')->can('admin', 'App\Models\User');
+
+/*
+ * Yazi editorundeki "Yazar" alani icin sunucu tarafli arama (VERI ucu, JSON).
+ * GET: durum degistirmiyor; Inertia prefetch'i yalnizca <Link> uzerinde
+ * tetiklenir, axios cagrisini etkilemez.
+ */
+Route::get('/authors/search', AuthorSearchController::class)
+    ->can('createPost', 'App\Models\Post\Posts')
+    ->middleware('throttle:60,1')
+    ->name('admin.authors.search');

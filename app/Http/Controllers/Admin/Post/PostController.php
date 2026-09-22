@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Admin\Post;
 
 use App\Actions\CacheClear;
+use App\Http\Controllers\Admin\AuthorSearchController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Post\PostRequest;
 use App\Models\Post\Categories;
 use App\Models\Post\Comments;
 use App\Models\Post\Posts;
 use App\Models\User;
+use App\Support\Panel\Panel;
 use App\Support\Panel\PanelResponse;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
@@ -306,15 +308,20 @@ class PostController extends Controller
                     'language' => $category->language,
                 ])->values(),
                 /*
-                 * User::all() sinirsiz (bkz. B9). Davranisi degistirmemek icin
-                 * liste aynen doner, yalniz yuk azaltildi: tum model yerine
-                 * id + nickname.
+                 * Yazar listesi ARTIK GONDERILMIYOR.
+                 *
+                 * Eskiden tum kullanicilar sinirsiz bir liste olarak geliyordu
+                 * (B9) ve arama istemcide yalnizca takma adlar uzerinde
+                 * yapiliyordu. Arama artik sunucuda (`admin.authors.search`,
+                 * ad/soyad/takma ad, admin icin e-posta). Burada yalnizca SECILI
+                 * yazar gonderilir ki alan acilista dogru etiketi gostersin.
+                 *
+                 * Yeni yazida secili yazar giris yapan kullanicidir: save()
+                 * bos `user_id` gelirse zaten `auth()->id()`'ye dusuyor.
                  */
-                'users' => User::query()
-                    ->orderBy('nickname')
-                    ->get(['id', 'nickname'])
-                    ->map(fn (User $user) => ['id' => (string) $user->id, 'nickname' => $user->nickname])
-                    ->values(),
+                'authorSeed' => ($author = $post->user ?? auth()->user())
+                    ? [AuthorSearchController::option($author, auth()->user()->can('admin', User::class))]
+                    : [],
                 /*
                  * `languages` DEGIL, `languageOptions` - bkz. MenuController::index()
                  * `menuRecord`. Paylasilan `languages` prop'u (bayrakli ust bar dil
@@ -328,7 +335,9 @@ class PostController extends Controller
             [
                 'post' => $post,
                 'categories' => $categories,
-                'users' => User::all(),
+                // Yalnizca eski Blade yolu kullaniyor (PANEL_UI=blade). Vue modunda
+                // tum kullanici tablosunu bosuna yuklememek icin kosullu.
+                'users' => Panel::vueEnabled('Posts/Edit') ? collect() : User::all(),
                 'type' => $type,
             ],
         );

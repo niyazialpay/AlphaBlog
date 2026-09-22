@@ -26,7 +26,11 @@ const props = defineProps({
   type: { type: String, required: true },
   post: { type: Object, required: true },
   categories: { type: Array, default: () => [] },
-  users: { type: Array, default: () => [] },
+  /*
+   * Yalnizca SECILI yazar (tek eleman). Tum kullanici listesi artik
+   * gelmiyor; arama sunucuda (`admin.authors.search`).
+   */
+  authorSeed: { type: Array, default: () => [] },
   /*
    * `languages` DEGIL, `languageOptions` - bkz. Menu/Index.vue `menuRecord`.
    * Ayni adli sayfa prop'u, ust bar dil secicisinin okudugu paylasilan
@@ -104,7 +108,9 @@ const form = useForm({
   category_id: [...(props.post.category_ids || [])],
   meta_keywords: props.post.meta_keywords || '',
   meta_description: props.post.meta_description || '',
-  user_id: props.post.user_id || '',
+  // Yeni yazida secili yazar giris yapan kullanici (tohum); save() da bos
+  // gelirse zaten auth()->id()'ye dusuyor, burada yalnizca gorunur kiliniyor.
+  user_id: props.post.user_id || props.authorSeed[0]?.value || '',
   is_published: props.post.is_published ? 1 : 0,
   published_at: props.post.published_at,
   hreflang: { ...(props.post.hreflang || {}) },
@@ -120,6 +126,18 @@ const form = useForm({
  * göremiyordu (403 yetki, 419 oturum, 422 doğrulama, 500 sunucu — hepsi aynı).
  * HTML hata sayfaları toast'a basılmaz, yerine durum kodu gösterilir.
  */
+async function searchAuthors(q) {
+  try {
+    const { data } = await axios.get(route('admin.authors.search'), { params: { q } });
+
+    return data.data;
+  } catch (error) {
+    pushToast(serverMessage(error), 'error');
+
+    return [];
+  }
+}
+
 function serverMessage(error) {
   const response = error?.response;
   const data = response?.data;
@@ -571,15 +589,16 @@ function removeImage() {
         </div>
 
         <!--
-          Yazar alani ARANABILIR: sitede yuzlerce kullanici olabiliyor ve duz
-          bir <select> icinde isim aramak mumkun degil. Eski temada burada
-          select2 vardi; `SearchableSelect` onun jQuery'siz karsiligi.
+          Yazar alani SUNUCUDA aranir: ad, soyad, takma ad (admin icin
+          e-posta da). Eski temadaki select2'nin yerine `SearchableSelect`
+          uzak modda.
         -->
         <div>
           <label class="p-label">{{ __('post.author') }}</label>
           <SearchableSelect
             v-model="form.user_id"
-            :options="users.map((u) => ({ value: u.id, label: u.nickname }))"
+            :options="authorSeed"
+            :remote="searchAuthors"
             :placeholder="__('post.author')"
           />
           <div v-if="form.errors.user_id" class="mt-1.5 text-[11px] font-semibold text-p-danger">
