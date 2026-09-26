@@ -52,7 +52,12 @@
         npm paketine taşınırsa GPL lisans anahtarı, yüklü plugin seti ve mevcut
         görsel yükleme yolu bozulur.
     --}}
-    <script src="{{ config('app.url') }}/themes/panel/js/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
+    {{--
+        `?v=` ŞART: sunucu bu dosyayı `max-age=31536000, immutable` ile veriyor.
+        7.0 → 8.9 yükseltmesinde iPhone eski çekirdeği önbellekten çalıştırdı,
+        yeni eklentiler (`ui.registry.addContext`) patladı ve editör açılmadı.
+    --}}
+    <script src="{{ config('app.url') }}/themes/panel/js/tinymce/tinymce.min.js?v={{ filemtime(public_path('themes/panel/js/tinymce/tinymce.min.js')) }}" referrerpolicy="origin"></script>
 
     {{--
         Çeviri torbası: Inertia paylaşılan prop'u DEĞİL. Prop olsaydı her ziyarette

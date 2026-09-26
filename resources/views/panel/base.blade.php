@@ -243,7 +243,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
 <script src="{{config('app.url')}}/themes/panel/js/custom.js"></script>
-<script src="{{config('app.url')}}/themes/panel/js/tinymce/tinymce.min.js"></script>
+<script src="{{config('app.url')}}/themes/panel/js/tinymce/tinymce.min.js?v={{ filemtime(public_path('themes/panel/js/tinymce/tinymce.min.js')) }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>

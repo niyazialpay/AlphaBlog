@@ -155,6 +155,12 @@ function settings() {
     language: props.language,
     branding: false,
     license_key: 'gpl',
+    /*
+     * TinyMCE'nin kendi yukledigi eklenti/tema/skin dosyalarina surum eki.
+     * Sunucu hepsini `immutable` onbellekle veriyor; ek olmazsa bir sonraki
+     * yukseltmede tarayici eski eklentiyi yeni cekirdekle karistirir.
+     */
+    cache_suffix: `?v=${window.tinymce.majorVersion}.${window.tinymce.minorVersion}`,
     height: initialPixelHeight(),
     plugins: [
       'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor', 'pagebreak',
@@ -257,16 +263,15 @@ async function mount(content = props.modelValue) {
 
   try {
     /*
-     * iPhone'da (TinyMCE 8.9) editor HATA VERMEDEN gorunmez kalabiliyor:
-     * TinyMCE kabugu skin CSS'inin `<link onload>`'u gelene kadar
-     * `visibility: hidden` tutuyor. Skin yuklenmezse init() yine BASARIYLA
-     * donuyor; textarea gizli, kabuk gorunmez, alan dokunusa tepki vermiyor
-     * ve hic hata yok. Bu yuzden init degil, `SkinLoaded` beklenir; gelmezse
-     * yedek textarea'ya dusulur.
+     * Editor HATA VERMEDEN gorunmez kalabiliyor: iPhone onbellekten eski
+     * cekirdegi (7.0) calistirdi, yeni eklentiler init icinde patladi ve init
+     * promise'i hic sonuclanmadi; textarea gizli, alan dokunusa tepkisiz, mesaj
+     * yok. Ayrica skin yuklenmezse init BASARIYLA doner ama kabuk
+     * `visibility: hidden` kalir. Bu yuzden `SkinLoaded` + zaman asimi beklenir,
+     * olmazsa yedek textarea'ya dusulur ve sebep ekrana yazilir.
      */
     await Promise.race([
       (async () => {
-        await preloadSkins(panelTheme.value === 'dark');
         await window.tinymce.init(settings());
 
         editor = window.tinymce.get(el.value.id);
@@ -299,24 +304,6 @@ async function mount(content = props.modelValue) {
 }
 
 const INIT_TIMEOUT_MS = 15000;
-
-/*
- * Skin'ler `<link>` yerine SCRIPT olarak onceden yuklenir. TinyMCE, skin CSS'i
- * `tinymce.Resource` icinde bulursa (`skin.js` dosyalari tam olarak bunu
- * kaydeder) `<link>` kullanmaz, CSS'i dogrudan `<style>` olarak basar; boylece
- * iPhone'da takilan stylesheet yukleme yolu hic devreye girmez. Script yuklenemezse
- * hata yutulur ve TinyMCE kendi `<link>` yoluna doner.
- */
-function preloadSkins(dark) {
-  const skin = dark ? 'oxide-dark' : 'oxide';
-  const base = window.tinymce.baseURL;
-
-  return window.tinymce.ScriptLoader.loadScripts([
-    `${base}/skins/ui/${skin}/skin.js`,
-    `${base}/skins/ui/${skin}/content.js`,
-    `${base}/skins/content/${dark ? 'dark' : 'default'}/content.js`,
-  ]).catch(() => {});
-}
 
 function skinReady(instance) {
   if (instance._skinLoaded) {
