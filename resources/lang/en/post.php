@@ -145,4 +145,8 @@ return [
     'editor_unavailable' => 'The editor failed to load. Falling back to a plain text area.',
     'unsaved_changes_title' => 'You have unsaved changes',
     'unsaved_changes_body' => 'If you leave this page your changes will be lost. Do you want to continue?',
+    'bulk_delete' => 'Delete',
+    'bulk_delete_confirm' => ':count items will be moved to the trash. Do you want to continue?',
+    'bulk_delete_result' => ':deleted items deleted, :skipped skipped for lack of permission.',
+    'bulk_delete_none' => 'You are not allowed to delete any of the selected items.',
 ];

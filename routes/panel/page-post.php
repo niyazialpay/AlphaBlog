@@ -34,6 +34,9 @@ Route::post('/save/{post}', [PostController::class, 'save'])
     ->middleware([CheckPostType::class, MergePostTypeToRequest::class])
     ->can('edit', 'post');
 
+Route::post('/delete/bulk', [PostController::class, 'bulkDelete'])
+    ->name('admin.post.delete.bulk');
+
 Route::post('/{post}/delete', [PostController::class, 'delete'])
     ->name('admin.post.delete')
     ->can('delete', 'post');

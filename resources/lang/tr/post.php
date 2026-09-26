@@ -145,4 +145,8 @@ return [
     'editor_unavailable' => 'Metin editörü yüklenemedi. Düz metin alanına geçildi.',
     'unsaved_changes_title' => 'Kaydedilmemiş değişiklikler var',
     'unsaved_changes_body' => 'Sayfadan ayrılırsanız yaptığınız değişiklikler kaybolacak. Devam etmek istiyor musunuz?',
+    'bulk_delete' => 'Sil',
+    'bulk_delete_confirm' => ':count içerik çöp kutusuna taşınacak. Devam etmek istiyor musunuz?',
+    'bulk_delete_result' => ':deleted içerik silindi, yetki olmadığı için :skipped içerik atlandı.',
+    'bulk_delete_none' => 'Seçilen içeriklerin hiçbirini silme yetkiniz yok.',
 ];

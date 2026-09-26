@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Post;
 use App\Actions\CacheClear;
 use App\Http\Controllers\Admin\AuthorSearchController;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\BulkDeletePostsRequest;
 use App\Http\Requests\Post\PostRequest;
 use App\Models\Post\Categories;
 use App\Models\Post\Comments;
@@ -436,6 +437,39 @@ class PostController extends Controller
 
             return back()->with('error', $exception->getMessage());
         }
+    }
+
+    public function bulkDelete(BulkDeletePostsRequest $request, string $type): RedirectResponse
+    {
+        if (! in_array($type, ['pages', 'blogs'], true)) {
+            abort(404);
+        }
+
+        $posts = Posts::query()->whereIn('id', $request->validated('post_ids'))->get();
+        $deletable = $posts->filter(fn (Posts $post): bool => $request->user()->can('delete', $post));
+        $skipped = $posts->count() - $deletable->count();
+
+        if ($deletable->isEmpty()) {
+            return back()->with('error', __('post.bulk_delete_none'));
+        }
+
+        try {
+            DB::transaction(function () use ($deletable): void {
+                $ids = $deletable->modelKeys();
+
+                $deletable->each->delete();
+                Comments::query()->whereIn('post_id', $ids)->delete();
+            });
+        } catch (Throwable $exception) {
+            return back()->with('error', $exception->getMessage());
+        }
+
+        CacheClear::cacheClear();
+
+        return back()->with('success', __('post.bulk_delete_result', [
+            'deleted' => $deletable->count(),
+            'skipped' => $skipped,
+        ]));
     }
 
     public function forceDelete($type, Posts $post): RedirectResponse

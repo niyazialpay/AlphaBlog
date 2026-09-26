@@ -240,23 +240,124 @@ async function mount(content = props.modelValue) {
     return;
   }
 
-  try {
-    await window.tinymce.init(settings());
-    editor = window.tinymce.get(el.value.id);
+  /*
+   * Yuklenemeyen kaynaklar (tema/eklenti/dil script'i, skin CSS) `error`
+   * olayini yalnizca CAPTURE fazinda verir; teshis icin toplanir.
+   */
+  const loadErrors = [];
+  const collectError = (event) => {
+    const source = event.target?.src || event.target?.href;
+    loadErrors.push(source ? `load:${source.split('/tinymce/').pop()}` : String(event.message || event.reason || event));
+  };
 
-    // init hata firlatmadan editor kurmayabiliyor: bos ekran yerine yedege dus.
-    if (!editor) {
-      throw new Error('TinyMCE init returned no editor');
-    }
+  window.addEventListener('error', collectError, true);
+  window.addEventListener('unhandledrejection', collectError);
+
+  let initTimer;
+
+  try {
+    /*
+     * iPhone'da (TinyMCE 8.9) editor HATA VERMEDEN gorunmez kalabiliyor:
+     * TinyMCE kabugu skin CSS'inin `<link onload>`'u gelene kadar
+     * `visibility: hidden` tutuyor. Skin yuklenmezse init() yine BASARIYLA
+     * donuyor; textarea gizli, kabuk gorunmez, alan dokunusa tepki vermiyor
+     * ve hic hata yok. Bu yuzden init degil, `SkinLoaded` beklenir; gelmezse
+     * yedek textarea'ya dusulur.
+     */
+    await Promise.race([
+      (async () => {
+        await preloadSkins(panelTheme.value === 'dark');
+        await window.tinymce.init(settings());
+
+        editor = window.tinymce.get(el.value.id);
+
+        // init hata firlatmadan editor kurmayabiliyor: bos ekran yerine yedege dus.
+        if (!editor) {
+          throw new Error('no editor');
+        }
+
+        await skinReady(editor);
+      })(),
+      new Promise((_, reject) => {
+        initTimer = setTimeout(() => reject(new Error('timeout')), INIT_TIMEOUT_MS);
+      }),
+    ]);
 
     failed.value = false;
     emit('ready', editor.getContent());
   } catch (error) {
     failed.value = true;
     // eslint-disable-next-line no-console
-    console.error('TinyMCE init hatasi', error);
-    pushToast(__('post.editor_unavailable'), 'error', 8000);
+    console.error('TinyMCE init hatasi', error, loadErrors);
+    fallBackToTextarea();
+    pushToast(`${__('post.editor_unavailable')} [${diagnose(error, loadErrors)}]`, 'error', 30000);
+  } finally {
+    clearTimeout(initTimer);
+    window.removeEventListener('error', collectError, true);
+    window.removeEventListener('unhandledrejection', collectError);
   }
+}
+
+const INIT_TIMEOUT_MS = 15000;
+
+/*
+ * Skin'ler `<link>` yerine SCRIPT olarak onceden yuklenir. TinyMCE, skin CSS'i
+ * `tinymce.Resource` icinde bulursa (`skin.js` dosyalari tam olarak bunu
+ * kaydeder) `<link>` kullanmaz, CSS'i dogrudan `<style>` olarak basar; boylece
+ * iPhone'da takilan stylesheet yukleme yolu hic devreye girmez. Script yuklenemezse
+ * hata yutulur ve TinyMCE kendi `<link>` yoluna doner.
+ */
+function preloadSkins(dark) {
+  const skin = dark ? 'oxide-dark' : 'oxide';
+  const base = window.tinymce.baseURL;
+
+  return window.tinymce.ScriptLoader.loadScripts([
+    `${base}/skins/ui/${skin}/skin.js`,
+    `${base}/skins/ui/${skin}/content.js`,
+    `${base}/skins/content/${dark ? 'dark' : 'default'}/content.js`,
+  ]).catch(() => {});
+}
+
+function skinReady(instance) {
+  if (instance._skinLoaded) {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve, reject) => {
+    instance.once('SkinLoaded', resolve);
+    instance.once('SkinLoadError', (event) => reject(new Error(event?.message || 'skin')));
+  });
+}
+
+/** Askida kalan kurulumu soker ve TinyMCE'nin gizledigi textarea'yi geri acar. */
+function fallBackToTextarea() {
+  try {
+    window.tinymce?.get(el.value.id)?.remove();
+  } catch {
+    // Yarim kurulmus editor remove'da firlatabilir; asagida elle temizlenir.
+  }
+
+  wrap.value?.querySelectorAll('.tox-tinymce, .tox-tinymce-aux').forEach((node) => node.remove());
+  editor = null;
+  el.value.style.display = '';
+  el.value.removeAttribute('aria-hidden');
+}
+
+/** Gercek cihazda konsol olmadan sebebi gorebilmek icin kisa durum ozeti. */
+function diagnose(error, loadErrors) {
+  const shell = wrap.value?.querySelector('.tox-tinymce');
+  const iframe = wrap.value?.querySelector('iframe');
+
+  const instance = window.tinymce?.get(el.value.id);
+
+  return [
+    `v${window.tinymce?.majorVersion}.${window.tinymce?.minorVersion}`,
+    error?.message || String(error),
+    instance ? `init:${instance.initialized}/skin:${Boolean(instance._skinLoaded)}` : 'editor:none',
+    shell ? `tox:${getComputedStyle(shell).visibility}/${Math.round(shell.getBoundingClientRect().height)}` : 'tox:none',
+    iframe ? `iframe:${iframe.contentDocument?.readyState ?? 'x'}` : 'iframe:none',
+    ...loadErrors.slice(0, 4),
+  ].join(' | ');
 }
 function destroy() {
   editor?.remove();

@@ -200,6 +200,29 @@ async function bulkIndex() {
   }
 }
 
+/*
+ * Form eylemi (R1): sunucu `back()->with(...)` doner, flash toast'u kabuk basar.
+ * Yetkisi olmayan satirlari sunucu atlar ve sayisini mesajda bildirir.
+ */
+async function bulkDestroy() {
+  const ids = [...selected.value];
+
+  if (!ids.length || !(await confirm.value.ask({ body: __('post.bulk_delete_confirm', { count: ids.length }) }))) {
+    return;
+  }
+
+  router.post(
+    route('admin.post.delete.bulk', { type: props.type }),
+    { post_ids: ids },
+    {
+      preserveScroll: true,
+      onSuccess: () => {
+        selected.value = new Set();
+      },
+    },
+  );
+}
+
 async function destroy(row) {
   if (!(await confirm.value.ask({ body: __('general.you_wont_be_able_to_revert_this') }))) {
     return;
@@ -277,6 +300,15 @@ const list = computed(() => (tab.value === 'trashed' ? props.trashed : props.row
       >
         <i class="fa-brands fa-google text-[11px]"></i>
         {{ __('post.send_to_google') }} ({{ selected.size }})
+      </button>
+
+      <button
+        v-if="selected.size && tab !== 'trashed'"
+        class="p-btn hover:!border-p-danger hover:!text-p-danger"
+        @click="bulkDestroy"
+      >
+        <i class="fa-solid fa-trash text-[11px]"></i>
+        {{ __('post.bulk_delete') }} ({{ selected.size }})
       </button>
 
       <div class="flex-1"></div>

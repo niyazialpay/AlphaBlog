@@ -616,6 +616,13 @@
             "can:delete,post"
         ]
     },
+    "admin.post.delete.bulk": {
+        "uri": "admin/{type}/delete/bulk",
+        "methods": [
+            "POST"
+        ],
+        "gates": []
+    },
     "admin.post.delete.permanent": {
         "uri": "admin/{type}/{post}/delete/permanent",
         "methods": [
