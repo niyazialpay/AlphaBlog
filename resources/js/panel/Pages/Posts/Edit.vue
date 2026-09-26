@@ -426,7 +426,11 @@ function submit() {
     .post(url, { forceFormData: true, preserveScroll: true });
 }
 
-function removeImage() {
+async function removeImage() {
+  if (!(await confirm.value.ask({ body: __('post.delete_image') }))) {
+    return;
+  }
+
   if (!postId.value) {
     imageFile.value = null;
     form.image = null;
@@ -550,8 +554,15 @@ function removeImage() {
           : 'hidden xl:sticky xl:top-[58px] xl:block xl:max-h-[calc(100dvh_-_58px)] xl:self-start'
       "
     >
-      <div class="flex items-center gap-2 pb-3">
+      <!-- Aside kendi icinde kaydigi icin baslik + kaydet butonu ust kenara yapisir. -->
+      <div
+        class="sticky -top-[18px] z-10 -mx-[18px] -mt-[18px] flex items-center gap-2 border-b border-p-line2 bg-p-panel px-[18px] pb-3 pt-[18px] mb-3"
+      >
         <div class="flex-1 font-display text-[13.5px] font-bold">{{ __('general.settings') }}</div>
+        <button class="p-btn-primary justify-center" :disabled="form.processing" @click="submit">
+          <i class="fa-solid fa-floppy-disk text-xs"></i>
+          {{ postId ? __('general.update') : __('general.create') }}
+        </button>
         <button class="p-icon-btn xl:hidden" @click="drawerOpen = false">
           <i class="fa-solid fa-xmark"></i>
         </button>
