@@ -143,4 +143,6 @@ return [
     'index_code' => 'Kod',
     'index_message' => 'Mesaj',
     'editor_unavailable' => 'Metin editörü yüklenemedi. Düz metin alanına geçildi.',
+    'unsaved_changes_title' => 'Kaydedilmemiş değişiklikler var',
+    'unsaved_changes_body' => 'Sayfadan ayrılırsanız yaptığınız değişiklikler kaybolacak. Devam etmek istiyor musunuz?',
 ];

@@ -39,7 +39,7 @@ const props = defineProps({
   /** Yükleme isteğine eklenecek ek alanlar (title, slug, meta_keywords, language) */
   uploadMeta: { type: Function, default: () => ({}) },
 });
-const emit = defineEmits(['update:modelValue', 'ai', 'uploaded']);
+const emit = defineEmits(['update:modelValue', 'ai', 'uploaded', 'ready']);
 
 const el = ref(null);
 const wrap = ref(null);
@@ -188,7 +188,7 @@ function settings() {
       toolbar: 'undo | bold italic | link | image | font size select forecolor',
       menubar: false,
       height: 400,
-      plugins: ['autosave', 'lists', 'autolink', 'code', 'fullscreen'],
+      plugins: ['autosave', 'lists', 'autolink', 'code', 'fullscreen', 'wordcount'],
     },
     setup(ed) {
       ed.on('Change KeyUp Undo Redo', () => emit('update:modelValue', ed.getContent()));
@@ -221,8 +221,17 @@ function settings() {
  */
 const failed = ref(false);
 
-async function mount() {
+async function mount(content = props.modelValue) {
   measure();
+
+  /*
+   * Icerik init'ten ONCE textarea'ya yazilir, sonradan `setContent` ile degil.
+   * `wordcount` eklentisi dinleyicilerini init'ten sonra `setTimeout(0)` ile
+   * bagliyor; init'in hemen ardindan yapilan `setContent` o dinleyicilere
+   * ulasmiyor ve sayac ilk tusa kadar "0 kelime" kaliyordu. Yedek textarea da
+   * bu sayede bos degil, icerikle acilir.
+   */
+  el.value.value = content || '';
 
   if (typeof window.tinymce === 'undefined') {
     failed.value = true;
@@ -234,8 +243,14 @@ async function mount() {
   try {
     await window.tinymce.init(settings());
     editor = window.tinymce.get(el.value.id);
-    editor?.setContent(props.modelValue || '');
+
+    // init hata firlatmadan editor kurmayabiliyor: bos ekran yerine yedege dus.
+    if (!editor) {
+      throw new Error('TinyMCE init returned no editor');
+    }
+
     failed.value = false;
+    emit('ready', editor.getContent());
   } catch (error) {
     failed.value = true;
     // eslint-disable-next-line no-console
@@ -265,8 +280,7 @@ onBeforeUnmount(() => {
 watch(panelTheme, async () => {
   const content = editor ? editor.getContent() : props.modelValue;
   destroy();
-  await mount();
-  editor?.setContent(content || '');
+  await mount(content);
 });
 
 watch(() => props.modelValue, (v) => {

@@ -143,4 +143,6 @@ return [
     'index_code' => 'Code',
     'index_message' => 'Message',
     'editor_unavailable' => 'The editor failed to load. Falling back to a plain text area.',
+    'unsaved_changes_title' => 'You have unsaved changes',
+    'unsaved_changes_body' => 'If you leave this page your changes will be lost. Do you want to continue?',
 ];

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { router, useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import { __ } from '../../composables/useLang';
@@ -116,6 +116,111 @@ const form = useForm({
   hreflang: { ...(props.post.hreflang || {}) },
   hreflang_url: { ...(props.post.hreflang || {}) },
   image: null,
+});
+
+/*
+ * KAYDEDILMEMIS DEGISIKLIK KORUMASI
+ *
+ * "Degisti mi" sorusu olay sayarak degil, mevcut degeri acilistaki anlik
+ * goruntuyle KIYASLAYARAK cevaplanir: bir harf yazip Ctrl+Z ile geri alinan
+ * form yeniden temiz sayilir.
+ *
+ * Icerik ayri tutulur: TinyMCE HTML'i normalize ediyor (KeyUp'ta ok tusu bile
+ * `getContent()` yayiyor), ham DB icerigiyle kiyas hic degismeden kirli derdi.
+ * Taban, editorun kendi ilk ciktisi (`ready`) ile degistirilir.
+ *
+ * `id` haric: ilk gorsel yuklemesinde sunucu taslak id'sini yaziyor, bu
+ * kullanicinin degil sistemin degisikligi (icerik zaten degismis olur).
+ */
+function formSnapshot() {
+  const { id, image, content, ...rest } = form.data();
+
+  return JSON.stringify({ ...rest, category_id: [...rest.category_id].map(String).sort() });
+}
+
+const cleanSnapshot = ref(formSnapshot());
+const cleanContent = ref(form.content);
+let editorBaselineTaken = false;
+
+const isDirty = computed(
+  () =>
+    form.image !== null ||
+    form.content !== cleanContent.value ||
+    formSnapshot() !== cleanSnapshot.value,
+);
+
+function onEditorReady(normalizedContent) {
+  // Tema degisiminde editor yeniden kurulup tekrar `ready` yayar; taban bir kez alinir.
+  if (editorBaselineTaken) {
+    return;
+  }
+
+  editorBaselineTaken = true;
+
+  if (form.content === cleanContent.value) {
+    form.content = normalizedContent;
+  }
+
+  cleanContent.value = normalizedContent;
+}
+
+function markClean() {
+  cleanSnapshot.value = formSnapshot();
+  cleanContent.value = form.content;
+}
+
+let leaveConfirmed = false;
+
+/*
+ * Inertia ziyaretleri (ust bardaki "Yeni", menu, breadcrumb). Onay penceresi
+ * asenkron oldugu icin ziyaret once iptal edilir, onaylanirsa yeniden baslatilir.
+ * Yalnizca sayfadan AYRILAN GET ziyaretleri: form gonderimi, kismi yenilemeler
+ * (`only`) ve hover prefetch'i sorgulanmaz.
+ *
+ * Tarayici geri/ileri tusu Inertia'da `before` olayi uretmez; kapsam disi.
+ */
+const removeLeaveGuard = router.on('before', (event) => {
+  const visit = event.detail.visit;
+
+  if (
+    leaveConfirmed ||
+    !isDirty.value ||
+    visit.method !== 'get' ||
+    visit.prefetch ||
+    visit.only?.length ||
+    visit.except?.length
+  ) {
+    return;
+  }
+
+  event.preventDefault();
+
+  confirm.value
+    .ask({
+      title: __('post.unsaved_changes_title'),
+      body: __('post.unsaved_changes_body'),
+    })
+    .then((leave) => {
+      if (leave) {
+        leaveConfirmed = true;
+        router.visit(visit.url);
+      }
+    });
+});
+
+// Sekme kapatma, yenileme ve tam sayfa yuklenen (Inertia olmayan) baglantilar.
+function onBeforeUnload(event) {
+  if (!leaveConfirmed && isDirty.value) {
+    event.preventDefault();
+    event.returnValue = '';
+  }
+}
+
+window.addEventListener('beforeunload', onBeforeUnload);
+
+onBeforeUnmount(() => {
+  removeLeaveGuard();
+  window.removeEventListener('beforeunload', onBeforeUnload);
 });
 
 /**
@@ -423,7 +528,7 @@ function submit() {
 
   form
     .transform((data) => ({ ...data, id: postId.value || '' }))
-    .post(url, { forceFormData: true, preserveScroll: true });
+    .post(url, { forceFormData: true, preserveScroll: true, onSuccess: () => markClean() });
 }
 
 async function removeImage() {
@@ -528,6 +633,7 @@ async function removeImage() {
         :ai-enabled="$page.props.aiEnabled"
         :upload-meta="uploadMeta"
         @uploaded="onUploaded"
+        @ready="onEditorReady"
       />
       <div v-if="form.errors.content" class="text-[11px] font-semibold text-p-danger">
         {{ form.errors.content }}
