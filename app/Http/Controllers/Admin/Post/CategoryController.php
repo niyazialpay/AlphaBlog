@@ -106,7 +106,7 @@ class CategoryController extends Controller
         ];
     }
 
-    public function store(CategoryRequest $request, Categories $category): RedirectResponse
+    public function store(CategoryRequest $request, Categories $category): RedirectResponse|JsonResponse
     {
         try {
             DB::beginTransaction();
@@ -138,16 +138,31 @@ class CategoryController extends Controller
             if ($category->save()) {
                 DB::commit();
 
+                if ($request->wantsJson()) {
+                    return response()->json([
+                        'message' => $message,
+                        'category' => [
+                            'id' => (string) $category->id,
+                            'name' => $category->name,
+                            'language' => $category->language,
+                        ],
+                    ]);
+                }
+
                 return back()->with('success', $message);
             }
 
             DB::rollBack();
 
-            return back()->with('error', __('categories.error'));
+            return $request->wantsJson()
+                ? response()->json(['message' => __('categories.error')], 500)
+                : back()->with('error', __('categories.error'));
         } catch (Throwable $exception) {
             DB::rollBack();
 
-            return back()->with('error', $exception->getMessage());
+            return $request->wantsJson()
+                ? response()->json(['message' => $exception->getMessage()], 500)
+                : back()->with('error', $exception->getMessage());
         }
     }
 

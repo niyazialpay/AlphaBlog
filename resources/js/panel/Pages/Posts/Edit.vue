@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import { router, useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import { __ } from '../../composables/useLang';
@@ -10,6 +10,7 @@ import FormField from '../../components/FormField.vue';
 import MultiSelect from '../../components/MultiSelect.vue';
 import SearchableSelect from '../../components/SearchableSelect.vue';
 import ConfirmDialog from '../../components/ConfirmDialog.vue';
+import Modal from '../../components/Modal.vue';
 
 /*
  * panel/post/add-edit.blade.php karşılığı.
@@ -38,6 +39,9 @@ const props = defineProps({
    */
   languageOptions: { type: Array, default: () => [] },
   sessionLanguage: { type: String, default: null },
+  canCreateCategory: { type: Boolean, default: false },
+  /* Bos dizi = yazar ekleme yetkisi yok (yalnizca admin/owner). */
+  authorRoles: { type: Array, default: () => [] },
 });
 
 const isPages = computed(() => props.type === 'pages');
@@ -424,6 +428,154 @@ watch(
   },
 );
 
+/** Laravel 422 `errors` sozlugunu alan basina ilk mesaja indirger. */
+function firstErrors(error) {
+  const errors = error?.response?.status === 422 ? error.response.data?.errors : null;
+
+  if (!errors) {
+    pushToast(serverMessage(error), 'error');
+
+    return {};
+  }
+
+  return Object.fromEntries(Object.entries(errors).map(([key, messages]) => [key, messages[0]]));
+}
+
+/*
+ * HIZLI KATEGORI EKLEME (modal). Kategori sayfasina gitmeden ayni uca
+ * (`admin.categories` POST) JSON ister. Ust kategori listesi modalda secilen
+ * DILE gore gelir; eklenen kategori yazinin dilindeyse listeye girer ve
+ * secilir.
+ */
+const categoryModal = ref(false);
+const categoryBusy = ref(false);
+const categoryErrors = ref({});
+const categoryParents = ref([]);
+const categoryDraft = reactive({ name: '', slug: '', language: '', parent_id: '' });
+let parentRequest = 0;
+
+async function loadCategoryParents() {
+  const token = ++parentRequest;
+
+  categoryDraft.parent_id = '';
+  categoryParents.value = [];
+
+  try {
+    const { data } = await axios.post(route('admin.categories.list'), {
+      language: categoryDraft.language,
+    });
+
+    if (token === parentRequest) {
+      categoryParents.value = (Array.isArray(data) ? data : []).map((item) => ({
+        value: String(item.id),
+        label: item.name,
+      }));
+    }
+  } catch (error) {
+    if (token === parentRequest) {
+      pushToast(serverMessage(error), 'error');
+    }
+  }
+}
+
+watch(
+  () => categoryDraft.language,
+  (code) => categoryModal.value && code && loadCategoryParents(),
+);
+
+function openCategoryModal() {
+  Object.assign(categoryDraft, { name: '', slug: '', language: form.language, parent_id: '' });
+  categoryErrors.value = {};
+  categoryModal.value = true;
+  loadCategoryParents();
+}
+
+function onCategoryNameInput(event) {
+  categoryDraft.name = event.target.value;
+  categoryDraft.slug = toSeoUrl(categoryDraft.name);
+}
+
+async function saveCategory() {
+  if (categoryBusy.value) {
+    return;
+  }
+
+  categoryBusy.value = true;
+  categoryErrors.value = {};
+
+  try {
+    const { data } = await axios.post(route('admin.categories'), {
+      ...categoryDraft,
+      parent_id: categoryDraft.parent_id || null,
+    });
+    const created = data.category;
+
+    if (created.language === form.language) {
+      categoryOptions.value = [...categoryOptions.value, { value: created.id, label: categoryLabel(created) }];
+      form.category_id = [...form.category_id, created.id];
+    }
+
+    pushToast(data.message, 'success');
+    categoryModal.value = false;
+  } catch (error) {
+    categoryErrors.value = firstErrors(error);
+  } finally {
+    categoryBusy.value = false;
+  }
+}
+
+/*
+ * HIZLI YAZAR EKLEME (modal) — `admin.user.create` ucuna JSON. Yazar listesi
+ * sunucuda arandigi icin yeni kayit secenek tohumuna eklenip secilir.
+ */
+const authorOptions = ref([...props.authorSeed]);
+const authorModal = ref(false);
+const authorBusy = ref(false);
+const authorErrors = ref({});
+const authorDraft = reactive({});
+
+function openAuthorModal() {
+  Object.assign(authorDraft, {
+    name: '',
+    surname: '',
+    nickname: '',
+    username: '',
+    email: '',
+    role: props.authorRoles.includes('author') ? 'author' : props.authorRoles[0],
+    password: '',
+    password_confirmation: '',
+  });
+  authorErrors.value = {};
+  authorModal.value = true;
+}
+
+async function saveAuthor() {
+  if (authorBusy.value) {
+    return;
+  }
+
+  authorBusy.value = true;
+  authorErrors.value = {};
+
+  try {
+    const { data } = await axios.post(route('admin.user.create'), { ...authorDraft });
+
+    authorOptions.value = [...authorOptions.value, data.option];
+    form.user_id = data.option.value;
+    pushToast(data.message, 'success');
+
+    if (data.warning) {
+      pushToast(data.warning, 'warning', 8000);
+    }
+
+    authorModal.value = false;
+  } catch (error) {
+    authorErrors.value = firstErrors(error);
+  } finally {
+    authorBusy.value = false;
+  }
+}
+
 /*
  * QR kod paneli — add-edit.blade.php:224-248 + 670-748 karşılığı.
  * Eski ekran QR'ı CDN'den yüklenen qrcodejs ile çiziyordu; yeni bağımlılık
@@ -526,9 +678,26 @@ function submit() {
     ? route('admin.post.update', { type: props.type, post: postId.value })
     : route('admin.post.save', { type: props.type });
 
+  /*
+   * Inertia v2 POST'ta state'i varsayilan olarak KORUR. Yeni yazi kaydinda
+   * sunucu duzenleme adresine yonlendiriyor; state korunursa `postId` null,
+   * buton "Ekle" ve kirli-form tabani eski kaliyordu. Yanit BASKA bir kaydi
+   * tasiyorsa (create -> edit) sayfa yeni prop'larla temiz kurulur; hata ya
+   * da ayni kaydin guncellemesi state'i korur (yazilan icerik kaybolmaz).
+   */
   form
     .transform((data) => ({ ...data, id: postId.value || '' }))
-    .post(url, { forceFormData: true, preserveScroll: true, onSuccess: () => markClean() });
+    .post(url, {
+      forceFormData: true,
+      preserveScroll: true,
+      preserveState: (response) => response.props.post?.id === props.post.id,
+      onSuccess: () => {
+        imageFile.value = null;
+        form.image = null;
+        imagePreview.value = props.post.image;
+        markClean();
+      },
+    });
 }
 
 async function removeImage() {
@@ -694,7 +863,17 @@ async function removeImage() {
         />
 
         <div v-if="!isPages">
-          <label class="p-label">{{ __('categories.categories') }}</label>
+          <div class="mb-1.5 flex items-center gap-2">
+            <label class="p-label !mb-0 flex-1">{{ __('categories.categories') }}</label>
+            <button
+              v-if="canCreateCategory"
+              type="button"
+              class="p-btn !h-6 !px-2 !text-[11px]"
+              @click="openCategoryModal"
+            >
+              <i class="fa-solid fa-plus text-[10px]"></i> {{ __('categories.create') }}
+            </button>
+          </div>
           <MultiSelect
             v-model="form.category_id"
             :options="categoryOptions"
@@ -711,10 +890,20 @@ async function removeImage() {
           uzak modda.
         -->
         <div>
-          <label class="p-label">{{ __('post.author') }}</label>
+          <div class="mb-1.5 flex items-center gap-2">
+            <label class="p-label !mb-0 flex-1">{{ __('post.author') }}</label>
+            <button
+              v-if="authorRoles.length"
+              type="button"
+              class="p-btn !h-6 !px-2 !text-[11px]"
+              @click="openAuthorModal"
+            >
+              <i class="fa-solid fa-plus text-[10px]"></i> {{ __('post.add_author') }}
+            </button>
+          </div>
           <SearchableSelect
             v-model="form.user_id"
-            :options="authorSeed"
+            :options="authorOptions"
             :remote="searchAuthors"
             :placeholder="__('post.author')"
           />
@@ -862,5 +1051,75 @@ async function removeImage() {
     </button>
 
     <ConfirmDialog ref="confirm" />
+
+    <Modal v-model:open="categoryModal" :title="__('categories.create')" icon="fa-solid fa-folder-plus">
+      <div class="flex flex-col gap-3">
+        <div>
+          <label class="p-label">{{ __('categories.name') }}</label>
+          <input :value="categoryDraft.name" class="p-input" @input="onCategoryNameInput" />
+          <div v-if="categoryErrors.name" class="mt-1.5 text-[11px] font-semibold text-p-danger">
+            {{ categoryErrors.name }}
+          </div>
+        </div>
+        <FormField v-model="categoryDraft.slug" :label="__('categories.slug')" :error="categoryErrors.slug" />
+        <FormField
+          v-model="categoryDraft.language"
+          type="select"
+          :label="__('language.language')"
+          :error="categoryErrors.language"
+          :options="languageOptions.map((l) => ({ value: l.code, label: l.name }))"
+        />
+        <FormField
+          v-model="categoryDraft.parent_id"
+          type="select"
+          :label="__('categories.parent_category')"
+          :error="categoryErrors.parent_id"
+          :options="[{ value: '', label: '—' }, ...categoryParents]"
+        />
+      </div>
+
+      <template #footer>
+        <button class="p-btn" @click="categoryModal = false">{{ __('general.cancel') }}</button>
+        <button class="p-btn-primary" :disabled="categoryBusy" @click="saveCategory">
+          <i class="fa-solid fa-floppy-disk text-xs"></i> {{ __('general.save') }}
+        </button>
+      </template>
+    </Modal>
+
+    <Modal v-model:open="authorModal" :title="__('post.add_author')" icon="fa-solid fa-user-plus" width="640px">
+      <div class="grid gap-3 sm:grid-cols-2">
+        <FormField v-model="authorDraft.name" :label="__('user.name')" :error="authorErrors.name" />
+        <FormField v-model="authorDraft.surname" :label="__('user.surname')" :error="authorErrors.surname" />
+        <FormField v-model="authorDraft.nickname" :label="__('user.nickname')" :error="authorErrors.nickname" />
+        <FormField v-model="authorDraft.username" :label="__('user.username')" :error="authorErrors.username" />
+        <FormField v-model="authorDraft.email" type="email" :label="__('user.email')" :error="authorErrors.email" />
+        <FormField
+          v-model="authorDraft.role"
+          type="select"
+          :label="__('user.role')"
+          :error="authorErrors.role"
+          :options="authorRoles.map((role) => ({ value: role, label: role }))"
+        />
+        <FormField
+          v-model="authorDraft.password"
+          type="password"
+          :label="__('user.password')"
+          :error="authorErrors.password"
+        />
+        <FormField
+          v-model="authorDraft.password_confirmation"
+          type="password"
+          :label="__('user.password_confirmation')"
+          :error="authorErrors.password_confirmation"
+        />
+      </div>
+
+      <template #footer>
+        <button class="p-btn" @click="authorModal = false">{{ __('general.cancel') }}</button>
+        <button class="p-btn-primary" :disabled="authorBusy" @click="saveAuthor">
+          <i class="fa-solid fa-user-plus text-xs"></i> {{ __('general.create') }}
+        </button>
+      </template>
+    </Modal>
   </div>
 </template>

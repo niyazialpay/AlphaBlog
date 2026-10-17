@@ -294,14 +294,25 @@ class UserController extends Controller
     /**
      * @return array<string, int>
      */
-    private function roleRanks(): array
+    private static function roleRanks(): array
     {
         return ['user' => 0, 'author' => 1, 'editor' => 2, 'admin' => 3, 'owner' => 4];
     }
 
-    private function canAssignRole(User $actor, string $targetRole): bool
+    /**
+     * @return list<string>
+     */
+    public static function assignableRoles(User $actor): array
     {
-        $ranks = $this->roleRanks();
+        return array_values(array_filter(
+            array_keys(self::roleRanks()),
+            fn (string $role) => self::canAssignRole($actor, $role),
+        ));
+    }
+
+    private static function canAssignRole(User $actor, string $targetRole): bool
+    {
+        $ranks = self::roleRanks();
         if (! array_key_exists($targetRole, $ranks)) {
             return false;
         }
@@ -327,10 +338,12 @@ class UserController extends Controller
         );
     }
 
-    public function store(UserCreateRequest $request, User $user): RedirectResponse
+    public function store(UserCreateRequest $request, User $user): RedirectResponse|JsonResponse
     {
         if (! $this->canAssignRole(auth()->user(), (string) $request->role)) {
-            return back()->with('error', __('profile.save_error'));
+            return $request->wantsJson()
+                ? response()->json(['message' => __('profile.save_error')], 403)
+                : back()->with('error', __('profile.save_error'));
         }
 
         try {
@@ -354,13 +367,23 @@ class UserController extends Controller
                 ? __('user.email_verification_failed')
                 : null;
 
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'message' => __('profile.save_success'),
+                    'warning' => $warning,
+                    'option' => AuthorSearchController::option($user, true),
+                ]);
+            }
+
             return to_route('admin.users')
                 ->with('success', __('profile.save_success'))
                 ->with('warning', $warning);
         } catch (Exception $e) {
             DB::rollBack();
 
-            return back()->with('error', __('profile.save_error'));
+            return $request->wantsJson()
+                ? response()->json(['message' => __('profile.save_error')], 500)
+                : back()->with('error', __('profile.save_error'));
         }
     }
 

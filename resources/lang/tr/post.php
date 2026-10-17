@@ -53,6 +53,7 @@ return [
     'status_passive' => 'Pasif',
     'is_published' => 'Yayınlanma Durumu',
     'author' => 'Yazar',
+    'add_author' => 'Yazar Ekle',
     'published_at' => 'Yayınlanma Tarihi',
     'draft' => 'Taslak',
     'no_posts_found' => 'İçerik bulunamadı',

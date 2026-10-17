@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Post;
 
 use App\Actions\CacheClear;
 use App\Http\Controllers\Admin\AuthorSearchController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BulkDeletePostsRequest;
 use App\Http\Requests\Post\PostRequest;
@@ -281,6 +282,10 @@ class PostController extends Controller
                     ->map(fn ($language) => ['code' => $language->code, 'name' => $language->name])
                     ->values(),
                 'sessionLanguage' => session('language'),
+                'canCreateCategory' => auth()->user()->can('category', Categories::class),
+                'authorRoles' => auth()->user()->can('admin', User::class)
+                    ? UserController::assignableRoles(auth()->user())
+                    : [],
             ],
             [
                 'post' => $post,

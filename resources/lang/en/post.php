@@ -53,6 +53,7 @@ return [
     'status_passive' => 'Passive',
     'is_published' => 'Publish Status',
     'author' => 'Author',
+    'add_author' => 'Add Author',
     'published_at' => 'Published At',
     'draft' => 'Draft',
     'no_posts_found' => 'No content found',
