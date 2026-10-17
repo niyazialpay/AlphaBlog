@@ -547,11 +547,8 @@ function openAuthorModal() {
     password_confirmation: '',
   });
   authorErrors.value = {};
-  showAuthorPassword.value = false;
   authorModal.value = true;
 }
-
-const showAuthorPassword = ref(false);
 
 /*
  * crypto.getRandomValues + ret ornekleme (modulo yanliligi yok). Karisabilen
@@ -578,13 +575,13 @@ async function fillGeneratedPassword() {
 
   authorDraft.password = password;
   authorDraft.password_confirmation = password;
-  showAuthorPassword.value = true;
 
   try {
     await navigator.clipboard.writeText(password);
     pushToast(__('user.password_generated'), 'success');
   } catch {
-    // Pano izni yoksa parola alanda gorunur kalir; kullanici elle kopyalar.
+    // Alan `password` tipinde; pano izni yoksa parola bir kez bildirimde gosterilir.
+    pushToast(password, 'info', 8000);
   }
 }
 
@@ -1146,13 +1143,13 @@ async function removeImage() {
         </div>
         <FormField
           v-model="authorDraft.password"
-          :type="showAuthorPassword ? 'text' : 'password'"
+          type="password"
           :label="__('user.password')"
           :error="authorErrors.password"
         />
         <FormField
           v-model="authorDraft.password_confirmation"
-          :type="showAuthorPassword ? 'text' : 'password'"
+          type="password"
           :label="__('user.password_confirmation')"
           :error="authorErrors.password_confirmation"
         />
