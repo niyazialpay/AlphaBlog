@@ -4,6 +4,7 @@ import { router, useForm } from '@inertiajs/vue3';
 import axios from 'axios';
 import Webpass from '@laragear/webpass';
 import { __ } from '../../composables/useLang';
+import { roleLabel, roleOptions } from '../../composables/useRoles';
 import { usePageHeader } from '../../composables/usePageHeader';
 import { formatDateTime } from '../../composables/useFormat';
 import { pushToast } from '../../composables/useToast';
@@ -473,7 +474,7 @@ function deleteAvatar() {
       <div class="min-w-0 flex-1">
         <div class="font-display text-[16px] font-extrabold">{{ profile.nickname }}</div>
         <div class="text-[12px] text-p-ink3">{{ profile.email }}</div>
-        <span class="p-chip mt-1.5 inline-block capitalize">{{ profile.role }}</span>
+        <span class="p-chip mt-1.5 inline-block capitalize">{{ roleLabel(profile.role) }}</span>
       </div>
       <div class="flex gap-2">
         <label class="p-btn cursor-pointer">
@@ -513,7 +514,7 @@ function deleteAvatar() {
           type="select"
           :label="__('user.role')"
           :error="aboutForm.errors.role"
-          :options="assignableRoles.map((role) => ({ value: role, label: role }))"
+          :options="roleOptions(assignableRoles)"
         />
         <FormField v-model="aboutForm.about" type="textarea" :label="__('profile.about_text')" full />
       </div>

@@ -1,6 +1,7 @@
 <script setup>
 import { useForm } from '@inertiajs/vue3';
 import { __ } from '../../composables/useLang';
+import { roleOptions } from '../../composables/useRoles';
 import { usePageHeader } from '../../composables/usePageHeader';
 import FormField from '../../components/FormField.vue';
 
@@ -66,7 +67,7 @@ function submit() {
           type="select"
           :label="__('user.role')"
           :error="form.errors.role"
-          :options="assignableRoles.map((role) => ({ value: role, label: role }))"
+          :options="roleOptions(assignableRoles)"
         />
         <FormField
           v-model="form.password"

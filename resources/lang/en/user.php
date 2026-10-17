@@ -8,6 +8,8 @@ return [
     'email' => 'Email',
     'password' => 'Password',
     'password_confirmation' => 'Confirm Password',
+    'generate_password' => 'Generate Password',
+    'password_generated' => 'Password generated and copied to clipboard',
     'username' => 'Username',
     'nickname' => 'Nickname',
     'login' => 'Log In',
@@ -41,6 +43,7 @@ return [
 
     'change_password' => 'Change Password',
     'role' => 'Role',
+    'role_owner' => 'Owner',
     'role_admin' => 'Admin',
     'role_user' => 'User',
     'role_author' => 'Author',

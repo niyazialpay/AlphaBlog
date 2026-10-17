@@ -8,6 +8,8 @@ return [
     'email' => 'E-posta',
     'password' => 'Parola',
     'password_confirmation' => 'Parola Tekrarı',
+    'generate_password' => 'Parola Oluştur',
+    'password_generated' => 'Parola oluşturuldu ve panoya kopyalandı',
     'username' => 'Kullanıcı Adı',
     'nickname' => 'Takma Ad',
     'login' => 'Giriş Yap',
@@ -41,6 +43,7 @@ return [
 
     'change_password' => 'Parola Değiştir',
     'role' => 'Rol',
+    'role_owner' => 'Sahip',
     'role_admin' => 'Yönetici',
     'role_user' => 'Kullanıcı',
     'role_author' => 'Yazar',

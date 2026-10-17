@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { __ } from '../../composables/useLang';
+import { roleLabel } from '../../composables/useRoles';
 import { usePageHeader } from '../../composables/usePageHeader';
 import { formatDateTime } from '../../composables/useFormat';
 import ConfirmDialog from '../../components/ConfirmDialog.vue';
@@ -142,7 +143,7 @@ const ROLE_STYLE = {
               </td>
               <td class="px-3.5 py-2.5 text-p-ink2">{{ user.email }}</td>
               <td class="px-3.5 py-2.5">
-                <span class="p-chip capitalize" :class="ROLE_STYLE[user.role]">{{ user.role }}</span>
+                <span class="p-chip capitalize" :class="ROLE_STYLE[user.role]">{{ roleLabel(user.role) }}</span>
               </td>
               <td class="whitespace-nowrap px-3.5 py-2.5 tabular-nums text-p-ink3">
                 {{ formatDateTime(user.createdAt) }}

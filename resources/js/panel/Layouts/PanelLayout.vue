@@ -4,6 +4,7 @@ import { router, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import { useTheme } from '../composables/useTheme';
 import { __ } from '../composables/useLang';
+import { roleLabel } from '../composables/useRoles';
 import CommandPalette from '../components/CommandPalette.vue';
 import NotificationBell from '../components/NotificationBell.vue';
 import FlashToast from '../components/FlashToast.vue';
@@ -335,7 +336,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey));
             <div class="truncate text-[12.5px] font-semibold text-p-ink">
               {{ $page.props.auth.user?.nickname }}
             </div>
-            <div class="text-[11px] capitalize text-p-ink3">{{ $page.props.auth.user?.role }}</div>
+            <div class="text-[11px] capitalize text-p-ink3">{{ roleLabel($page.props.auth.user?.role) }}</div>
           </div>
         </Link>
         <!--

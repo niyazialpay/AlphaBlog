@@ -11,6 +11,7 @@ import MultiSelect from '../../components/MultiSelect.vue';
 import SearchableSelect from '../../components/SearchableSelect.vue';
 import ConfirmDialog from '../../components/ConfirmDialog.vue';
 import Modal from '../../components/Modal.vue';
+import { roleOptions } from '../../composables/useRoles';
 
 /*
  * panel/post/add-edit.blade.php karşılığı.
@@ -546,7 +547,45 @@ function openAuthorModal() {
     password_confirmation: '',
   });
   authorErrors.value = {};
+  showAuthorPassword.value = false;
   authorModal.value = true;
+}
+
+const showAuthorPassword = ref(false);
+
+/*
+ * crypto.getRandomValues + ret ornekleme (modulo yanliligi yok). Karisabilen
+ * karakterler (0/O, 1/l/I) cikarildi; uzunluk kuralin (min:12) cok ustunde.
+ */
+function generatePassword(length = 20) {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*-_=+';
+  const limit = 256 - (256 % chars.length);
+  let password = '';
+
+  while (password.length < length) {
+    for (const byte of crypto.getRandomValues(new Uint8Array(length))) {
+      if (byte < limit && password.length < length) {
+        password += chars[byte % chars.length];
+      }
+    }
+  }
+
+  return password;
+}
+
+async function fillGeneratedPassword() {
+  const password = generatePassword();
+
+  authorDraft.password = password;
+  authorDraft.password_confirmation = password;
+  showAuthorPassword.value = true;
+
+  try {
+    await navigator.clipboard.writeText(password);
+    pushToast(__('user.password_generated'), 'success');
+  } catch {
+    // Pano izni yoksa parola alanda gorunur kalir; kullanici elle kopyalar.
+  }
 }
 
 async function saveAuthor() {
@@ -1098,17 +1137,22 @@ async function removeImage() {
           type="select"
           :label="__('user.role')"
           :error="authorErrors.role"
-          :options="authorRoles.map((role) => ({ value: role, label: role }))"
+          :options="roleOptions(authorRoles)"
         />
+        <div class="flex justify-end sm:col-span-2">
+          <button type="button" class="p-btn !h-7 !px-2 !text-[11px]" @click="fillGeneratedPassword">
+            <i class="fa-solid fa-key text-[10px]"></i> {{ __('user.generate_password') }}
+          </button>
+        </div>
         <FormField
           v-model="authorDraft.password"
-          type="password"
+          :type="showAuthorPassword ? 'text' : 'password'"
           :label="__('user.password')"
           :error="authorErrors.password"
         />
         <FormField
           v-model="authorDraft.password_confirmation"
-          type="password"
+          :type="showAuthorPassword ? 'text' : 'password'"
           :label="__('user.password_confirmation')"
           :error="authorErrors.password_confirmation"
         />
