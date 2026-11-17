@@ -295,7 +295,11 @@ function onKeydown(event) {
               <span v-if="message.model" class="ml-1">· {{ message.model }}</span>
             </div>
             <!-- Kaynak escapeHtml'den geçiyor; marked yalnız kaçırılmış metni ayrıştırıyor. -->
-            <div class="prose prose-sm max-w-none dark:prose-invert" v-html="render(message)"></div>
+            <div
+              class="prose prose-sm max-w-none dark:prose-invert"
+              :class="{ 'prose-invert text-white': message.role === 'user' }"
+              v-html="render(message)"
+            ></div>
           </div>
         </div>
 
