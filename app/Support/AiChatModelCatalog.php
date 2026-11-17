@@ -30,7 +30,7 @@ class AiChatModelCatalog
 
             $providers[$providerName] = [
                 'key' => $providerName,
-                'label' => Str::headline($providerName),
+                'label' => config("ai.providers.{$providerName}.label") ?? Str::headline($providerName),
                 'default_model' => $provider->defaultTextModel(),
                 'models' => $models,
             ];

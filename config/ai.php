@@ -2,7 +2,7 @@
 
 return [
 
-    'default' => 'openai',
+    'default' => env('AI_DEFAULT_PROVIDER', 'openai'),
     'default_for_images' => 'gemini',
     'default_for_audio' => 'openai',
     'default_for_transcription' => 'openai',
@@ -26,7 +26,15 @@ return [
     'providers' => [
         'anthropic' => [
             'driver' => 'anthropic',
+            'label' => 'Anthropic (Claude)',
             'key' => env('ANTHROPIC_API_KEY'),
+            'models' => [
+                'text' => [
+                    'default' => env('ANTHROPIC_MODEL_DEFAULT', 'claude-sonnet-5-5'),
+                    'cheapest' => env('ANTHROPIC_MODEL_CHEAPEST', 'claude-haiku-5-5'),
+                    'smartest' => env('ANTHROPIC_MODEL_SMARTEST', 'claude-opus-5-5'),
+                ],
+            ],
         ],
 
         'cohere' => [
