@@ -23,7 +23,7 @@ class FirewallController extends Controller
 
     public function index(): SymfonyResponse
     {
-        $firewall = Firewall::query()->firstOrFail();
+        $firewall = $this->resolveFirewall();
         $filters = IPFilter::query()->get();
 
         return PanelResponse::render(
@@ -48,7 +48,7 @@ class FirewallController extends Controller
 
     public function save(FirewallSettingsRequest $request): RedirectResponse
     {
-        $firewall = Firewall::query()->firstOrFail();
+        $firewall = $this->resolveFirewall();
         $validated = $request->validated();
 
         if (! $request->boolean('ai_review_enabled')) {
@@ -168,7 +168,7 @@ class FirewallController extends Controller
 
     public function whitelist(Request $request): RedirectResponse
     {
-        $firewall = Firewall::query()->firstOrFail();
+        $firewall = $this->resolveFirewall();
 
         IPList::updateOrCreate(
             [
@@ -188,5 +188,27 @@ class FirewallController extends Controller
         IPList::where('ip', $request->ip)->delete();
 
         return back()->with('success', __('general.deleted'));
+    }
+
+    protected function resolveFirewall(): Firewall
+    {
+        $firewall = Firewall::query()->first();
+
+        if ($firewall) {
+            return $firewall;
+        }
+
+        $blacklist = IPFilter::query()->where('list_type', 'blacklist')->first()
+            ?? IPFilter::query()->create([
+                'name' => 'Firewall Blacklist',
+                'list_type' => 'blacklist',
+                'route_type' => 'manuel',
+                'is_active' => true,
+            ]);
+
+        return Firewall::query()->create([
+            'is_active' => false,
+            'blacklist_rule_id' => $blacklist->id,
+        ]);
     }
 }
